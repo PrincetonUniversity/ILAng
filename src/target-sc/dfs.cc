@@ -374,14 +374,8 @@ void IlaSim::dfs_extract_op(stringstream& dfs_simulator, string& indent,
                   : "";
   declare_variable_with_id(id, out_type_str, out_str);
   if (qemu_device_) {
-    int cast_length = param0 - param1 + 1;
-    if (cast_length >= 64)
-      cout << "Error" << endl;
-    uint64_t mask = 1;
-    mask = (mask << cast_length) - 1;
     dfs_simulator << indent << out_str << " = static_cast<uint" << (cast_length)
-                  << "_t> ((" << arg_str << " >> " << param1 << ") & " << mask
-                  << ");" << endl;
+                  << "_t> (" << arg_str << " >> " << param1 << ");" << endl;
   } else {
     dfs_simulator << indent << out_str << " = " << arg_str << ".range("
                   << param0 << ", " << param1 << ");" << endl;
