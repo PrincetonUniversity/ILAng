@@ -21,6 +21,8 @@ subrange i1 (in1,r1);
 subrange #( W2*2 ) i2 (in1, r2 );
 // call by name
 subrange #( .W(W2) ) i3 (.in(in1), .out(r2) );
+// call by name
+subrange #( .W3(W2) ) i4 (.in(in1), .out(r2) );
 
 endmodule
 
@@ -28,11 +30,15 @@ endmodule
 module subrange(in,out);
 
 parameter W = 2;
+parameter W3 = W*3;
 
 input [W-1:0] in;
 output [W-1:0] out;
 
 wire [W-1:0] sig;
+
+wire [W3-1:0] a;
+
 
 
 endmodule

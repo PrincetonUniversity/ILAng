@@ -100,7 +100,6 @@ configure_file(
   IMMEDIATE @ONLY
 )
 
-
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 
 add_custom_target(run_test
@@ -117,7 +116,7 @@ add_test(
     ExampleCMakeBuild
   COMMAND
     "${CMAKE_CTEST_COMMAND}"
-      --build-and-test  "${PROJECT_SOURCE_DIR}/boilerplate"
+      --build-and-test  "${PROJECT_SOURCE_DIR}/starter"
                         "${CMAKE_CURRENT_BINARY_DIR}/simple"
       --build-generator "${CMAKE_GENERATOR}"
       --test-command    "${CMAKE_CTEST_COMMAND}"

@@ -60,25 +60,25 @@ void IlaSim::sim_gen_init_header() {
 }
 
 void IlaSim::sim_gen_input() {
-  for (int i = 0; i < model_ptr_->input_num(); i++) {
+  for (unsigned int i = 0; i < model_ptr_->input_num(); i++) {
     create_input(model_ptr_->input(i));
   }
 }
 
 void IlaSim::sim_gen_state() {
   std::queue<InstrLvlAbsPtr> child_ila_queue;
-  for (int i = 0; i < model_ptr_->state_num(); i++)
+  for (unsigned int i = 0; i < model_ptr_->state_num(); i++)
     create_state(model_ptr_->state(i));
 
-  for (int i = 0; i < model_ptr_->child_num(); i++)
+  for (unsigned int i = 0; i < model_ptr_->child_num(); i++)
     child_ila_queue.push(model_ptr_->child(i));
 
   while (!child_ila_queue.empty()) {
     auto current_ila = child_ila_queue.front();
     child_ila_queue.pop();
-    for (int i = 0; i < current_ila->state_num(); i++)
+    for (unsigned int i = 0; i < current_ila->state_num(); i++)
       create_child_state(current_ila->state(i));
-    for (int i = 0; i < current_ila->child_num(); i++)
+    for (unsigned int i = 0; i < current_ila->child_num(); i++)
       child_ila_queue.push(current_ila->child(i));
   }
 }
@@ -91,11 +91,11 @@ void IlaSim::sim_gen_decode() {
     auto current_ila = ila_queue.front();
     ila_queue.pop();
     ILA_INFO << "current_ila_name:" << current_ila->name();
-    for (int i = 0; i < current_ila->child_num(); i++) {
+    for (unsigned int i = 0; i < current_ila->child_num(); i++) {
       ILA_INFO << "current_ila_child:" << current_ila->child(i)->name();
       ila_queue.push(current_ila->child(i));
     }
-    for (int i = 0; i < current_ila->instr_num(); i++) {
+    for (unsigned int i = 0; i < current_ila->instr_num(); i++) {
       ILA_INFO << "current_ila_instr:" << current_ila->instr(i)->name();
       create_decode(current_ila->instr(i));
     }
@@ -110,10 +110,10 @@ void IlaSim::sim_gen_state_update() {
   while (!ila_queue.empty()) {
     auto current_ila = ila_queue.front();
     ila_queue.pop();
-    for (int i = 0; i < current_ila->child_num(); i++) {
+    for (unsigned int i = 0; i < current_ila->child_num(); i++) {
       ila_queue.push(current_ila->child(i));
     }
-    for (int i = 0; i < current_ila->instr_num(); i++) {
+    for (unsigned int i = 0; i < current_ila->instr_num(); i++) {
       create_state_update(current_ila->instr(i));
     }
   }
@@ -156,7 +156,7 @@ void IlaSim::sim_gen_execute_invoke() {
   increase_indent(header_indent_);
   header_ << header_indent_ << "SC_METHOD(compute);" << endl;
   header_ << header_indent_ << "sensitive";
-  for (int i = 0; i < model_ptr_->input_num(); i++) {
+  for (unsigned int i = 0; i < model_ptr_->input_num(); i++) {
     header_ << " << " << model_ptr_->name() << "_"
             << model_ptr_->input(i)->name() << "_in";
   }
