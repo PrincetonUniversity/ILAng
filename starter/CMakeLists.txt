@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.8)
 # PROJECT
 # name version language
 # ---------------------------------------------------------------------------- #
-project(simple VERSION 1.0 LANGUAGES CXX)
+project(starter VERSION 1.0 LANGUAGES CXX)
 
 # ---------------------------------------------------------------------------- #
 # VARIABLE

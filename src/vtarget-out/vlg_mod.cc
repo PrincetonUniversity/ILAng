@@ -1,11 +1,13 @@
 /// \file Source for Verilog Modifier
 
+#include <ilang/vtarget-out/vlg_mod.h>
+
 #include <algorithm>
 #include <fstream>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/vlg_mod.h>
 
 namespace ilang {
 
@@ -46,7 +48,7 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
   while (std::getline(fin, line)) {
 
     // keeps
-    while (keep_vec_it != keep_info.end() and
+    while (keep_vec_it != keep_info.end() &&
            lineno == std::get<0>(*keep_vec_it)) {
       // process it
       auto vname = std::get<1>(*keep_vec_it);
@@ -62,7 +64,7 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
       keep_vec_it++;
     }
     // todo: check other issues
-    while (assign_vec_it != assign_info.end() and
+    while (assign_vec_it != assign_info.end() &&
            lineno == std::get<0>(*assign_vec_it)) {
       auto vname = std::get<1>(*assign_vec_it);
       auto width = std::get<2>(*assign_vec_it);
@@ -71,7 +73,7 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
       assign_vec_it++;
     }
 
-    while (mod_decl_vec_it != mod_decl_info.end() and
+    while (mod_decl_vec_it != mod_decl_info.end() &&
            lineno >= std::get<0>(*mod_decl_vec_it)) {
       auto vname = std::get<1>(*mod_decl_vec_it);
       auto width = std::get<2>(*mod_decl_vec_it);
@@ -84,7 +86,7 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
       // else we will stop handle it and carry this to the next line
     }
 
-    while (mod_inst_vec_it != mod_inst_info.end() and
+    while (mod_inst_vec_it != mod_inst_info.end() &&
            lineno >= std::get<0>(*mod_inst_vec_it)) {
       auto vname = std::get<1>(*mod_inst_vec_it);
       auto width = std::get<2>(*mod_inst_vec_it);
@@ -185,8 +187,8 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
     return line_in;
   }
 
-  if (std::string::npos == line_in.find('(') and
-      std::string::npos == line_in.find(')') and
+  if (std::string::npos == line_in.find('(') &&
+      std::string::npos == line_in.find(')') &&
       std::string::npos != line_in.find(';')) {
     // we are dealing with something like output a;
     auto defl = Split(line_in, ";");

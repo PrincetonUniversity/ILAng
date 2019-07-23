@@ -20,11 +20,8 @@ TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
 TEST(TestVerilogAnalysis, BaseFuncNoError) {
   auto fn = std::string(ILANG_TEST_SRC_ROOT) +
             "/unit-data/verilog_sample/t_ana_inst.v";
-  std::FILE* fp = std::fopen(fn.c_str(), "r");
 
-  EXPECT_EQ(TestParseVerilogFrom(fp), 0);
-
-  std::fclose(fp);
+  EXPECT_EQ(TestParseVerilogFrom(fn), 0);
 }
 
 TEST(TestVerilogAnalysis, Init) {
@@ -136,7 +133,7 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r34", 8);
     IS_WIDTH("r44", 8);
   } // end of test2
-
+  
   { // test 3 -- parameters
     VerilogInfo va(
         VerilogInfo::path_vec_t(
@@ -148,6 +145,24 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r1", 2);
     IS_WIDTH("r2", 6);
   } // end of test3
+
+  { // test 4 -- parameter and instantiation
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(
+            {std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/"}),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/range4.v"}),
+        "m1");
+
+    IS_WIDTH("i1.sig", 2);
+    IS_WIDTH("i1.a", 6);
+    IS_WIDTH("i2.sig", 10);
+    IS_WIDTH("i2.a", 30);
+    IS_WIDTH("i3.sig", 5);
+    IS_WIDTH("i3.a", 15);
+    IS_WIDTH("i4.sig", 2);
+    IS_WIDTH("i4.a", 5);
+  } // end of test4
 }
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
