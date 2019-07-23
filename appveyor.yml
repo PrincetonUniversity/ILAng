@@ -6,27 +6,9 @@ build_script:
 - sh: >-
     sudo apt update
 
-    sudo DEBIAN_FRONTEND=noninteractive apt install --yes bison libboost-all-dev
+    sudo DEBIAN_FRONTEND=noninteractive apt install --yes bison libboost-all-dev z3 libz3-dev
 
     sudo apt install --yes flex
-
-
-    # z3
-
-    cd $HOME
-
-    git clone https://github.com/Z3Prover/z3.git
-
-    cd z3
-
-    python scripts/mk_make.py
-
-    cd build
-
-    make -j$(nproc)
-
-    sudo make install
-
 
     # ILAng
 

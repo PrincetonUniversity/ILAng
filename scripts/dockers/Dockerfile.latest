@@ -53,7 +53,7 @@ WORKDIR /root/workspace
 
 # configure
 COPY --from=builder $BUILD_PREF $BUILD_PREF
-COPY --from=builder $BUILD_ROOT/ILAng/boilerplate/ ./simple/
+COPY --from=builder $BUILD_ROOT/ILAng/starter/ ./simple/
 
 # done
 CMD echo "run 'source init.sh' to start" && /bin/bash
