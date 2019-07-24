@@ -47,7 +47,6 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
   unit-src/util.cc
-  unit-src/validate_aes_model.cc
   t_api.cc
   t_case_aes_eq.cc
   t_crr.cc
