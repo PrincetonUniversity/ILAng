@@ -1,9 +1,10 @@
-#include "z3++.h"
+#include <ilang/ila/validate_model.h>
+
 #include <ilang/util/log.h>
-#include <ilang/util/validate_model.h>
+#include "z3++.h"
 
 namespace ilang {
-bool deterministic_check(const InstrLvlAbsPtr& model_ptr) {
+bool CheckDeterminism(const InstrLvlAbsPtr& model_ptr) {
   if (model_ptr->instr_num() < 2) {
     return true;
   }
@@ -30,7 +31,7 @@ bool deterministic_check(const InstrLvlAbsPtr& model_ptr) {
   return true;
 }
 
-bool complete_check(const InstrLvlAbsPtr& model_ptr) {
+bool CheckCompleteness(const InstrLvlAbsPtr& model_ptr) {
   z3::context ctx;
   z3::solver sol(ctx);
   Z3ExprAdapter z3_adapter(ctx);
@@ -54,8 +55,7 @@ bool complete_check(const InstrLvlAbsPtr& model_ptr) {
   return true;
 }
 
-void complete_model(const InstrLvlAbsPtr& model_ptr,
-                    DEFAULT_UPDATE_METHOD dum) {
+void CompleteModel(const InstrLvlAbsPtr& model_ptr, DEFAULT_UPDATE_METHOD dum) {
   auto or_decode = ExprFuse::BoolConst(false);
   for (int i = 0; i < model_ptr->instr_num(); i++) {
     or_decode = (ExprFuse::Or(or_decode, model_ptr->instr(i)->decode()));
