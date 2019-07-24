@@ -1,0 +1,140 @@
+trigger:
+- master
+
+pr:
+- master
+
+# File: azure-pipelines.yml
+
+jobs:
+- job: macOS_High_Sierra
+  pool:
+    vmImage: 'macOS-10.13'
+  steps:
+  - script: |
+      brew update
+      brew install bison
+      brew install boost
+      brew install boost-python
+      brew install z3
+    displayName: 'package'
+  - script: | 
+      cmake --version
+      z3 --version
+    displayName: 'printout'
+  - script: |
+      export PATH="/usr/local/opt/bison/bin:$PATH"
+      export LDFLAGS="-L/usr/local/opt/bison/lib"
+      mkdir -p build 
+      cd build
+      cmake ..
+      cmake --build .
+      cmake --build . --target install 
+      cmake --build . --target test
+    displayName: 'build'
+
+- job: macOS_Mojave
+  pool:
+    vmImage: 'macOS-10.14'
+  steps:
+  - script: |
+      brew update
+      brew install bison
+      brew install boost
+      brew install boost-python
+      brew install z3
+    displayName: 'package'
+  - script: | 
+      cmake --version
+      z3 --version
+    displayName: 'printout'
+  - script: |
+      export PATH="/usr/local/opt/bison/bin:$PATH"
+      export LDFLAGS="-L/usr/local/opt/bison/lib"
+      mkdir -p build 
+      cd build
+      cmake ..
+      cmake --build .
+      cmake --build . --target install 
+      cmake --build . --target test
+    displayName: 'build'
+
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install bison
+      sudo apt-get install flex
+      sudo apt-get install libboost-all-dev
+      sudo apt-get install z3
+      sudo apt-get install libz3-dev
+    displayName: 'package'
+  - script: |
+      mkdir -p build 
+      cd build
+      cmake ..
+      cmake --build .
+      sudo cmake --build . --target install 
+      cmake --build . --target test
+    displayName: 'build'
+
+- job: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - script: |
+      choco install winflexbison3
+      choco install wget
+      git submodule update --init --recursive
+    displayName: 'package'
+
+  - script: |
+      wget https://github.com/Z3Prover/z3/releases/download/Z3-4.8.5/z3-4.8.5-x86-win.zip
+      unzip z3-4.8.5-x86-win.zip
+      move z3-4.8.5-x86-win z3
+    displayName: 'z3'
+
+  - script: |
+      cd extern 
+      cd glog
+      md build 
+      cd build
+      cmake .. 
+      cmake --build . --target install
+    displayName: 'glog'
+
+  - script: |
+      cd extern 
+      cd json
+      md build 
+      cd build
+      cmake .. -DJSON_BuildTests=OFF
+      cmake --build . --target install
+    displayName: 'json'
+
+  - script: |
+      cd extern 
+      cd vlog-parser
+      md build 
+      cd build
+      cmake .. 
+      cmake --build . --target install
+    displayName: 'vlog-parser'
+
+  - script: |
+      md build
+      cd build
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
+      cmake --build .
+      cmake --build . --target install
+    displayName: 'build'
+
+  - script: |
+      cd starter
+      md build
+      cd build
+      cmake .. -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
+      cmake --build . 
+    displayName: 'starter'

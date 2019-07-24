@@ -25,32 +25,22 @@
     {
       "instruction": "NOP",
       "ready signal": [],  
-      "ready bound": 1,
-
-      "flush constraint": [],
-      "pre-flush end":[],
-      "post-flush end":[]
+      "ready bound": 1
     },
     {
       "instruction": "ADD",
       "ready signal": [],  
-      "ready bound": 1,
-
-      "flush constraint": []
+      "ready bound": 1
     },
     {
       "instruction": "SUB",
       "ready signal": [],  
-      "ready bound": 1,
-
-      "flush constraint": []
+      "ready bound": 1
     },
     {
       "instruction": "AND",
       "ready signal": [],
-      "ready bound": 1,
-
-      "flush constraint": []
+      "ready bound": 1
     }
   ]
 }

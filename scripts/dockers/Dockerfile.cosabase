@@ -41,9 +41,8 @@ RUN virtualenv $VIRT_ENV
 # Yosys
 ENV YOSYS_DIR $BUILD_ROOT/yosys
 WORKDIR $BUILD_ROOT
-RUN wget https://github.com/cliffordwolf/yosys/archive/yosys-0.8.tar.gz
-RUN mkdir -p $YOSYS_DIR 
-RUN tar zxvf yosys-0.8.tar.gz -C $YOSYS_DIR --strip-components 1
+ADD https://api.github.com/repos/cliffordwolf/yosys/git/refs/heads/master yosys_version.json
+RUN git clone https://github.com/YosysHQ/yosys.git $YOSYS_DIR
 WORKDIR $YOSYS_DIR 
 RUN make config-gcc && \
     make -j"$(nproc)" && \
