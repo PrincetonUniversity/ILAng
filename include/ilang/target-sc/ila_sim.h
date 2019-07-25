@@ -14,9 +14,6 @@
 
 #define EXTERNAL_MEM 0
 
-// FIXME do not use "using namespace std", especially in headers
-using namespace std;
-
 namespace ilang {
 
 // TODO(yuex): change id to instruction name for decode&state_update function

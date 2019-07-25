@@ -60,27 +60,27 @@ void IlaSim::mem_state_update_decl(stringstream &state_update_function,
         defined_store_ite_set_.insert(expr->name().id());
 
         header_ << header_indent_ << "void ite_" << id
-                << "(std::map<int, int>& mem_update_map);" << endl;
+                << "(std::map<int, int>& mem_update_map);" << std::endl;
         state_update_function
             << indent << "void " << model_ptr_->name() << "::ite_" << id
-            << "(std::map<int, int>& mem_update_map) {" << endl;
+            << "(std::map<int, int>& mem_update_map) {" << std::endl;
         increase_indent(indent);
         auto cond_arg = expr->arg(0);
         cond_arg->DepthFirstVisit(DfsKernel);
         auto cond_str = get_arg_str(cond_arg);
-        state_update_function << indent << "if (" << cond_str << ") {" << endl;
+        state_update_function << indent << "if (" << cond_str << ") {" << std::endl;
         increase_indent(indent);
         auto true_arg = expr->arg(1);
         true_arg->DepthFirstVisit(DfsKernel);
         decrease_indent(indent);
-        state_update_function << indent << "} else {" << endl;
+        state_update_function << indent << "} else {" << std::endl;
         increase_indent(indent);
         auto false_arg = expr->arg(2);
         false_arg->DepthFirstVisit(DfsKernel);
         decrease_indent(indent);
-        state_update_function << indent << "}" << endl;
+        state_update_function << indent << "}" << std::endl;
         decrease_indent(indent);
-        state_update_function << indent << "};" << endl;
+        state_update_function << indent << "};" << std::endl;
       }
     }
   }
@@ -98,14 +98,14 @@ void IlaSim::state_update_export(stringstream &state_update_function,
 void IlaSim::state_update_mk_file(string& state_update_func_name) {
   if (qemu_device_)
     mk_script_ << "g++ -I./ -c -o " << state_update_func_name << ".o "
-               << state_update_func_name << ".cc" << endl;
+               << state_update_func_name << ".cc" << std::endl;
   else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
                << "-c -o " << state_update_func_name << ".o "
                << state_update_func_name << ".cc "
-               << "-lsystemc" << endl;
+               << "-lsystemc" << std::endl;
   obj_list_ << state_update_func_name << ".o ";
 }
 
@@ -115,9 +115,9 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
                                string &state_update_func_name) {
   searched_id_set_.clear();
   if (!qemu_device_)
-    state_update_function << indent << "#include \"systemc.h\"" << endl;
+    state_update_function << indent << "#include \"systemc.h\"" << std::endl;
   state_update_function << indent << "#include \"" << model_ptr_->name()
-                        << ".h\"" << endl;
+                        << ".h\"" << std::endl;
   if (updated_state->is_mem()) {
     auto MemStateUpdateDecl = [this, &state_update_function,
                                &indent](const ExprPtr &e) {
@@ -142,7 +142,7 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
       (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
   state_update_function << indent << return_type << model_ptr_->name()
                         << "::" << state_update_func_name << arg_list << " {"
-                        << endl;
+                        << std::endl;
   increase_indent(indent);
   string pre_dfs =
       (updated_state->is_mem()) ? indent + "mem_update_map.clear();\n" : "";
@@ -150,14 +150,14 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
 
   if (updated_state->is_mem())
     header_ << header_indent_ << "std::map<int, int> " << state_update_func_name
-            << "_map;" << endl;
+            << "_map;" << std::endl;
 
   header_ << header_indent_ << return_type << state_update_func_name << arg_list
-          << ";" << endl;
+          << ";" << std::endl;
 
   if ((updated_state->is_mem()) && (EXTERNAL_MEM_)) {
     header_ << header_indent_ << "int " << state_update_func_name << "_iter"
-            << endl;
+            << std::endl;
     auto mem_map_str = state_update_func_name;
     auto mem_str =
         updated_state->host()->name().str() + "_" + updated_state->name().str();
@@ -187,9 +187,9 @@ void IlaSim::state_update_return(stringstream &state_update_function,
       return_str = "";
   }
   if (!updated_state->is_mem())
-    state_update_function << indent << "return " << return_str << ";" << endl;
+    state_update_function << indent << "return " << return_str << ";" << std::endl;
   decrease_indent(indent);
-  state_update_function << indent << "};" << endl;
+  state_update_function << indent << "};" << std::endl;
 }
 
 }; // namespace ilang

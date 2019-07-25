@@ -55,7 +55,7 @@ bool IlaSim::load_from_store_analysis(const ExprPtr& expr) {
 void IlaSim::declare_variable_with_id(size_t id, string v_type, string v_name) {
   if (declared_id_set_.find(id) == declared_id_set_.end()) {
     declared_id_set_.insert(id);
-    header_ << header_indent_ << v_type << v_name << ";" << endl;
+    header_ << header_indent_ << v_type << v_name << ";" << std::endl;
   }
 }
 

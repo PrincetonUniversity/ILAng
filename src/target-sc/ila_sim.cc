@@ -14,11 +14,11 @@ void IlaSim::set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr) {
   model_ptr_ = model_ptr;
 }
 
-void IlaSim::set_systemc_path(string systemc_path) {
+void IlaSim::set_systemc_path(std::string systemc_path) {
   systemc_path_ = systemc_path;
 }
 
-void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable,
+void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
                      bool qemu_device) {
   sim_gen_init(export_dir, external_mem, readable, qemu_device);
   sim_gen_init_header();
@@ -32,7 +32,7 @@ void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable,
   sim_gen_export();
 }
 
-void IlaSim::sim_gen_init(string export_dir, bool external_mem, bool readable,
+void IlaSim::sim_gen_init(std::string export_dir, bool external_mem, bool readable,
                           bool qemu_device) {
   header_.str("");
   mk_script_.str("");
@@ -64,9 +64,9 @@ void IlaSim::sim_gen_init_header() {
     increase_indent(header_indent_);
   } else {
     header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>"
-            << endl;
+            << std::endl;
     header_ << header_indent_ << "using namespace boost::multiprecision;"
-            << endl;
+            << std::endl;
     int_var_width_scan();
     for (auto int_width = int_var_width_set_.begin();
          int_width != int_var_width_set_.end(); int_width++) {
@@ -77,9 +77,9 @@ void IlaSim::sim_gen_init_header() {
       header_ << header_indent_ << "typedef number<cpp_int_backend<"
               << *int_width << ", " << *int_width
               << ", unsigned_magnitude, unchecked, void> > uint" << *int_width
-              << "_t;" << endl;
+              << "_t;" << std::endl;
     }
-    header_ << header_indent_ << "#include <map>" << endl;
+    header_ << header_indent_ << "#include <map>" << std::endl;
     header_ << header_indent_ << "class " << model_ptr_->name() << " {"
             << std::endl;
     header_ << "public:" << std::endl;
@@ -141,7 +141,7 @@ void IlaSim::sim_gen_decode() {
       ILA_INFO << "current_ila_instr:" << current_ila->instr(i)->name();
       create_decode(current_ila->instr(i));
     }
-    ILA_INFO << endl;
+    ILA_INFO << std::endl;
   }
   DebugLog::Disable("ILA hierarchy");
 }
@@ -162,14 +162,14 @@ void IlaSim::sim_gen_state_update() {
 }
 
 void IlaSim::sim_gen_execute_kernel() {
-  stringstream execute_kernel;
-  string indent = "";
+  std::stringstream execute_kernel;
+  std::string indent = "";
   if (!qemu_device_)
-    execute_kernel << indent << "#include \"systemc.h\"" << endl;
+    execute_kernel << indent << "#include \"systemc.h\"" << std::endl;
   execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\""
-                 << endl;
+                 << std::endl;
   execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
-                 << endl;
+                 << std::endl;
   increase_indent(indent);
   if (EXTERNAL_MEM_) {
     execute_write_external_mem(execute_kernel, indent);
@@ -188,7 +188,7 @@ void IlaSim::sim_gen_execute_kernel() {
   if (!qemu_device_)
     execute_write_output(execute_kernel, indent);
   decrease_indent(indent);
-  execute_kernel << indent << "};" << endl;
+  execute_kernel << indent << "};" << std::endl;
   execute_kernel_export(execute_kernel);
   execute_kernel_mk_file();
   execute_kernel_header();
@@ -197,23 +197,23 @@ void IlaSim::sim_gen_execute_kernel() {
 void IlaSim::sim_gen_execute_invoke() {
   if (!qemu_device_) {
     header_ << header_indent_ << "SC_HAS_PROCESS(" << model_ptr_->name() << ");"
-            << endl;
+            << std::endl;
     header_ << header_indent_ << model_ptr_->name()
-            << "(sc_module_name name_) : sc_module(name_) {" << endl;
+            << "(sc_module_name name_) : sc_module(name_) {" << std::endl;
     increase_indent(header_indent_);
-    header_ << header_indent_ << "SC_METHOD(compute);" << endl;
+    header_ << header_indent_ << "SC_METHOD(compute);" << std::endl;
     header_ << header_indent_ << "sensitive";
     for (int i = 0; i < model_ptr_->input_num(); i++) {
       header_ << " << " << model_ptr_->name() << "_"
               << model_ptr_->input(i)->name() << "_in";
     }
-    header_ << ";" << endl;
+    header_ << ";" << std::endl;
     decrease_indent(header_indent_);
-    header_ << header_indent_ << "}" << endl;
+    header_ << header_indent_ << "}" << std::endl;
   }
 
   decrease_indent(header_indent_);
-  header_ << header_indent_ << "};" << endl;
+  header_ << header_indent_ << "};" << std::endl;
 }
 
 void IlaSim::sim_gen_export() {
@@ -228,22 +228,20 @@ void IlaSim::sim_gen_export() {
                << "-c -o "
                << "uninterpreted_func.o "
                << "../../uninterpreted_func/uninterpreted_func.cc "
-               << "-lsystemc" << endl;
-    /*
-        mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-                   << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-                   << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-                   << "-c -o "
-                   << "test_tb.o test_tb.cc "
-                   << "-lsystemc" << endl;
+               << "-lsystemc" << std::endl;
+    // mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+    //           << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+    //           << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+    //           << "-c -o "
+    //           << "test_tb.o test_tb.cc "
+    //           << "-lsystemc" << std::endl;
 
-        mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-                   << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-                   << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-                   << "-o "
-                   << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
-                   << endl;
-    */
+    // mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+    //            << "-L. -L " << systemc_path_ << "/lib-linux64/ "  
+    //            << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+    //            << "-o "
+    //            << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
+    //            << endl;
   }
   outFile.open(export_dir_ + "mk.sh");
   outFile << mk_script_.rdbuf();

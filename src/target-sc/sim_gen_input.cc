@@ -26,12 +26,12 @@ void IlaSim::create_input(const ExprPtr& input_expr) {
 void IlaSim::create_bool_input(const ExprPtr& expr) {
   if (qemu_device_) {
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
-    header_ << header_indent_ << "bool " << input_name_str << ";" << endl;
+    header_ << header_indent_ << "bool " << input_name_str << ";" << std::endl;
   } else {
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
     header_ << header_indent_ << "sc_in<bool> " << input_name_str << "_in;"
-            << endl;
-    header_ << header_indent_ << "bool " << input_name_str << ";" << endl;
+            << std:endl;
+    header_ << header_indent_ << "bool " << input_name_str << ";" << std::endl;
   }
 }
 
@@ -41,15 +41,15 @@ void IlaSim::create_bv_input(const ExprPtr& expr) {
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
     auto input_type_str = "uint" + to_string(bit_width) + "_t ";
     header_ << header_indent_ << input_type_str << input_name_str << ";"
-            << endl;
+            << std::endl;
   } else {
     auto bit_width = expr->sort()->bit_width();
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
     auto input_type_str = "sc_biguint<" + to_string(bit_width) + "> ";
     header_ << header_indent_ << "sc_in< " << input_type_str << "> "
-            << input_name_str << "_in;" << endl;
+            << input_name_str << "_in;" << std::endl;
     header_ << header_indent_ << input_type_str << input_name_str << ";"
-            << endl;
+            << std::endl;
   }
 }
 

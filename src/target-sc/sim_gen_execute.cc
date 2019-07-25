@@ -18,7 +18,7 @@ void IlaSim::execute_init(stringstream& execute_kernel, string& indent) {
     for (int i = 0; i < current_ila->child_num(); i++) {
       child_ila_queue.push(current_ila->child(i));
     }
-    execute_kernel << indent << "init_" << current_ila->name() << "();" << endl;
+    execute_kernel << indent << "init_" << current_ila->name() << "();" << std::endl;
   }
 }
 
@@ -32,9 +32,9 @@ void IlaSim::execute_parent_instructions(stringstream& execute_kernel,
 void IlaSim::execute_child_instructions(stringstream& execute_kernel,
                                         string& indent) {
   std::queue<InstrLvlAbsPtr> child_ila_queue;
-  execute_kernel << indent << "while (1) {" << endl;
+  execute_kernel << indent << "while (1) {" << std::endl;
   increase_indent(indent);
-  execute_kernel << indent << "int schedule_counter = 0;" << endl;
+  execute_kernel << indent << "int schedule_counter = 0;" << std::endl;
   for (unsigned int i = 0; i < model_ptr_->child_num(); i++)
     child_ila_queue.push(model_ptr_->child(i));
   while (!child_ila_queue.empty()) {
@@ -45,10 +45,10 @@ void IlaSim::execute_child_instructions(stringstream& execute_kernel,
     for (unsigned int i = 0; i < child_ila->instr_num(); i++)
       execute_instruction(execute_kernel, indent, child_ila->instr(i), true);
   }
-  execute_kernel << indent << "if (schedule_counter == 0) " << endl;
-  execute_kernel << indent << "  break;" << endl;
+  execute_kernel << indent << "if (schedule_counter == 0) " << std::endl;
+  execute_kernel << indent << "  break;" << std::endl;
   decrease_indent(indent);
-  execute_kernel << indent << "}" << endl;
+  execute_kernel << indent << "}" << std::endl;
 }
 
 void IlaSim::execute_instruction(stringstream& execute_kernel, string& indent,
@@ -76,11 +76,11 @@ void IlaSim::execute_instruction(stringstream& execute_kernel, string& indent,
     execute_update_state(execute_kernel, indent, instr_expr, updated_state);
   }
   if (child)
-    execute_kernel << indent << "schedule_counter++;" << endl;
+    execute_kernel << indent << "schedule_counter++;" << std::endl;
   if (EXTERNAL_MEM_)
     execute_external_mem_load_end(execute_kernel, indent);
   decrease_indent(indent);
-  execute_kernel << indent << "}" << endl;
+  execute_kernel << indent << "}" << std::endl;
 }
 
 void IlaSim::execute_decode(stringstream& execute_kernel, string& indent,
@@ -92,7 +92,7 @@ void IlaSim::execute_decode(stringstream& execute_kernel, string& indent,
   else
     decode_func_name = "decode_" + to_string(instr_expr->decode()->name().id());
 
-  execute_kernel << indent << "if (" << decode_func_name << "()) {" << endl;
+  execute_kernel << indent << "if (" << decode_func_name << "()) {" << std::endl;
   // TODO(yuex) delete the next line (generate debug code).
   // execute_kernel << "cout << \"" << decode_func_name << "\" << endl;" <<
   // endl;

@@ -36,12 +36,12 @@ void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
     arg1->DepthFirstVisit(DfsKernel);
     string arg0_str = get_arg_str(arg0);
     string arg1_str = get_arg_str(arg1);
-    init_function << indent << arg0_str << " = " << arg1_str << ";" << endl;
+    init_function << indent << arg0_str << " = " << arg1_str << ";" << std::endl;
   }
   init_return(init_function, indent);
 
   decrease_indent(indent);
-  init_function << indent << "};" << endl;
+  init_function << indent << "};" << std::endl;
   init_export(init_function, init_func_name);
   init_mk_file(init_func_name);
   return;
@@ -50,14 +50,14 @@ void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
 void IlaSim::init_decl(stringstream& init_function, string& indent,
                        string& init_func_name) {
   if (!qemu_device_)
-    init_function << "#include \"systemc.h\"" << endl;
-  init_function << "#include \"" << model_ptr_->name() << ".h\"" << endl;
+    init_function << "#include \"systemc.h\"" << std::endl;
+  init_function << "#include \"" << model_ptr_->name() << ".h\"" << std::endl;
 
   init_function << indent << "void " << model_ptr_->name()
-                << "::" << init_func_name << "() {" << endl;
+                << "::" << init_func_name << "() {" << std::endl;
   increase_indent(indent);
   searched_id_set_.clear();
-  header_ << header_indent_ << "void " << init_func_name << "();" << endl;
+  header_ << header_indent_ << "void " << init_func_name << "();" << std::endl;
 }
 
 void IlaSim::init_check_valid(stringstream& init_function, string& indent,
@@ -73,14 +73,14 @@ void IlaSim::init_check_valid(stringstream& init_function, string& indent,
     auto valid_expr_const = dynamic_pointer_cast<ExprConst>(valid_expr);
     valid_str = to_string(valid_expr_const->val_bool()->val());
   }
-  init_function << indent << "if (!" << valid_str << ") {" << endl;
-  init_function << indent << "  return;" << endl;
-  init_function << indent << "}" << endl;
+  init_function << indent << "if (!" << valid_str << ") {" << std::endl;
+  init_function << indent << "  return;" << std::endl;
+  init_function << indent << "}" << std::endl;
 }
 
 void IlaSim::init_return(stringstream& init_function, string& indent) {
   init_function << indent << "return "
-                << ";" << endl;
+                << ";" << std::endl;
 }
 
 void IlaSim::init_export(stringstream& init_function, string& init_func_name) {
@@ -94,14 +94,14 @@ void IlaSim::init_export(stringstream& init_function, string& init_func_name) {
 void IlaSim::init_mk_file(string& init_func_name) {
   if (qemu_device_)
     mk_script_ << "g++ -I./ -c -o " << init_func_name << ".o " << init_func_name
-               << ".cc" << endl;
+               << ".cc" << std::endl;
   else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
                << "-c -o " << init_func_name << ".o " << init_func_name
                << ".cc "
-               << "-lsystemc" << endl;
+               << "-lsystemc" << std::endl;
   obj_list_ << init_func_name << ".o ";
 }
 
