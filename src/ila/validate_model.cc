@@ -7,9 +7,6 @@
 
 namespace ilang {
 bool CheckDeterminism(const InstrLvlAbsPtr& model_ptr) {
-  if (model_ptr->instr_num() < 2) {
-    return true;
-  }
   for (int i = 0; i < model_ptr->instr_num(); i++) {
     for (int j = i + 1; j < model_ptr->instr_num(); j++) {
       auto decode_0 = model_ptr->instr(i)->decode();
