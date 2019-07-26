@@ -5,11 +5,11 @@
 
 namespace ilang {
 
-void IlaSim::create_state_update(const InstrPtr &instr_expr) {
+void IlaSim::create_state_update(const InstrPtr& instr_expr) {
   for (auto updated_state_name : instr_expr->updated_states()) {
-    stringstream state_update_function;
-    string indent = "";
-    string state_update_func_name;
+    std::stringstream state_update_function;
+    std::string indent = "";
+    std::string state_update_func_name;
     auto update_expr = instr_expr->update(updated_state_name);
     auto update_expr_id = update_expr->name().id();
     auto updated_state = instr_expr->host()->state(updated_state_name);
@@ -20,7 +20,7 @@ void IlaSim::create_state_update(const InstrPtr &instr_expr) {
                                updated_state->name().str();
     else
       state_update_func_name =
-          "decode_" + to_string(instr_expr->decode()->name().id()) +
+          "decode_" + std::to_string(instr_expr->decode()->name().id()) +
           "_update_" + updated_state->host()->name().str() + "_" +
           updated_state->name().str();
 
@@ -31,7 +31,7 @@ void IlaSim::create_state_update(const InstrPtr &instr_expr) {
       continue;
     state_update_decl(state_update_function, indent, updated_state, update_expr,
                       state_update_func_name);
-    auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr &e) {
+    auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr& e) {
       dfs_kernel(state_update_function, indent, e);
     };
     update_expr->DepthFirstVisit(DfsKernel);
@@ -42,9 +42,9 @@ void IlaSim::create_state_update(const InstrPtr &instr_expr) {
   }
 }
 
-void IlaSim::mem_state_update_decl(stringstream &state_update_function,
-                                   string &indent, const ExprPtr &expr) {
-  auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr &e) {
+void IlaSim::mem_state_update_decl(std::stringstream& state_update_function,
+                                   std::string& indent, const ExprPtr& expr) {
+  auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr& e) {
     dfs_kernel(state_update_function, indent, e);
   };
   auto expr_uid = GetUidExpr(expr);
@@ -68,7 +68,8 @@ void IlaSim::mem_state_update_decl(stringstream &state_update_function,
         auto cond_arg = expr->arg(0);
         cond_arg->DepthFirstVisit(DfsKernel);
         auto cond_str = get_arg_str(cond_arg);
-        state_update_function << indent << "if (" << cond_str << ") {" << std::endl;
+        state_update_function << indent << "if (" << cond_str << ") {"
+                              << std::endl;
         increase_indent(indent);
         auto true_arg = expr->arg(1);
         true_arg->DepthFirstVisit(DfsKernel);
@@ -86,16 +87,16 @@ void IlaSim::mem_state_update_decl(stringstream &state_update_function,
   }
 }
 
-void IlaSim::state_update_export(stringstream &state_update_function,
-                                 string &state_update_func_name) {
-  ofstream outFile;
-  stringstream out_file;
+void IlaSim::state_update_export(std::stringstream& state_update_function,
+                                 std::string& state_update_func_name) {
+  std::ofstream outFile;
+  std::stringstream out_file;
   outFile.open(export_dir_ + state_update_func_name + ".cc");
   outFile << state_update_function.rdbuf();
   outFile.close();
 }
 
-void IlaSim::state_update_mk_file(string& state_update_func_name) {
+void IlaSim::state_update_mk_file(std::string& state_update_func_name) {
   if (qemu_device_)
     mk_script_ << "g++ -I./ -c -o " << state_update_func_name << ".o "
                << state_update_func_name << ".cc" << std::endl;
@@ -109,10 +110,11 @@ void IlaSim::state_update_mk_file(string& state_update_func_name) {
   obj_list_ << state_update_func_name << ".o ";
 }
 
-void IlaSim::state_update_decl(stringstream &state_update_function,
-                               string &indent, const ExprPtr &updated_state,
-                               const ExprPtr &update_expr,
-                               string &state_update_func_name) {
+void IlaSim::state_update_decl(std::stringstream& state_update_function,
+                               std::string& indent,
+                               const ExprPtr& updated_state,
+                               const ExprPtr& update_expr,
+                               std::string& state_update_func_name) {
   searched_id_set_.clear();
   if (!qemu_device_)
     state_update_function << indent << "#include \"systemc.h\"" << std::endl;
@@ -120,31 +122,32 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
                         << ".h\"" << std::endl;
   if (updated_state->is_mem()) {
     auto MemStateUpdateDecl = [this, &state_update_function,
-                               &indent](const ExprPtr &e) {
+                               &indent](const ExprPtr& e) {
       mem_state_update_decl(state_update_function, indent, e);
     };
     update_expr->DepthFirstVisit(MemStateUpdateDecl);
   }
 
-  string return_type =
+  std::string return_type =
       (updated_state->is_bool())
           ? "bool "
           : (updated_state->is_mem())
                 ? "void "
                 : ("sc_biguint<" +
-                   to_string(updated_state->sort()->bit_width()) + "> ");
+                   std::to_string(updated_state->sort()->bit_width()) + "> ");
   if (qemu_device_)
     return_type =
         (updated_state->is_bv())
-            ? ("uint" + to_string(updated_state->sort()->bit_width()) + "_t ")
+            ? ("uint" + std::to_string(updated_state->sort()->bit_width()) +
+               "_t ")
             : return_type;
-  string arg_list =
+  std::string arg_list =
       (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
   state_update_function << indent << return_type << model_ptr_->name()
                         << "::" << state_update_func_name << arg_list << " {"
                         << std::endl;
   increase_indent(indent);
-  string pre_dfs =
+  std::string pre_dfs =
       (updated_state->is_mem()) ? indent + "mem_update_map.clear();\n" : "";
   state_update_function << pre_dfs;
 
@@ -168,26 +171,28 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
   }
 }
 
-void IlaSim::state_update_return(stringstream &state_update_function,
-                                 string &indent, const ExprPtr &updated_state,
-                                 const ExprPtr &update_expr) {
-  string return_str;
+void IlaSim::state_update_return(std::stringstream& state_update_function,
+                                 std::string& indent,
+                                 const ExprPtr& updated_state,
+                                 const ExprPtr& update_expr) {
+  std::string return_str;
   if (GetUidExpr(update_expr) == AST_UID_EXPR::VAR)
     return_str =
         update_expr->host()->name().str() + "_" + update_expr->name().str();
   else if (GetUidExpr(update_expr) == AST_UID_EXPR::OP)
-    return_str = "c_" + to_string(update_expr->name().id());
+    return_str = "c_" + std::to_string(update_expr->name().id());
   else {
-    auto expr_const = dynamic_pointer_cast<ExprConst>(update_expr);
+    auto expr_const = std::dynamic_pointer_cast<ExprConst>(update_expr);
     if (updated_state->is_bv())
-      return_str = to_string(expr_const->val_bv()->val());
+      return_str = std::to_string(expr_const->val_bv()->val());
     else if (updated_state->is_bool())
       return_str = (expr_const->val_bool()->val()) ? "true" : "false";
     else
       return_str = "";
   }
   if (!updated_state->is_mem())
-    state_update_function << indent << "return " << return_str << ";" << std::endl;
+    state_update_function << indent << "return " << return_str << ";"
+                          << std::endl;
   decrease_indent(indent);
   state_update_function << indent << "};" << std::endl;
 }

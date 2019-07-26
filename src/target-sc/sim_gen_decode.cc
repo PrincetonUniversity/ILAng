@@ -6,14 +6,15 @@
 namespace ilang {
 
 void IlaSim::create_decode(const InstrPtr& instr_expr) {
-  stringstream decode_function;
-  string indent = "";
-  string decode_func_name;
+  std::stringstream decode_function;
+  std::string indent = "";
+  std::string decode_func_name;
   if (readable_)
     decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
                        instr_expr->name().str();
   else
-    decode_func_name = "decode_" + to_string(instr_expr->decode()->name().id());
+    decode_func_name =
+        "decode_" + std::to_string(instr_expr->decode()->name().id());
   auto decode_expr = instr_expr->decode();
   decode_decl(decode_function, indent, decode_func_name);
   auto valid_expr = instr_expr->host()->valid();
@@ -32,8 +33,8 @@ void IlaSim::create_decode(const InstrPtr& instr_expr) {
   return;
 }
 
-void IlaSim::decode_decl(stringstream& decode_function, string& indent,
-                         string& decode_func_name) {
+void IlaSim::decode_decl(std::stringstream& decode_function,
+                         std::string& indent, std::string& decode_func_name) {
   if (!qemu_device_)
     decode_function << "#include \"systemc.h\"" << std::endl;
   decode_function << "#include \"" << model_ptr_->name() << ".h\"" << std::endl;
@@ -42,55 +43,56 @@ void IlaSim::decode_decl(stringstream& decode_function, string& indent,
                   << "::" << decode_func_name << "() {" << std::endl;
   increase_indent(indent);
   searched_id_set_.clear();
-  header_ << header_indent_ << "bool " << decode_func_name << "();" << std::endl;
+  header_ << header_indent_ << "bool " << decode_func_name << "();"
+          << std::endl;
 }
 
-void IlaSim::decode_check_valid(stringstream& decode_function, string& indent,
-                                const ExprPtr& valid_expr,
+void IlaSim::decode_check_valid(std::stringstream& decode_function,
+                                std::string& indent, const ExprPtr& valid_expr,
                                 const InstrPtr& instr_expr) {
-  string valid_str;
+  std::string valid_str;
   auto valid_expr_uid = GetUidExpr(valid_expr);
   if (valid_expr_uid == AST_UID_EXPR::VAR)
     valid_str =
         instr_expr->host()->name().str() + "_" + valid_expr->name().str();
   else if (valid_expr_uid == AST_UID_EXPR::OP)
-    valid_str = "c_" + to_string(valid_expr->name().id());
+    valid_str = "c_" + std::to_string(valid_expr->name().id());
   else {
-    auto valid_expr_const = dynamic_pointer_cast<ExprConst>(valid_expr);
-    valid_str = to_string(valid_expr_const->val_bool()->val());
+    auto valid_expr_const = std::dynamic_pointer_cast<ExprConst>(valid_expr);
+    valid_str = std::to_string(valid_expr_const->val_bool()->val());
   }
   decode_function << indent << "if (!" << valid_str << ") {" << std::endl;
   decode_function << indent << "  return false;" << std::endl;
   decode_function << indent << "}" << std::endl;
 }
 
-void IlaSim::decode_return(stringstream& decode_function, string& indent,
-                           const ExprPtr& decode_expr,
+void IlaSim::decode_return(std::stringstream& decode_function,
+                           std::string& indent, const ExprPtr& decode_expr,
                            const InstrPtr& instr_expr) {
-  string decode_str;
+  std::string decode_str;
   auto decode_expr_uid = GetUidExpr(decode_expr);
   if (decode_expr_uid == AST_UID_EXPR::VAR)
     decode_str =
         instr_expr->host()->name().str() + "_" + decode_expr->name().str();
   else if (decode_expr_uid == AST_UID_EXPR::OP)
-    decode_str = "c_" + to_string(decode_expr->name().id());
+    decode_str = "c_" + std::to_string(decode_expr->name().id());
   else {
-    auto decode_expr_const = dynamic_pointer_cast<ExprConst>(decode_expr);
-    decode_str = to_string(decode_expr_const->val_bool()->val());
+    auto decode_expr_const = std::dynamic_pointer_cast<ExprConst>(decode_expr);
+    decode_str = std::to_string(decode_expr_const->val_bool()->val());
   }
   decode_function << indent << "return " << decode_str << ";" << std::endl;
 }
 
-void IlaSim::decode_export(stringstream& decode_function,
-                           string& decode_func_name) {
-  ofstream outFile;
-  stringstream out_file;
+void IlaSim::decode_export(std::stringstream& decode_function,
+                           std::string& decode_func_name) {
+  std::ofstream outFile;
+  std::stringstream out_file;
   outFile.open(export_dir_ + decode_func_name + ".cc");
   outFile << decode_function.rdbuf();
   outFile.close();
 }
 
-void IlaSim::decode_mk_file(string& decode_func_name) {
+void IlaSim::decode_mk_file(std::string& decode_func_name) {
   if (qemu_device_)
     mk_script_ << "g++ -I./ -c -o " << decode_func_name << ".o "
                << decode_func_name << ".cc" << std::endl;

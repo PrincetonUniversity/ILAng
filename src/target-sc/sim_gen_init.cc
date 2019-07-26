@@ -6,9 +6,9 @@
 namespace ilang {
 
 void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
-  stringstream init_function;
-  string indent = "";
-  string init_func_name;
+  std::stringstream init_function;
+  std::string indent = "";
+  std::string init_func_name;
   init_func_name = "init_" + ila->name().str();
 
   auto valid_expr = ila->valid();
@@ -34,9 +34,10 @@ void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
       ILA_ERROR << "init_condition must constrain states";
     }
     arg1->DepthFirstVisit(DfsKernel);
-    string arg0_str = get_arg_str(arg0);
-    string arg1_str = get_arg_str(arg1);
-    init_function << indent << arg0_str << " = " << arg1_str << ";" << std::endl;
+    std::string arg0_str = get_arg_str(arg0);
+    std::string arg1_str = get_arg_str(arg1);
+    init_function << indent << arg0_str << " = " << arg1_str << ";"
+                  << std::endl;
   }
   init_return(init_function, indent);
 
@@ -47,8 +48,8 @@ void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
   return;
 }
 
-void IlaSim::init_decl(stringstream& init_function, string& indent,
-                       string& init_func_name) {
+void IlaSim::init_decl(std::stringstream& init_function, std::string& indent,
+                       std::string& init_func_name) {
   if (!qemu_device_)
     init_function << "#include \"systemc.h\"" << std::endl;
   init_function << "#include \"" << model_ptr_->name() << ".h\"" << std::endl;
@@ -60,38 +61,40 @@ void IlaSim::init_decl(stringstream& init_function, string& indent,
   header_ << header_indent_ << "void " << init_func_name << "();" << std::endl;
 }
 
-void IlaSim::init_check_valid(stringstream& init_function, string& indent,
-                              const ExprPtr& valid_expr,
+void IlaSim::init_check_valid(std::stringstream& init_function,
+                              std::string& indent, const ExprPtr& valid_expr,
                               const InstrLvlAbsPtr& ila) {
-  string valid_str;
+  std::string valid_str;
   auto valid_expr_uid = GetUidExpr(valid_expr);
   if (valid_expr_uid == AST_UID_EXPR::VAR)
     valid_str = ila->name().str() + "_" + valid_expr->name().str();
   else if (valid_expr_uid == AST_UID_EXPR::OP)
-    valid_str = "c_" + to_string(valid_expr->name().id());
+    valid_str = "c_" + std::to_string(valid_expr->name().id());
   else {
-    auto valid_expr_const = dynamic_pointer_cast<ExprConst>(valid_expr);
-    valid_str = to_string(valid_expr_const->val_bool()->val());
+    auto valid_expr_const = std::dynamic_pointer_cast<ExprConst>(valid_expr);
+    valid_str = std::to_string(valid_expr_const->val_bool()->val());
   }
   init_function << indent << "if (!" << valid_str << ") {" << std::endl;
   init_function << indent << "  return;" << std::endl;
   init_function << indent << "}" << std::endl;
 }
 
-void IlaSim::init_return(stringstream& init_function, string& indent) {
+void IlaSim::init_return(std::stringstream& init_function,
+                         std::string& indent) {
   init_function << indent << "return "
                 << ";" << std::endl;
 }
 
-void IlaSim::init_export(stringstream& init_function, string& init_func_name) {
-  ofstream outFile;
-  stringstream out_file;
+void IlaSim::init_export(std::stringstream& init_function,
+                         std::string& init_func_name) {
+  std::ofstream outFile;
+  std::stringstream out_file;
   outFile.open(export_dir_ + init_func_name + ".cc");
   outFile << init_function.rdbuf();
   outFile.close();
 }
 
-void IlaSim::init_mk_file(string& init_func_name) {
+void IlaSim::init_mk_file(std::string& init_func_name) {
   if (qemu_device_)
     mk_script_ << "g++ -I./ -c -o " << init_func_name << ".o " << init_func_name
                << ".cc" << std::endl;

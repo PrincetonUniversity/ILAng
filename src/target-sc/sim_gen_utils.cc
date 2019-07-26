@@ -5,12 +5,12 @@
 
 namespace ilang {
 
-string IlaSim::get_arg_str(const ExprPtr& arg) {
-  string arg_str;
+std::string IlaSim::get_arg_str(const ExprPtr& arg) {
+  std::string arg_str;
   if (GetUidExpr(arg) == AST_UID_EXPR::VAR)
     arg_str = arg->host()->name().str() + "_" + arg->name().str();
   else if (GetUidExpr(arg) == AST_UID_EXPR::CONST) {
-    auto arg_const = dynamic_pointer_cast<ExprConst>(arg);
+    auto arg_const = std::dynamic_pointer_cast<ExprConst>(arg);
     if (arg->is_bool()) {
       auto arg_val = arg_const->val_bool()->val();
       if (arg_val)
@@ -18,18 +18,18 @@ string IlaSim::get_arg_str(const ExprPtr& arg) {
       else
         arg_str = "false";
     } else if (arg->is_bv())
-      arg_str = to_string(arg_const->val_bv()->val());
+      arg_str = std::to_string(arg_const->val_bv()->val());
     else {
-      arg_str = "c_" + to_string(arg->name().id());
+      arg_str = "c_" + std::to_string(arg->name().id());
     }
   } else
-    arg_str = "c_" + to_string(arg->name().id());
+    arg_str = "c_" + std::to_string(arg->name().id());
   return arg_str;
 }
 
-void IlaSim::increase_indent(string& indent) { indent += "  "; }
+void IlaSim::increase_indent(std::string& indent) { indent += "  "; }
 
-void IlaSim::decrease_indent(string& indent) {
+void IlaSim::decrease_indent(std::string& indent) {
   indent.pop_back();
   indent.pop_back();
 }
@@ -52,7 +52,8 @@ bool IlaSim::load_from_store_analysis(const ExprPtr& expr) {
   return ld_st_counter_ != 0;
 }
 
-void IlaSim::declare_variable_with_id(size_t id, string v_type, string v_name) {
+void IlaSim::declare_variable_with_id(size_t id, std::string v_type,
+                                      std::string v_name) {
   if (declared_id_set_.find(id) == declared_id_set_.end()) {
     declared_id_set_.insert(id);
     header_ << header_indent_ << v_type << v_name << ";" << std::endl;

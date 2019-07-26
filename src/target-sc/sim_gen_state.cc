@@ -46,13 +46,15 @@ void IlaSim::create_bool_state(const ExprPtr& expr, bool child) {
   if (state_not_defined) {
     defined_state_set_.insert(id);
     if (qemu_device_)
-      header_ << header_indent_ << "bool " << state_name_str << ";" << std::endl;
+      header_ << header_indent_ << "bool " << state_name_str << ";"
+              << std::endl;
     else {
       if (!child) {
         header_ << header_indent_ << "sc_out<bool> " << state_name_str
                 << "_out;" << std::endl;
       }
-      header_ << header_indent_ << "bool " << state_name_str << ";" << std::endl;
+      header_ << header_indent_ << "bool " << state_name_str << ";"
+              << std::endl;
     }
   }
 }
@@ -60,7 +62,7 @@ void IlaSim::create_bool_state(const ExprPtr& expr, bool child) {
 void IlaSim::create_bv_state(const ExprPtr& expr, bool child) {
   auto state_name_str = expr->host()->name().str() + "_" + expr->name().str();
   auto state_type_str =
-      "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> ";
+      "sc_biguint<" + std::to_string(expr->sort()->bit_width()) + "> ";
   auto id = expr->name().id();
   auto state_not_defined =
       (defined_state_set_.find(id) == defined_state_set_.end());

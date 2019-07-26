@@ -32,8 +32,8 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
   sim_gen_export();
 }
 
-void IlaSim::sim_gen_init(std::string export_dir, bool external_mem, bool readable,
-                          bool qemu_device) {
+void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
+                          bool readable, bool qemu_device) {
   header_.str("");
   mk_script_.str("");
   obj_list_.str("");
@@ -57,8 +57,8 @@ void IlaSim::sim_gen_init(std::string export_dir, bool external_mem, bool readab
 
 void IlaSim::sim_gen_init_header() {
   if (!qemu_device_) {
-    header_ << header_indent_ << "#include \"systemc.h\"" << endl;
-    header_ << header_indent_ << "#include <map>" << endl;
+    header_ << header_indent_ << "#include \"systemc.h\"" << std::endl;
+    header_ << header_indent_ << "#include <map>" << std::endl;
     header_ << header_indent_ << "SC_MODULE(" << model_ptr_->name() << ") {"
             << std::endl;
     increase_indent(header_indent_);
@@ -217,7 +217,7 @@ void IlaSim::sim_gen_execute_invoke() {
 }
 
 void IlaSim::sim_gen_export() {
-  ofstream outFile;
+  std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + ".h");
   outFile << header_.rdbuf();
   outFile.close();
@@ -237,7 +237,7 @@ void IlaSim::sim_gen_export() {
     //           << "-lsystemc" << std::endl;
 
     // mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-    //            << "-L. -L " << systemc_path_ << "/lib-linux64/ "  
+    //            << "-L. -L " << systemc_path_ << "/lib-linux64/ "
     //            << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
     //            << "-o "
     //            << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
