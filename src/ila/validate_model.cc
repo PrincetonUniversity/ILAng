@@ -1,9 +1,9 @@
 #include <ilang/ila/validate_model.h>
 
+#include "z3++.h"
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/log.h>
-#include "z3++.h"
 
 namespace ilang {
 bool CheckDeterminism(const InstrLvlAbsPtr& model_ptr) {
@@ -64,7 +64,6 @@ void CompleteModel(const InstrLvlAbsPtr& model_ptr, DEFAULT_UPDATE_METHOD dum) {
     default_instr->set_decode(ExprFuse::Not(or_decode));
     z3::context ctx;
     Z3ExprAdapter z3_adapter(ctx);
-    std::cout << z3_adapter.GetExpr(or_decode) << std::endl;
     if (dum == DEFAULT_UPDATE_METHOD::OLD_VALUE) {
       for (int i = 0; i < model_ptr->state_num(); i++)
         default_instr->set_update(model_ptr->state(i), model_ptr->state(i));
