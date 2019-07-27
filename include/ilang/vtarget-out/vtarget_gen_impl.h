@@ -33,9 +33,8 @@ namespace ilang {
 
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
-
-  // --------------------- TYPE DEFINITION ------------------------ //
 public:
+  // --------------------- TYPE DEFINITION ------------------------ //
   /// Type of the target
   typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
   /// Type of the ready condition
@@ -133,9 +132,9 @@ protected:
   /// func apply counter
   func_app_cnt_t func_cnt;
   /// max bound , default 127
-  unsigned max_bound;
+  unsigned max_bound = 127;
   /// the width of the counter
-  unsigned cnt_width;
+  unsigned cnt_width = 1;
 
 private:
   /// Counter of mapping
@@ -155,6 +154,7 @@ protected:
   const ExprPtr IlaGetInput(const std::string& sname) const;
   /// Get (a,d) width of a memory, if not existing, (0,0)
   std::pair<unsigned, unsigned>
+
   GetMemInfo(const std::string& ila_mem_name) const;
   /// Test if a string represents an ila state name
   bool TryFindIlaState(const std::string& sname);
