@@ -434,20 +434,20 @@ void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
   auto type = n->getType();
   switch (type.type) {
   case ilasynth::NodeType::Type::BOOL: {
-    auto bool_const = dynamic_cast<const ilasynth::BoolConst*>(n);
+    auto bool_const = static_cast<const ilasynth::BoolConst*>(n);
     expr = ExprFuse::BoolConst(bool_const->val());
     break;
   }
 
   case ilasynth::NodeType::Type::BITVECTOR: {
-    auto bv_const = dynamic_cast<const ilasynth::BitvectorConst*>(n);
+    auto bv_const = static_cast<const ilasynth::BitvectorConst*>(n);
     auto val = static_cast<int>(bv_const->val());
     expr = ExprFuse::BvConst(val, type.bitWidth);
     break;
   }
 
   case ilasynth::NodeType::Type::MEM: {
-    auto mem_const = dynamic_cast<const ilasynth::MemConst*>(n);
+    auto mem_const = static_cast<const ilasynth::MemConst*>(n);
     auto def_value = static_cast<int>(mem_const->memvalues.def_value);
 
     auto mem_value = MemVal(def_value);
