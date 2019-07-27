@@ -2,22 +2,22 @@
 ///
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
+
+#include <cmath>
+#include <iostream>
+
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
-#include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/vtarget_gen_jasper.h>
-
-#include <cmath>
-#include <iostream>
 
 namespace ilang {
 
-// ------------------------------ VlgVerifTgtGen
-// --------------------------------- //
+// ------------------------------ VlgVerifTgtGen ---------------------------- //
 
 VlgVerifTgtGen::VlgVerifTgtGen(
     const std::vector<std::string>& implementation_include_path,
@@ -240,7 +240,7 @@ bool VlgVerifTgtGen::bad_state_return(void) {
 
 // return npos if no comments in
 static size_t find_comments(const std::string& line) {
-  enum state_t { PLAIN, STR, LEFT } state, next_state;
+  enum state_t { PLAIN, LEFT } state, next_state;
   state = PLAIN;
   size_t ret = 0;
   for (const auto& c : line) {
@@ -249,19 +249,14 @@ static size_t find_comments(const std::string& line) {
         next_state = LEFT;
       else
         next_state = PLAIN;
-    } else if (state == STR) {
-      if (c == '"')
-        next_state = PLAIN;
-      else
-        next_state = STR;
-    } else if (state == LEFT) {
+    } else {
+      ILA_ASSERT(state == LEFT) << "Unknwon state " << state;
       if (c == '/') {
         ILA_ASSERT(ret > 0);
         return ret - 1;
       } else
         next_state = PLAIN;
-    } else
-      ILA_ASSERT(false);
+    }
     state = next_state;
     ++ret;
   }

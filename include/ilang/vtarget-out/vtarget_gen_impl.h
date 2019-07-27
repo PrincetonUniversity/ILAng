@@ -14,19 +14,20 @@
 #ifndef VTARGET_GEN_IMPL_H__
 #define VTARGET_GEN_IMPL_H__
 
-#include <ilang/config.h>
-
-#include "nlohmann/json.hpp"
-#include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/directive.h>
 #include <ilang/vtarget-out/var_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
+
 #include <list>
 #include <map>
 #include <unordered_map>
 #include <vector>
+
+#include "nlohmann/json.hpp"
+#include <ilang/config.h>
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/verilog-in/verilog_analysis_wrapper.h>
 
 namespace ilang {
 
