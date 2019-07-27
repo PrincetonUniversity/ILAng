@@ -46,7 +46,13 @@ bool os_portable_mkdir(const std::string& dir) {
       return true;
     }
   }
-  return mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != -1;
+  // return mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != -1;
+  mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  if (stat(dir.c_str(), &statbuff) != -1) {
+    return S_ISDIR(statbuff.st_mode);
+  }
+  return false;
 #endif
 }
 
