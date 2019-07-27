@@ -657,6 +657,7 @@ SignalInfoBase VerilogAnalyzer::get_signal(const std::string& net_name) const {
     return SignalInfoReg((ast_reg_declaration*)ast_ptr, net_name, tp_, this);
   case MODULE:
     ILA_ERROR << "Module instance:" << net_name << " is not a signal.";
+    return bad_signal;
   default:
     ILA_ERROR << "Does not know how to handle:" << net_name
               << ", which is not a signal.";
