@@ -1,3 +1,5 @@
+branches:
+  only:
     - master
     - travis
     - coverity_scan
@@ -5,6 +7,7 @@
 git:
   depth: 1
   submodules: false
+
 sudo: required
 
 language: cpp
@@ -37,30 +40,9 @@ matrix:
       dist: xenial
       compiler: gcc
       before_install:
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-; fi
+        - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca- 
       before_script:
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then git submodule update --init --recursive; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then mkdir -p ${TRAVIS_BUILD_DIR}/build; fi
-        # glog
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then mkdir -p ${TRAVIS_BUILD_DIR}/extern/glog/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cd ${TRAVIS_BUILD_DIR}/extern/glog/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cmake ..; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then sudo cmake --build . --target install; fi
-        # json
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then mkdir -p ${TRAVIS_BUILD_DIR}/extern/json/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cd ${TRAVIS_BUILD_DIR}/extern/json/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cmake ..; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then sudo cmake --build . --target install; fi
-        # vlog-parser
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then mkdir -p ${TRAVIS_BUILD_DIR}/extern/vlog-parser/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cd ${TRAVIS_BUILD_DIR}/extern/vlog-parser/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cmake ..; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then sudo cmake --build . --target install; fi
-        # tmpl-synth 
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then mkdir -p ${TRAVIS_BUILD_DIR}/extern/tmpl-synth/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cd ${TRAVIS_BUILD_DIR}/extern/tmpl-synth/build; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then cmake ..; fi
-        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then sudo cmake --build . --target install; fi
+        - if [ ${COVERITY_SCAN_BRANCH} == 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR; fi
 
     - name: "linux-clang"
       os: linux
@@ -123,13 +105,7 @@ addons:
     branch_pattern: coverity_scan
 
 script:
-  - cd $TRAVIS_BUILD_DIR
-  - mkdir -p build
-  - cd build
-  - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
-  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then make -j$(nproc); fi
-  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then sudo make install; fi
-  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then make test; fi
+  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
 
 notifications:
     email: false
