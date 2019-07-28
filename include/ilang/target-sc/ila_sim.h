@@ -6,9 +6,9 @@
 
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 #include <ilang/ila/instr_lvl_abs.h>
 
@@ -26,21 +26,28 @@ namespace ilang {
 /// - ila_sim.sim_gen("./");
 class IlaSim {
 public:
+  /// TODO
   typedef struct {
     std::string mem_str;
     std::string addr_str;
     std::string dest_str;
   } ld_info;
 
+  /// TODO
   typedef struct {
     std::string mem_str;
     std::string mem_map;
   } st_info;
 
+  /// TODO
   IlaSim();
+  /// TODO
   IlaSim(const InstrLvlAbsPtr& model_ptr);
+  /// TODO
   void set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr);
+  /// TODO
   void set_systemc_path(std::string systemc_path);
+  /// TODO
   void sim_gen(std::string export_dir, bool external_mem = false,
                bool readable = false, bool qemu_device = false);
 
@@ -76,27 +83,29 @@ private:
   void init_check_valid(std::stringstream& init_function, std::string& indent,
                         const ExprPtr& valid_expr, const InstrLvlAbsPtr& ila);
   void init_return(std::stringstream& init_function, std::string& indent);
-  void init_export(std::stringstream& init_function, std::string& init_func_name);
+  void init_export(std::stringstream& init_function,
+                   std::string& init_func_name);
   void init_mk_file(std::string& init_func_name);
 
   void create_decode(const InstrPtr& instr_expr);
   void decode_decl(std::stringstream& decode_function, std::string& indent,
                    std::string& decode_func_name);
-  void decode_check_valid(std::stringstream& decode_function, std::string& indent,
-                          const ExprPtr& valid_expr,
+  void decode_check_valid(std::stringstream& decode_function,
+                          std::string& indent, const ExprPtr& valid_expr,
                           const InstrPtr& instr_expr);
   void decode_return(std::stringstream& decode_function, std::string& indent,
                      const ExprPtr& decode_expr, const InstrPtr& instr_expr);
-  void decode_export(std::stringstream& decode_function, std::string& decode_func_name);
+  void decode_export(std::stringstream& decode_function,
+                     std::string& decode_func_name);
   void decode_mk_file(std::string& decode_func_name);
 
   void create_state_update(const InstrPtr& instr_expr);
-  void state_update_decl(std::stringstream& state_update_function, std::string& indent,
-                         const ExprPtr& updated_state,
+  void state_update_decl(std::stringstream& state_update_function,
+                         std::string& indent, const ExprPtr& updated_state,
                          const ExprPtr& update_expr,
                          std::string& state_update_func_name);
-  void state_update_return(std::stringstream& state_update_function, std::string& indent,
-                           const ExprPtr& updated_state,
+  void state_update_return(std::stringstream& state_update_function,
+                           std::string& indent, const ExprPtr& updated_state,
                            const ExprPtr& update_expr);
   void state_update_export(std::stringstream& state_update_function,
                            std::string& state_update_func_name);
@@ -107,32 +116,39 @@ private:
   void execute_init(std::stringstream& execute_kernel, std::string& indent);
   void execute_parent_instructions(std::stringstream& execute_kernel,
                                    std::string& indent);
-  void execute_child_instructions(std::stringstream& execute_kernel, std::string& indent);
-  void execute_instruction(std::stringstream& execute_kernel, std::string& indent,
-                           const InstrPtr& instr_expr, bool child = false);
+  void execute_child_instructions(std::stringstream& execute_kernel,
+                                  std::string& indent);
+  void execute_instruction(std::stringstream& execute_kernel,
+                           std::string& indent, const InstrPtr& instr_expr,
+                           bool child = false);
   void execute_decode(std::stringstream& execute_kernel, std::string& indent,
                       const InstrPtr& instr_expr);
-  void execute_state_update_func(std::stringstream& execute_kernel, std::string& indent,
+  void execute_state_update_func(std::stringstream& execute_kernel,
+                                 std::string& indent,
                                  const InstrPtr& instr_expr,
                                  const ExprPtr& updated_state);
-  void execute_update_state(std::stringstream& execute_kernel, std::string& indent,
-                            const InstrPtr& instr_expr,
+  void execute_update_state(std::stringstream& execute_kernel,
+                            std::string& indent, const InstrPtr& instr_expr,
                             const ExprPtr& updated_state);
   void execute_external_mem_load_begin(std::stringstream& execute_kernel,
                                        std::string& indent,
                                        const InstrPtr& instr_expr);
   void execute_external_mem_load_end(std::stringstream& execute_kernel,
                                      std::string& indent);
-  void execute_read_external_mem(std::stringstream& execute_kernel, std::string& indent);
-  void execute_write_external_mem(std::stringstream& execute_kernel, std::string& indent);
+  void execute_read_external_mem(std::stringstream& execute_kernel,
+                                 std::string& indent);
+  void execute_write_external_mem(std::stringstream& execute_kernel,
+                                  std::string& indent);
   void execute_external_mem_before_input(std::stringstream& execute_kernel,
                                          std::string& indent);
   void execute_external_mem_after_output(std::stringstream& execute_kernel,
                                          std::string& indent);
   void execute_external_mem_return(std::stringstream& execute_kernel,
                                    std::string& indent);
-  void execute_read_input(std::stringstream& execute_kernel, std::string& indent);
-  void execute_write_output(std::stringstream& execute_kernel, std::string& indent);
+  void execute_read_input(std::stringstream& execute_kernel,
+                          std::string& indent);
+  void execute_write_output(std::stringstream& execute_kernel,
+                            std::string& indent);
   void execute_kernel_export(std::stringstream& execute_kernel);
   void execute_kernel_mk_file();
   void execute_kernel_header();
@@ -149,11 +165,11 @@ private:
   void dfs_unary_op(std::stringstream& dfs_simulator, std::string& indent,
                     const ExprPtr& expr);
   void dfs_unary_op_check(const ExprPtr& expr);
-  void dfs_binary_op_bool_out(std::stringstream& dfs_simulator, std::string& indent,
-                              const ExprPtr& expr);
+  void dfs_binary_op_bool_out(std::stringstream& dfs_simulator,
+                              std::string& indent, const ExprPtr& expr);
   void dfs_binary_op_bool_out_check(const ExprPtr& expr);
-  void dfs_binary_op_non_mem(std::stringstream& dfs_simulator, std::string& indent,
-                             const ExprPtr& expr);
+  void dfs_binary_op_non_mem(std::stringstream& dfs_simulator,
+                             std::string& indent, const ExprPtr& expr);
   void dfs_binary_op_non_mem_check(const ExprPtr& expr);
   void dfs_binary_op_mem(std::stringstream& dfs_simulator, std::string& indent,
                          const ExprPtr& expr);
@@ -172,7 +188,8 @@ private:
   void decrease_indent(std::string& indent);
   int get_update_state_num(const InstrPtr& instr_expr);
   bool load_from_store_analysis(const ExprPtr& expr);
-  void declare_variable_with_id(size_t id, std::string v_type, std::string v_name);
+  void declare_variable_with_id(size_t id, std::string v_type,
+                                std::string v_name);
   void int_var_width_scan();
 
   std::string export_dir_;
@@ -193,15 +210,16 @@ private:
   std::set<int> dfs_ld_search_set_;
   std::vector<ld_info> external_ld_set_;
   std::vector<st_info> external_st_set_;
-  int ld_st_counter_;
-  bool EXTERNAL_MEM_;
+  int ld_st_counter_ = 0;
+  bool EXTERNAL_MEM_ = false;
   const int MEM_MAP_ARRAY_DIV = 16;
   std::set<int> int_var_width_set_;
+
   // Readable_ is used to control whether the generated function name is
   // huname-readable. When being set true, function will be named based on the
   // instruction name and the updated state name. However, there is a potential
   // same-name bug if setting true.
-  bool readable_;
+  bool readable_ = true;
   bool qemu_device_;
 
   InstrLvlAbsPtr model_ptr_;
