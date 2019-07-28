@@ -6,18 +6,9 @@
 
 namespace ilang {
 
-IlaSim::IlaSim() {
-  ld_st_counter_ = 0;
-  EXTERNAL_MEM_ = false;
-  readable_ = true;
-}
+IlaSim::IlaSim() {}
 
-IlaSim::IlaSim(const InstrLvlAbsPtr& model_ptr) {
-  model_ptr_ = model_ptr;
-  ld_st_counter_ = 0;
-  EXTERNAL_MEM_ = false;
-  readable_ = true;
-}
+IlaSim::IlaSim(const InstrLvlAbsPtr& model_ptr) { model_ptr_ = model_ptr; }
 
 void IlaSim::set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr) {
   model_ptr_ = model_ptr;
