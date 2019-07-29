@@ -107,6 +107,15 @@ jobs:
 
   - script: |
       cd extern 
+      cd googletest
+      md build 
+      cd build
+      cmake .. 
+      cmake --build . --target install
+    displayName: 'gtest'
+
+  - script: |
+      cd extern 
       cd json
       md build 
       cd build
