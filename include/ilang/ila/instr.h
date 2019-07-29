@@ -1,14 +1,15 @@
 /// \file
 /// The header for the class Instr.
 
-#ifndef INSTR_H__
-#define INSTR_H__
+#ifndef ILANG_ILA_INSTR_H__
+#define ILANG_ILA_INSTR_H__
+
+#include <memory>
+#include <string>
 
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/hash_ast.h>
 #include <ilang/ila/object.h>
-#include <memory>
-#include <string>
 
 /// \namespace ilang
 namespace ilang {
@@ -138,4 +139,4 @@ typedef std::vector<InstrPtr> InstrVec;
 
 } // namespace ilang
 
-#endif // INSTR_H__
+#endif // ILNAG_ILA_INSTR_H__

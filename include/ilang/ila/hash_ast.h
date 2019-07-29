@@ -1,11 +1,12 @@
 /// \file
 /// Header for the class ExprMngr and the corresponding hash
 
-#ifndef AST_HASH_H__
-#define AST_HASH_H__
+#ifndef ILANG_ILA_HASH_AST_H__
+#define ILANG_ILA_HASH_AST_H__
+
+#include <unordered_map>
 
 #include <ilang/ila/expr_fuse.h>
-#include <unordered_map>
 
 /// \namespace ilang
 namespace ilang {
@@ -55,4 +56,4 @@ typedef ExprMngr::ExprMngrPtr ExprMngrPtr;
 
 } // namespace ilang
 
-#endif // HASH_AST_H__
+#endif // ILANG_ILA_HASH_AST_H__

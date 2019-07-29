@@ -1,13 +1,13 @@
 /// \file
 /// Header for the class Ast.
 
-#ifndef AST_H__
-#define AST_H__
+#ifndef ILANG_ILA_AST_AST_H__
+#define ILANG_ILA_AST_AST_H__
 
-#include "z3++.h"
-#include <ilang/ila/object.h>
 #include <memory>
 #include <string>
+
+#include <ilang/ila/object.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -54,10 +54,8 @@ private:
   /// Pointer to the host ILA.
   InstrLvlAbsPtr host_ = NULL;
 
-  // ------------------------- HELPERS -------------------------------------- //
-
 }; // class Ast
 
 } // namespace ilang
 
-#endif // AST_H__
+#endif // ILANG_ILA_AST_AST_H__

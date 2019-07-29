@@ -1,12 +1,13 @@
 /// \file
 /// Header for the class Z3ExprAdapter
 
-#ifndef Z3_EXPR_ADAPTER_H__
-#define Z3_EXPR_ADAPTER_H__
+#ifndef ILANG_ILA_Z3_EXPR_ADAPTER_H__
+#define ILANG_ILA_Z3_EXPR_ADAPTER_H__
+
+#include <unordered_map>
 
 #include "z3++.h"
 #include <ilang/ila/expr_fuse.h>
-#include <unordered_map>
 
 /// \namespace ilang
 namespace ilang {
@@ -50,4 +51,4 @@ private:
 
 } // namespace ilang
 
-#endif // Z3_EXPR_ADAPTER_H__
+#endif // ILANG_ILA_Z3_EXPR_ADAPTER_H__

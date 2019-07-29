@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class Func (uninterpreted function).
 
-#ifndef FUNC_H__
-#define FUNC_H__
+#ifndef ILANG_ILA_AST_FUNC_H__
+#define ILANG_ILA_AST_FUNC_H__
 
 #include "z3++.h"
 #include <ilang/ila/ast/ast.h>
@@ -80,4 +80,4 @@ typedef Func::FuncPtr FuncPtr;
 
 } // namespace ilang
 
-#endif // FUNC_H__
+#endif // ILANG_ILA_AST_FUNC_H__

@@ -1,15 +1,16 @@
 /// \file
 /// Header of the wrapping Expr usage
 
-#ifndef EXPR_FUSE_H__
-#define EXPR_FUSE_H__
+#ifndef ILANG_ILA_EXPR_FUSE_H__
+#define ILANG_ILA_EXPR_FUSE_H__
+
+#include <string>
 
 #include <ilang/ila/ast/expr.h>
 #include <ilang/ila/ast/expr_const.h>
 #include <ilang/ila/ast/expr_op.h>
 #include <ilang/ila/ast/expr_var.h>
 #include <ilang/ila/ast/func.h>
-#include <string>
 
 /// \namespace ilang
 namespace ilang {
@@ -221,4 +222,4 @@ bool TopEq(const ExprPtr a, const ExprPtr b);
 
 } // namespace ilang
 
-#endif // EXPR_FUSE_H__
+#endif // ILANG_ILA_EXPR_FUSE_H__

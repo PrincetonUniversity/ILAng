@@ -1,13 +1,14 @@
 /// \file
 /// Header for the class Sort
 
-#ifndef SORT_H__
-#define SORT_H__
+#ifndef ILANG_ILA_AST_SORT_H__
+#define ILANG_ILA_AST_SORT_H__
+
+#include <memory>
+#include <ostream>
 
 #include "z3++.h"
 #include <ilang/ila/ast/ast.h>
-#include <memory>
-#include <ostream>
 
 /// \namespace ilang
 namespace ilang {
@@ -166,4 +167,4 @@ private:
 
 } // namespace ilang
 
-#endif // SORT_H__
+#endif // ILANG_ILA_AST_SORT_H__

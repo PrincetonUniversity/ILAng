@@ -1,20 +1,21 @@
 /// \file
 /// Header for the class Expr
 
-#ifndef EXPR_H__
-#define EXPR_H__
+#ifndef ILANG_ILA_AST_EXPR_H__
+#define ILANG_ILA_AST_EXPR_H__
 
-#include "z3++.h"
-#include "z3_api.h"
-#include <ilang/ila/ast/ast.h>
-#include <ilang/ila/ast/sort.h>
-#include <ilang/ila/defines.h>
 #include <memory>
 #include <ostream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "z3++.h"
+#include "z3_api.h"
+#include <ilang/ila/ast/ast.h>
+#include <ilang/ila/ast/sort.h>
+#include <ilang/ila/defines.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -148,4 +149,4 @@ typedef std::unordered_set<ExprPtr, ExprHash> ExprSet;
 
 } // namespace ilang
 
-#endif // EXPR_H__
+#endif // ILANG_ILA_AST_EXPR_H__

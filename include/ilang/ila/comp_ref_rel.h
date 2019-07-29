@@ -1,8 +1,8 @@
 /// \file
 /// Header for the refinement relation
 
-#ifndef COMP_REF_REL_H__
-#define COMP_REF_REL_H__
+#ifndef ILANG_ILA_COMP_REF_REL_H__
+#define ILANG_ILA_COMP_REF_REL_H__
 
 #include <ilang/ila/instr_lvl_abs.h>
 
@@ -174,4 +174,4 @@ typedef CompRefRel::CrrPtr CrrPtr;
 
 } // namespace ilang
 
-#endif // COMP_REF_REL_H__
+#endif // ILANG_ILA_COMP_REF_REL_H__
