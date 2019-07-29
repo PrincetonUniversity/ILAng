@@ -31,18 +31,9 @@ matrix:
         - gem install coveralls-lcov
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
-        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build 
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build; fi
       after_success:
-        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build 
-
-    - name: "coverity"
-      os: linux
-      dist: xenial
-      compiler: gcc
-      before_install:
-        - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-      before_script:
-        - mkdir -p $TRAVIS_BUILD_DIR/build 
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build; fi
 
     - name: "linux-clang"
       os: linux
@@ -77,6 +68,32 @@ matrix:
         - export PATH="/usr/local/opt/bison/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/bison/lib"
 
+    - name: "coverity"
+      os: linux
+      dist: xenial
+      compiler: gcc
+      addons:
+        coverity_scan:
+          project:
+            name: "Bo-Yuan-Huang/ILAng"
+            description: "A modeling and verification platform for SoCs"
+          notification_email: byhuang1992@gmail.com
+          build_command_prepend: "cd $TRAVIS_BUILD_DIR && mkdir -p build && cd build && cmake .. -DILANG_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/local"
+          build_command: "make"
+          branch_pattern: coverity_scan
+        apt:
+          update: true
+          packages:
+            - flex
+            - bison
+            - libboost-all-dev
+            - z3
+            - libz3-dev
+      before_install:
+        - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca- 
+      before_script:
+        - source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR
+
 addons:
   apt:
     update: true
@@ -95,24 +112,9 @@ addons:
       - boost
       - boost-python
       - z3
-  coverity_scan:
-    project:
-      name: "Bo-Yuan-Huang/ILAng"
-      description: "A modeling and verification platform for SoCs"
-    notification_email: byhuang1992@gmail.com
-    build_command_prepend: "cd $TRAVIS_BUILD_DIR && mkdir -p build && cd build && cmake .."
-    build_command: "make"
-    branch_pattern: coverity_scan
 
 script:
-  - cd $TRAVIS_BUILD_DIR
-  - mkdir -p build
-  - cd build
-  - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
-  - make -j$(nproc)
-  - sudo make install
-  - make run_test
-  - ctest -R ExampleCMakeBuild
+  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
 
 notifications:
     email: false
