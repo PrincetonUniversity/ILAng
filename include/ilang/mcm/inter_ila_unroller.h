@@ -1,18 +1,19 @@
 /// \file
 /// Header for multi-ILA unroller
 
-#ifndef INTER_ILA_UNROLLER_H__
-#define INTER_ILA_UNROLLER_H__
+#ifndef ILANG_MCM_INTER_ILA_UNROLLER_H__
+#define ILANG_MCM_INTER_ILA_UNROLLER_H__
 
-#include "ilang/ila/instr_lvl_abs.h"
-#include "ilang/ila/z3_expr_adapter.h"
-#include "ilang/mcm/memory_model.h"
-#include "z3++.h"
 #include <functional>
 #include <list>
 #include <set>
 #include <stack>
 #include <vector>
+
+#include "ilang/ila/instr_lvl_abs.h"
+#include "ilang/ila/z3_expr_adapter.h"
+#include "ilang/mcm/memory_model.h"
+#include "z3++.h"
 
 /// \namespace ilang
 namespace ilang {
@@ -218,4 +219,4 @@ private:
 
 } // namespace ilang
 
-#endif // INTER_ILA_UNROLLER_H__
+#endif // ILANG_MCM_INTER_ILA_UNROLLER_H__

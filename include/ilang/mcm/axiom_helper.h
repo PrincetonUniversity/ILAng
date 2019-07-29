@@ -1,8 +1,8 @@
 /// \file
 /// Header for Axiom helpers (some helper classes to used in writing Axioms)
 
-#ifndef AXIOM_HELPER_H__
-#define AXIOM_HELPER_H__
+#ifndef ILANG_MCM_AXIOM_HELPER_H__
+#define ILANG_MCM_AXIOM_HELPER_H__
 
 /// \namespace ilang
 namespace ilang {
@@ -23,4 +23,4 @@ z3::expr Z3And(const z3::expr& a, const z3::expr& b);
 
 } // namespace ilang
 
-#endif // AXIOM_HELPER_H__
+#endif // ILANG_MCM_AXIOM_HELPER_H__

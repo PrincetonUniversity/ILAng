@@ -1,8 +1,8 @@
 /// \file
 /// Some short cut for set operations
 
-#ifndef MCM_SET_OP_H__
-#define MCM_SET_OP_H__
+#ifndef ILANG_MCM_SET_OP_H__
+#define ILANG_MCM_SET_OP_H__
 
 #include <algorithm>
 #include <iterator>
@@ -24,4 +24,4 @@
 #define IN(e, s) ((s).find(e) != (s).end())
 #define IN_p(e, s) ((s)->find(e) != (s)->end())
 
-#endif // MCM_SET_OP_H__
+#endif // ILANG_MCM_SET_OP_H__
