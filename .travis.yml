@@ -81,6 +81,14 @@ matrix:
           build_command_prepend: "cd $TRAVIS_BUILD_DIR && mkdir -p build && cd build && cmake .. -DILANG_BUILD_TEST=OFF"
           build_command: "make"
           branch_pattern: coverity_scan
+        apt:
+          update: true
+          packages:
+            - flex
+            - bison
+            - libboost-all-dev
+            - z3
+            - libz3-dev
       before_install:
         - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca- 
       before_script:
