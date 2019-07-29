@@ -82,9 +82,9 @@ matrix:
           build_command: "make"
           branch_pattern: coverity_scan
       before_install:
-        - if [ ${COVERITY_SCAN_BRANCH} ]; then echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca- ; fi
+        - if [ ${COVERITY_SCAN_BRANCH} = 1 ]; then echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca- ; fi
       before_script:
-        - if [ ${COVERITY_SCAN_BRANCH} ]; then source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR; fi
+        - if [ ${COVERITY_SCAN_BRANCH} = 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR; fi
 
 addons:
   apt:
