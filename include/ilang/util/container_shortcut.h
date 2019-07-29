@@ -1,8 +1,8 @@
 /// \file
 /// Some short cut for set operations
 
-#ifndef CONTAINER_SHORTCUT_H__
-#define CONTAINER_SHORTCUT_H__
+#ifndef ILANG_UTIL_CONTAINER_SHORTCUT_H__
+#define ILANG_UTIL_CONTAINER_SHORTCUT_H__
 
 #include <algorithm>
 #include <set>
@@ -26,4 +26,4 @@
 
 #define S_IN(sub, s) (s.find(sub) != s.npos)
 
-#endif // CONTAINER_SHORTCUT_H__
+#endif // ILANG_UTIL_CONTAINER_SHORTCUT_H__
