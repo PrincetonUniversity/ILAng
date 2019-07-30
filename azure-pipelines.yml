@@ -110,7 +110,7 @@ jobs:
       cd googletest
       md build 
       cd build
-      cmake .. 
+      cmake .. -DBUILD_SHARED_LIBS=OFF
       cmake --build . --target install
     displayName: 'gtest'
 
