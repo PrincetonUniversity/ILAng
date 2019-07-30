@@ -107,15 +107,6 @@ jobs:
 
   - script: |
       cd extern 
-      cd googletest
-      md build 
-      cd build
-      cmake .. -DBUILD_SHARED_LIBS=OFF
-      cmake --build . --target install
-    displayName: 'gtest'
-
-  - script: |
-      cd extern 
       cd json
       md build 
       cd build
