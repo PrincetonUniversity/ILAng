@@ -39,11 +39,11 @@ bool os_portable_mkdir(const std::string& dir) {
   return _mkdir(dir.c_str()) == 0;
 #else
   // on *nix
-  mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  auto res = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != -1;
 
   struct stat statbuff;
   if (stat(dir.c_str(), &statbuff) != -1) {
-    return S_ISDIR(statbuff.st_mode);
+    return res || S_ISDIR(statbuff.st_mode);
   }
   return false;
 #endif
