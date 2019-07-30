@@ -220,7 +220,7 @@ private:
   // instruction name and the updated state name. However, there is a potential
   // same-name bug if setting true.
   bool readable_ = true;
-  bool qemu_device_;
+  bool qemu_device_ = false;
 
   InstrLvlAbsPtr model_ptr_;
 };
