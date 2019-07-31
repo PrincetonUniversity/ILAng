@@ -2,16 +2,17 @@
 /// Verification Target Generation Some I/O has special meanings, and special
 /// usage The wrapper has to be able to handle it
 // --- Hongce Zhang
-#ifndef DIRECTIVE_H__
-#define DIRECTIVE_H__
+#ifndef ILANG_VTARGET_OUT_DIRECTIVE_H__
+#define ILANG_VTARGET_OUT_DIRECTIVE_H__
 
 #include <functional>
-#include <ilang/verilog-in/verilog_analysis_wrapper.h>
-#include <ilang/verilog-out/verilog_gen.h>
-#include <ilang/vtarget-out/absmem.h>
 #include <map>
 #include <string>
 #include <tuple>
+
+#include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/absmem.h>
 
 namespace ilang {
 
@@ -154,4 +155,4 @@ public:
 
 }; // namespace ilang
 
-#endif // DIRECTIVE_H__
+#endif // ILANG_VTARGET_OUT_DIRECTIVE_H__

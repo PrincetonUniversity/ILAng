@@ -11,13 +11,8 @@
 ///         although it might be easier
 ///  we need to copy some of the vlg-out's functionality
 
-#ifndef VTARGET_GEN_IMPL_H__
-#define VTARGET_GEN_IMPL_H__
-
-#include <ilang/verilog-out/verilog_gen.h>
-#include <ilang/vtarget-out/directive.h>
-#include <ilang/vtarget-out/var_extract.h>
-#include <ilang/vtarget-out/vtarget_gen.h>
+#ifndef ILANG_VTARGET_OUT_VTARGET_GEN_IMPL_H__
+#define ILANG_VTARGET_OUT_VTARGET_GEN_IMPL_H__
 
 #include <list>
 #include <map>
@@ -28,6 +23,10 @@
 #include <ilang/config.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/directive.h>
+#include <ilang/vtarget-out/var_extract.h>
+#include <ilang/vtarget-out/vtarget_gen.h>
 
 namespace ilang {
 
@@ -418,4 +417,4 @@ private:
 
 }; // namespace ilang
 
-#endif // VTARGET_GEN_IMPL_H__
+#endif // ILANG_VTARGET_OUT_VTARGET_GEN_IMPL_H__

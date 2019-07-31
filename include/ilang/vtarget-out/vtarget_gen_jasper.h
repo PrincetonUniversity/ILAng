@@ -1,8 +1,8 @@
 /// \file Verilog Verification Target Generator -- for JasperGold
 // ---Hongce Zhang
 
-#ifndef VTARGET_GEN_JASPER_H__
-#define VTARGET_GEN_JASPER_H__
+#ifndef ILANG_VTARGET_OUT_VTARGET_GEN_JASPER_H__
+#define ILANG_VTARGET_OUT_VTARGET_GEN_JASPER_H__
 
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
@@ -114,4 +114,4 @@ public:
 
 }; // namespace ilang
 
-#endif // VTARGET_GEN_JASPER_H__
+#endif // ILANG_VTARGET_OUT_VTARGET_GEN_JASPER_H__
