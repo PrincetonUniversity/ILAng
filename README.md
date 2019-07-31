@@ -5,7 +5,7 @@
 [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)
 [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/bo-yuan-huang-ilang)](https://scan.coverity.com/projects/17719/badge.svg)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/17719/badge.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ilang)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/Bo-Yuan-Huang/ILAng.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Bo-Yuan-Huang/ILAng/context:cpp)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
