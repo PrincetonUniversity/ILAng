@@ -17,7 +17,6 @@
 #include <vector>
 
 #include <ilang/ila/instr_lvl_abs.h>
-#include <z3++.h>
 
 /// \namespace ilang
 namespace ilang {
