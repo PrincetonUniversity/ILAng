@@ -3,8 +3,10 @@
 
 // XXX Current replacing is not efficient.
 
-#include <functional>
 #include <ilang/ila/hash_ast.h>
+
+#include <functional>
+
 #include <ilang/util/log.h>
 
 namespace ilang {

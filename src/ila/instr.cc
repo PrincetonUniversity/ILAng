@@ -2,6 +2,7 @@
 /// The source for the class Instr.
 
 #include <ilang/ila/instr.h>
+
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 

@@ -2,6 +2,7 @@
 /// Source for the class Symbol.
 
 #include <ilang/ila/symbol.h>
+
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
