@@ -127,6 +127,8 @@ protected:
   const bool useCorr;
   /// send abc aiger
   const bool useAiger;
+  /// disallow GLA if use extra output as assumptions
+  bool disallowGla;
 
 protected:
   /// Add an assumption -- needed by base class

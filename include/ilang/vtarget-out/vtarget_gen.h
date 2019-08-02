@@ -117,6 +117,12 @@ public:
     bool AbcUseCorr;  
     /// ABC option : whether to pass aiger to ABC
     bool AbcUseAiger;  
+    /// ABC option : the way to handle assumptions
+    typedef enum _abc_assumption_style_t {
+      AigMiterExtraOutput = 0, // Use AIG's extra output to represent, cannot use with GLA
+      AssumptionRegister = 1   // Use extra register, may have issues in interpreting the invariant
+    } AbcAssumptionStyle_t;
+    AbcAssumptionStyle_t AbcAssumptionStyle;
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call generateInvariantVerificationTarget)
     /// if true, will check by default
@@ -192,7 +198,8 @@ public:
           VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL) ,
-          AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false) {}
+          AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false),
+          AbcAssumptionStyle(_abc_assumption_style_t::AigMiterExtraOutput) {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

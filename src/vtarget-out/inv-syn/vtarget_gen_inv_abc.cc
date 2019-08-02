@@ -44,22 +44,17 @@ write_aiger -zinit -map %mapname% %aigname%
 write_blif %blifname%
 )***";
 
-std::string abcCmdNoGLA = R"***(
-  read_blif %blifname%
-  strash
-  pdr
-  inv_print -v
-)***";
 
 std::string abcAigCmdNoGLA = R"***(
-  read_aiger %aigname%
+  &read %aigname%
+  &put
+  fold
   pdr
   inv_print -v
 )***";
 
-std::string abcCmdGLAnoCorr = R"***(
-  read_blif %blifname%
-  &get -n
+std::string abcAigCmdGLA = R"***(
+  &read %aigname%
   &gla -T 450 -F 50 -v
   &gla_derive
   &put
@@ -71,8 +66,24 @@ std::string abcCmdGLAnoCorr = R"***(
   dc2 -v
   dc2 -v
   dc2 -v
+  {scorr}
   dc2 -v
   dc2 -v
+  dc2 -v
+  dc2 -v
+  {lcorr}
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  pdr
+  inv_print -v
+)***";
+
+
+std::string abcCmdNoGLA = R"***(
+  read_blif %blifname%
+  strash
   pdr
   inv_print -v
 )***";
@@ -91,12 +102,12 @@ std::string abcCmdGLA = R"***(
   dc2 -v
   dc2 -v
   dc2 -v
-  scorr -v -l -k -F 4
+  {scorr}
   dc2 -v
   dc2 -v
   dc2 -v
   dc2 -v
-  lcorr -v
+  {lcorr}
   dc2 -v
   dc2 -v
   dc2 -v
@@ -136,7 +147,7 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
                    target_tp, adv_ptr),
       s_backend(sbackend), generate_proof(GenerateProof), 
       has_cex(adv_ptr and adv_ptr->_cex_obj_ptr), chc_target(chctarget),
-      useGla(useGLA), useCorr(useCORR), useAiger(useAIGER) { 
+      useGla(useGLA), useCorr(useCORR), useAiger(useAIGER), disallowGla(false) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
@@ -287,18 +298,26 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
 
   std::string precond;
+  disallowGla = false;
   if (not all_assume_wire_content.empty()) {
-    vlg_wrapper.add_reg("__all_assumed_reg__",1);
-    vlg_wrapper.add_stmt("always @(posedge clk) begin");
-    vlg_wrapper.add_stmt("if (rst) __all_assumed_reg__ <= 0;");
-    vlg_wrapper.add_stmt("else if (!__all_assume_wire__) __all_assumed_reg__ <= 1; end");
+    if (_vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput) {
+      disallowGla = true;
+      vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
+      vlg_wrapper.add_output("__all_assume_wire__",1);
+      vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
+      vlg_wrapper.add_stmt("assume property (__all_assume_wire__);\n");
+    } else {
+      vlg_wrapper.add_reg("__all_assumed_reg__",1);
+      vlg_wrapper.add_stmt("always @(posedge clk) begin");
+      vlg_wrapper.add_stmt("if (rst) __all_assumed_reg__ <= 0;");
+      vlg_wrapper.add_stmt("else if (!__all_assume_wire__) __all_assumed_reg__ <= 1; end");
 
-    vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
-    vlg_wrapper.add_output("__all_assume_wire__",1);
-    vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
-    precond = "!( __all_assume_wire__ && !__all_assumed_reg__) || ";
-    //precond = "!( __all_assume_wire__ ) || ";
-  }
+      vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
+      vlg_wrapper.add_output("__all_assume_wire__",1);
+      vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
+      precond = "!( __all_assume_wire__ && !__all_assumed_reg__) || ";
+    }
+  } // handle assumptions
 
   vlg_wrapper.add_stmt(
     "assert property ("+precond+" __all_assert_wire__ ); // the only assertion \n"
@@ -324,9 +343,29 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
   if (not _vtg_config.AbcPath.empty())
     runnable = os_portable_append_dir(_vtg_config.AbcPath, runnable);
 
+
+  std::string abc_cmd;
+  { // assemble the abc command
+    if (useAiger) { // pass aiger
+      ILA_ASSERT(!(useGla && disallowGla))
+        << "Cannot use GLA with assumptions and assumption style chosen as AigMiterExtraOutput";
+      if (useGla)
+        abc_cmd = abcAigCmdGLA;
+      else
+        abc_cmd = abcAigCmdNoGLA;
+    } else { // pass blif
+      if (useGla)
+        abc_cmd = abcCmdGLA;
+      else
+        abc_cmd = abcCmdNoGLA;      
+    }
+    abc_cmd = ReplaceAll(abc_cmd, "{scorr}",  useCorr ? "scorr -v -l -k -F 4":"");
+    abc_cmd = ReplaceAll(abc_cmd, "{lcorr}",  useCorr ? "lcorr -v":"");
+  } // end assembling the abc command
+
+
   auto abc_command_file_name = "abcCmd.txt";
   { // generate abc command
-    auto abc_cmd = useAiger ? abcAigCmdNoGLA : ( useGla ? ( useCorr?  abcCmdGLA : abcCmdGLAnoCorr) : abcCmdNoGLA );
     abc_cmd = ReplaceAll(abc_cmd, "%blifname%", blif_fname);
     abc_cmd = ReplaceAll(abc_cmd, "%aigname%", aiger_fname);
     auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);

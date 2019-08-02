@@ -434,7 +434,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAig) {
   cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
   cfg.CosaPath = "/home/hongce/CoSA/";
   cfg.AbcPath = "/home/hongce/abc/";
-  cfg.AbcUseGla = false;
+  cfg.AbcUseGla = true;
   cfg.AbcUseAiger = true;
   cfg.AbcUseCorr = false;
   cfg.CosaSolver = "btor";
