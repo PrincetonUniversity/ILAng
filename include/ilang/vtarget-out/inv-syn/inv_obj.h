@@ -5,6 +5,7 @@
 #ifndef INV_OBJ_H__
 #define INV_OBJ_H__
 
+#include <ilang/vtarget-out/inv-syn/inv_cnf.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
 
 #include <tuple>
@@ -13,6 +14,8 @@
 
 namespace ilang {
 
+/// declaration for cnf (ref)
+class InvariantInCnf;
 
 /// \brief the invariant object, it needs smt-info to parse
 class InvariantObject{
@@ -62,7 +65,10 @@ public:
     const std::string & abc_fname,
     bool warning_outside_var,
     bool replace_outside_var,
-    const std::string & gla_map_fname);
+    const std::string & gla_map_fname,
+    bool useAiger,
+    const std::string & aiger_map_name,
+    InvariantInCnf & inv_cnf);
 
   /// add invariants from verilog-like output
   void AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in);

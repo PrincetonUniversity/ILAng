@@ -686,7 +686,7 @@ void ExternalCosaInvValidateTargetGen::export_problem(const std::string& extra_n
   }
 
   fout << "[GENERAL]" << std::endl;
-  fout << "model_file:"; //
+  fout << "model_files:"; //
   fout << top_file_name << "[" << top_mod_name << "],";
   // if(target_type != target_type_t::INVARIANTS )
   //  fout << ila_file_name<<","; // will be combined
@@ -720,7 +720,7 @@ void ExternalCosaInvValidateTargetGen::export_problem(const std::string& extra_n
   auto prob_name = has_cex ? "reachable_query" : "invariant_check";
   fout << "[" << prob_name << "]" << std::endl;
   fout << "description:\"" << prob_name << "\"" << std::endl;
-  fout << "formula:" << asst << std::endl;
+  fout << "properties:" << asst << std::endl;
   if (!assmpt.empty())
     fout << "assumptions:" << assmpt << std::endl;
   fout << "prove: True" << std::endl;

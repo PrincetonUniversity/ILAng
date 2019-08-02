@@ -22,6 +22,7 @@ TEST(TestInvExtract, Abc) {
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/abc/";
 
   InvariantObject inv_obj;
+  InvariantInCnf inv_cnf;
   inv_obj.set_dut_inst_name("dut");
 
   inv_obj.AddInvariantFromAbcResultFile(
@@ -29,11 +30,57 @@ TEST(TestInvExtract, Abc) {
     dirName + "ffmap.info",
     true,
     false,
-    ""/*,dirName + "glamap.info"*/);
+    "",/*,dirName + "glamap.info"*/
+    false, // use aiger, if false, the following has no use
+    "",
+    inv_cnf);
 
   EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
   std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
 }
 
+
+TEST(TestInvExtract, AbcAiger) {
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/abc-aig/";
+
+  InvariantObject inv_obj;
+  InvariantInCnf inv_cnf;
+  inv_obj.set_dut_inst_name("dut");
+
+  inv_obj.AddInvariantFromAbcResultFile(
+    dirName + "__aiger_prepare.blif",
+    dirName + "ffmap.info",
+    true,
+    false,
+    "",/*,dirName + "glamap.info"*/
+    true, // use aiger, if false, the following has no use
+    dirName + "wrapper.aig.map",
+    inv_cnf);
+
+  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+}
+
+
+TEST(TestInvExtract, AbcAigerGLA) {
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/abc-aig-gla/";
+
+  InvariantObject inv_obj;
+  InvariantInCnf inv_cnf;
+  inv_obj.set_dut_inst_name("dut");
+
+  inv_obj.AddInvariantFromAbcResultFile(
+    dirName + "__aiger_prepare.blif",
+    dirName + "ffmap.info",
+    true,
+    false,
+    dirName + "glamap.info", /*,dirName + "glamap.info"*/
+    true, // use aiger, if false, the following has no use
+    dirName + "wrapper.aig.map",
+    inv_cnf);
+
+  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+}
 
 }; // namespace ilang

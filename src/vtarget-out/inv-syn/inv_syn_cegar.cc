@@ -191,7 +191,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
       );
   
   if (s_backend == synthesis_backend_selector::ABC) {
-    vg.GenerateInvSynTargetsAbc(_vtg_config.AbcUseGla, _vtg_config.AbcUseCorr);
+    vg.GenerateInvSynTargetsAbc(_vtg_config.AbcUseGla, _vtg_config.AbcUseCorr, _vtg_config.AbcUseAiger);
     current_inv_type = cur_inv_tp::CEGAR_ABC;
   }
   else {
@@ -333,11 +333,16 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
       true,
       true );
   } else if (current_inv_type == cur_inv_tp::CEGAR_ABC){
-    inv_obj.AddInvariantFromAbcResultFile( 
-      os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
+    inv_obj.AddInvariantFromAbcResultFile(
+       _vtg_config.AbcUseAiger ?
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "__aiger_prepare.blif"):
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
       os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "ffmap.info"),
       true,true, _vtg_config.AbcUseGla ? 
-        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "" );
+        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "",
+      _vtg_config.AbcUseAiger,
+      _vtg_config.AbcUseAiger ?
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "", inv_cnf );
   }
   else
     ILA_ERROR<<"Inv type unknown:" << current_inv_type;

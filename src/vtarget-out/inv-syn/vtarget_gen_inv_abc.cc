@@ -29,6 +29,20 @@ techmap; opt -fast
 write_blif %blifname%
 )***";
 
+// yosys template
+std::string abcGenerateAigerWInit_wo_Array = R"***(
+read_verilog -formal %topfile%
+prep -top %module%
+miter -assert %module%
+flatten
+sim -clock clk -reset rst -n 1 -w %module%
+memory -nordff
+opt_clean
+techmap
+abc -fast -g AND
+write_aiger -zinit -map %mapname% %aigname%
+write_blif %blifname%
+)***";
 
 std::string abcCmdNoGLA = R"***(
   read_blif %blifname%
@@ -37,6 +51,11 @@ std::string abcCmdNoGLA = R"***(
   inv_print -v
 )***";
 
+std::string abcAigCmdNoGLA = R"***(
+  read_aiger %aigname%
+  pdr
+  inv_print -v
+)***";
 
 std::string abcCmdGLAnoCorr = R"***(
   read_blif %blifname%
@@ -87,6 +106,8 @@ std::string abcCmdGLA = R"***(
 )***";
 
 
+
+
 VlgSglTgtGen_Abc::~VlgSglTgtGen_Abc() {
   
 }
@@ -107,7 +128,7 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
     const target_type_t& target_tp,
     advanced_parameters_t* adv_ptr,
     bool GenerateProof,
-    _chc_target_t chctarget, bool useGLA, bool useCORR )
+    _chc_target_t chctarget, bool useGLA, bool useCORR, bool useAIGER )
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond, _sup_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
@@ -115,7 +136,7 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
                    target_tp, adv_ptr),
       s_backend(sbackend), generate_proof(GenerateProof), 
       has_cex(adv_ptr and adv_ptr->_cex_obj_ptr), chc_target(chctarget),
-      useGla(useGLA), useCorr(useCORR) { 
+      useGla(useGLA), useCorr(useCORR), useAiger(useAIGER) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
@@ -267,16 +288,16 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
 
   std::string precond;
   if (not all_assume_wire_content.empty()) {
-    // vlg_wrapper.add_reg("__all_assumed_reg__",1);
-    // vlg_wrapper.add_stmt("always @(posedge clk) begin");
-    // vlg_wrapper.add_stmt("if (rst) __all_assumed_reg__ <= 0;");
-    // vlg_wrapper.add_stmt("else if (!__all_assume_wire__) __all_assumed_reg__ <= 1; end");
+    vlg_wrapper.add_reg("__all_assumed_reg__",1);
+    vlg_wrapper.add_stmt("always @(posedge clk) begin");
+    vlg_wrapper.add_stmt("if (rst) __all_assumed_reg__ <= 0;");
+    vlg_wrapper.add_stmt("else if (!__all_assume_wire__) __all_assumed_reg__ <= 1; end");
 
     vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
     vlg_wrapper.add_output("__all_assume_wire__",1);
     vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
-    // precond = "!( __all_assume_wire__ && !__all_assumed_reg__) || ";
-    precond = "!( __all_assume_wire__ ) || ";
+    precond = "!( __all_assume_wire__ && !__all_assumed_reg__) || ";
+    //precond = "!( __all_assume_wire__ ) || ";
   }
 
   vlg_wrapper.add_stmt(
@@ -299,14 +320,15 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
   fout << "#!/bin/bash" << std::endl;
   //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
-  std::string runable = "abc";
+  std::string runnable = "abc";
   if (not _vtg_config.AbcPath.empty())
-    runable = os_portable_append_dir(_vtg_config.AbcPath, runable);
+    runnable = os_portable_append_dir(_vtg_config.AbcPath, runnable);
 
   auto abc_command_file_name = "abcCmd.txt";
   { // generate abc command
-    auto abc_cmd = useGla ? ( useCorr?  abcCmdGLA : abcCmdGLAnoCorr) : abcCmdNoGLA;
+    auto abc_cmd = useAiger ? abcAigCmdNoGLA : ( useGla ? ( useCorr?  abcCmdGLA : abcCmdGLAnoCorr) : abcCmdNoGLA );
     abc_cmd = ReplaceAll(abc_cmd, "%blifname%", blif_fname);
+    abc_cmd = ReplaceAll(abc_cmd, "%aigname%", aiger_fname);
     auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);
     std::ofstream abc_cmd_fn(abc_cmd_fname);
     if (!abc_cmd_fn.is_open()) {
@@ -316,8 +338,10 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
     abc_cmd_fn << abc_cmd;
   } // generate abc command
 
-  if (blif_fname != "")
-    fout << runable << " -F "<< abc_command_file_name  << std::endl;
+  if (aiger_fname != "")
+    fout << runnable << " -F " << abc_command_file_name << std::endl;
+  else if (blif_fname != "")
+    fout << runnable << " -F "<< abc_command_file_name  << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
@@ -408,22 +432,35 @@ static void correct_blif_remove_non_init(const std::string & fn, const std::stri
 // export the chc file
 void VlgSglTgtGen_Abc::Export_problem(const std::string& extra_name) {
   // used by export script!
-  blif_fname = extra_name;
 
-  // first generate a temporary smt
-  // and extract from it the necessary info
-  // "yosys --> blif "
-  generate_blif(
-    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
-    os_portable_append_dir(_output_path, "__gen_blif_script.ys")
-  );
+  if (!useAiger) {
+    blif_fname = extra_name;
 
-  correct_blif_remove_non_init(
-    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
-    os_portable_append_dir(_output_path, blif_fname)
-  );
+    // first generate a temporary smt
+    // and extract from it the necessary info
+    // "yosys --> blif "
+    generate_blif(
+      os_portable_append_dir(_output_path, "__blif_prepare.blif"),
+      os_portable_append_dir(_output_path, "__gen_blif_script.ys")
+    );
 
+    correct_blif_remove_non_init(
+      os_portable_append_dir(_output_path, "__blif_prepare.blif"),
+      os_portable_append_dir(_output_path, blif_fname)
+    );
+  } else {
+    aiger_fname = extra_name;
+
+    generate_aiger(
+      os_portable_append_dir(_output_path, "__aiger_prepare.blif"),
+      os_portable_append_dir(_output_path, aiger_fname),
+      os_portable_append_dir(_output_path, aiger_fname+".map"),
+      os_portable_append_dir(_output_path, "__gen_blif_script.ys")
+    );
+  }
 } // Export_problem
+
+
 
 
 void VlgSglTgtGen_Abc::ExportAll(const std::string& wrapper_name, // wrapper.v
@@ -488,6 +525,46 @@ void VlgSglTgtGen_Abc::generate_blif(
       << "Yosys returns error code:" << res.ret;
 } // design_only_gen_smt
 
+
+/// generate the wrapper's smt first
+void VlgSglTgtGen_Abc::generate_aiger(
+  const std::string & blif_name,
+  const std::string & aiger_name,
+  const std::string & map_name,
+  const std::string & ys_script_name) {
+  
+  auto ys_output_full_name =
+      os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
+  { // export to ys_script_name
+    std::ofstream ys_script_fout( ys_script_name );
+    
+    ys_script_fout << 
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll( 
+      ReplaceAll( 
+      ReplaceAll(abcGenerateAigerWInit_wo_Array,
+        "%topfile%", os_portable_append_dir( _output_path , top_file_name ) ),
+        "%module%",  top_mod_name ),
+        "%blifname%",blif_name),
+        "%aigname%", aiger_name),
+        "%mapname%", map_name);
+  } // finish writing
+
+  std::string yosys = "yosys";
+
+  if (not _vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
+
+  // execute it
+  std::vector<std::string> cmd;
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
+  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
+    ILA_ERROR_IF( res.failure != res.NONE  )
+      << "Executing Yosys failed!";
+    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
+      << "Yosys returns error code:" << res.ret;
+} // design_only_gen_smt
 
 
 }; // namespace ilang

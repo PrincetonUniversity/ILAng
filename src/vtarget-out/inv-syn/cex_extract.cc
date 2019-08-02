@@ -82,10 +82,15 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
   }
 
   ILA_NOT_NULL(trace -> get_scope("$root"));
+  VCDScope* top = NULL;
+  for (VCDScope * c : trace -> get_scope("$root")->children)
+    if (c->name == "top")
+      top = c;
+  ILA_NOT_NULL(top);
 
   // determine the start signal time
   std::string start_sig_hash;
-  for (VCDSignal* root_sig : trace -> get_scope("$root") -> signals ) {
+  for (VCDSignal* root_sig : top -> signals ) {
     // find the hash of it
     if (root_sig -> reference == "__START__" || 
         root_sig -> reference == "__START__[0:0]" )
@@ -128,12 +133,12 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
     auto scopes = collect_scope(sig->scope);
 
     // check scope -- only the top level
-    if ( not ( scopes.find("$root." +  scope + ".") == 0 ||
+    if ( not ( scopes.find("$root.top." +  scope + ".") == 0 ||
                scopes.find( scope + ".") == 0 ))
       continue;
 
     auto vlg_name = ReplaceAll(
-      scopes + sig->reference, "$root.", "");
+      scopes + sig->reference, "$root.top.", "");
     
     std::string check_name = vlg_name;
     {

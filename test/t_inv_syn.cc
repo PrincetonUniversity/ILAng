@@ -418,8 +418,69 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbc) {
   ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
   ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
 
-} // CegarPipelineExample
+} // CegarPipelineAbc
 
+
+
+TEST(TestVlgVerifInvSyn, CegarPipelineAbcAig) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false;
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.AbcPath = "/home/hongce/abc/";
+  cfg.AbcUseGla = false;
+  cfg.AbcUseAiger = true;
+  cfg.AbcUseCorr = false;
+  cfg.CosaSolver = "btor";
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-abc-aig/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto("ADD")) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.GenerateSynthesisTarget();
+      if(vg.RunSynAuto()) {
+        EXPECT_TRUE(false); // cex is really reachable!!!
+        ILA_ERROR<<"Unexpected counterexample!";
+        break; 
+      }
+      vg.ExtractSynthesisResult();
+    }while(not vg.in_bad_state());
+
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
+} // CegarPipelineAbc
 
 // This test uses CEGAR loop
 // This tests has no extra start cycle

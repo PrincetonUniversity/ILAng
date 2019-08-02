@@ -69,10 +69,15 @@ void InvCexExtractor::parse_from(const std::string & vcd_file_name,
   }
 
   ILA_NOT_NULL(trace -> get_scope("$root"));
+  VCDScope* top = NULL;
+  for (VCDScope * c : trace -> get_scope("$root")->children)
+    if (c->name == "top")
+      top = c;
+  ILA_NOT_NULL(top);
 
   VCDTime reset_time = 1;
 
-  for (VCDSignal* root_sig : trace -> get_scope("$root") -> signals ) {
+  for (VCDSignal* root_sig : top -> signals ) {
     // find the hash of it
     std::string vlg_name ( root_sig -> reference );
 
@@ -95,7 +100,7 @@ void InvCexExtractor::parse_from(const std::string & vcd_file_name,
 
   VCDTime failing_time = -1;
   // determine the start signal time
-  for (VCDSignal* root_sig : trace -> get_scope("$root") -> signals ) {
+  for (VCDSignal* root_sig : top -> signals ) {
     // find the hash of it
     std::string vlg_name ( root_sig -> reference );
 

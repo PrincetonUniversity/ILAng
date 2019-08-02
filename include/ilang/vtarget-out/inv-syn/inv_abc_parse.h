@@ -6,6 +6,8 @@
 #ifndef INV_ABC_PARSE_H__
 #define INV_ABC_PARSE_H__
 
+#include <ilang/vtarget-out/inv-syn/inv_cnf.h>
+
 #include <set>
 #include <vector>
 #include <string>
@@ -21,16 +23,32 @@ protected:
   /// only 1-bit
   std::set<std::string> outside_reference;
   
-  /// the real parsing parsing function
+  /// the real parsing function
   void parse(
     const std::string & blif_name,
     const std::string & abc_result_fn);
   
-  /// the real parsing parsing function
+  /// the real parsing function
   void parse(
     const std::string & blif_name,
     const std::string & abc_result_fn,
     const std::string & gla_map_fn);
+  
+  /// the real parsing function -- without gla use aiger 
+  void parseAigerResultWoGLA(
+    const std::string & aig_map_fn,
+    const std::string & abc_result_fn,
+    InvariantInCnf & inv_cnf,
+    const std::string & blif_fn_name);
+
+  /// the real parsing function
+  void parseAigerResultWithGLA(
+    const std::string & aig_map_fn,
+    const std::string & abc_result_fn,
+    const std::string & gla_map_fn,
+    InvariantInCnf & inv_cnf,
+    const std::string & blif_fn_name);
+
   /// dut name
   const std::string dut_name;
   /// whether to warn names
@@ -47,7 +65,10 @@ public:
     const std::string & dut_name,
     bool discourage_outside_variable_reference,
     bool replace_outside_variable_reference,
-    const std::string & gla_abs_fn);
+    const std::string & gla_abs_fn,
+    bool useAiger,
+    const std::string & aiger_map_name,
+    InvariantInCnf & inv_cnf);
     
   std::string GetParseResult() const { return parse_result; }
 

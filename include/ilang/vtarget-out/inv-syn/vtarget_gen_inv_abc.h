@@ -96,7 +96,7 @@ public:
       advanced_parameters_t * adv_ptr,
       bool generate_proof,
       _chc_target_t Abc_target,
-      bool useGLA, bool useCORR);
+      bool useGLA, bool useCORR, bool useAIGER);
 
   // --------------------- Destructor ---------------------------- //
   /// do nothing
@@ -107,6 +107,8 @@ protected:
   Abc_problem _problems;
   /// Abc problem file name
   std::string blif_fname;
+  /// Abc problem file name (aiger file), if aiger_fname is not empty, it will be do aiger
+  std::string aiger_fname;
   /// Abc script 'run.sh' name
   std::string abc_run_script_name;
   /// the invariants on the design
@@ -123,6 +125,8 @@ protected:
   const bool useGla;
   /// Use abc corr
   const bool useCorr;
+  /// send abc aiger
+  const bool useAiger;
 
 protected:
   /// Add an assumption -- needed by base class
@@ -169,6 +173,12 @@ private:
   void generate_blif(
     const std::string & blif_name,
     const std::string & ys_script_name);  
+  /// generate the wrapper's aig first
+  void generate_aiger(
+    const std::string & blif_name,
+    const std::string & aiger_name,
+    const std::string & map_name,
+    const std::string & ys_script_name);
 
 public:
   /// overwrite the Export

@@ -320,8 +320,9 @@ bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::str
   }
   // ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
   //   << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
-    
-  bool succeed = inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, true, gla_file);
+  // not using aiger !!!
+  InvariantInCnf inv_cnf;
+  bool succeed = inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, true, gla_file, false, "", inv_cnf);
   if (not succeed)
     return false;
   

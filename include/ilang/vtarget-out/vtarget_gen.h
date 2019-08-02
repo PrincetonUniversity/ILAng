@@ -114,7 +114,9 @@ public:
     /// ABC option : whether to use gate-level abstraction
     bool AbcUseGla;
     /// ABC option : whether to use correlation analysis
-    bool AbcUseCorr;    
+    bool AbcUseCorr;  
+    /// ABC option : whether to pass aiger to ABC
+    bool AbcUseAiger;  
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call generateInvariantVerificationTarget)
     /// if true, will check by default
@@ -190,7 +192,7 @@ public:
           VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL) ,
-          AbcUseGla(true), AbcUseCorr(false) {}
+          AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false) {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

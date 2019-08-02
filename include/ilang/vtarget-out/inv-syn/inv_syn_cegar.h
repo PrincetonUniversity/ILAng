@@ -146,6 +146,8 @@ protected:
   // -------------------- MEMBERS ------------------ //
   /// the found invariants, in Verilog expression
   InvariantObject inv_obj;
+  /// the found invariants, in CNF (only for ABC)
+  InvariantInCnf inv_cnf;
   /// the temporary invariants (that might not be inductive)
   InvariantObject inv_candidate;
   /// the pointer to a cegar object

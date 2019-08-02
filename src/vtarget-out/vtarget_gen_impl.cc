@@ -165,7 +165,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynSygusTargets(
   return target.GetDesignSmtInfo();
 }
 
-void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr) {
+void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool useAiger) {
   ILA_ERROR_IF(_backend != backend_selector::YOSYS) << "All inv-syn relies on yosys!";
 
   if (vlg_info_ptr)
@@ -185,9 +185,9 @@ void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr) {
       _vtg_config, _backend, synthesis_backend_selector::ABC,
       target_type_t::INV_SYN_DESIGN_ONLY,
       _advanced_param_ptr, true, VlgSglTgtGen_Abc::_chc_target_t::CEX,
-      useGla, useCorr);
+      useGla, useCorr, useAiger);
   target.ConstructWrapper();
-  target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.blif",
+  target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh",  useAiger ?  "wrapper.aig" : "wrapper.blif",
                     "absmem.v"  /*USELESS*/);
                     
   runnable_script_name.clear();
