@@ -1,10 +1,11 @@
 /// \file
 /// The source for the ILA portable interface.
 
+#include <ilang/target-json/interface.h>
+
 #include <fstream>
 
 #include <ilang/target-json/ila_to_json_serializer.h>
-#include <ilang/target-json/interface.h>
 #include <ilang/target-json/json_to_ila_deserializer.h>
 
 namespace ilang {
