@@ -4,12 +4,14 @@
 /// go in the same file and make it that long.
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
+
 #include <cmath>
+
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 namespace ilang {
 
@@ -112,16 +114,9 @@ bool VlgSglTgtGen::TryFindVlgState(const std::string& sname) {
 /// it is normal that you cannot find
 /// them in the verilog
 std::set<std::string> wrapper_signals = {
-  "__START__",
-  "__IEND__",
-  "__ISSUE__",
-  "__STARTED__",
-  "__RESETED__",
-  "__ENDED__",
-  "__ENDFLUSH__",
-  "__FLUSHENDED__",
-  "__CYCLE_CNT__"
-};
+    "__START__",    "__IEND__",       "__ISSUE__",
+    "__STARTED__",  "__RESETED__",    "__ENDED__",
+    "__ENDFLUSH__", "__FLUSHENDED__", "__CYCLE_CNT__"};
 
 // for ila state: add __ILA_SO_
 // for verilog signal: keep as it is should be fine
@@ -133,7 +128,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   const auto& sname = t.second;
 
   if (token_tp == VarExtractor::token_type::UNKN_S) {
-    ILA_WARN_IF(!IN(sname,wrapper_signals))
+    ILA_WARN_IF(!IN(sname, wrapper_signals))
         << "In refinement relations: unknown reference to name:" << sname
         << " keep unchanged.";
     return sname;

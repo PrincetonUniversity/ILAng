@@ -1,11 +1,13 @@
 /// \file Source for generating abstract memory
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/absmem.h>
+
 #include <cmath>
+#include <sstream>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
-#include <ilang/vtarget-out/absmem.h>
-#include <sstream>
 
 namespace ilang {
 

@@ -1,15 +1,17 @@
 /// \file Source of generating CoSA accepted problem, vlg, mem, script
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/vtarget_gen_cosa.h>
+
 #include <algorithm>
 #include <fstream>
+#include <iostream>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/absmem.h>
-#include <ilang/vtarget-out/vtarget_gen_cosa.h>
-#include <iostream>
 
 namespace ilang {
 

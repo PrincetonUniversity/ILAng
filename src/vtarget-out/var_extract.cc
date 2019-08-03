@@ -4,10 +4,12 @@
 /// and change their name if needed and generate a string
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/var_extract.h>
+
 #include <cctype>
+
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/var_extract.h>
 
 namespace ilang {
 
