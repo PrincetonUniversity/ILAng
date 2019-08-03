@@ -4,8 +4,8 @@
 # This will define the following variables
 #
 #   Z3_FOUND
-#   Z3_INCLUDE_DIRS
-#   Z3_LIBRARIES
+#   Z3_INCLUDE_DIR
+#   Z3_LIBRARY
 #   Z3_VERSION
 #
 # and the following imported targets
@@ -19,23 +19,24 @@ pkg_check_modules(PC_Z3 QUIET Z3)
 find_path(Z3_INCLUDE_DIR
   NAMES z3++.h
   HINTS ${PC_Z3_INCLUDEDIR} ${PC_Z3_INCLUDE_DIRS}
-  PATH_SUFFIXES z3
+  PATH_SUFFIXES z3 Z3
 )
 
 find_library(Z3_LIBRARY 
   NAMES z3 libz3
   HINTS ${PC_Z3_LIBDIR} ${PC_Z3_LIBRARY_DIRS}
-  PATH_SUFFIXES z3
+  PATH_SUFFIXES z3 Z3
 )
 
 find_program(Z3_EXEC
   NAMES z3
-  PATH_SUFFIXES z3
+  PATH_SUFFIXES z3 Z3
 )
 
 mark_as_advanced(Z3_FOUND Z3_INCLUDE_DIR Z3_LIBRARY Z3_EXEC)
 
 include(FindPackageHandleStandardArgs)
+
 find_package_handle_standard_args(Z3 DEFAULT_MSG 
   Z3_INCLUDE_DIR 
   Z3_LIBRARY

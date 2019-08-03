@@ -1,11 +1,12 @@
 // main.cc
 // Synopsis: Entry point for the executable
 
-#include <simple/lib.h>
 #include <iostream>
 
+#include <simple/lib.h>
+
 int main() {
-  std::cout << "Hello World from executable main." << std::endl;
+  std::cout << "Hello World!!" << std::endl;
 
   Foo();
 
