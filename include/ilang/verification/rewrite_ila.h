@@ -1,8 +1,8 @@
 /// \file
 /// Header for function object for rewriting ILA.
 
-#ifndef REWRITE_ILA_H__
-#define REWRITE_ILA_H__
+#ifndef ILANG_VERIFICATION_REWRITE_ILA_H__
+#define ILANG_VERIFICATION_REWRITE_ILA_H__
 
 #include <ilang/ila/instr_lvl_abs.h>
 
@@ -72,4 +72,4 @@ private:
 
 } // namespace ilang
 
-#endif // REWRITE_ILA_H__
+#endif // ILANG_VERIFICATION_REWRITE_ILA_H__

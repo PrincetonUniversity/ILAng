@@ -1,12 +1,14 @@
 /// \file
 /// Source for generating verification condition for equivalecne checking.
 
+#include <ilang/verification/eq_check_crr.h>
+
+#include <tuple>
+
 #include <ilang/util/log.h>
 #include <ilang/util/z3_helper.h>
 #include <ilang/verification/abs_knob.h>
-#include <ilang/verification/eq_check_crr.h>
 #include <ilang/verification/unroller.h>
-#include <tuple>
 
 namespace ilang {
 
@@ -368,37 +370,21 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       auto tran =
           GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i, step, stts_a);
       s.add(tran);
-      // auto tran = inc_unrl_old_a.MonoIncr(ma, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i,
-      // stts_a);
-      // s.add(tran && mark);
     }
     if (num_new_a == i) { // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i, step, stts_a);
       s.add(tran);
-      // auto tran = inc_unrl_new_a.MonoIncr(ma, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i,
-      // stts_a);
-      // s.add(tran && mark);
     }
     if (num_old_b == i) { // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i, step, stts_b);
       s.add(tran);
-      // auto tran = inc_unrl_old_b.MonoIncr(mb, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i,
-      // stts_b);
-      // s.add(tran && mark);
     }
     if (num_new_b == i) { // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i, step, stts_b);
       s.add(tran);
-      // auto tran = inc_unrl_new_b.MonoIncr(mb, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i,
-      // stts_b);
-      // s.add(tran && mark);
     }
     s.push(); // recording the current transition relation
 
@@ -469,42 +455,18 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
     if (num_old_a == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_old_a);
       num_old_a = sufficient ? num_old_a : num_old_a + step;
-#if 0
-      if (sufficient) {
-        s.add(cmpl_old_a);
-        s.push();
-      }
-#endif
     }
     if (num_new_a == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_new_a);
       num_new_a = sufficient ? num_new_a : num_new_a + step;
-#if 0
-      if (sufficient) {
-        s.add(cmpl_new_a);
-        s.push();
-      }
-#endif
     }
     if (num_old_b == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_old_b);
       num_old_b = sufficient ? num_old_b : num_old_b + step;
-#if 0
-      if (sufficient) {
-        s.add(cmpl_old_b);
-        s.push();
-      }
-#endif
     }
     if (num_new_b == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_new_b);
       num_new_b = sufficient ? num_new_b : num_new_b + step;
-#if 0
-      if (sufficient) {
-        s.add(cmpl_new_b);
-        s.push();
-      }
-#endif
     }
   }
 
@@ -809,19 +771,11 @@ z3::expr CommDiag::GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref,
 }
 
 bool CommDiag::CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const {
-#if 0
-  s.push();
-  s.add(cmpl_expr);
-  auto can_cmpl = (s.check() == z3::sat);
-  s.pop();
-
-#endif
   s.push();
   s.add(!cmpl_expr);
   auto must_cmpl = (s.check() == z3::unsat);
   s.pop();
-  // return can_cmpl && must_cmpl;
-  //#if 0
+
   if (must_cmpl) {
     s.add(cmpl_expr); // added
     s.push();         // added
@@ -829,7 +783,6 @@ bool CommDiag::CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const {
   } else {
     return false;
   }
-  //#endif
 }
 
 z3::expr CommDiag::GenAssm() {

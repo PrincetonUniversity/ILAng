@@ -1,10 +1,11 @@
 /// \file
 /// Header for function object for rewriting Expr.
 
-#ifndef REWRITE_EXPR_H__
-#define REWRITE_EXPR_H__
+#ifndef ILANG_VERIFICATION_REWRITE_EXPR_H__
+#define ILANG_VERIFICATION_REWRITE_EXPR_H__
 
 #include <ilang/ila/expr_fuse.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -39,4 +40,4 @@ private:
 
 } // namespace ilang
 
-#endif // REWRITE_EXPR_H__
+#endif // ILANG_VERIFICATION_REWRITE_EXPR_H__

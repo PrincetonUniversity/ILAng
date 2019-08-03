@@ -1,8 +1,9 @@
 /// \file
 /// Source for function object for rewriting Expr.
 
-#include <ilang/util/log.h>
 #include <ilang/verification/rewrite_expr.h>
+
+#include <ilang/util/log.h>
 
 namespace ilang {
 

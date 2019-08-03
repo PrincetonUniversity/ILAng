@@ -1,9 +1,10 @@
 /// \file
 /// Source for bounded model checking
 
+#include <ilang/verification/legacy_bmc.h>
+
 #include <ilang/util/log.h>
 #include <ilang/util/z3_helper.h>
-#include <ilang/verification/legacy_bmc.h>
 
 namespace ilang {
 
@@ -69,8 +70,6 @@ z3::check_result LegacyBmc::Check(InstrLvlAbsPtr m0, const int& k0,
   // initial condition
   for (size_t i = 0; i != inits_.size(); i++) {
     auto init_i = inits_[i];
-    // ILA_ASSERT(init_i->host()) << "Legacy BMC can only have single-ILA
-    // init.";
     auto init_e = gen.GetExpr(init_i, suffix_init);
     solver.add(init_e);
   }
@@ -78,7 +77,6 @@ z3::check_result LegacyBmc::Check(InstrLvlAbsPtr m0, const int& k0,
   // invariants
   for (size_t i = 0; i != invs_.size(); i++) {
     auto inv_i = invs_[i];
-    // ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
     // XXX Only apply invariants on initial states.
     auto inv_e = gen.GetExpr(inv_i, suffix_init);
     solver.add(inv_e);
