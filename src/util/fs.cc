@@ -9,12 +9,16 @@
 #include <cstdlib>
 
 #if defined(_WIN32) || defined(_WIN64)
+
 // windows
 #include <direct.h>
+
 #else
+
 // *nix
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #endif
 
 #include <ilang/util/log.h>
