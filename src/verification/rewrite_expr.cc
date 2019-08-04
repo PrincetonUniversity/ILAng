@@ -3,6 +3,7 @@
 
 #include <ilang/verification/rewrite_expr.h>
 
+#include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -33,103 +34,155 @@ ExprPtr FuncObjRewrExpr::Rewrite(const ExprPtr e) const {
 
 ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
   // check each type of op
-  if (std::dynamic_pointer_cast<ExprOpNeg>(e)) { // Negate
+  auto expr_op_uid = GetUidExprOp(e);
+
+  switch (expr_op_uid) {
+  case AST_UID_EXPR_OP::NEG: {
     auto a = get(e->arg(0));
     return Negate(a);
-  } else if (std::dynamic_pointer_cast<ExprOpNot>(e)) { // Not
+  }
+  case AST_UID_EXPR_OP::NOT: {
     auto a = get(e->arg(0));
     return Not(a);
-  } else if (std::dynamic_pointer_cast<ExprOpCompl>(e)) { // Complement
+  }
+  case AST_UID_EXPR_OP::COMPL: {
     auto a = get(e->arg(0));
     return Complement(a);
-  } else if (std::dynamic_pointer_cast<ExprOpAnd>(e)) { // And
+  }
+  case AST_UID_EXPR_OP::AND: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return And(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpOr>(e)) { // Or
+  }
+  case AST_UID_EXPR_OP::OR: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Or(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpXor>(e)) { // Xor
+  }
+  case AST_UID_EXPR_OP::XOR: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Xor(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpShl>(e)) { // Shl
+  }
+  case AST_UID_EXPR_OP::SHL: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Shl(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpAshr>(e)) { // Ashl
+  }
+  case AST_UID_EXPR_OP::ASHR: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Ashr(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpLshr>(e)) { // Lshl
+  }
+  case AST_UID_EXPR_OP::LSHR: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Lshr(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpAdd>(e)) { // Add
+  }
+  case AST_UID_EXPR_OP::ADD: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Add(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpSub>(e)) { // Sub
+  }
+  case AST_UID_EXPR_OP::SUB: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Sub(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpEq>(e)) { // Eq
+  }
+#if 0
+  case AST_UID_EXPR_OP::DIV: {
+    // TODO
+  }
+  case AST_UID_EXPR_OP::SREM: {
+    // TODO
+  }
+  case AST_UID_EXPR_OP::UREM: {
+    // TODO
+  }
+  case AST_UID_EXPR_OP::SMOD: {
+    // TODO
+  }
+  case AST_UID_EXPR_OP::MUL: {
+    // TODO
+  }
+#endif
+  case AST_UID_EXPR_OP::EQ: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Eq(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpLt>(e)) { // Lt
+  }
+  case AST_UID_EXPR_OP::LT: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Lt(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpGt>(e)) { // Gt
+  }
+  case AST_UID_EXPR_OP::GT: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Gt(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpUlt>(e)) { // Ult
+  }
+  case AST_UID_EXPR_OP::ULT: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Ult(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpUgt>(e)) { // Ugt
+  }
+  case AST_UID_EXPR_OP::UGT: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Ugt(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpLoad>(e)) { // Load
+  }
+  case AST_UID_EXPR_OP::LOAD: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Load(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpStore>(e)) { // Store
+  }
+  case AST_UID_EXPR_OP::STORE: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     auto a2 = get(e->arg(2));
     return Store(a0, a1, a2);
-  } else if (std::dynamic_pointer_cast<ExprOpConcat>(e)) { // Concat
+  }
+  case AST_UID_EXPR_OP::CONCAT: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Concat(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpExtract>(e)) { // Extract
+  }
+  case AST_UID_EXPR_OP::EXTRACT: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     auto p1 = e->param(1);
     return Extract(a0, p0, p1);
-  } else if (std::dynamic_pointer_cast<ExprOpZExt>(e)) { // ZExt
+  }
+  case AST_UID_EXPR_OP::ZEXT: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     return ZExt(a0, p0);
-  } else if (std::dynamic_pointer_cast<ExprOpSExt>(e)) { // SExt
+  }
+  case AST_UID_EXPR_OP::SEXT: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     return SExt(a0, p0);
-  } else if (std::dynamic_pointer_cast<ExprOpImply>(e)) { // Imply
+  }
+#if 0
+  case AST_UID_EXPR_OP::LROTATE: {
+    // TODO
+  }
+  case AST_UID_EXPR_OP::RROTATE: {
+    // TODO
+  }
+#endif
+  case AST_UID_EXPR_OP::IMPLY: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Imply(a0, a1);
-  } else if (std::dynamic_pointer_cast<ExprOpIte>(e)) { // Ite
+  }
+  case AST_UID_EXPR_OP::ITE: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     auto a2 = get(e->arg(2));
     return Ite(a0, a1, a2);
-  } else { // AppFunc
+  }
+  case AST_UID_EXPR_OP::APP_FUNC: {
     auto e_derive = std::dynamic_pointer_cast<ExprOpAppFunc>(e);
     ILA_ASSERT(e_derive) << "Fail copying " << e;
 
@@ -140,6 +193,11 @@ ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
     }
     return AppFunc(f, args);
   }
+  default: {
+    ILA_ERROR << "Rewriting " << expr_op_uid << " not implemented";
+    return NULL;
+  }
+  };
 }
 
 } // namespace ilang
