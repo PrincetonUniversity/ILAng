@@ -75,23 +75,17 @@ std::ostream& ExprConst::Print(std::ostream& out) const {
 
 BoolValPtr ExprConst::val_bool() const {
   ILA_ASSERT(is_bool()) << "Not boolean constant";
-  auto ptr = std::dynamic_pointer_cast<BoolVal>(val_);
-  ILA_ASSERT(ptr) << "Fail casting to BoolVal";
-  return ptr;
+  return std::static_pointer_cast<BoolVal>(val_);
 }
 
 BvValPtr ExprConst::val_bv() const {
   ILA_ASSERT(is_bv()) << "Not bitvector constant";
-  auto ptr = std::dynamic_pointer_cast<BvVal>(val_);
-  ILA_ASSERT(ptr) << "Fail casting to BvVal";
-  return ptr;
+  return std::static_pointer_cast<BvVal>(val_);
 }
 
 MemValPtr ExprConst::val_mem() const {
   ILA_ASSERT(is_mem()) << "Not memory constatnc";
-  auto ptr = std::dynamic_pointer_cast<MemVal>(val_);
-  ILA_ASSERT(ptr) << "Fail casting to MemVal";
-  return ptr;
+  return std::static_pointer_cast<MemVal>(val_);
 }
 
 } // namespace ilang

@@ -183,8 +183,8 @@ ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
     return Ite(a0, a1, a2);
   }
   case AST_UID_EXPR_OP::APP_FUNC: {
-    auto e_derive = std::dynamic_pointer_cast<ExprOpAppFunc>(e);
-    ILA_ASSERT(e_derive) << "Fail copying " << e;
+    auto e_derive = std::static_pointer_cast<ExprOpAppFunc>(e);
+    ILA_NOT_NULL(e_derive);
 
     auto f = e_derive->func();
     ExprPtrVec args;

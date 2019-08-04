@@ -146,7 +146,7 @@ json I2JSer::SerFunc(const FuncPtr& i_func) {
 }
 
 json I2JSer::SerConstVal(const ExprPtr& i_expr) const {
-  auto i_expr_const = std::dynamic_pointer_cast<ExprConst>(i_expr);
+  auto i_expr_const = std::static_pointer_cast<ExprConst>(i_expr);
   ILA_NOT_NULL(i_expr_const);
 
   // create a new JSON object
@@ -225,7 +225,7 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
 
     // only for apply function
     if (expr_op_uid == AST_UID_EXPR_OP::APP_FUNC) {
-      auto i_expr_op_appfunc = std::dynamic_pointer_cast<ExprOpAppFunc>(i_expr);
+      auto i_expr_op_appfunc = std::static_pointer_cast<ExprOpAppFunc>(i_expr);
       ILA_NOT_NULL(i_expr_op_appfunc);
       auto j_func = SerFunc(i_expr_op_appfunc->func());
       j_expr.emplace(SERDES_EXPR_FUNC, j_func.at(SERDES_FUNC_ID).get<ID_t>());
