@@ -196,14 +196,7 @@ end
 
 // WB
 always @(posedge clk ) begin
-    if (rst) begin
-        // reset
-        registers[0] <= 8'd0;
-        registers[1] <= 8'd0;
-        registers[2] <= 8'd0;
-        registers[3] <= 8'd0;
-    end
-    else if (__START__) begin
+    if (__START__) begin
       if (ex_wb_reg_wen) begin
         case (ex_wb_rd)
         2'd0: registers[0] <= ex_wb_val;

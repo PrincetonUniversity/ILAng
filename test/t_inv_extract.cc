@@ -23,7 +23,7 @@ TEST(TestInvExtract, Abc) {
 
   InvariantObject inv_obj;
   InvariantInCnf inv_cnf;
-  inv_obj.set_dut_inst_name("dut");
+  inv_obj.set_dut_inst_name("m1");
 
   inv_obj.AddInvariantFromAbcResultFile(
     dirName + "wrapper.blif",
@@ -45,7 +45,7 @@ TEST(TestInvExtract, AbcAiger) {
 
   InvariantObject inv_obj;
   InvariantInCnf inv_cnf;
-  inv_obj.set_dut_inst_name("dut");
+  inv_obj.set_dut_inst_name("m1");
 
   inv_obj.AddInvariantFromAbcResultFile(
     dirName + "__aiger_prepare.blif",
@@ -67,7 +67,7 @@ TEST(TestInvExtract, AbcAigerGLA) {
 
   InvariantObject inv_obj;
   InvariantInCnf inv_cnf;
-  inv_obj.set_dut_inst_name("dut");
+  inv_obj.set_dut_inst_name("m1");
 
   inv_obj.AddInvariantFromAbcResultFile(
     dirName + "__aiger_prepare.blif",

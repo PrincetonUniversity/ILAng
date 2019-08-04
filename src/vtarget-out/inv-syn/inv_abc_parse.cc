@@ -51,6 +51,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
   std::vector<std::string> aig_state_order;
   std::vector<std::pair<std::string, unsigned>> aig_literal;
   std::set<std::string> blif_valid_state_names;
+  std::set<int> invlatches;
 
   { // read blif for valid state names
     std::ifstream fin(blif_fn_name);
@@ -77,9 +78,11 @@ void AbcInvariantParser::parseAigerResultWoGLA(
     while(std::getline(fin,line)) {
       auto vec = SplitSpaceTabEnter(line);
       // only focus on the registers
-      if (line.find("latch ") == 0) {
-        auto vec = SplitSpaceTabEnter(line);
+      if (line.find("latch ") == 0 || line.find("invlatch ") == 0) {
+        auto vec = SplitSpaceTabEnter(line); // latch/invlatch latchNo bitNo name
         int latch_no = StrToInt(vec.at(1));
+        if (line.find("invlatch ") == 0)
+          invlatches.insert(latch_no);
         const auto & bit_no = vec.at(2);
         const auto new_name  = vec.at(3) + "[" + bit_no + ":" + bit_no +"]";
         const auto blif_ref_name = vec.at(3) + "[" + bit_no +"]";
@@ -124,6 +127,8 @@ void AbcInvariantParser::parseAigerResultWoGLA(
           literal = (neg ? "~" : "") + std::string("1'b1"); // the extra reg
           remove_this_cube = remove_this_cube ||  neg; // if it is "& !1'b1", then this cube is 0
         } else {
+          if (IN(flopno, invlatches))
+            neg = !neg;
           const auto & ref_val_name = aig_state_order.at(flopno);
           const auto & lit = aig_literal.at(flopno); // first : var name , second : bit idx
 
@@ -133,7 +138,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
           } else {
             ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
             if (replace_outside_var_ref) {
-              if ( ref_val_name == "__all_assumed_reg__" ) {
+              if ( ref_val_name == "__all_assumed_reg__[0:0]" ) {
                 literal = (neg ? "~" : "") + std::string("1'b0");
                 remove_this_cube = remove_this_cube ||  !neg; // if it is "& 1'b0" this cube is 0
               } else if (ref_val_name.find(".") != ref_val_name.npos) {
@@ -178,7 +183,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
     }
     
     parse_result = "~("  + parse_result + ")";
-    parse_result = ReplaceAll(parse_result, "__all_assumed_reg__", "1'b0");
+    parse_result = ReplaceAll(parse_result, "__all_assumed_reg__[0:0]", "1'b0");
   } // parse abc file
 
 } // parseAigerResultWoGLA
@@ -190,7 +195,171 @@ void AbcInvariantParser::parseAigerResultWithGLA(
     const std::string & gla_map_fn,
     InvariantInCnf & inv_cnf,
     const std::string & blif_fn_name) {
-      ILA_ASSERT(false) << "Not implemented...";
+    
+
+  std::vector<std::string> aig_state_order;
+  std::vector<std::pair<std::string, unsigned>> aig_literal;
+  std::set<std::string> blif_valid_state_names;
+  std::set<int> invlatches;
+
+  { // read blif for valid state names
+    std::ifstream fin(blif_fn_name);
+    if (! fin.is_open()) {
+      ILA_ERROR << "Cannot read from: " <<blif_fn_name;
+      return;
+    }
+    std::string line;
+    while(std::getline(fin,line)) {
+      if (line.find(".latch ") == 0) {
+        auto vec = SplitSpaceTabEnter(line);
+        blif_valid_state_names.insert(vec.at(2));
+      }
+    }
+  } // read blif for valid state names
+
+  { // read aiger map
+    std::ifstream fin(aig_map_fn);
+    if (! fin.is_open()) {
+      ILA_ERROR << "Cannot read from: " <<aig_map_fn;
+      return;
+    }
+    std::string line;
+    while(std::getline(fin,line)) {
+      auto vec = SplitSpaceTabEnter(line);
+      // only focus on the registers
+      if (line.find("latch ") == 0 || line.find("invlatch ") == 0) {
+        auto vec = SplitSpaceTabEnter(line);
+        int latch_no = StrToInt(vec.at(1));
+        if (line.find("invlatch ") == 0)
+          invlatches.insert(latch_no);
+        const auto & bit_no = vec.at(2);
+        const auto new_name  = vec.at(3) + "[" + bit_no + ":" + bit_no +"]";
+        const auto blif_ref_name = vec.at(3) + "[" + bit_no +"]";
+        ILA_ASSERT(aig_state_order.size() == latch_no || aig_state_order.size() == latch_no + 1)
+          << new_name << " " << latch_no << " " << aig_state_order.size();
+        if (IN(blif_ref_name, blif_valid_state_names) || ( IN(vec.at(3),blif_valid_state_names) && bit_no == "0" ) ) {
+          ILA_ASSERT(aig_state_order.size() == latch_no); // insert to the right index
+          aig_state_order.push_back(new_name);
+          aig_literal.push_back(std::make_pair(vec.at(3), StrToInt(bit_no)));
+        }
+      } // end if find latch/invlatch
+    } // while getline
+  } // read aiger map
+
+
+  std::vector<unsigned> new_id_to_old_id;
+  { // read gla map table
+    std::ifstream fin(gla_map_fn);
+    if (! fin.is_open()) {
+      ILA_ERROR << "Cannot read from: " <<gla_map_fn;
+      return;
+    }
+    unsigned PiCount, good, newFlopCnt;
+    unsigned OldGid, NewGid = 0, NewGidTmp;
+    fin >> PiCount >> good >> newFlopCnt; 
+    ILA_ASSERT(good) << "ABC result: Ro are not consecutive!";
+    for(unsigned idx = 0; idx < newFlopCnt; ++ idx) {
+      fin >> OldGid >> NewGidTmp;
+      ILA_ASSERT(NewGidTmp > NewGid) << "ABC result : ff count bug!";
+      NewGid = NewGidTmp;
+      new_id_to_old_id.push_back(OldGid - PiCount -1 );
+      ILA_ASSERT(OldGid - PiCount -1 <= aig_state_order.size());
+    }
+  }
+
+  { // parse abc file
+    std::ifstream fin(abc_result_fn);
+    if (! fin.is_open()) {
+      ILA_ERROR << "Cannot read from: " <<abc_result_fn;
+      return;
+    }
+    // you need to check whether there is negation there:
+
+    std::string line;
+    bool has_a_normal_cube = false;
+
+    while(std::getline(fin,line)) {
+      std::stringstream ss(line);
+      int flop;
+      std::string cube;
+      bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
+      bool remove_this_cube = false;
+      InvariantInCnf::clause cl;
+
+      while(ss>>flop) { // for each cube (line)
+        int neg = flop & 0x1;
+        int flopno = flop >> 1;
+
+        ILA_ASSERT(new_id_to_old_id.size() > flopno)
+          << "Referring #" << flopno << " flop, while size of abstract states:" << new_id_to_old_id.size() ;
+        flopno = new_id_to_old_id[flopno]; // use the gla map
+        if (IN(flopno, invlatches))
+          neg = !neg;
+
+        std::string literal;
+        if (flopno == aig_state_order.size()) {
+          literal = (neg ? "~" : "") + std::string("1'b1"); // the extra reg
+          remove_this_cube = remove_this_cube ||  neg; // if it is "& !1'b1", then this cube is 0
+        } else {
+          const auto & ref_val_name = aig_state_order.at(flopno);
+          const auto & lit = aig_literal.at(flopno); // first : var name , second : bit idx
+
+          if (ref_val_name.find(dut_name+".") == 0) {
+            literal = (neg ? "~" : "") +  ref_val_name;
+            cl.push_back(InvariantInCnf::literal(bool(neg),lit.first,lit.second));
+          } else {
+            ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
+            if (replace_outside_var_ref) {
+              if ( ref_val_name == "__all_assumed_reg__[0:0]" ) {
+                literal = (neg ? "~" : "") + std::string("1'b0");
+                remove_this_cube = remove_this_cube ||  !neg; // if it is "& 1'b0" this cube is 0
+              } else if (ref_val_name.find(".") != ref_val_name.npos) {
+                // keep it
+                literal = (neg ? "~" : "") +  ref_val_name;
+                remove_this_cube = true; // remove this cube (we don't know what to do actually)
+              } else 
+                remove_this_cube = true;
+            }else {
+              literal = (neg ? "~" : "") +  ref_val_name;
+              cl.push_back(InvariantInCnf::literal(bool(neg),lit.first,lit.second));
+            }
+          }
+        }
+
+ // refering to outside var
+        if(cube.empty())
+          cube = literal;
+        else
+          cube = cube + " & "  + literal;
+      } // end of a cube
+      // cube = "( " +  cube + ") "
+
+      // void the cube if abnormal
+      if( remove_this_cube) // cube_has_abnormal_var ||
+        cube = "1'b0" ; //cube = "1'b0"; // under-approximate it : total under-approximate
+      else {// if at least the cube has a normal var, it is a normal cube
+        has_a_normal_cube = true;
+        // only if this cube is not removed, we will add it 
+        if (parse_result.empty())
+          parse_result =  "(" + cube + ")";
+        else
+          parse_result = parse_result + " | (" + cube + ")";
+        inv_cnf.InsertClause(cl);
+      }
+    } // deal with a line ( a clause )
+    ILA_ERROR_IF(has_a_normal_cube == false) << "No normal is deduced.";
+    ILA_ERROR_IF(parse_result.empty()) << "No invariants are extracted!";
+    if (!has_a_normal_cube || parse_result.empty() ) {
+      parse_result = "";
+      parse_succeed = false;
+    }
+    
+    parse_result = "~("  + parse_result + ")";
+    parse_result = ReplaceAll(parse_result, "__all_assumed_reg__[0:0]", "1'b0");
+  } // parse abc file
+
+
+
 } // parseAigerResultWoGLA
 
 
@@ -262,7 +431,7 @@ void AbcInvariantParser::parse(
         else {
           ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
           if (replace_outside_var_ref) {
-            if ( ref_val_name == "__all_assumed_reg__" ) {
+            if ( ref_val_name == "__all_assumed_reg__[0:0]" ) {
               literal = (neg ? "~" : "") + std::string("1'b0");
               remove_this_cube = remove_this_cube ||  !neg; // if it is "& 1'b0" this cube is 0
             }
@@ -282,7 +451,7 @@ void AbcInvariantParser::parse(
             literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
           }
           /*
-          if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__") {
+          if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__[0:0]") {
             std::string new_var_name = ReplaceAll(ReplaceAll(ReplaceAll(ref_val_name, "." , "_dot_"), "[", "_"), "]","_");
             outside_reference.insert(new_var_name);
             literal = (neg ? "~" : "") +  new_var_name;
@@ -317,7 +486,7 @@ void AbcInvariantParser::parse(
     }
     
     parse_result = "~("  + parse_result + ")";
-    parse_result = ReplaceAll(parse_result, "__all_assumed_reg__", "1'b0");
+    parse_result = ReplaceAll(parse_result, "__all_assumed_reg__[0:0]", "1'b0");
   } // parse abc file
 }
 
@@ -398,7 +567,7 @@ void AbcInvariantParser::parse(
         else {
           ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
           if (replace_outside_var_ref) {
-            if ( ref_val_name == "__all_assumed_reg__" ) {
+            if ( ref_val_name == "__all_assumed_reg__[0:0]" ) {
               literal = (neg ? "~" : "") + std::string("1'b0");
               remove_this_cube = remove_this_cube || !neg; // if it is "& 1'b0" this cube is 0
             }
@@ -419,7 +588,7 @@ void AbcInvariantParser::parse(
           }
           
           /*
-          if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__") {
+          if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__[0:0]") {
             std::string new_var_name = ReplaceAll(ReplaceAll(ReplaceAll(ref_val_name, "." , "_dot_"), "[", "_"), "]","_");
             outside_reference.insert(new_var_name);
             literal = (neg ? "~" : "") +  new_var_name;
@@ -453,7 +622,7 @@ void AbcInvariantParser::parse(
     }
     
     parse_result = "~("  + parse_result + ")";
-    parse_result = ReplaceAll(parse_result, "__all_assumed_reg__", "1'b0");
+    parse_result = ReplaceAll(parse_result, "__all_assumed_reg__[0:0]", "1'b0");
   } // parse abc file
 }
 

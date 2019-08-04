@@ -300,6 +300,8 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
   std::string precond;
   disallowGla = false;
   if (not all_assume_wire_content.empty()) {
+    ILA_ASSERT(! (_vtg_config.AbcUseAiger == false && _vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput))
+    << "If you don't use aiger, and has assumptions, there is no way to pass the extra output. (Will have an additional latch, but currently we cannot interprete.)";
     if (_vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput) {
       disallowGla = true;
       vlg_wrapper.add_wire("__all_assume_wire__", 1, true);

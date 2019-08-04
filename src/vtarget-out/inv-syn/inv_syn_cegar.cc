@@ -333,6 +333,7 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
       true,
       true );
   } else if (current_inv_type == cur_inv_tp::CEGAR_ABC){
+    ILA_ASSERT(
     inv_obj.AddInvariantFromAbcResultFile(
        _vtg_config.AbcUseAiger ?
           os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "__aiger_prepare.blif"):
@@ -342,7 +343,8 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
         os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "",
       _vtg_config.AbcUseAiger,
       _vtg_config.AbcUseAiger ?
-          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "", inv_cnf );
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "", inv_cnf )
+    ) << "Extracting of invariant failed!";
   }
   else
     ILA_ERROR<<"Inv type unknown:" << current_inv_type;
