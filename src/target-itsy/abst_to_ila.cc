@@ -112,9 +112,6 @@ void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
       case ilasynth::NodeType::Type::BITVECTOR:
         ila->NewBvInput(name, type.bitWidth);
         break;
-      case ilasynth::NodeType::Type::MEM:
-        ila->NewMemInput(name, type.addrWidth, type.dataWidth);
-        break;
       default:
         ILA_ERROR << "Input of type " << type.type << " not supported.";
         break;
