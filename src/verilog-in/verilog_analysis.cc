@@ -12,6 +12,7 @@
 #include <ilang/util/str_util.h>
 
 // extern int yy_flex_debug;
+extern int yydebug;
 
 namespace ilang {
 
@@ -69,6 +70,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t& include_path,
                                  const std::string& optional_top_module)
     : vlg_include_path(include_path), vlg_src_files(srcs),
       top_inst_name(top_module_inst_name), _bad_state(false) {
+//yydebug = 1;
   instance_count++;
   if (instance_count != 1) {
     _bad_state = true;
