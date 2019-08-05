@@ -494,7 +494,7 @@ void J2IDes::DesIlaUnit(const json& j_ila) {
     ILA_WARN_IF(fetch_it == id_expr_map_.end()) << "Fetch not found";
     m->SetFetch(fetch_it->second);
   } catch (...) {
-    ILA_WARN << "Fetch not defined in " << m;
+    m->SetFetch(ExprFuse::BvConst(1, 1));
   }
 
   // valid
@@ -505,7 +505,7 @@ void J2IDes::DesIlaUnit(const json& j_ila) {
     ILA_WARN_IF(valid_it == id_expr_map_.end()) << "Valid not found";
     m->SetValid(valid_it->second);
   } catch (...) {
-    ILA_WARN << "Valid not defined in " << m;
+    m->SetValid(ExprFuse::BoolConst(true));
   }
 
   // instructions
