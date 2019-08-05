@@ -605,6 +605,25 @@ VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
       else
         result_stmt = vlg_stmt_t(" { {") + toStr(outw - inw) + "{" + arg0 +
                       "[" + toStr(inw - 1) + "] }  }, " + arg0 + "} ";
+    } else if (op_name == "RIGHT_ROTATE") {
+      // {x[i-1:0], x[w-1:i]}
+      int rotw = e->param(0);
+      int inw = get_width(e->arg(0));
+      if (rotw == 1) {
+        result_stmt = vlg_stmt_t(" { { ") + arg0 + "[0] }, { " + arg0 + "[ " +
+                      toStr(inw - 1) + " : 1] } }";
+      } else {
+        result_stmt = vlg_stmt_t(" { { ") + arg0 + "[ " + toStr(rotw - 1) +
+                      " : 0 ] }, {" + arg0 + "[ " + toStr(inw - 1) + " : " +
+                      toStr(rotw) + " ] } } ";
+      }
+    } else if (op_name == "LEFT_ROTATE") {
+      // {x[w-1-i:0], x[w-1:w-1-i]}
+      int rotw = e->param(0);
+      int inw = get_width(e->arg(0));
+      result_stmt = vlg_stmt_t(" { { ") + arg0 + "[ " + toStr(inw - 1 - rotw) +
+                    " : 0 ] }, { " + arg0 + "[ " + toStr(inw - 1) + " : " +
+                    toStr(inw - 1 - rotw) + " ] } } ";
     } else
       ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
   } // else if(arg_num == 1)
@@ -630,6 +649,10 @@ VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
       result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) - ( " + arg2 + " ) ";
     else if (op_name == "MUL")
       result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) * ( " + arg2 + " ) ";
+    else if (op_name == "DIV")
+      result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) / ( " + arg2 + " ) ";
+    else if (op_name == "UREM")
+      result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) % ( " + arg2 + " ) ";
     else if (op_name == "CONCAT")
       result_stmt = vlg_stmt_t(" { ( ") + arg1 + " ) , ( " + arg2 + " ) } ";
     else if (op_name == "LOAD") {
