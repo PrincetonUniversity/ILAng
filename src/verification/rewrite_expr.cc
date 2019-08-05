@@ -89,23 +89,31 @@ ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
     auto a1 = get(e->arg(1));
     return Sub(a0, a1);
   }
-#if 0
   case AST_UID_EXPR_OP::DIV: {
-    // TODO
+    auto a0 = get(e->arg(0));
+    auto a1 = get(e->arg(1));
+    return Div(a0, a1);
   }
+#if 0
   case AST_UID_EXPR_OP::SREM: {
     // TODO
   }
+#endif
   case AST_UID_EXPR_OP::UREM: {
-    // TODO
+    auto a0 = get(e->arg(0));
+    auto a1 = get(e->arg(1));
+    return URem(a0, a1);
   }
+#if 0
   case AST_UID_EXPR_OP::SMOD: {
     // TODO
   }
-  case AST_UID_EXPR_OP::MUL: {
-    // TODO
-  }
 #endif
+  case AST_UID_EXPR_OP::MUL: {
+    auto a0 = get(e->arg(0));
+    auto a1 = get(e->arg(1));
+    return Mul(a0, a1);
+  }
   case AST_UID_EXPR_OP::EQ: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
@@ -163,14 +171,16 @@ ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
     auto p0 = e->param(0);
     return SExt(a0, p0);
   }
-#if 0
   case AST_UID_EXPR_OP::LROTATE: {
-    // TODO
+    auto a0 = get(e->arg(0));
+    auto p0 = e->param(0);
+    return LRotate(a0, p0);
   }
   case AST_UID_EXPR_OP::RROTATE: {
-    // TODO
+    auto a0 = get(e->arg(0));
+    auto p0 = e->param(0);
+    return RRotate(a0, p0);
   }
-#endif
   case AST_UID_EXPR_OP::IMPLY: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
