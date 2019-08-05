@@ -45,17 +45,23 @@ VlgSglTgtGen::VlgSglTgtGen(
       // default option on wrapper
       vlg_wrapper(VerilogGenerator::VlgGenConfig(
                       config, // use default configuration
-                      true,   // except overwriting these: external memory
+                      true,  
                       VerilogGeneratorBase::VlgGenConfig::funcOption::
                           External, // function
                       false,        // no start signal
-                      false),       // no rand init
+                      false,        // no rand init
+                      false),       // no expand memory
                   wrapper_name),
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
-          config, true,
+          config,
+          // except overwriting these: external memory
+          // if expand memory, then the ila's memory must be internal
+          vtg_config.ExpandMemoryArray ? false /* Internal */ : true /* external */,
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
-          true)), // rand init
+          true, // rand init
+          vtg_config.ExpandMemoryArray // expand memory
+          )), 
       // interface mapping directive
       _idr(instr_ptr == nullptr
                ? true // if nullptr, verify inv., reset it
@@ -198,6 +204,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   std::set<std::string> port_of_ila;    // store the name of ila port also
 
   // .. record function
+
+  // this is the string to construct
   auto retStr = vlg_ila.moduleName + " " + _ila_mod_inst_name + " (\n";
 
   std::set<std::string> func_port_skip_set;
@@ -243,7 +251,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       retStr += "   ." + arg.first + "(" + func_arg_w + "),\n";
       argNo++;
     }
-  }
+  } // end of functions
 
   // handle input
   for (auto&& w : vlg_ila.inputs) {
@@ -265,7 +273,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
           << "__ILA_I_" + w.first << " has not been defined yet";
       retStr += "   ." + w.first + "(__ILA_I_" + w.first + "),\n";
     }
-  }
+  } // end of inputs
 
   // TODO:: FUnction here !
   // handle output
@@ -288,70 +296,78 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       retStr += "   ." + w.first + "(),\n"; // __ILA_I_" + w.first + "
     }
   }
+  if (_vtg_config.ExpandMemoryArray) {
+    // then we should ignore the rports/wports
+    for (auto && port : vlg_ila.mem_o) {
+        std::string wrapper_wire_name = "__ILA_SO_" + port.first;
+        vlg_wrapper.add_wire(wrapper_wire_name, port.second, true);
+        retStr += "   ." + port.first + "(" + wrapper_wire_name + "),\n";
+    }
+  } else {
+    // handle memory io - use internal storage for this purpose
+    for (auto&& ila_name_rport_pair : vlg_ila.ila_rports) {
+      const auto& ila_name = ila_name_rport_pair.first;
+      const auto& rports = ila_name_rport_pair.second;
+      const auto adw = GetMemInfo(ila_name);
+      auto aw = adw.first;
+      auto dw = adw.second; // address/data width
+      ILA_ASSERT(aw > 0 && dw > 0)
+          << "Implementation bug: unable to find mem:" << ila_name;
 
-  // handle memory io - use internal storage for this purpose
-  for (auto&& ila_name_rport_pair : vlg_ila.ila_rports) {
-    const auto& ila_name = ila_name_rport_pair.first;
-    const auto& rports = ila_name_rport_pair.second;
-    const auto adw = GetMemInfo(ila_name);
-    auto aw = adw.first;
-    auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 && dw > 0)
-        << "Implementation bug: unable to find mem:" << ila_name;
+      for (auto&& rport : rports) {
+        auto no = rport.first;    // is the num
+        auto port = rport.second; // is the port
+        auto rdw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_rdata";
+        auto raw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_raddr";
+        // auto rew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_ren"; no need,
+        // r_en is the start signal
 
-    for (auto&& rport : rports) {
-      auto no = rport.first;    // is the num
-      auto port = rport.second; // is the port
-      auto rdw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_rdata";
-      auto raw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_raddr";
-      // auto rew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_ren"; no need,
-      // r_en is the start signal
+        vlg_wrapper.add_wire(rdw, dw, true);
+        vlg_wrapper.add_wire(raw, aw, true);
 
-      vlg_wrapper.add_wire(rdw, dw, true);
-      vlg_wrapper.add_wire(raw, aw, true);
+        retStr += "   ." + port.rdata + "(" + rdw + "),\n";
+        retStr += "   ." + port.raddr + "(" + raw + "),\n";
 
-      retStr += "   ." + port.rdata + "(" + rdw + "),\n";
-      retStr += "   ." + port.raddr + "(" + raw + "),\n";
+        // port.rdata/raddr will be connected
+        port_connected.insert(port.rdata);
+        port_connected.insert(port.raddr);
 
-      // port.rdata/raddr will be connected
-      port_connected.insert(port.rdata);
-      port_connected.insert(port.raddr);
+      } // for rport
+    }   // for ila_rports
 
-    } // for rport
-  }   // for ila_rports
+    for (auto&& ila_name_wport_pair : vlg_ila.ila_wports) {
 
-  for (auto&& ila_name_wport_pair : vlg_ila.ila_wports) {
+      const auto& ila_name = ila_name_wport_pair.first;
+      const auto& wports = ila_name_wport_pair.second;
+      const auto adw = GetMemInfo(ila_name);
+      auto aw = adw.first;
+      auto dw = adw.second; // address/data width
+      ILA_ASSERT(aw > 0 && dw > 0)
+          << "Implementation bug: unable to find mem:" << ila_name;
 
-    const auto& ila_name = ila_name_wport_pair.first;
-    const auto& wports = ila_name_wport_pair.second;
-    const auto adw = GetMemInfo(ila_name);
-    auto aw = adw.first;
-    auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 && dw > 0)
-        << "Implementation bug: unable to find mem:" << ila_name;
+      for (auto&& wport : wports) {
+        auto no = wport.first;    // is the num
+        auto port = wport.second; // is the port
+        auto wdw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wdata";
+        auto waw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_waddr";
+        auto wew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wen";
 
-    for (auto&& wport : wports) {
-      auto no = wport.first;    // is the num
-      auto port = wport.second; // is the port
-      auto wdw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wdata";
-      auto waw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_waddr";
-      auto wew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wen";
+        vlg_wrapper.add_wire(wdw, dw, true);
+        vlg_wrapper.add_wire(waw, aw, true);
+        vlg_wrapper.add_wire(wew, 1, true);
 
-      vlg_wrapper.add_wire(wdw, dw, true);
-      vlg_wrapper.add_wire(waw, aw, true);
-      vlg_wrapper.add_wire(wew, 1, true);
+        retStr += "   ." + port.wdata + "(" + wdw + "),\n";
+        retStr += "   ." + port.waddr + "(" + waw + "),\n";
+        retStr += "   ." + port.wen + "(" + wew + "),\n";
 
-      retStr += "   ." + port.wdata + "(" + wdw + "),\n";
-      retStr += "   ." + port.waddr + "(" + waw + "),\n";
-      retStr += "   ." + port.wen + "(" + wew + "),\n";
+        // port.rdata/raddr will be connected
+        port_connected.insert(port.wdata);
+        port_connected.insert(port.waddr);
+        port_connected.insert(port.wen);
 
-      // port.rdata/raddr will be connected
-      port_connected.insert(port.wdata);
-      port_connected.insert(port.waddr);
-      port_connected.insert(port.wen);
-
-    } // for wport
-  }   // for ila_wports
+      } // for wport
+    }   // for ila_wports
+  } // end of !_vtg_config.ExpandMemoryArray
 
   // handle state-output
   std::string sep;

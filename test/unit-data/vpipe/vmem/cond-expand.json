@@ -1,0 +1,11 @@
+{
+  "global invariants": [],
+
+  "instructions": [
+    {
+      "instruction": "SWAPExpand",
+      "ready bound": 1
+    }
+  ]
+}
+

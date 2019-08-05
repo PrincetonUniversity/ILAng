@@ -351,6 +351,8 @@ void VerilogGenerator::insertState(const ExprPtr& state) {
   ILA_ASSERT(state->is_var());
   if (state->is_mem()) { // depends on configuration, we choose to put into
                          // mem_external/mem_internal
+    ILA_ASSERT(!(cfg_.expand_mem && cfg_.extMem)) << "Incompatible configuration" 
+      << "expand_mem and extMem cannot be true at the same time!";
     if (cfg_.extMem) {
       add_external_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
@@ -361,7 +363,18 @@ void VerilogGenerator::insertState(const ExprPtr& state) {
       add_internal_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
                        state->sort()->data_width());
-    }
+      if (cfg_.expand_mem) {
+        // add output
+        int addr_range = std::pow(2, state->sort()->addr_width());
+        int data_width = state->sort()->data_width();
+        for (int idx = 0; idx < addr_range ; ++ idx ) {
+          auto probe_wire_name = sanitizeName(state)+"_" + std::to_string(idx);
+          mem_o.push_back(vlg_sig_t(probe_wire_name, data_width));
+          add_wire(probe_wire_name, data_width);
+          add_assign_stmt(probe_wire_name, sanitizeName(state) + "[" +std::to_string(idx) + "]" );
+        } // for each memory element
+      } // if expand memory
+    } // else (internal memory)
   } else if (state->is_bv()) {
     auto reg_name = sanitizeName(state);
     add_reg(reg_name, state->sort()->bit_width());

@@ -24,8 +24,34 @@ Ila MemorySwap::BuildModel() {
     auto dataa = Load(mema, addra);
     auto datab = Load(memb, addrb);
 
-    SWAP.SetUpdate(mema, Store(mema, addra, datab));
-    SWAP.SetUpdate(memb, Store(memb, addrb, dataa));
+    SWAP.SetUpdate(mema, Store(mema, addra, datab)); //mema[addra] = memb[addrb]
+    SWAP.SetUpdate(memb, Store(memb, addrb, dataa)); //memb[addrb] = mema[addra]
+  }
+  return memswap;
+}
+
+
+Ila MemorySwap::BuildSimpleSwapModel() {
+  // build the ila
+  auto memswap = Ila("MemorySwap");
+  memswap.SetValid(BoolConst(true));
+
+  auto addra = memswap.NewBvInput("addra", 4);
+  auto addrb = memswap.NewBvInput("addrb", 4);
+  auto start = memswap.NewBvInput("start", 1);
+
+  auto mema = memswap.NewMemState("mema", 4, 8);
+  auto memb = memswap.NewMemState("memb", 4, 8);
+
+  {
+    auto SWAP = memswap.NewInstr("SWAPExpand");
+    SWAP.SetDecode(start == 1);
+
+    auto dataa = Load(mema, addra);
+    auto datab = Load(memb, addrb);
+
+    SWAP.SetUpdate(mema, Store(mema, addra, datab)); //mema[addra] = memb[addrb]
+    SWAP.SetUpdate(memb, Store(memb, addrb, dataa)); //memb[addrb] = mema[addra]
   }
   return memswap;
 }

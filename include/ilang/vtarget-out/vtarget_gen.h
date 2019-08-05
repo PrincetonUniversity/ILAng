@@ -33,6 +33,8 @@ public:
     bool OnlyCheckInstUpdatedVars; // true
     /// Do we set separate problems for different var map (CoSA only)
     bool PerVariableProblemCosa; // true
+    /// If true will expand memory for the assertions/assumptions, incompatible with memory abstractions
+    bool ExpandMemoryArray;
     /// Whether to abstract the memory read
     bool MemAbsReadAbstraction; // false
     /// Whether to force the instruction check to start from reset state
@@ -63,7 +65,8 @@ public:
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
-          PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
+          PerVariableProblemCosa(false), ExpandMemoryArray(false),
+          MemAbsReadAbstraction(false),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
           CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),

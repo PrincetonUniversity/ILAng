@@ -137,19 +137,24 @@ public:
     bool pass_node_name;
     /// whether to give random init to the register
     bool reg_random_init; // this is also to avoid Yosys optimization
+    /// whether to expand the memory and connect everything to the outside
+    /// cannot be true the same time as extMem
+    bool expand_mem;
 
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
         bool ExternalMem = false, funcOption funcOpt = funcOption::Internal,
-        bool gen_start = false, bool pass_name = false, bool rand_init = false)
+        bool gen_start = false, bool pass_name = false, bool rand_init = false,
+        bool ExpandMem = false)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(pass_name), reg_random_init(rand_init) {}
+          pass_node_name(pass_name), reg_random_init(rand_init), expand_mem(ExpandMem) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start, bool rand_init)
+                 bool gen_start, bool rand_init, bool ExpandMem)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(c.pass_node_name), reg_random_init(rand_init) {}
+          pass_node_name(c.pass_node_name), reg_random_init(rand_init),
+          expand_mem(ExpandMem) {}
     // set other fields if there are such need (?)
   };
 

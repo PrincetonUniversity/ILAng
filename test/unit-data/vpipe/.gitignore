@@ -5,6 +5,7 @@ verify_jg/*
 disprove/*
 vmem/invariants
 vmem/SWAP
+vmem/SWAPExpand
 vmem/Rd
 undetf/INST
 undetf/INST2
