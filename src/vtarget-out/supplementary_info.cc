@@ -12,11 +12,11 @@ namespace ilang {
 VlgTgtSupplementaryInfo::VlgTgtSupplementaryInfo() {}
 
 void VlgTgtSupplementaryInfo::FromJson(nlohmann::json & vmap) {
-  if (not IN("supplementary-info", vmap ) ) 
+  if (not IN("supplementary info", vmap ) ) 
     return;
-  const auto & supplementary_info = vmap["supplementary-info"];
+  const auto & supplementary_info = vmap["supplementary info"];
   if (not supplementary_info.is_object()) {
-    ILA_ERROR << "Unable to parse `supplementary-info` field, expect a map.";
+    ILA_ERROR << "Unable to parse `supplementary info` field, expect a map.";
     return;
   }
   if ( IN("width-info", supplementary_info) and supplementary_info["width-info"].is_object() ) {
