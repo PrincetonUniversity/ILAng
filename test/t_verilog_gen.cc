@@ -35,6 +35,7 @@ void parseable(const std::string& fname, VerilogGenerator& vgen) {
 void ParseIla(const InstrLvlAbsPtr& ila) {
   // test 1 gen all : internal mem
   {
+    // SetToStdErr(true);
     auto vgen = VerilogGenerator();
     vgen.ExportIla(ila);
 
@@ -43,6 +44,7 @@ void ParseIla(const InstrLvlAbsPtr& ila) {
     parseable(tmp_file_name, vgen);
   }
   // test 2 gen all : external mem
+#if 1
   {
     auto config = VerilogGenerator::VlgGenConfig(
         true, VerilogGenerator::VlgGenConfig::funcOption::Internal);
@@ -53,6 +55,7 @@ void ParseIla(const InstrLvlAbsPtr& ila) {
     auto tmp_file_name = GetRandomFileName(tmp_file_template);
     parseable(tmp_file_name, vgen);
   }
+#endif
 }
 
 void FlattenIla(const InstrLvlAbsPtr& ila) {
@@ -66,7 +69,6 @@ void FlattenIla(const InstrLvlAbsPtr& ila) {
 
     char tmp_file_template[] = "/tmp/vlog_flat_XXXXXX";
     auto tmp_file_name = GetRandomFileName(tmp_file_template);
-    ILA_INFO << tmp_file_name;
     parseable(tmp_file_name, vgen);
   }
 }
