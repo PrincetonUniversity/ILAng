@@ -12,30 +12,30 @@ namespace ilang {
 VlgTgtSupplementaryInfo::VlgTgtSupplementaryInfo() {}
 
 void VlgTgtSupplementaryInfo::FromJson(nlohmann::json & vmap) {
-  if (not IN("supplementary info", vmap ) ) 
+  if (not IN("annotation", vmap ) ) 
     return;
-  const auto & supplementary_info = vmap["supplementary info"];
+  const auto & supplementary_info = vmap["annotation"];
   if (not supplementary_info.is_object()) {
-    ILA_ERROR << "Unable to parse `supplementary info` field, expect a map.";
+    ILA_ERROR << "Unable to parse `annotation` field, expect a map.";
     return;
   }
-  if ( IN("width-info", supplementary_info) and supplementary_info["width-info"].is_object() ) {
-    for (auto && nw : supplementary_info["width-info"].items()) {
+  if ( IN("width", supplementary_info) and supplementary_info["width"].is_object() ) {
+    for (auto && nw : supplementary_info["width"].items()) {
       width_info.insert(std::make_pair(nw.key(),nw.value().get<int>()));
     }
   }
   if ( IN("memory", supplementary_info) and supplementary_info["memory"].is_object() ) {
     for (auto && nw : supplementary_info["memory"].items()) {
       std::string memory_export_directive = nw.value().get<std::string>();
-      memory_export_type directive = memory_export_type_t::EXTERNAL;
+      memory_export_type directive = memory_export_type_external;
       if (memory_export_directive == "internal")
-        directive = memory_export_type_t::INTERNAL;
+        directive = memory_export_type_internal;
       else if (memory_export_directive == "external")
-        directive = memory_export_type_t::EXTERNAL;
+        directive = memory_export_type_external;
       else
         ILA_ERROR << "Unsupported memory export directive:" << memory_export_directive 
         << ", expect internal/external";
-      width_info.insert(std::make_pair(nw.key(),directive));
+      memory_export.insert(std::make_pair(nw.key(),directive));
     }
   }
 } // VlgTgtSupplementaryInfo

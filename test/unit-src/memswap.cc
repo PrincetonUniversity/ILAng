@@ -84,26 +84,26 @@ Ila MemorySwap::BuildRfAsMemModel() {
   proc.SetValid(BoolConst(true));
 
   auto op = proc.NewBvInput("op", 2);
-  auto oprand1 = proc.NewBvInput("oprand1", 2);
-  auto oprand2 = proc.NewBvInput("oprand2", 2);
+  auto operand1 = proc.NewBvInput("operand1", 2);
+  auto operand2 = proc.NewBvInput("operand2", 2);
 
-  auto rf  = proc.NewMemState("rf",  8, 8);
+  auto rf  = proc.NewMemState("rf",  2, 8);
   auto mem = proc.NewMemState("mem", 8, 8);
 
   { // ADD1
     auto ADD1 = proc.NewInstr("ADD1");
     ADD1.SetDecode(op == 0);
-    ADD1.SetUpdate(rf, Store(rf, oprand1, Load(rf, oprand2)));
+    ADD1.SetUpdate(rf, Store(rf, operand1, Load(rf, operand2) + 1));
   }
   { // STORE
     auto STORE = proc.NewInstr("STORE");
     STORE.SetDecode(op == 1);
-    STORE.SetUpdate(mem, Store(mem, Load(rf, oprand1), Load(rf, oprand2)));
+    STORE.SetUpdate(mem, Store(mem, Load(rf, operand1), Load(rf, operand2)));
   }
   { // LOAD
     auto LOAD = proc.NewInstr("LOAD");
     LOAD.SetDecode(op == 2);
-    LOAD.SetUpdate(rf, Store(rf, oprand1, Load(mem, Load(rf, oprand2))));
+    LOAD.SetUpdate(rf, Store(rf, operand1, Load(mem, Load(rf, operand2))));
   }
 
   return proc;

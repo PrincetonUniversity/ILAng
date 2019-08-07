@@ -7,6 +7,9 @@ vmem/invariants
 vmem/SWAP
 vmem/SWAPExpand
 vmem/Rd
+vmem/ADD1
+vmem/LOAD
+vmem/STORE
 undetf/INST
 undetf/INST2
 undetf/INST3

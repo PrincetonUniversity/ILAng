@@ -18,8 +18,12 @@ struct VlgTgtSupplementaryInfo {
   //  ----------------------- MEMBERS  ------------------------ //
   /// the width info
   std::map<std::string, int>  width_info;
-  /// how to treat a memory
-  typedef enum memory_export_type_t {INTERNAL, EXTERNAL} memory_export_type;
+  /// how to treat a memory , the reason of using bool instead of enum is because
+  /// I don't want the verilog-out part to include this file, so its type should be 
+  /// a generic type
+  typedef bool memory_export_type;
+  #define memory_export_type_internal false
+  #define memory_export_type_external true
   /// the map of memory
   std::map<std::string, memory_export_type> memory_export;
   

@@ -21,7 +21,7 @@
   },
 
   "mapping control" : [],
-  "supplementary info" : {
+  "annotation" : {
     "memory" : {
       "rf":"internal",
       "mem":"external"

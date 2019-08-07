@@ -133,7 +133,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   const auto& sname = t.second;
 
   if (token_tp == VarExtractor::token_type::UNKN_S) {
-    ILA_WARN_IF(!IN(sname,wrapper_signals))
+    ILA_WARN_IF(!IN(sname,wrapper_signals) && !IN(sname, vlg_wrapper.wires))
         << "In refinement relations: unknown reference to name:" << sname
         << " keep unchanged.";
     return sname;
@@ -366,7 +366,12 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
   if (!ila_state)
     return VLG_TRUE;
   if (ila_state->sort()->is_mem()) {
-    if (_vtg_config.ExpandMemoryArray) {
+    // we need to decide if this memory is internal/external;
+    bool external = _vlg_cfg.extMem;
+    if (IN(ila_state_name, supplementary_info.memory_export))
+      external = supplementary_info.memory_export.at(ila_state_name);
+
+    if (!external) { // if internal
       // if you choose to expand the array then we are able to handle with out MEM directive
       int addr_range = std::pow(2, ila_state->sort()->addr_width()); // 2^N
       // construct expansion expression
@@ -384,7 +389,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       add_wire_assign_assumption(map_sig, map_expr, "vmap");
       return map_sig;
     } else {
-      ILA_ERROR << "Please use **MEM**.? directive for memory state matching";
+      ILA_ERROR << "Please use **MEM**.? directive for memory state matching of "<< ila_state_name;
       return VLG_TRUE;
     }
   }
@@ -425,8 +430,13 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
     if (_sdr.isSpecialStateDir(m.get<std::string>())) {
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr")
           << "map mem:" << ila_state_name;
-      ILA_ERROR_IF(_vtg_config.ExpandMemoryArray)
-      <<"Should not use MEM directive if choose to expand memory.";
+
+      bool external = _vlg_cfg.extMem;
+      if (IN(ila_state_name, supplementary_info.memory_export))
+        external = supplementary_info.memory_export.at(ila_state_name);
+
+      ILA_ERROR_IF(!external)
+      <<"Should not use MEM directive since this memory is internal:" << ila_state_name;
       // may be we need to log them here
       if (is_assert == false) {
         _idr.SetMemName(m.get<std::string>(), ila_state_name);

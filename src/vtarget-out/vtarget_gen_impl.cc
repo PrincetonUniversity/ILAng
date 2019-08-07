@@ -40,6 +40,7 @@ VlgVerifTgtGen::VlgVerifTgtGen(
       _backend(backend), _cfg(vlg_gen_config), _vtg_config(vtg_config),
       _bad_state(false) {
   load_json(_rf_var_map_name, rf_vmap);
+  supplementary_info.FromJson(rf_vmap);
   load_json(_rf_cond_name, rf_cond);
   set_module_instantiation_name();
   if (_ila_ptr == nullptr) {
@@ -142,7 +143,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Cosa(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
+           vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
           _vtg_config, _backend);
       target.ConstructWrapper();
@@ -152,7 +154,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Jasper(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
+          vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
           _vtg_config, _backend);
       target.ConstructWrapper();
@@ -181,7 +184,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Cosa(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
+            vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
@@ -191,7 +195,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Jasper(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
+            vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();

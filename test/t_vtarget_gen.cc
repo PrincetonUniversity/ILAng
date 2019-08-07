@@ -120,11 +120,12 @@ TEST(TestVlgTargetGen, Memory) {
   vg.GenerateTargets();
 }
 
-TEST(TestVlgTargetGen, MemoryExpand) { // test the expansion of memory
+TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
   auto ila_model = MemorySwap::BuildSimpleSwapModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
-  vtg_cfg.ExpandMemoryArray = true;
+  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg; // default configuration
+  VerilogGeneratorBase::VlgGenConfig vlg_cfg;
+  vlg_cfg.extMem = false;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
@@ -136,8 +137,29 @@ TEST(TestVlgTargetGen, MemoryExpand) { // test the expansion of memory
       dirName,               // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
-      vtg_cfg
+      vtg_cfg,
+      vlg_cfg
       );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
+TEST(TestVlgTargetGen, MemoryInternalExternal) {
+  auto ila_model = MemorySwap::BuildRfAsMemModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                       // no include
+      {dirName + "rf_as_mem.v"},     // vlog files
+      "proc",                  // top_module_name
+      dirName + "vmap-rfarray.json", // variable mapping
+      dirName + "cond-rfarray.json", // cond path
+      dirName,                  // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA);
 
   EXPECT_FALSE(vg.in_bad_state());
 
