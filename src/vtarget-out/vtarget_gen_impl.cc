@@ -252,11 +252,15 @@ static size_t find_comments(const std::string& line) {
     if (state == PLAIN) {
       if (c == '/')
         next_state = LEFT;
+      else if (c == '"')
+        next_state = STR;
       else
         next_state = PLAIN;
     } else if (state == STR) {
-      if (c == '"')
+      if (c == '"' || c == '\n')
         next_state = PLAIN;
+      // the '\n' case is in case we encounter some issue to find
+      // the ending of a string
       else
         next_state = STR;
     } else if (state == LEFT) {
