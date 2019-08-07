@@ -602,31 +602,26 @@ VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
       int inw = get_width(e->arg(0));
       if (outw == inw)
         result_stmt = arg0;
-      else
+      else if (e->arg(0)->is_const() && inw == 1) {
         result_stmt = vlg_stmt_t(" { {") + toStr(outw - inw) + "{" + arg0 +
-                      "[" + toStr(inw - 1) + "] }  }, " + arg0 + "} ";
+                      "} }, " + arg0 + "} ";
+      } else
+        result_stmt = vlg_stmt_t(" { {") + toStr(outw - inw) + "{" + arg0 +
+                      "[" + toStr(inw - 1) + "]} }, " + arg0 + "} ";
     } else if (op_name == "RIGHT_ROTATE") {
       // {x[i-1:0], x[w-1:i]}
       int rotw = e->param(0);
       int inw = get_width(e->arg(0));
-#if 0
       result_stmt = vlg_stmt_t(" { ( ") + arg0 + "[" + toStr(rotw - 1) +
                     ":0] ), ( " + arg0 + "[" + toStr(inw - 1) + ":" +
                     toStr(rotw) + "] ) } ";
-#endif
-      result_stmt = arg0;
-      ILA_INFO << result_stmt;
     } else if (op_name == "LEFT_ROTATE") {
       // {x[w-1-i:0], x[w-1:w-i]}
       int rotw = e->param(0);
       int inw = get_width(e->arg(0));
-#if 0
       result_stmt = vlg_stmt_t(" { ( ") + arg0 + "[" + toStr(inw - 1 - rotw) +
                     ":0] ), ( " + arg0 + "[" + toStr(inw - 1) + ":" +
                     toStr(inw - rotw) + "] ) } ";
-#endif
-      result_stmt = arg0;
-      ILA_INFO << result_stmt;
     } else
       ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
   } // else if(arg_num == 1)
@@ -690,8 +685,7 @@ VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
         result_stmt = data_name;
       } // if( pos != mems_external.end() )
       else {
-        result_stmt =
-            vlg_stmt_t(" (  ") + mem_var_name + " [ " + arg2 + " ] ) ";
+        result_stmt = vlg_stmt_t(" (  ") + mem_var_name + "[" + arg2 + "] ) ";
 
         ILA_DLOG("VerilogGen.translateBvOp") << "Not found.";
       }
