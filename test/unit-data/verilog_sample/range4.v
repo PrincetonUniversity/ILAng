@@ -1,7 +1,7 @@
 module range( clk, rst, in1, in2, in3, r1, r2, r3);
 
 parameter W = 4;
-parameter W2 = W + 1;
+parameter W2 = (W + 1);
 parameter WV = 2'b00;
 parameter WV2 = WV + 1;
 
