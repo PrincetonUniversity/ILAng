@@ -63,7 +63,8 @@ public:
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
-          PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
+          PerVariableProblemCosa(false),
+          MemAbsReadAbstraction(false),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
           CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),

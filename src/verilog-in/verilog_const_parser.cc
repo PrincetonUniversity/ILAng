@@ -63,7 +63,17 @@ VerilogConstantExprEval::_eval(ast_expression* e,
       }
       // to explicitly free it
       return ret;
-    } else { // parser error: unable to handle
+    } else if (e->primary->value_type == ast_primary_value_type::PRIMARY_MINMAX_EXP) {
+      if ( e->primary->value.minmax->left != NULL || e->primary->value.minmax->right != NULL 
+        || e->primary->value.minmax->aux == NULL) {
+          error_str = ast_expression_tostring(e);
+          ILA_ERROR << "Unable to parse " << error_str;
+          eval_error = true;
+          return 0;
+        }
+      return _eval(e->primary->value.minmax->aux, param_defs);
+    }
+     else { // parser error: unable to handle
       error_str = ast_expression_tostring(e);
       eval_error = true;
       return 0;
@@ -168,6 +178,7 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
         val = _eval(asn->expression, output_parameter_dict);
       if (eval_error) {
         eval_error = false;
+        ILA_WARN <<"ParseCurrentModuleParameters has error for : " << error_str << std::endl;
         continue; // if we encounter error, just skip it
       }
 

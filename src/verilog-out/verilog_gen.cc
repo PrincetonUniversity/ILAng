@@ -9,6 +9,7 @@
 #include <string>
 
 #include <ilang/ila/expr_fuse.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -32,6 +33,12 @@ VerilogGeneratorBase::VerilogGeneratorBase(const VlgGenConfig& config,
     add_wire(startName, 1);
     add_input(startName, 1);
   }
+}
+
+
+/// add memory annotation, please invoke right after constructor
+void VerilogGeneratorBase::AnnotateMemory(const memory_export_annotation_t & annotation) {
+  memory_export_annotation = annotation;
 }
 
 /// Check if a name is reserved (clk/rst/moduleName/decodeNames/ctrName)
@@ -243,6 +250,8 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
     fout << ",\n" << sig_pair.first; // sig_pair.first is the name
   for (auto const& sig_pair : mem_o)
     fout << ",\n" << sig_pair.first; // sig_pair.first is the name
+  for (auto const& sig_pair : mem_probe_o)
+    fout << ",\n" << sig_pair.first; // sig_pair.first is the name
   for (auto const& sig_pair : regs)
     fout << ",\n" << sig_pair.first;
 
@@ -260,6 +269,9 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
     fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
   for (auto const& sig_pair : mem_o)
+    fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
+         << (sig_pair.first) << ";\n";
+  for (auto const& sig_pair : mem_probe_o)
     fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
   for (auto const& sig_pair : regs)
@@ -350,8 +362,14 @@ void VerilogGenerator::insertInput(const ExprPtr& input) {
 void VerilogGenerator::insertState(const ExprPtr& state) {
   ILA_ASSERT(state->is_var());
   if (state->is_mem()) { // depends on configuration, we choose to put into
-                         // mem_external/mem_internal
-    if (cfg_.extMem) {
+                         // mem_external/mem_internal by default
+
+    bool external = cfg_.extMem;
+    if (IN(state->name().str(),memory_export_annotation))
+      external = memory_export_annotation.at(state->name().str());
+    // we can overwrite the default
+
+    if (external) {
       add_external_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
                        state->sort()->data_width());
@@ -361,7 +379,18 @@ void VerilogGenerator::insertState(const ExprPtr& state) {
       add_internal_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
                        state->sort()->data_width());
-    }
+      if (cfg_.expand_mem) { // vtg should put it to be true here
+        // add output
+        int addr_range = std::pow(2, state->sort()->addr_width());
+        int data_width = state->sort()->data_width();
+        for (int idx = 0; idx < addr_range ; ++ idx ) {
+          auto probe_wire_name = sanitizeName(state)+"_" + std::to_string(idx);
+          mem_probe_o.push_back(vlg_sig_t(probe_wire_name, data_width));
+          add_wire(probe_wire_name, data_width);
+          add_assign_stmt(probe_wire_name, sanitizeName(state) + "[" +std::to_string(idx) + "]" );
+        } // for each memory element
+      } // if expand memory
+    } // else (internal memory)
   } else if (state->is_bv()) {
     auto reg_name = sanitizeName(state);
     add_reg(reg_name, state->sort()->bit_width());
@@ -902,6 +931,10 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
                                         const mem_write_list_t& writeList) {
   // count the maximum ports needed, that is for a single condition what's max
   // size of mem_write_entry_list_t
+  bool this_mem_external = cfg_.extMem;
+  if (IN(mem_var->name().str(), memory_export_annotation))
+    this_mem_external = memory_export_annotation.at(mem_var->name().str());
+
   auto name = sanitizeName(mem_var);
   auto addr_width = mem_var->sort()->addr_width();
   auto data_width = mem_var->sort()->data_width();
@@ -914,7 +947,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
     add_wire(name + "_addr" + toStr(portIdx), addr_width);
     add_wire(name + "_data" + toStr(portIdx), data_width);
     add_wire(name + "_wen" + toStr(portIdx), 1);
-    if (cfg_.extMem) {
+    if (this_mem_external) {
       mem_o.push_back(vlg_sig_t(name + "_addr" + toStr(portIdx), addr_width));
       mem_o.push_back(vlg_sig_t(name + "_data" + toStr(portIdx), data_width));
       mem_o.push_back(vlg_sig_t(name + "_wen" + toStr(portIdx), 1));
@@ -965,7 +998,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
     add_assign_stmt(dataWireName, dataStmt[portIdx]);
     add_assign_stmt(enabWireName, enabStmt[portIdx]);
     // add memory updates in the always block
-    if (cfg_.extMem) {
+    if (this_mem_external) {
       // DO NOTHINGls
     } else {
       vlg_stmt_t assignment =

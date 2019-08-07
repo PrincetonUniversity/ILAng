@@ -1,0 +1,19 @@
+{
+  "global invariants": [],
+
+  "instructions": [
+    {
+      "instruction": "ADD1",
+      "ready bound": 1
+    },
+    {
+      "instruction": "STORE",
+      "ready bound": 1
+    },
+    {
+      "instruction": "LOAD",
+      "ready bound": 1
+    }
+  ]
+}
+
