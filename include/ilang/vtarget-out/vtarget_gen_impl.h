@@ -25,6 +25,7 @@
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/directive.h>
+#include <ilang/vtarget-out/supplementary_info.h>
 #include <ilang/vtarget-out/var_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
@@ -75,8 +76,8 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VerilogInfo* _vlg_info_ptr,
-      const std::string& vlg_mod_inst_name,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _supplementary_info,
+      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
@@ -120,6 +121,8 @@ protected:
   nlohmann::json& rf_cond;
   /// An empty json for default fallthrough cases
   nlohmann::json empty_json;
+  /// The supplementary information
+  const VlgTgtSupplementaryInfo& supplementary_info;
   /// record all the referred vlg names, so you can add (*keep*) if needed
   std::map<std::string, ex_info_t> _all_referred_vlg_names;
   /// target type
@@ -240,6 +243,8 @@ protected:
   std::vector<std::string> vlg_include_files_path;
   /// Store the configuration
   vtg_config_t _vtg_config;
+  /// Store the vlg configurations
+  const VerilogGenerator::VlgGenConfig& _vlg_cfg;
   /// Store the selection of backend
   backend_selector _backend;
 
@@ -390,6 +395,8 @@ protected:
   nlohmann::json rf_vmap;
   /// store the condition
   nlohmann::json rf_cond;
+  /// The supplementary information
+  VlgTgtSupplementaryInfo supplementary_info;
 
 public:
   // --------------------- METHODS ---------------------------- //

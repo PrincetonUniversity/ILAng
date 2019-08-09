@@ -40,6 +40,7 @@ VlgVerifTgtGen::VlgVerifTgtGen(
       _backend(backend), _cfg(vlg_gen_config), _vtg_config(vtg_config),
       _bad_state(false) {
   load_json(_rf_var_map_name, rf_vmap);
+  supplementary_info.FromJson(rf_vmap);
   load_json(_rf_cond_name, rf_cond);
   set_module_instantiation_name();
   if (_ila_ptr == nullptr) {
@@ -142,9 +143,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Cosa(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
-          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend);
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+          _vlg_impl_include_path, _vtg_config, _backend);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                        "absmem.v");
@@ -152,9 +153,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Jasper(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
-          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend);
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+          _vlg_impl_include_path, _vtg_config, _backend);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } // end if backend...
@@ -181,8 +182,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Cosa(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
-            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
@@ -191,8 +192,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Jasper(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
-            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
@@ -240,17 +241,25 @@ bool VlgVerifTgtGen::bad_state_return(void) {
 
 // return npos if no comments in
 static size_t find_comments(const std::string& line) {
-  enum state_t { PLAIN, LEFT } state, next_state;
+  enum state_t { PLAIN, STR, LEFT } state, next_state;
   state = PLAIN;
   size_t ret = 0;
   for (const auto& c : line) {
     if (state == PLAIN) {
       if (c == '/')
         next_state = LEFT;
+      else if (c == '"')
+        next_state = STR;
       else
         next_state = PLAIN;
-    } else {
-      ILA_ASSERT(state == LEFT) << "Unknwon state " << state;
+    } else if (state == STR) {
+      if (c == '"' || c == '\n')
+        next_state = PLAIN;
+      // the '\n' case is in case we encounter some issue to find
+      // the ending of a string
+      else
+        next_state = STR;
+    } else if (state == LEFT) {
       if (c == '/') {
         ILA_ASSERT(ret > 0);
         return ret - 1;

@@ -75,7 +75,8 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VerilogInfo* _vlg_info_ptr,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _supplementary_info,
+      VerilogInfo* _vlg_info_ptr,
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,

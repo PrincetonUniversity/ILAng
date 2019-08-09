@@ -34,7 +34,8 @@ VlgSglTgtGen::VlgSglTgtGen(
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
-    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
+    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond, 
+    VlgTgtSupplementaryInfo & _supplementary_info,
     VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
@@ -46,17 +47,23 @@ VlgSglTgtGen::VlgSglTgtGen(
       // default option on wrapper
       vlg_wrapper(VerilogGenerator::VlgGenConfig(
                       config, // use default configuration
-                      true,   // except overwriting these: external memory
+                      true,  
                       VerilogGeneratorBase::VlgGenConfig::funcOption::
                           External, // function
                       false,        // no start signal
-                      false),       // no rand init
+                      false,        // no rand init
+                      false),       // no expand memory
                   wrapper_name),
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
-          config, true,
+          config,
+          // except overwriting these: external memory
+          // if expand memory, then the ila's memory must be internal
+          config.extMem, // this depends on the given configuration (default case)
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
-          true)), // rand init
+          true, // rand init
+          true // for internal should always expand (probe) memory
+          )), 
       // interface mapping directive
       _idr(instr_ptr == nullptr
                ? true // if nullptr, verify inv., reset it
@@ -74,6 +81,7 @@ VlgSglTgtGen::VlgSglTgtGen(
           [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
       // ref to refmaps
       rf_vmap(_rf_vmap), rf_cond(_rf_cond), empty_json(nullptr),
+      supplementary_info(_supplementary_info),
       target_type(instr_ptr == nullptr
                       ? target_type_t::INVARIANTS
                       : target_type_t::INSTRUCTIONS), // whether it is
@@ -82,7 +90,8 @@ VlgSglTgtGen::VlgSglTgtGen(
       property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
-      _vtg_config(vtg_config), _backend(backend), _bad_state(false) {
+      _vtg_config(vtg_config), _vlg_cfg(config), _backend(backend),
+      _bad_state(false) {
 
   ILA_NOT_NULL(_host);
 
@@ -91,7 +100,11 @@ VlgSglTgtGen::VlgSglTgtGen(
 
   if (target_type == target_type_t::INSTRUCTIONS) {
 
+    // TODO: insert the memory export directive
+    vlg_ila.AnnotateMemory(supplementary_info.memory_export);
+
     vlg_ila.ExportTopLevelInstr(instr_ptr);
+
     if (vlg_ila.decodeNames.size() != 1) {
       ILA_ERROR << "Implementation bug btw. vlg gen and vtarget-gen";
       _bad_state = true;
@@ -155,7 +168,8 @@ VlgSglTgtGen::VlgSglTgtGen(
                 << " has to specify a ready condition";
       _bad_state = true;
     }
-  }
+  } // end if INSTRUCTION
+
 } // END of constructor
 
 void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
@@ -199,6 +213,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   std::set<std::string> port_of_ila;    // store the name of ila port also
 
   // .. record function
+
+  // this is the string to construct
   auto retStr = vlg_ila.moduleName + " " + _ila_mod_inst_name + " (\n";
 
   std::set<std::string> func_port_skip_set;
@@ -244,7 +260,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       retStr += "   ." + arg.first + "(" + func_arg_w + "),\n";
       argNo++;
     }
-  }
+  } // end of functions
 
   // handle input
   for (auto&& w : vlg_ila.inputs) {
@@ -266,7 +282,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
           << "__ILA_I_" + w.first << " has not been defined yet";
       retStr += "   ." + w.first + "(__ILA_I_" + w.first + "),\n";
     }
-  }
+  } // end of inputs
 
   // TODO:: FUnction here !
   // handle output
@@ -288,6 +304,13 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       // std::cout<< w.first<<std::endl;
       retStr += "   ." + w.first + "(),\n"; // __ILA_I_" + w.first + "
     }
+  }
+
+  // for internal memory connect the probes
+  for (auto && port : vlg_ila.mem_probe_o) {
+      std::string wrapper_wire_name = "__ILA_SO_" + port.first;
+      vlg_wrapper.add_wire(wrapper_wire_name, port.second, true);
+      retStr += "   ." + port.first + "(" + wrapper_wire_name + "),\n";
   }
 
   // handle memory io - use internal storage for this purpose
