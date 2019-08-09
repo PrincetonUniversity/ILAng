@@ -199,7 +199,7 @@ public:
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL) ,
           AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false),
-          AbcAssumptionStyle(_abc_assumption_style_t::AigMiterExtraOutput) {}
+          AbcAssumptionStyle(_abc_assumption_style_t::AssumptionRegister) {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

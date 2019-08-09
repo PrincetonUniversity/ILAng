@@ -13,6 +13,7 @@
 #include <ilang/vtarget-out/vtarget_gen_yosys.h>
 // for invariant synthesis
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
+#include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_enhance.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_abc.h>
 #include <ilang/vtarget-out/inv-syn/sygus/vtarget_gen_inv_sygus.h>
 
@@ -194,6 +195,61 @@ void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool us
   runnable_script_name.push_back(
     os_portable_append_dir(
       os_portable_append_dir(_output_path, "inv-syn-abc/"), "run.sh"));
+}
+
+
+std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTargets(const InvariantInCnf & cnf) {
+  ILA_ERROR_IF(_backend != backend_selector::YOSYS) << "All inv-syn relies on yosys!";
+
+  if (vlg_info_ptr)
+    delete vlg_info_ptr;
+  
+  vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
+                                 _vlg_mod_inst_name, _vlg_impl_top_name);
+  if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
+    ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
+    return nullptr; //
+  }
+
+  // use a temporary configuration
+  auto tmp_vtg_config = _vtg_config;
+  tmp_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant = true;
+
+  // here we remove the last one, because it is the one we want to enhance
+  InvariantObject * inv_obj_backup = NULL;
+  if (_advanced_param_ptr->_inv_obj_ptr) {
+    InvariantObject * reduced_inv = new InvariantObject(*( _advanced_param_ptr->_inv_obj_ptr)); // make a copy
+    ILA_NOT_NULL(reduced_inv);
+    if (reduced_inv->NumInvariant() > 0)
+      reduced_inv->RemoveInvByIdx(reduced_inv->NumInvariant()-1);
+    inv_obj_backup = _advanced_param_ptr->_inv_obj_ptr;
+    _advanced_param_ptr->_inv_obj_ptr = reduced_inv;
+  }
+
+  // TODO: you may need to change a bit of _advanced_param_ptr's inv
+  // and maybe the assume inv part
+  auto target = VlgSglTgtGen_Chc_wCNF(
+      os_portable_append_dir(_output_path, "inv-enhance/"),
+      NULL, // invariant
+      _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
+      _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+      tmp_vtg_config, _backend, VlgVerifTgtGenBase::synthesis_backend_selector::FreqHorn, 
+      target_type_t::INV_SYN_DESIGN_ONLY,
+      _advanced_param_ptr, true, VlgSglTgtGen_Chc::_chc_target_t::CEX);
+  target.ConstructWrapper();
+  target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
+                    "absmem.v"  /*USELESS*/, "inv_cnf.txt" , cnf);
+  runnable_script_name.clear();
+  runnable_script_name.push_back(
+    os_portable_append_dir(
+      os_portable_append_dir(_output_path, "inv-enhance/"), "run.sh"));
+
+  if (inv_obj_backup) { // recover the invariant
+    delete (_advanced_param_ptr->_inv_obj_ptr);
+    _advanced_param_ptr->_inv_obj_ptr = inv_obj_backup;
+  } // recover the invariant
+
+  return target.GetDesignSmtInfo();
 }
 
 std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {

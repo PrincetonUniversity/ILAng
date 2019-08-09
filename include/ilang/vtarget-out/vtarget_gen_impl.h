@@ -466,6 +466,8 @@ public:
   void GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool useAiger);
   /// generate inv-syn target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
+  /// generate inv-enhance target
+  std::shared_ptr<smt::YosysSmtParser> GenerateInvSynEnhanceTargets(const InvariantInCnf & cnf);
   /// generate inv-syn-sygus target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynSygusTargets(synthesis_backend_selector s_backend,
     TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names, bool enumerate); 

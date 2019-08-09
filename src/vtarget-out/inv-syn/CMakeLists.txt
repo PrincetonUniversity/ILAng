@@ -14,6 +14,7 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/freqhorn_inv_parse.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_inv_chc.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_inv_abc.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_inv_enhance.cc
 )
 
 

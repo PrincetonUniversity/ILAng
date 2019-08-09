@@ -14,32 +14,6 @@
 
 namespace ilang {
 
-
-/// literal to string
-std::string InvariantInCnf::Lit2Str(const literal & l) {
-  auto idx = std::to_string(std::get<2>(l));
-  return (std::get<0>(l) ? "~" : " ") + std::get<1>(l) + "[" + idx + ":" + idx + "]";
-}
-/// make clause ordered
-void InvariantInCnf::CanonicalizeClause(clause & c) {
-  std::sort(c.begin(), c.end() );
-}
-/// clause to string
-std::string InvariantInCnf::Clause2Str(const clause & c) {
-  std::string ret;
-  for (auto && l : c)
-    ret += " " + Lit2Str(l);
-  return ret;
-}
-
-void InvariantInCnf::InsertClause(clause & c) {
-  CanonicalizeClause(c);
-  auto clause_hash = Clause2Str(c);
-  if (_cnf_.find(clause_hash) == _cnf_.end()) {
-    _cnf_.insert(std::make_pair(clause_hash, c));
-  }
-}
-
 // ------------------ AbcInvariantParser ------------------
 // the purpose of having blifname is to tell which state is a real state
 void AbcInvariantParser::parseAigerResultWoGLA(

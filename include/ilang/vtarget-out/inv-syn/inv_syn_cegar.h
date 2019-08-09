@@ -79,6 +79,9 @@ public:
   /// to extract reachability test result
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
+  /// to extract reachability test result
+  void ExtractAbcSynthesisResultForEnhancement(bool autodet = true, bool reachable = true, 
+    const std::string & res_file = "");
 
   /// run Verification : returns eq true/false
   bool virtual RunVerifAuto(const std::string & script_selection);
@@ -117,6 +120,8 @@ public:
 
   // -------------------- FreqHornChc ------------------ //
   void ChangeFreqHornSyntax(const std::vector <std::string> & syn);
+  /// generate enhancement target and run it
+  void WordLevelEnhancement();
 
   // -------------------- ACCESSOR ------------------ //
   /// return back state

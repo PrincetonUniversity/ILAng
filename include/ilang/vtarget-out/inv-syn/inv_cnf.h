@@ -33,10 +33,21 @@ public:
   static std::string Clause2Str(const clause & c);
 
 public:
-  // members function
+  // members function : insert clause
   /// warning c will be changed
   void InsertClause(clause & c);
 
+  // members function : insert clause if it does not exist before
+  /// warning c will be changed
+  void InsertClauseNewerFromReference(clause & c, const InvariantInCnf & ref);
+  
+  // members function : insert the incremental clauses
+  /// will check if duplication exists
+  void InsertClauseIncremental(const InvariantInCnf & ref);
+
+  /// access function: get all cnfs
+  const cnf_t & GetCnfs() const { return _cnf_;}
+  
 protected:
   // members
   /// the invariant in CNF form
