@@ -276,7 +276,7 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
 InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
                                     const std::string& dst_name) {
   ILA_NOT_NULL(src);
-  ILA_WARN_IF(!src->parent()) << "Copying non-root ILA " << src;
+  ILA_WARN_IF(src->parent()) << "Copying non-root ILA " << src;
 
   auto dst = InstrLvlAbs::New(dst_name);
   dst->set_spec(src->is_spec());
