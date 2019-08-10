@@ -206,13 +206,83 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
 } // GenerateSynthesisTarget
 
 
-void InvariantSynthesizerCegar::WordLevelEnhancement() {
+bool InvariantSynthesizerCegar::WordLevelEnhancement() {
   if (check_in_bad_state()) return;
   // to send in the invariants
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj; 
   adv_param._candidate_inv_ptr = NULL;
   adv_param._cex_obj_ptr = cex_extract.get();
+  // TODO: 
+  // generate freqhorn (enhance) target
+  // run the script
+  // extract the result
+  std::vector<std::string> runnable_scripts;
+  { // generate freqhorn target
+    VlgVerifTgtGen vg(
+        implementation_incl_path,         // include
+        implementation_srcs_path,         // sources
+        implementation_top_module_name,   // top_module_name
+        refinement_variable_mapping_path, // variable mapping
+        refinement_condition_path,        // conditions
+        _output_path,                     // output path
+        _host,                            // ILA
+        verify_backend_selector::YOSYS,   // verification backend setting
+        _vtg_config,                      // target configuration
+        _vlg_config,                      // verilog generator configuration
+        &adv_param                        // advanced parameter
+        );
+
+    design_smt_info = vg.GenerateInvSynEnhanceTargets(incremental_cnf);
+    runnable_scripts = vg.GetRunnableScriptName();
+  } // generate freqhorn target
+
+  // merge the cnfs
+  inv_cnf.InsertClauseIncremental(incremental_cnf);
+  incremental_cnf.Clear();
+
+  ILA_ASSERT(runnable_scripts.size() == 1) << "Please run GenerateInvSynTargets function first";
+  auto synthesis_result_fn = os_portable_append_dir(_output_path, "__enhance_result.txt");
+  auto redirect_fn = os_portable_append_dir("../", "__enhance_result.txt");
+
+  auto cwd = os_portable_getcwd();
+  auto new_wd = os_portable_path_from_path(runnable_scripts[0]);
+  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+    << "WordLevelEnhancement: cannot change dir to:" << new_wd;
+  ILA_INFO << "Executing script:" <<  runnable_scripts[0] ;
+  execute_result res;
+  res = os_portable_execute_shell({"bash",
+    os_portable_file_name_from_path( runnable_scripts[0] )},
+    redirect_fn, redirect_t::BOTH);
+  
+  ILA_ERROR_IF(res.failure != execute_result::NONE )
+    << "Running synthesis script " << runnable_scripts[0] << " results in error."; 
+  ILA_ASSERT(os_portable_chdir(cwd));
+  
+  inv_syn_time += res.seconds;
+  inv_syn_time_series.push_back(res.seconds);
+  
+  bool freq_enhance_okay;
+  { // run freqhorn
+    std::stringstream sbuf;
+    std::ifstream fin(synthesis_result_fn);
+    if (not fin.is_open()) {
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        freq_enhance_okay = false;
+    } else {
+    sbuf << fin.rdbuf();
+    freq_enhance_okay = S_IN("proved",sbuf.str());
+    if (S_IN("unknown",sbuf.str())) freq_enhance_okay = false;
+    }
+  } // end of freqhorn chc result
+  // else reachable
+  if (!freq_enhance_okay)
+    return false;
+  // TODO: extract result
+
+
+  // you also need to merge CNF
+  status = cegar_status::NEXT_V;
 
 }
 
@@ -289,6 +359,43 @@ void InvariantSynthesizerCegar::CexGeneralizeRemoveStates(const std::vector<std:
   cex_extract->DropStates(n);
 }
 
+void InvariantSynthesizerCegar::ExtractAbcSynthesisResultForEnhancement(bool autodet, bool reachable, 
+    const std::string & given_smt_chc_result_txt) {
+  
+  if(check_in_bad_state()) return;
+
+  std::string res_file = given_smt_chc_result_txt;
+  if (autodet) {
+    reachable = cex_reachable;
+    res_file = synthesis_result_fn;
+  }
+  
+  ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
+
+  if (reachable) {
+    ILA_ERROR << "Verification failed with true counterexample!";
+    status = cegar_status::FAILED;
+    return;
+  }
+  ILA_ASSERT(current_inv_type == cur_inv_tp::CEGAR_ABC) << "Can only work with CEGAR ABC!";
+  // the incremental CNF here
+  ILA_ASSERT(
+  inv_candidate.AddInvariantFromAbcResultFile(
+      _vtg_config.AbcUseAiger ?
+        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "__aiger_prepare.blif"):
+        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
+    os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "ffmap.info"),
+    true,true, _vtg_config.AbcUseGla ? 
+      os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "",
+    _vtg_config.AbcUseAiger,
+    _vtg_config.AbcUseAiger ?
+        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "",
+    incremental_cnf, inv_cnf ) // incrementally add cnf
+  ) << "Extracting of invariant failed!";
+
+  current_inv_type = cur_inv_tp::NONE; // we have extracted, reset this marker
+} // ExtractAbcSynthesisResultForEnhancement
+
 void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reachable, 
   const std::string & given_smt_chc_result_txt) {
   
@@ -354,7 +461,7 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
         os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "",
       _vtg_config.AbcUseAiger,
       _vtg_config.AbcUseAiger ?
-          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "", inv_cnf )
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "", inv_cnf, InvariantInCnf() )
     ) << "Extracting of invariant failed!";
   }
   else

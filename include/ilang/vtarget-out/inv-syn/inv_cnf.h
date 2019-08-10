@@ -47,7 +47,9 @@ public:
 
   /// access function: get all cnfs
   const cnf_t & GetCnfs() const { return _cnf_;}
-  
+  /// clear all cnfs
+  void Clear();
+
 protected:
   // members
   /// the invariant in CNF form

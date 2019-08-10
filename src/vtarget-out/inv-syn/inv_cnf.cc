@@ -51,4 +51,8 @@ void InvariantInCnf::InsertClauseIncremental(const InvariantInCnf & ref) {
   }
 }
 
+void InvariantInCnf::Clear() {
+  _cnf_.clear();
+}
+
 }; // namespace ilang

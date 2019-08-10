@@ -531,9 +531,12 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
         ILA_ERROR<<"Unexpected counterexample!";
         break; 
       }
-      vg.ExtractSynthesisResult();
+      vg.ExtractAbcSynthesisResultForEnhancement();
       // This is the function we need to write
-      vg.WordLevelEnhancement();
+      if (!vg.WordLevelEnhancement() ) {
+        // if freqhorn fail, we shall fall back to use the original one
+        vg.AcceptAllCandidateInvariant();
+      } 
     }while(not vg.in_bad_state());
 
   vg.GenerateInvariantVerificationTarget();

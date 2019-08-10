@@ -68,7 +68,8 @@ public:
     const std::string & gla_map_fname,
     bool useAiger,
     const std::string & aiger_map_name,
-    InvariantInCnf & inv_cnf);
+    InvariantInCnf & inv_cnf,
+    const InvariantInCnf & ref_cnf);
 
   /// add invariants from verilog-like output
   void AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in);

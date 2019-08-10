@@ -39,6 +39,7 @@ protected:
     const std::string & aig_map_fn,
     const std::string & abc_result_fn,
     InvariantInCnf & inv_cnf,
+    const InvariantInCnf & ref_cnf,
     const std::string & blif_fn_name);
 
   /// the real parsing function
@@ -47,6 +48,7 @@ protected:
     const std::string & abc_result_fn,
     const std::string & gla_map_fn,
     InvariantInCnf & inv_cnf,
+    const InvariantInCnf & ref_cnf,
     const std::string & blif_fn_name);
 
   /// dut name
@@ -68,7 +70,8 @@ public:
     const std::string & gla_abs_fn,
     bool useAiger,
     const std::string & aiger_map_name,
-    InvariantInCnf & inv_cnf);
+    InvariantInCnf & inv_cnf,
+    const InvariantInCnf & ref_cnf);
     
   std::string GetParseResult() const { return parse_result; }
 

@@ -79,7 +79,7 @@ public:
   /// to extract reachability test result
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
-  /// to extract reachability test result
+  /// to extract reachability test result, this will extract to candidate invariant
   void ExtractAbcSynthesisResultForEnhancement(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
 
@@ -121,7 +121,8 @@ public:
   // -------------------- FreqHornChc ------------------ //
   void ChangeFreqHornSyntax(const std::vector <std::string> & syn);
   /// generate enhancement target and run it
-  void WordLevelEnhancement();
+  /// return false, if freqhorn fails
+  bool WordLevelEnhancement();
 
   // -------------------- ACCESSOR ------------------ //
   /// return back state
@@ -151,8 +152,10 @@ protected:
   // -------------------- MEMBERS ------------------ //
   /// the found invariants, in Verilog expression
   InvariantObject inv_obj;
-  /// the found invariants, in CNF (only for ABC)
+  /// the found invariants, in CNF (only for ABC), will be merged to 
   InvariantInCnf inv_cnf;
+  /// The incremental cnf
+  InvariantInCnf incremental_cnf;
   /// the temporary invariants (that might not be inductive)
   InvariantObject inv_candidate;
   /// the pointer to a cegar object

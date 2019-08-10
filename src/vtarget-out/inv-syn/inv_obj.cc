@@ -37,14 +37,15 @@ bool InvariantObject::AddInvariantFromAbcResultFile(
   const std::string & gla_map_fname,
   bool useAiger,
   const std::string & aiger_map_name,
-  InvariantInCnf & inv_cnf) {
+  InvariantInCnf & inv_cnf,
+  const InvariantInCnf & ref_cnf) {
   
   ILA_ASSERT(not dut_inst_name.empty()) 
     << "BUG: duv instance name unknown. "
     << "set_dut_inst_name should be called first!";
 
   AbcInvariantParser parser(blif_fname, abc_fname, dut_inst_name, 
-    warning_outside_var, replace_outside_var, gla_map_fname, useAiger, aiger_map_name, inv_cnf );
+    warning_outside_var, replace_outside_var, gla_map_fname, useAiger, aiger_map_name, inv_cnf, ref_cnf );
 
   auto inv = parser.GetParseResult();
   ILA_ERROR_IF(inv.empty()) << "Get empty ABC invariants";

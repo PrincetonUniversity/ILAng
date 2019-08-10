@@ -215,6 +215,8 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTarget
   auto tmp_vtg_config = _vtg_config;
   tmp_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant = true;
 
+#if 0
+  // currently we do this on the outer level
   // here we remove the last one, because it is the one we want to enhance
   InvariantObject * inv_obj_backup = NULL;
   if (_advanced_param_ptr->_inv_obj_ptr) {
@@ -225,6 +227,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTarget
     inv_obj_backup = _advanced_param_ptr->_inv_obj_ptr;
     _advanced_param_ptr->_inv_obj_ptr = reduced_inv;
   }
+#endif
 
   // TODO: you may need to change a bit of _advanced_param_ptr's inv
   // and maybe the assume inv part
@@ -243,11 +246,12 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTarget
   runnable_script_name.push_back(
     os_portable_append_dir(
       os_portable_append_dir(_output_path, "inv-enhance/"), "run.sh"));
-
+#if 0
   if (inv_obj_backup) { // recover the invariant
     delete (_advanced_param_ptr->_inv_obj_ptr);
     _advanced_param_ptr->_inv_obj_ptr = inv_obj_backup;
   } // recover the invariant
+#endif
 
   return target.GetDesignSmtInfo();
 }

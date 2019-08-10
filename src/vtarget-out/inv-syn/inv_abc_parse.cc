@@ -20,6 +20,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
     const std::string & aig_map_fn,
     const std::string & abc_result_fn,
     InvariantInCnf & inv_cnf,
+    const InvariantInCnf & ref_cnf,
     const std::string & blif_fn_name) {
 
   std::vector<std::string> aig_state_order;
@@ -146,7 +147,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
           parse_result =  "(" + cube + ")";
         else
           parse_result = parse_result + " | (" + cube + ")";
-        inv_cnf.InsertClause(cl);
+        inv_cnf.InsertClauseNewerFromReference(cl, ref_cnf);
       }
     } // deal with a line ( a clause )
     ILA_ERROR_IF(has_a_normal_cube == false) << "No normal is deduced.";
@@ -168,6 +169,7 @@ void AbcInvariantParser::parseAigerResultWithGLA(
     const std::string & abc_result_fn,
     const std::string & gla_map_fn,
     InvariantInCnf & inv_cnf,
+    const InvariantInCnf & ref_cnf,
     const std::string & blif_fn_name) {
     
 
@@ -318,7 +320,7 @@ void AbcInvariantParser::parseAigerResultWithGLA(
           parse_result =  "(" + cube + ")";
         else
           parse_result = parse_result + " | (" + cube + ")";
-        inv_cnf.InsertClause(cl);
+        inv_cnf.InsertClauseNewerFromReference(cl, ref_cnf);
       }
     } // deal with a line ( a clause )
     ILA_ERROR_IF(has_a_normal_cube == false) << "No normal is deduced.";
@@ -609,7 +611,8 @@ AbcInvariantParser::AbcInvariantParser(
   const std::string & gla_abs_fn,
   bool useAiger,
   const std::string & aiger_map_name,
-  InvariantInCnf & inv_cnf
+  InvariantInCnf & inv_cnf,
+  const InvariantInCnf & ref_cnf
   ):
     dut_name(_dut_name),
     discourage_outside_var_ref(discourage_outside_variable_reference),
@@ -620,9 +623,9 @@ AbcInvariantParser::AbcInvariantParser(
   if (useAiger) {
     ILA_ASSERT(not aiger_map_name.empty()) << "You must provide aiger name for `useAiger` flag.";
     if (gla_abs_fn.empty())
-      parseAigerResultWoGLA(aiger_map_name, abc_result_fn, inv_cnf, blif_name);
+      parseAigerResultWoGLA(aiger_map_name, abc_result_fn, inv_cnf,ref_cnf, blif_name);
     else
-      parseAigerResultWithGLA(aiger_map_name, abc_result_fn, gla_abs_fn, inv_cnf, blif_name);
+      parseAigerResultWithGLA(aiger_map_name, abc_result_fn, gla_abs_fn, inv_cnf, ref_cnf, blif_name);
   } else { // for non-aiger this is the blif file
     ILA_ASSERT(aiger_map_name.empty());
     if (gla_abs_fn.empty())
