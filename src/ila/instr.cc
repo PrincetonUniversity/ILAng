@@ -96,6 +96,10 @@ std::ostream& operator<<(std::ostream& out, InstrPtr i) {
   return i->Print(out);
 }
 
+std::ostream& operator<<(std::ostream& out, InstrCnstPtr i) {
+  return i->Print(out);
+}
+
 ExprPtr Instr::Unify(const ExprPtr e) { return host_ ? host_->Unify(e) : e; }
 
 } // namespace ilang

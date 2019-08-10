@@ -25,6 +25,8 @@ class Instr : public Object {
 public:
   /// Pointer type for normal use of Instr.
   typedef std::shared_ptr<Instr> InstrPtr;
+  /// Pointer type for read-only use of Instr.
+  typedef std::shared_ptr<const Instr> InstrCnstPtr;
   /// Type for a set of state names
   typedef std::set<std::string> StateNameSet;
   /// Type for storing a set of Expr.
@@ -107,6 +109,8 @@ public:
 
   /// Overload output stream operator.
   friend std::ostream& operator<<(std::ostream& out, InstrPtr i);
+  /// Overload output stream operator for const object.
+  friend std::ostream& operator<<(std::ostream& out, InstrCnstPtr i);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -133,7 +137,7 @@ private:
 /// Pointer type for normal use of Instr.
 typedef Instr::InstrPtr InstrPtr;
 /// Pointer type for read-only use of Instr.
-typedef std::shared_ptr<const Instr> InstrCnstPtr;
+typedef Instr::InstrCnstPtr InstrCnstPtr;
 /// Type for storing a set of Instr.
 typedef std::vector<InstrPtr> InstrVec;
 
