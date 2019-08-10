@@ -28,7 +28,7 @@ namespace ilang {
 class VlgSglTgtGen_Chc_wCNF;
 
 /// \brief a class to store (and generate) the problem for Chc
-class Chc_problem {
+class Chc_enhance_problem {
   friend class VlgSglTgtGen_Chc_wCNF;
   /// Type of assertions and assumptions
   typedef std::vector<std::string> prop_t;
@@ -49,7 +49,7 @@ protected:
   /// problems are splitted into items
   problemset_t assertions;
 
-}; // Chc_problem
+}; // Chc_enhance_problem
 
 
 /// \brief a class to interface w.  Chc
@@ -65,7 +65,7 @@ public:
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
   /// Type of chc target
-  enum _chc_target_t {CEX, INVCANDIDATE, GENERAL_PROPERTY};
+  using _chc_target_t = VlgVerifTgtGenBase::_chc_target_t;
   
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -107,7 +107,7 @@ public:
 
 protected:
   /// Chc problem generate
-  Chc_problem _problems;
+  Chc_enhance_problem _problems;
   /// Chc problem file name
   std::string chc_prob_fname;
   /// Chc script 'run.sh' name

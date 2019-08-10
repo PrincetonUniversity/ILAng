@@ -61,7 +61,7 @@ public:
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
   /// Type of Abc target
-  enum _chc_target_t {CEX, INVCANDIDATE, GENERAL_PROPERTY};
+  using _chc_target_t = VlgVerifTgtGenBase::_chc_target_t;
   
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //

@@ -27,6 +27,8 @@ public:
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3 } backend_selector;
   /// Type of invariant synthesis backend
   typedef enum {Z3, FreqHorn, CVC4, ABC} synthesis_backend_selector;
+  /// Type of the chc target
+  enum _chc_target_t {CEX, INVCANDIDATE, GENERAL_PROPERTY};
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
     /// Set the targets: instructions/invariants/both

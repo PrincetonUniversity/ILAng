@@ -26,7 +26,7 @@ namespace ilang {
 #define VLG_FALSE "`false"
 
 // initialize templates
-std::string chcGenerateSmtScript_wo_Array = R"***(
+std::string chcEnhanceGenerateSmtScript_wo_Array = R"***(
 hierarchy -check
 proc
 opt
@@ -41,7 +41,7 @@ opt;;
 )***";
 
 
-std::string inv_syn_tmpl_datatypes = R"***(
+std::string inv_enhance_tmpl_datatypes = R"***(
 ;----------------------------------------
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
@@ -99,7 +99,7 @@ std::string inv_syn_tmpl_datatypes = R"***(
 
 
 
-std::string inv_syn_tmpl_wo_datatypes = R"***(
+std::string inv_enhance_tmpl_wo_datatypes = R"***(
 ;----------------------------------------
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
@@ -191,7 +191,7 @@ VlgSglTgtGen_Chc_wCNF::VlgSglTgtGen_Chc_wCNF(
     ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
       << "Future work to support array in synthesis";
     
-    if(chctarget == CEX) {
+    if(chctarget == _chc_target_t::CEX) {
       ILA_ASSERT(
         target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
         << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
@@ -572,7 +572,7 @@ void VlgSglTgtGen_Chc_wCNF::design_only_gen_smt(
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
     ys_script_fout << 
       ReplaceAll(
-      ReplaceAll(chcGenerateSmtScript_wo_Array, "%flatten%", 
+      ReplaceAll(chcEnhanceGenerateSmtScript_wo_Array, "%flatten%", 
         _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""), "%topmodule%", top_mod_name);
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << smt_name;   
@@ -612,7 +612,7 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_bitvec(
 
   std::string chc;
 
-  chc = inv_syn_tmpl_datatypes;
+  chc = inv_enhance_tmpl_datatypes;
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
@@ -667,7 +667,7 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {
     const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
-    auto tmpl = inv_syn_tmpl_wo_datatypes;
+    auto tmpl = inv_enhance_tmpl_wo_datatypes;
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %BIs%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %BIs%)" );
@@ -677,7 +677,7 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_
       datatype_top_mod, wrapper_mod_name);
     chc = ReplaceAll(chc, "%%", smt_converted );
   } else {
-    chc = inv_syn_tmpl_datatypes;
+    chc = inv_enhance_tmpl_datatypes;
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");

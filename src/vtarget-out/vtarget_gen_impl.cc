@@ -185,7 +185,7 @@ void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool us
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
       _vtg_config, _backend, synthesis_backend_selector::ABC,
       target_type_t::INV_SYN_DESIGN_ONLY,
-      _advanced_param_ptr, true, VlgSglTgtGen_Abc::_chc_target_t::CEX,
+      _advanced_param_ptr, true, _chc_target_t::CEX,
       useGla, useCorr, useAiger);
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh",  useAiger ?  "wrapper.aig" : "wrapper.blif",
@@ -238,7 +238,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTarget
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
       tmp_vtg_config, _backend, VlgVerifTgtGenBase::synthesis_backend_selector::FreqHorn, 
       target_type_t::INV_SYN_DESIGN_ONLY,
-      _advanced_param_ptr, true, VlgSglTgtGen_Chc::_chc_target_t::CEX);
+      _advanced_param_ptr, true, _chc_target_t::CEX);
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/, "inv_cnf.txt" , cnf);
@@ -274,7 +274,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
       _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
       _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
-      _advanced_param_ptr, true, VlgSglTgtGen_Chc::_chc_target_t::CEX);
+      _advanced_param_ptr, true, _chc_target_t::CEX);
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);
@@ -310,7 +310,7 @@ void VlgVerifTgtGen::GenerateDesignOnlyCandidateInvChcCheckTargets(synthesis_bac
       _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
       _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
-      _advanced_param_ptr, false, VlgSglTgtGen_Chc::INVCANDIDATE);
+      _advanced_param_ptr, false, _chc_target_t::INVCANDIDATE);
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);

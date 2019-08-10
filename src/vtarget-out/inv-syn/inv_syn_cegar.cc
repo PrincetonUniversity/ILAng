@@ -207,7 +207,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
 
 
 bool InvariantSynthesizerCegar::WordLevelEnhancement() {
-  if (check_in_bad_state()) return;
+  if (check_in_bad_state()) return false;
   // to send in the invariants
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj; 

@@ -33,7 +33,8 @@ TEST(TestInvExtract, Abc) {
     "",/*,dirName + "glamap.info"*/
     false, // use aiger, if false, the following has no use
     "",
-    inv_cnf);
+    inv_cnf,
+    InvariantInCnf());
 
   EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
   std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
@@ -55,7 +56,8 @@ TEST(TestInvExtract, AbcAiger) {
     "",/*,dirName + "glamap.info"*/
     true, // use aiger, if false, the following has no use
     dirName + "wrapper.aig.map",
-    inv_cnf);
+    inv_cnf,
+    InvariantInCnf());
 
   EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
   std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
@@ -77,7 +79,8 @@ TEST(TestInvExtract, AbcAigerGLA) {
     dirName + "glamap.info", /*,dirName + "glamap.info"*/
     true, // use aiger, if false, the following has no use
     dirName + "wrapper.aig.map",
-    inv_cnf);
+    inv_cnf,
+    InvariantInCnf());
 
   EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
   std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;

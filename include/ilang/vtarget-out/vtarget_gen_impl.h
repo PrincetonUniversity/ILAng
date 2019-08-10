@@ -379,6 +379,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
   using target_type_t = VlgSglTgtGen::target_type_t;
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
+  /// Type of chc target
+  using _chc_target_t = VlgVerifTgtGenBase::_chc_target_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //

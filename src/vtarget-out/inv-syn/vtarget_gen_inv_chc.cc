@@ -207,18 +207,18 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
     ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
       << "Future work to support array in synthesis";
     
-    if(chctarget == CEX) {
+    if(chctarget == _chc_target_t::CEX) {
       ILA_ASSERT(
         target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
         << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
       ILA_ASSERT(has_cex)
         << "for cex chc, cex must be provided!";
     }
-    else if (chctarget == INVCANDIDATE)
+    else if (chctarget == _chc_target_t::INVCANDIDATE)
       ILA_ASSERT(has_gussed_synthesized_invariant)
         << "for inv candidate verification, the candidate invariant must be provided!";
-    else if (chctarget == GENERAL_PROPERTY) {
-
+    else if (chctarget == _chc_target_t::GENERAL_PROPERTY) {
+      ILA_ASSERT(false) << "unimplemented.";
     }
     else
       ILA_ASSERT(false) << "Unknown chc target:" << chctarget ;
