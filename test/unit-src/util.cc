@@ -46,7 +46,7 @@ void CheckIlaEqLegacy(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b) {
       state_mapping =
           ExprFuse::And(state_mapping, ExprFuse::Eq(var_org, var_des));
     } catch (...) {
-      ILA_DLOG("Portable") << "Fail automatically matcing state vars";
+      ILA_WARN << "Fail automatically matcing state vars";
     }
   }
 
