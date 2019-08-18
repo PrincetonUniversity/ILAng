@@ -14,6 +14,12 @@ VerilogConstantExprEval::VerilogConstantExprEval() : eval_error(false) {
   // do nothing
 }
 
+static void* ast_list_get_not_null(ast_list* list, unsigned int item) {
+  void* ret = ast_list_get(list, item);
+  ILA_NOT_NULL(ret);
+  return ret;
+}
+
 double
 VerilogConstantExprEval::_eval(ast_expression* e,
                                const named_parameter_dict_t& param_defs) {
@@ -51,7 +57,7 @@ VerilogConstantExprEval::_eval(ast_expression* e,
                                       ast_number_base_e::BASE_HEX
                                   ? 16
                                   : 10;
-        ret = StrToInt(resp, base);
+        ret = StrToLong(resp, base);
       } else { // float
         try {
           ret = std::stod(resp);
@@ -72,6 +78,30 @@ VerilogConstantExprEval::_eval(ast_expression* e,
           return 0;
         }
       return _eval(e->primary->value.minmax->aux, param_defs);
+    } else if (e->primary->value_type == ast_primary_value_type::PRIMARY_CONCATENATION) {
+      ast_concatenation * cc = e->primary->value.concatenation;
+      unsigned repeat = cc->repeat? _eval(cc->repeat, param_defs ) : 1;
+      unsigned total_width = 0;
+      long long ret;
+      for (size_t idx = 0; idx < cc->items->items; ++idx) {
+        ast_expression * it = (ast_expression *)ast_list_get_not_null(cc->items, idx);
+        unsigned v = _eval(it, param_defs);
+        unsigned width = it->primary->value.number->width;
+        if (width <= 0) {
+          error_str = ast_expression_tostring(e);
+          eval_error = true;
+          return 0;
+        }  
+        ret = ret << width;
+        ret = ret | v;        
+        total_width += width;
+      }
+      unsigned origin = ret;
+      for (unsigned idx = 1; idx < repeat; ++ idx) {
+        ret = ret << total_width;
+        ret = ret | origin;
+      }
+      return ret;
     }
      else { // parser error: unable to handle
       error_str = ast_expression_tostring(e);
@@ -95,10 +125,23 @@ VerilogConstantExprEval::_eval(ast_expression* e,
       return left / right;
     if (e->operation == ast_operator::OPERATOR_MOD)
       return left % right;
+    if (e->operation == ast_operator::OPERATOR_L_OR)
+      return left || right;
+    if (e->operation == ast_operator::OPERATOR_L_AND)
+      return left && right;
+    if (e->operation == ast_operator::OPERATOR_B_OR)
+      return left | right;
+    if (e->operation == ast_operator::OPERATOR_B_AND)
+      return left & right;
 
     eval_error = true;
     error_str = ast_expression_tostring(e);
     return 0;
+  } else if (e->type == ast_expression_type::CONDITIONAL_EXPRESSION) {
+    double left =  _eval(e->left, param_defs);
+    double right = _eval(e->right, param_defs);
+    double cond = _eval(e->aux, param_defs);
+    return cond?left:right;
   }
 
   eval_error = true;
@@ -121,11 +164,6 @@ double VerilogConstantExprEval::Eval(ast_expression* _s) {
   return val;
 }
 
-static void* ast_list_get_not_null(ast_list* list, unsigned int item) {
-  void* ret = ast_list_get(list, item);
-  ILA_NOT_NULL(ret);
-  return ret;
-}
 
 /// parse only the current module's parameter definitions, will update
 /// param_defs
