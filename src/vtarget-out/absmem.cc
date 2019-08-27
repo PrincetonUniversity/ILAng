@@ -98,14 +98,18 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
 
     // connect ports, create
     // treat unconnected wire?
-#define CONNECT(e, s, w)                                                       \
-  do {                                                                         \
-    if ((e).size() == 0) {                                                     \
-      (e) = base_name + (s);                                                   \
-      gen.add_wire((e), (w), true);                                            \
-      gen.add_input((e), (w));                                                 \
-    }                                                                          \
-    ret << ",\n    .vlg" s "(" << (e) << ")";                                  \
+#define CONNECT(e, s, w, i)                                                        \
+  do {                                                                          \
+    std::string wn = (e);                                                       \
+    if ((wn).size() == 0) {                                                     \
+      (wn) = base_name + (s);                                                   \
+      gen.add_wire((wn), (w), true);                                            \
+      if(i)                                           \
+        gen.add_input((wn), (w));                                                 \
+      else                                           \
+        gen.add_output((wn), (w));                                                 \
+    }                                                                           \
+    ret << ",\n    .vlg" s "(" << (wn) << ")";                                  \
   } while (false)
 
   for (auto&& np : vlg_wports) {
@@ -115,12 +119,19 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
                      VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
                      std::to_string(n);
 
-    CONNECT(p.waddr, "_waddr", addr_width);
-    CONNECT(p.wdata, "_wdata", data_width);
-    CONNECT(p.wen, "_wen", 1);
-  }
-  if (vlg_wports.size() == 0) // avoid write arbitrarily
+    CONNECT(p.waddr, "_waddr", addr_width, true);
+    CONNECT(p.wdata, "_wdata", data_width, false);
+    CONNECT(p.wen, "_wen", 1, true);
+  } // the else case: 
+  if (vlg_wports.size() == 0) { // avoid write arbitrarily
     ret << ",\n    .vlg_wen(1'b0)";
+    int n = 0;
+    auto base_name = "__MEM_" +
+                     VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
+                     std::to_string(n);
+    CONNECT("", "_waddr", addr_width, true);
+    CONNECT("", "_wdata", data_width, false);
+  }
 
   for (auto&& np : vlg_rports) {
     auto n = np.first;
@@ -129,9 +140,18 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
                      VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
                      std::to_string(n);
 
-    CONNECT(p.raddr, "_raddr", addr_width);
-    CONNECT(p.rdata, "_rdata", data_width);
-    CONNECT(p.ren, "_ren", 1);
+    CONNECT(p.raddr, "_raddr", addr_width, true);
+    CONNECT(p.rdata, "_rdata", data_width, false);
+    CONNECT(p.ren, "_ren", 1, true);
+  } // else case
+  if (vlg_rports.size() == 0) {
+    ret << ",\n    .vlg_ren(1'b0)";
+    int n = 0;
+    auto base_name = "__MEM_" +
+                     VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
+                     std::to_string(n);
+    CONNECT("", "_raddr", addr_width, true);
+    CONNECT("", "_rdata", data_width, false);
   }
 
   // ila ports should have been fully connected
@@ -253,7 +273,7 @@ input           compare;
 output          equal;
 input           issue;
 
-reg             start_and_on;
+(* keep *)  reg             start_and_on;
 
 always @(posedge clk) begin
   if(rst)
@@ -262,7 +282,7 @@ always @(posedge clk) begin
     start_and_on <= 1'b1;
 end
 
-reg [DW-1:0] mem[0:TTS-1];
+(* keep *)  reg [DW-1:0] mem[0:TTS-1];
 
 wire vlg_ren_real;
 wire vlg_wen_real;
@@ -285,14 +305,14 @@ assign ila_rdata = ila_ren_real ?
                    :
                       mem[ila_raddr] : ila_r_rand_input;
 
-reg          vlg_m_e0;
-reg [AW-1:0] vlg_m_a0;
-reg [DW-1:0] vlg_m_d0;
+(* keep *)  reg          vlg_m_e0;
+(* keep *)  reg [AW-1:0] vlg_m_a0;
+(* keep *)  reg [DW-1:0] vlg_m_d0;
 
 
-reg          ila_m_e0;
-reg [AW-1:0] ila_m_a0;
-reg [DW-1:0] ila_m_d0;
+(* keep *)  reg          ila_m_e0;
+(* keep *)  reg [AW-1:0] ila_m_a0;
+(* keep *)  reg [DW-1:0] ila_m_d0;
 
 always @(posedge clk) begin 
   if( rst ) begin
@@ -320,8 +340,8 @@ always @(posedge clk) begin
   end
 end
 
-reg vlg_match_ila;
-reg ila_match_vlg;
+(* keep *)  reg vlg_match_ila;
+(* keep *)  reg ila_match_vlg;
 
 always @(*) begin
   vlg_match_ila = 0;
@@ -422,7 +442,7 @@ output          equal;
 input           issue;
 (* keep *) output          read_assume_true;
 
-reg             start_and_on;
+(* keep *)  reg             start_and_on;
 
 always @(posedge clk) begin
   if(rst)
@@ -432,7 +452,7 @@ always @(posedge clk) begin
 end
 
 // now, we remove this
-//reg [DW-1:0] mem[0:TTS-1];
+//(* keep *)  reg [DW-1:0] mem[0:TTS-1];
 
 wire vlg_ren_real;
 wire vlg_wen_real;
@@ -455,14 +475,14 @@ assign ila_rdata = ila_ren_real ? (
 
 
 
-reg          vlg_r_e0;
-reg [AW-1:0] vlg_r_a0;
-reg [DW-1:0] vlg_r_d0;
+(* keep *)  reg          vlg_r_e0;
+(* keep *)  reg [AW-1:0] vlg_r_a0;
+(* keep *)  reg [DW-1:0] vlg_r_d0;
 
 
-reg          ila_r_e0;
-reg [AW-1:0] ila_r_a0;
-reg [DW-1:0] ila_r_d0;
+(* keep *)  reg          ila_r_e0;
+(* keep *)  reg [AW-1:0] ila_r_a0;
+(* keep *)  reg [DW-1:0] ila_r_d0;
 
 
 always @(posedge clk) begin 
@@ -507,14 +527,14 @@ assign read_assume_true =
 
 // ------------- WRITE LOGIC ---------------- //
 
-reg          vlg_m_e0;
-reg [AW-1:0] vlg_m_a0;
-reg [DW-1:0] vlg_m_d0;
+(* keep *)  reg          vlg_m_e0;
+(* keep *)  reg [AW-1:0] vlg_m_a0;
+(* keep *)  reg [DW-1:0] vlg_m_d0;
 
 
-reg          ila_m_e0;
-reg [AW-1:0] ila_m_a0;
-reg [DW-1:0] ila_m_d0;
+(* keep *)  reg          ila_m_e0;
+(* keep *)  reg [AW-1:0] ila_m_a0;
+(* keep *)  reg [DW-1:0] ila_m_d0;
 
 always @(posedge clk) begin 
   if( rst ) begin
@@ -542,8 +562,8 @@ always @(posedge clk) begin
   end
 end
 
-reg vlg_match_ila;
-reg ila_match_vlg;
+(* keep *)  reg vlg_match_ila;
+(* keep *)  reg ila_match_vlg;
 
 always @(*) begin
   vlg_match_ila = 0;

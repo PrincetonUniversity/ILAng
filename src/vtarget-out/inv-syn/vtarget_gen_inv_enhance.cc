@@ -110,7 +110,6 @@ std::string inv_enhance_tmpl_wo_datatypes = R"***(
 (declare-rel INV %WrapperDataType%)
 (declare-rel fail ())
 
-%BeforeInitVar%
 %InitVar%
 ;(declare-var |__I__state|  Type)
 

@@ -217,7 +217,7 @@ std::string CexExtractor::GenInvAssert(const std::string & prefix,
       check_name = check_name.substr(0,pos);
     if (!focus_name.empty() && !IN(check_name, focus_name))
       continue;
-    ret += "&& (" + fullname + " == " + nv.second + ")";
+    ret += "\n&& (" + fullname + " == " + nv.second + ")";
   }
   return ret;
 }

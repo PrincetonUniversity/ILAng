@@ -71,6 +71,9 @@ public:
   /// to extract verification result 
   void ExtractVerificationResult(bool autodet = true, bool pass = true,
     const std::string & res_file = "", const std::string & mod_inst_name = "");
+  
+  /// genenate a target to extract smt
+  void GenerateTargetAndExtractSmt();
 
   /// remove some states from cex
   void CexGeneralizeRemoveStates(const std::vector<std::string> &);

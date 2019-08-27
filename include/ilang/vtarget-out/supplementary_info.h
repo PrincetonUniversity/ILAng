@@ -9,6 +9,7 @@
 #include "nlohmann/json.hpp"
 
 #include <map>
+#include <set>
 #include <string>
 
 namespace ilang {
@@ -19,6 +20,8 @@ struct VlgTgtSupplementaryInfo {
   bool overwrite;
   /// the width info
   std::map<std::string, int>  width_info;
+  /// the port to keep : memory_name -> (port and its connector)
+  std::map<std::string,std::map<std::string,std::string>> memory_ports;
   /// Constructor - default
   VlgTgtSupplementaryInfo();
   /// from Json 

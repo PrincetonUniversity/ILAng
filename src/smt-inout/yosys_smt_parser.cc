@@ -448,6 +448,12 @@ const YosysSmtParser::variable_idx_t & YosysSmtParser::get_var_idx() const {
   return variable_idx;
 }
 
+/// check if a name is a state
+bool YosysSmtParser::is_state_name(const std::string & state_name) const {
+  //std::cout << "Checking name " << state_name << " in : " << (IN(state_name, variable_idx)) << std::endl;
+  return IN(state_name, variable_idx);
+}
+
 
 }; // namespace smt
 }; // namespace ilang

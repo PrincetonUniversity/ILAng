@@ -221,11 +221,17 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
   ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY
     or target_type == target_type_t::INVARIANTS);
 
-  std::set<std::string> ila_mem_state_names;
+  std::map<std::string, std::pair<int,int>> ila_mem_state_names;
 
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx) {
     if (_host->state(state_idx)->is_mem())
-      ila_mem_state_names.insert(_host->state(state_idx)->name().str());
+      ila_mem_state_names.insert(
+        std::make_pair(
+          _host->state(state_idx)->name().str(),
+          std::make_pair<int,int>(
+            _host->state(state_idx)->sort()->addr_width(),
+            _host->state(state_idx)->sort()->data_width())
+      ));
   }
 
   for (auto& i : (rf_vmap["state mapping"]).items()) {
@@ -236,14 +242,17 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
       ILA_ERROR << "Ignore mapping memory: " << sname;
       continue;
     }
-    ila_mem_state_names.erase(sname);
     // Connect memory here
-    _idr.SetMemName(i.value(), sname, _vtg_config.MemAbsReadAbstraction);
+    _idr.SetMemNameAndWidth(i.value(), sname, _vtg_config.MemAbsReadAbstraction,
+      ila_mem_state_names[sname].first,
+      ila_mem_state_names[sname].second);
+    ila_mem_state_names.erase(sname);
+    
   }
 
   // check for unmapped memory
   for (auto && m : ila_mem_state_names)
-    ILA_ERROR << "No mapping exists for memory : " << m;
+    ILA_ERROR << "No mapping exists for memory : " << m.first;
 } // ConstructWrapper_inv_syn_connect_mem
 
 } // namespace ilang

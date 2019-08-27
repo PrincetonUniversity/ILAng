@@ -113,6 +113,37 @@ void InvariantSynthesizerCegar::GenerateInvariantVerificationTarget() {
   vg.GenerateTargets();
 }
 
+
+// the reason we need to do this is that we need to know
+// in the verilog design, which is (true)reg, which is not (true)reg
+void InvariantSynthesizerCegar::GenerateTargetAndExtractSmt() {
+  // generate a target -- based on selection
+  if (check_in_bad_state()) return;
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = NULL;
+  adv_param._candidate_inv_ptr = NULL;
+  
+  VlgVerifTgtGen vg(
+      implementation_incl_path,         // include
+      implementation_srcs_path,         // sources
+      implementation_top_module_name,   // top_module_name
+      refinement_variable_mapping_path, // variable mapping
+      refinement_condition_path,        // conditions
+      _output_path,                     // output path
+      _host,                            // ILA
+      verify_backend_selector::YOSYS,   // verification backend setting
+      _vtg_config,                      // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
+  
+//  design_smt_info = vg.GenerateSmtTargets();
+}
+
+
+
 // to do things separately, you can provide the run function yourself
 // or even do it step by step
 /// to generate targets using the current invariants
@@ -319,8 +350,12 @@ void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pas
       vlg_mod_inst_name, implementation_top_module_name );
 
   auto is_reg = [&](const std::string & n) -> bool {
-    return VerilogAnalyzerBase::is_reg(
-      va.check_hierarchical_name_type(n));
+    if (! VerilogAnalyzerBase::is_reg(
+      va.check_hierarchical_name_type(n)))
+      return false;
+    if (design_smt_info)// if available we will use it
+      return design_smt_info->is_state_name(n);
+    return true; // if not available
   };
 
   // not passing

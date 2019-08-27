@@ -72,6 +72,13 @@ std::string Join(const std::vector<std::string>& in, const std::string& delim) {
   return ret;
 }
 
+/// Remove whitespace ' \n\t\r\f\v'
+std::string RemoveWhiteSpace(const std::string & in) {
+  auto s = in;
+  s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
+  return s;
+}
+
 /// Replace all occurrance of substring a by substring b
 std::string ReplaceAll(const std::string& str, const std::string& a,
                        const std::string& b) {

@@ -128,6 +128,38 @@ const VlgTgtSupplementaryInfo & VlgVerifTgtGen::GetSupplementaryInfo() const {
   return sup_info;
 }
 
+// ------------------------- SMT TARGET ------------------------- //
+
+/*
+std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateSmtTargets() {
+  ILA_ERROR_IF(_backend != backend_selector::YOSYS) << "All inv-syn relies on yosys!";
+
+  if (vlg_info_ptr)
+    delete vlg_info_ptr;
+  
+  vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
+                                 _vlg_mod_inst_name, _vlg_impl_top_name);
+  if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
+    ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
+    return nullptr; //
+  }
+  auto target = VlgSglTgtGen_Smt(
+      os_portable_append_dir(_output_path, "inv-syn/"),
+      NULL, // invariant
+      _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
+      _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+      _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
+      _advanced_param_ptr, true, _chc_target_t::CEX);
+  target.ConstructWrapper();
+  target.ExportAll("wrapper.v", "ila.v", //USELESS
+   "run.sh", "wrapper.smt2",
+                    "absmem.v"  //USELESS
+                    );
+
+  return target.GetDesignSmtInfo();
+}*/
+
+
 // ------------------------- SYNTHESIS TARGET ------------------------- //
 
 

@@ -97,6 +97,11 @@ public:
     _state_sort_t YosysSmtStateSort;
     /// whether to remove the extra issue cycle and starts from reset
     bool VerificationSettingAvoidIssueStage;
+    /// for invariant synthesis do we keep memory abstraction in Verilog
+    /// you can keep it true, untill the invariant refers to some memory there
+    bool InvariantSynthesisKeepMemory;
+    /// for invariant check, do we keep memory abstraction in Verilog
+    bool InvariantCheckKeepMemory;
     // ----------- Options for Z3/FreqHorn/ABC Solver -------------- //
     /// The path to Z3, if "z3" is not in the PATH, default empty
     std::string Z3Path;
@@ -112,6 +117,7 @@ public:
     bool YosysSmtFlattenDatatype;
     /// Whether to assume the old invariants when check for reachability
     /// It seems for Z3, setting this to be false is faster (I don't know why)
+    /// For freqhorn-enhance, this will be (internally) overwritten to be true
     bool InvariantSynthesisReachableCheckKeepOldInvariant;
     /// ABC option : whether to use gate-level abstraction
     bool AbcUseGla;
@@ -197,7 +203,10 @@ public:
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
-          VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
+          VerificationSettingAvoidIssueStage(false), 
+          InvariantSynthesisKeepMemory(true),
+          InvariantCheckKeepMemory(true),
+          YosysSmtFlattenHierarchy(false),
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL) ,
           AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false),

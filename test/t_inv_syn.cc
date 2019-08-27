@@ -532,11 +532,18 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
         break; 
       }
       vg.ExtractAbcSynthesisResultForEnhancement();
+      { // what inv to enhance
+        const auto & inv_to_enhance = 
+          vg.GetCandidateInvariants();
+        ILA_ASSERT(inv_to_enhance.NumInvariant() == 1);
+        std::cout << "INV to enhance:" << inv_to_enhance.GetVlgConstraints()[0] << std::endl;
+      }
       // This is the function we need to write
       if (!vg.WordLevelEnhancement() ) {
         // if freqhorn fail, we shall fall back to use the original one
         vg.AcceptAllCandidateInvariant();
       } 
+      return;
     }while(not vg.in_bad_state());
 
   vg.GenerateInvariantVerificationTarget();

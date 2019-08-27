@@ -118,6 +118,7 @@ std::string inv_syn_tmpl_wo_datatypes = R"***(
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
 ;----------------------------------------
+(set-option :fp.engine spacer)
 
 %%
 

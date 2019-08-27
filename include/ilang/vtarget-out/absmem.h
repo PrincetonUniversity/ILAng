@@ -42,7 +42,7 @@ struct VlgAbsMem {
   unsigned addr_width;
   /// which ila state it is mapped to
   std::string ila_map_name;
-  /// which the name in rfmap
+  /// the name in rfmap
   std::string mem_name;
   /// the assumptions it has
   std::vector<std::string> assumpts;

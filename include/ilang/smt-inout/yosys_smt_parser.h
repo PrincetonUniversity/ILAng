@@ -18,7 +18,7 @@ namespace smt {
 
 /// \brief to parse an smt file
 /// this will only work on the yosys's generated smt
-/// and not on the assemblied CHC
+/// and not on the assembled CHC
 class YosysSmtParser {
 public:
   typedef std::map<std::string,state_var_t *> variable_idx_t;
@@ -96,6 +96,8 @@ public:
   const std::vector<state_var_t> & get_module_flatten_dt(const std::string & mod_name) const;
   /// return the top module's variable index
   const variable_idx_t & get_var_idx() const;
+  /// check if a name is a state
+  bool is_state_name(const std::string & state_name) const;
 }; // class YosysSmtParser
 
 }; // namespace smt
