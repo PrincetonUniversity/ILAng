@@ -155,7 +155,7 @@ protected:
   void virtual PreExportProcess() override;
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override; // do nothing - should not be used
-  virtual void Export_script(const std::string& script_name,  const std::string& cnf_fn);
+  virtual void Export_script(const std::string& script_name,  const std::string& cnf_fn );
   /// export extra things: the chc script, the smt template
   virtual void
   Export_problem(const std::string& extra_name) override;

@@ -272,7 +272,7 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement() {
   inv_cnf.InsertClauseIncremental(incremental_cnf);
   incremental_cnf.Clear();
 
-  ILA_ASSERT(runnable_scripts.size() == 1) << "Please run GenerateInvSynTargets function first";
+  ILA_ASSERT(runnable_scripts.size() == 1) << "BUG: GenerateInvSynEnhanceTargets should create only 1 target script ";
   auto synthesis_result_fn = os_portable_append_dir(_output_path, "__enhance_result.txt");
   auto redirect_fn = os_portable_append_dir("../", "__enhance_result.txt");
 
@@ -293,7 +293,7 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement() {
   inv_syn_time += res.seconds;
   inv_syn_time_series.push_back(res.seconds);
   
-  bool freq_enhance_okay;
+  bool freq_enhance_okay = false;
   { // run freqhorn
     std::stringstream sbuf;
     std::ifstream fin(synthesis_result_fn);
@@ -310,11 +310,20 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement() {
   if (!freq_enhance_okay)
     return false;
   // TODO: extract result
+  
 
+  if (design_smt_info == nullptr) {
+    ILA_ERROR << "BUG: Design SMT-LIB2 info is not available. ";
+    return false;
+  }
+  inv_obj.AddInvariantFromFreqHornResultFile(
+    *(design_smt_info.get()), "", os_portable_append_dir(_output_path, "freqhorn.result"), 
+    true,
+    true );
 
   // you also need to merge CNF
   status = cegar_status::NEXT_V;
-
+  return true;
 }
 
 // -------------------------------- EXTRACTIONS ------------------------------------------- //
@@ -736,6 +745,10 @@ const InvariantObject & InvariantSynthesizerCegar::GetInvariants() const {
 /// Here you can extract the invariants and export them if needed
 const InvariantObject & InvariantSynthesizerCegar::GetCandidateInvariants() const {
   return inv_candidate;
+}
+
+void InvariantSynthesizerCegar::ClearAllCandidateInvariants() {
+  inv_candidate.ClearAllInvariants();
 }
 
 const TraceDataPoints & InvariantSynthesizerCegar::GetDatapoints() const {

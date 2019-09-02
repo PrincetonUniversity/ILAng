@@ -354,27 +354,22 @@ void VlgSglTgtGen_Chc_wCNF::Export_script(const std::string& script_name, const 
   fout << "#!/bin/bash" << std::endl;
   //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
-  std::string runable;
+  std::string runnable;
   std::string options;
   std::string redirect;
-  if (s_backend == synthesis_backend_selector::Z3) {
-    runable = "z3";
-    if (not _vtg_config.Z3Path.empty())
-      runable = os_portable_append_dir(_vtg_config.Z3Path, runable);
-  }
-  else if(s_backend == synthesis_backend_selector::FreqHorn) {
-    runable = "bv";
-    if (not _vtg_config.FreqHornPath.empty())
-      runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
-    for (auto && op : _vtg_config.FreqHornOptions)
-      options += " " + op;
-    options += " --mod " + _vlg_mod_inst_name;
-    options += " --cnf " + cnf_name;
-    redirect = " 2> ../freqhorn.result";
-  }
+
+  ILA_ASSERT(s_backend == synthesis_backend_selector::FreqHorn);
+  runnable = "bv";
+  if (not _vtg_config.FreqHornPath.empty())
+    runnable = os_portable_append_dir(_vtg_config.FreqHornPath, runnable);
+  for (auto && op : _vtg_config.FreqHornOptions)
+    options += " " + op;
+  options += " --mod " + _vlg_mod_inst_name;
+  options += " --cnf " + cnf_name;
+  redirect = " 2> ../freqhorn.result";
 
   if (chc_prob_fname != "")
-    fout << runable << options << " " << chc_prob_fname << redirect << std::endl;
+    fout << runnable << options << " " << chc_prob_fname << redirect << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script

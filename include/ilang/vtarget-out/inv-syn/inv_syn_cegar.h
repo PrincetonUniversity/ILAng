@@ -120,6 +120,8 @@ public:
   void PruneCandidateInvariant();
   /// Supply Verilog candidate invariants
   void SupplyCandidateInvariant(const std::string &vlg);
+  /// Clear all the candidate invariants
+  void ClearAllCandidateInvariants();
 
   // -------------------- FreqHornChc ------------------ //
   void ChangeFreqHornSyntax(const std::vector <std::string> & syn);
