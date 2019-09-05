@@ -503,7 +503,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
 
   cfg.Z3Path = "N/A";
   cfg.FreqHornPath = "/home/hongce/ila/aeval/build/tools/bv/";
-  cfg.FreqHornOptions = {"--conc --impl --or --neqs --impl-or --impl-or-simple --conj-impl --conj-impl-or --bw 4 --dot-name"};
+  cfg.FreqHornOptions = {"--ante-size", "1", "--conseq-size", "1" , "--gen-spec-only"};
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
   auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-abc-aig-enhance/";
@@ -520,6 +520,9 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
 
   EXPECT_FALSE(vg.in_bad_state());
 
+  /// The incremental cnf
+  InvariantInCnf incremental_cnf;
+
     do{
       vg.GenerateVerificationTarget();
       if(vg.RunVerifAuto("ADD")) // the ADD
@@ -531,19 +534,38 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
         ILA_ERROR<<"Unexpected counterexample!";
         break; 
       }
-      vg.ExtractAbcSynthesisResultForEnhancement();
+      vg.ExtractAbcSynthesisResultForEnhancement(incremental_cnf);
       { // what inv to enhance
         const auto & inv_to_enhance = 
           vg.GetCandidateInvariants();
         ILA_ASSERT(inv_to_enhance.NumInvariant() == 1);
         std::cout << "INV to enhance:" << inv_to_enhance.GetVlgConstraints()[0] << std::endl;
       }
+      bool retried = false;
+retry:
       // This is the function we need to write
-      if (!vg.WordLevelEnhancement() ) {
-        // if freqhorn fail, we shall fall back to use the original one
-        vg.AcceptAllCandidateInvariant();
-      } 
-      return;
+      if (!vg.WordLevelEnhancement(incremental_cnf) ) {
+        // if freqhorn fail, we shall manually fall back to use the original one
+        // method #1:
+        if (retried) {
+          vg.AcceptAllCandidateInvariant();
+          vg.MergeCnf(incremental_cnf);
+          incremental_cnf.Clear();
+          EXPECT_TRUE(false); // should not failed
+        } else {
+          // you can update syntax here and goes back to ...
+          vg.ChangeFreqHornSyntax({"--ante-size", "1", "--conseq-size", "1" });
+          retried = true;
+          goto retry;
+          //break;
+        }
+      } else  {
+        vg.MergeCnf(incremental_cnf);
+        incremental_cnf.Clear();
+        vg.ClearAllCandidateInvariants(); // already included (you can also accept but unnecessary)
+      }
+
+      vg.GetInvariants().ExportToFile(outDir + "inv.txt");
     }while(not vg.in_bad_state());
 
   vg.GenerateInvariantVerificationTarget();

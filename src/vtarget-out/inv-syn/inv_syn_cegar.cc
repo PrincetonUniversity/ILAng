@@ -3,6 +3,7 @@
 
 #include <ilang/util/log.h>
 #include <ilang/util/fs.h>
+#include <ilang/util/str_util.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
@@ -142,6 +143,16 @@ void InvariantSynthesizerCegar::GenerateTargetAndExtractSmt() {
 //  design_smt_info = vg.GenerateSmtTargets();
 }
 
+unsigned InvariantSynthesizerCegar::QueryRtlStateWidth(const std::string & name) const {
+  if (design_smt_info == nullptr)
+    return 0;
+  const auto & sts = design_smt_info->get_var_idx();
+  auto pos = sts.find(name);
+  if (pos == sts.end())
+    return 0;
+  return pos->second->_type.GetBoolBvWidth();
+}
+
 
 
 // to do things separately, you can provide the run function yourself
@@ -236,8 +247,61 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
 
 } // GenerateSynthesisTarget
 
+static int inline retrieveColonEol(const std::string & msg, const std::string & label) {
+  size_t pos_1, endl_1;
+  pos_1 = msg.find(label);
+  endl_1 = msg.find('\n', pos_1);
+  return StrToInt(msg.substr(pos_1 + label.length(),endl_1));
+}
 
-bool InvariantSynthesizerCegar::WordLevelEnhancement() {
+
+const InvariantInCnf & InvariantSynthesizerCegar::GetCurrentCnfEnhance() const {
+  return inv_cnf;
+}
+  /// merge cnfs
+void InvariantSynthesizerCegar::MergeCnf(const InvariantInCnf& incremental_cnf) {
+  inv_cnf.InsertClauseIncremental(incremental_cnf);
+}
+
+/// extra variable for enhancement, so not really a cnf
+void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(size_t inv_idx, InvariantInCnf& incremental_cnf , bool per_clause) {
+  ILA_ASSERT(inv_idx < inv_obj.NumInvariant());
+  const auto & inv_vlg = inv_obj.GetVlgConstraints().at(inv_idx);
+  VarExtractor vext(
+    [](const std::string&s) -> bool {return false;}, // not ila input
+    [](const std::string&s) -> bool {return false;}, // not ila state
+    [](const std::string&scalbln) -> bool {return true;} // but verilog state
+  );
+  vext.ParseToExtract(inv_vlg, true); // force verilog state
+
+  InvariantInCnf::clause cl;
+  std::set<std::string> v_in_this_cl;
+  vext.ForEachTokenReplace(
+    [&cl, &incremental_cnf, &v_in_this_cl, per_clause]
+     (const VarExtractor::token &t) -> std::string {
+      if (per_clause && t.second.find("&&")!=t.second.npos) {
+        incremental_cnf.InsertClause(cl);
+        cl.clear();
+        v_in_this_cl.clear();
+      }
+      if(t.first != VarExtractor::token_type::VLG_S)
+        return t.second;
+      const auto & vname = t.second;
+      auto pos = vname.rfind('[');
+      std::string vn = vname;
+      if (pos != vname.npos)
+        vn = vname.substr(0,pos);
+      if (!IN(vn,v_in_this_cl)) {
+        cl.push_back({false, vn,0});
+        v_in_this_cl.insert(vn);
+      }
+      return t.second;
+    }
+  );
+  incremental_cnf.InsertClause(cl);
+}
+
+bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incremental_cnf) {
   if (check_in_bad_state()) return false;
   // to send in the invariants
   advanced_parameters_t adv_param;
@@ -269,8 +333,7 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement() {
   } // generate freqhorn target
 
   // merge the cnfs
-  inv_cnf.InsertClauseIncremental(incremental_cnf);
-  incremental_cnf.Clear();
+  // incremental_cnf.Clear();
 
   ILA_ASSERT(runnable_scripts.size() == 1) << "BUG: GenerateInvSynEnhanceTargets should create only 1 target script ";
   auto synthesis_result_fn = os_portable_append_dir(_output_path, "__enhance_result.txt");
@@ -301,16 +364,21 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement() {
         ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
         freq_enhance_okay = false;
     } else {
-    sbuf << fin.rdbuf();
-    freq_enhance_okay = S_IN("proved",sbuf.str());
-    if (S_IN("unknown",sbuf.str())) freq_enhance_okay = false;
+      sbuf << fin.rdbuf();
+      freq_enhance_okay = S_IN("proved",sbuf.str());
+      if (S_IN("unknown",sbuf.str()))
+        freq_enhance_okay = false;
+      if (freq_enhance_okay) {
+        ILA_INFO << "Enhance Info: Lemma/Gen/Spec = " 
+          << retrieveColonEol (sbuf.str(), "learned lemmas:") << " "
+          << retrieveColonEol (sbuf.str(), "TotalGen:") << " "
+          << retrieveColonEol (sbuf.str(), "TotalSpec:") ;
+      }
     }
   } // end of freqhorn chc result
   // else reachable
   if (!freq_enhance_okay)
-    return false;
-  // TODO: extract result
-  
+    return false;  
 
   if (design_smt_info == nullptr) {
     ILA_ERROR << "BUG: Design SMT-LIB2 info is not available. ";
@@ -403,7 +471,7 @@ void InvariantSynthesizerCegar::CexGeneralizeRemoveStates(const std::vector<std:
   cex_extract->DropStates(n);
 }
 
-void InvariantSynthesizerCegar::ExtractAbcSynthesisResultForEnhancement(bool autodet, bool reachable, 
+void InvariantSynthesizerCegar::ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet, bool reachable, 
     const std::string & given_smt_chc_result_txt) {
   
   if(check_in_bad_state()) return;

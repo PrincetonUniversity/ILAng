@@ -34,8 +34,11 @@ public:
 
 public:
   // members function : insert clause
-  /// warning c will be changed
+  /// warning c will be changed (re-ordered)
   void InsertClause(clause & c);
+
+  // insert clause (from another clause, so no need to reorder)
+  void InsertClauseNoReorder(const clause & c);
 
   // members function : insert clause if it does not exist before
   /// warning c will be changed

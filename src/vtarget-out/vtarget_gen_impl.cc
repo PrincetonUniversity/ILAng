@@ -246,6 +246,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTarget
   // use a temporary configuration
   auto tmp_vtg_config = _vtg_config;
   tmp_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant = true;
+  tmp_vtg_config.YosysSmtFlattenDatatype = true;
 
 #if 0
   // currently we do this on the outer level

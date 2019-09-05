@@ -55,7 +55,7 @@ std::string abcAigCmdNoGLA = R"***(
 
 std::string abcAigCmdGLA = R"***(
   &read %aigname%
-  &gla -T 450 -F 50 -v
+  &gla -T 500 -F 200 -v
   &gla_derive
   &put
   dc2 -v
@@ -91,7 +91,7 @@ std::string abcCmdNoGLA = R"***(
 std::string abcCmdGLA = R"***(
   read_blif %blifname%
   &get -n
-  &gla -T 450 -F 50 -v
+  &gla -T 500 -F 200 -v
   &gla_derive
   &put
   dc2 -v

@@ -74,6 +74,8 @@ public:
   
   /// genenate a target to extract smt
   void GenerateTargetAndExtractSmt();
+  /// get the width of a certain state
+  unsigned QueryRtlStateWidth(const std::string & name) const;
 
   /// remove some states from cex
   void CexGeneralizeRemoveStates(const std::vector<std::string> &);
@@ -83,7 +85,7 @@ public:
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
   /// to extract reachability test result, this will extract to candidate invariant
-  void ExtractAbcSynthesisResultForEnhancement(bool autodet = true, bool reachable = true, 
+  void ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
 
   /// run Verification : returns eq true/false
@@ -127,7 +129,15 @@ public:
   void ChangeFreqHornSyntax(const std::vector <std::string> & syn);
   /// generate enhancement target and run it
   /// return false, if freqhorn fails
-  bool WordLevelEnhancement();
+  bool WordLevelEnhancement(const InvariantInCnf& incremental_cnf);
+  /// get the current inv in cnf
+  const InvariantInCnf & GetCurrentCnfEnhance() const;
+  /// merge cnfs
+  void MergeCnf(const InvariantInCnf& incremental_cnf);
+  /// extra variable for enhancement, so not really a cnf
+  void ExtractInvariantVarForEnhance(size_t inv_idx, InvariantInCnf& incremental_cnf,
+    bool per_clause);
+
 
   // -------------------- ACCESSOR ------------------ //
   /// return back state
@@ -159,8 +169,6 @@ protected:
   InvariantObject inv_obj;
   /// the found invariants, in CNF (only for ABC), will be merged to 
   InvariantInCnf inv_cnf;
-  /// The incremental cnf
-  InvariantInCnf incremental_cnf;
   /// the temporary invariants (that might not be inductive)
   InvariantObject inv_candidate;
   /// the pointer to a cegar object

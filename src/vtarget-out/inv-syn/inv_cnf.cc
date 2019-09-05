@@ -28,6 +28,13 @@ std::string InvariantInCnf::Clause2Str(const clause & c) {
   return ret;
 }
 
+void InvariantInCnf::InsertClauseNoReorder(const clause & c) {
+  auto clause_hash = Clause2Str(c);
+  if (!IN(clause_hash, _cnf_)) {
+    _cnf_.insert(std::make_pair(clause_hash, c));
+  }
+}
+
 void InvariantInCnf::InsertClause(clause & c) {
   CanonicalizeClause(c);
   auto clause_hash = Clause2Str(c);
