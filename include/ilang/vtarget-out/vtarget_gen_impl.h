@@ -137,8 +137,6 @@ protected:
   VlgTgtSupplementaryInfo& sup_info;
   /// An empty json for default fallthrough cases
   nlohmann::json empty_json;
-  /// The supplementary information
-  const VlgTgtSupplementaryInfo& supplementary_info;
   /// record all the referred vlg names, so you can add (*keep*) if needed
   std::map<std::string, ex_info_t> _all_referred_vlg_names;
   /// target type

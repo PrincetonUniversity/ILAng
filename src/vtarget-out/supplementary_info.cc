@@ -12,7 +12,7 @@ namespace ilang {
 VlgTgtSupplementaryInfo::VlgTgtSupplementaryInfo() {}
 
 void VlgTgtSupplementaryInfo::FromJson(nlohmann::json & vmap) {
-  if (! IN("supplementary-info", vmap ) || ! IN("annotation", vmap ) ) 
+  if (! IN("supplementary-info", vmap ) && ! IN("annotation", vmap ) ) 
     return;
   const auto & supplementary_info = IN("supplementary-info", vmap ) ? vmap["supplementary-info"] : vmap["annotation"];
   

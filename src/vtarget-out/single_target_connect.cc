@@ -139,7 +139,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     }
   } // end of inputs
 
-  // TODO:: FUnction here !
+  // TODO:: Function here !
   // handle output
   for (auto&& w : vlg_ila.outputs) {
     if (IN(w.first, func_port_skip_set))

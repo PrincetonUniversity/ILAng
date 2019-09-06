@@ -48,7 +48,6 @@ VlgVerifTgtGen::VlgVerifTgtGen(
       _advanced_param_ptr(adv_ptr),
       _bad_state(false) {
   load_json(_rf_var_map_name, rf_vmap);
-  supplementary_info.FromJson(rf_vmap);
   load_json(_rf_cond_name, rf_cond);
   sup_info.FromJson(rf_vmap);
   set_module_instantiation_name();

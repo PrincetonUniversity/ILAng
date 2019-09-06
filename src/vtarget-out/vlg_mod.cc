@@ -233,7 +233,7 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 
   auto midSplit = Split(middle, ",");
 
-  unsigned foundIdx = -1;
+  int foundIdx = -1;
   unsigned idx = 0;
   for (auto&& port_decl : midSplit) {
     auto wordList = SplitSpaceTabEnter(port_decl);
@@ -243,12 +243,12 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
     }
     idx++;
   }
-#if 0 // BYH: foundIdx is unsigned, which would never be -1
+
   if (foundIdx == -1) {
     ILA_ERROR << "not able to modify line: '" << line_in << "' for :" << vname;
     return line_in;
   }
-#endif
+
 
   midSplit[foundIdx] = "(* keep *)" + midSplit[foundIdx];
 
