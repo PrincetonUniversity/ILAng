@@ -72,5 +72,9 @@ TEST(TestUtil, RegularExpr) {
     EXPECT_EQ(l2[1], "2");
   }
 }
+TEST(TestUtil, LongWidth) {
+  auto ret = StrToLong("111111111111111111111111111111111111111111111111111111111111111",2);
+  EXPECT_EQ(ret,0); // 63-bit does not work
+}
 
 } // namespace ilang

@@ -4,6 +4,13 @@ parameter W = 4;
 parameter W2 = (W + 1);
 parameter WV = 2'b00;
 parameter WV2 = WV + 1;
+parameter W3 = 5'hf + 5'o16 + 5'b10; // 15+14+2 = 31
+parameter W4 = {2'b10, 2'b11}; // 8+2+1 = 11
+parameter W5 = W3 + W4 ; // 42
+parameter W6 = (1 && 2) + (1 || 2) ; // 2
+parameter W7 = W6 + (1 & 2) + (1 | 2) ; // 2 + (0+3) = 5
+
+
 
 input clk;
 input rst;
@@ -14,6 +21,9 @@ input [W2-1:0] in3;
 output [W-1:0] r1;
 output [W2*2-1:0] r2;
 output [W2-1:0] r3;
+
+wire [W5-1:0] wn1;
+wire [W7-1:0] wn2;
 
 // default
 subrange i1 (in1,r1);
