@@ -692,7 +692,7 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
       void* ptr_from_list_ =
           ast_list_get_not_null(port_ptr->port_names, name_idx);
       ast_identifier port_id_ptr;
-      if (not port_ptr
+      if (! port_ptr
               ->is_list_id) { // in this case, it is not a list of ast_identifier
         // but a list of ast_single_assignment(ast_new_lvalue_id)
         ast_single_assignment* asm_ptr = (ast_single_assignment*)ptr_from_list_;

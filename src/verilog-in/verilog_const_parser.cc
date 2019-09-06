@@ -82,12 +82,12 @@ VerilogConstantExprEval::_eval(ast_expression* e,
       ast_concatenation * cc = e->primary->value.concatenation;
       unsigned repeat = cc->repeat? _eval(cc->repeat, param_defs ) : 1;
       unsigned total_width = 0;
-      long long ret;
+      long long ret = 0;
       for (size_t idx = 0; idx < cc->items->items; ++idx) {
         ast_expression * it = (ast_expression *)ast_list_get_not_null(cc->items, idx);
         unsigned v = _eval(it, param_defs);
         unsigned width = it->primary->value.number->width;
-        if (width <= 0) {
+        if (width == 0) {
           error_str = ast_expression_tostring(e);
           eval_error = true;
           return 0;
