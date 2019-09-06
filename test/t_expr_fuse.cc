@@ -321,4 +321,24 @@ TEST(TestExprFuse, TopEq) {
   EXPECT_FALSE(TopEq(c, g));
 }
 
+TEST(TestExprFuse, MemSize) {
+  auto mem = NewMemVar("mem", 8, 8);
+
+  EXPECT_EQ(0, GetMemSize(mem));
+
+#ifndef NDEBUG
+  EXPECT_DEATH(SetMemSize(mem, -1), ".*");
+#endif
+  EXPECT_TRUE(SetMemSize(mem, 8));
+  EXPECT_FALSE(SetMemSize(mem, 16));
+
+  EXPECT_EQ(8, GetMemSize(mem));
+
+  auto bl = NewBoolVar("bl");
+#ifndef NDEBUG
+  EXPECT_DEATH(SetMemSize(bl, 2), ".*");
+  EXPECT_DEATH(GetMemSize(bl), ".*");
+#endif
+}
+
 } // namespace ilang

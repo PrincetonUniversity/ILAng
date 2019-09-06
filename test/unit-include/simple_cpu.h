@@ -5,6 +5,7 @@
 #define SIMPLE_CPU_H__
 
 #include <memory>
+#include <string>
 
 namespace ilang {
 

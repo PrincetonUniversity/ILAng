@@ -8,25 +8,10 @@
 # find installed package 
 find_package(glog QUIET)
 
-# embed to build tree if not installed
+# build from embeded subtree (in-source) 
 if(NOT GLOG_FOUND)
 
-  # fetch from git
-  if(${ILANG_FETCH_DEPS})
-
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init glog
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SUBMOD_RESULT
-    )
-
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
-
-  endif() # ILANG_FETCH_DEPS
-
-  # embedded build
+  set(WITH_GFLAGS OFF CACHE INTERNAL "")
   add_subdirectory(glog)
 
 endif() # GLOG_FOUND
@@ -37,32 +22,16 @@ endif() # GLOG_FOUND
 # 
 #   TARGET nlohmann_json::nlohmann_json
 #   SOURCE https://github.com/nlohmann/json.git
-#   PATH   extern/json-lib
+#   PATH   extern/json
 # ---------------------------------------------------------------------------- #
 # find installed package
 find_package(nlohmann_json QUIET)
 
-# embed to build tree if not installed
+# build from embeded subtree (in-source)
 if(NOT NLOHMANN_JSON_FOUND)
 
-  # fetch from git
-  if(${ILANG_FETCH_DEPS})
-
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init json-lib
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SUBMOD_RESULT
-    )
-
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
-
-  endif() # ILANG_FETCH_DEPS
-
-  # embedded build
   set(JSON_BuildTests OFF CACHE INTERNAL "")
-  add_subdirectory(json-lib)
+  add_subdirectory(json)
 
 endif() # NLOHMANN_JSON_FOUND
 
@@ -132,6 +101,9 @@ if(${ILANG_BUILD_SYNTH})
     endif() # ILANG_FETCH_DEPS
 
     # embedded build
+    if(${APPLE})
+      set(BUILD_SHARED_LIBS FALSE CACHE BOOL "Disable shared libs in OSX" FORCE)
+    endif()
     add_subdirectory(tmpl-synth)
 
   endif() # ILASYNTH_FOUND
@@ -204,37 +176,4 @@ if(NOT SMTPARSER_FOUND)
   add_subdirectory(smt-parser)
 
 endif() # SMTPARSER_FOUND
-
-# ---------------------------------------------------------------------------- #
-# Google Test
-#
-#   TARGET  N/A
-#   SOURCE  https://github.com/abseil/googletest
-#   PATH    extern/googletest
-# ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_TEST})
-
-  if(${ILANG_FETCH_DEPS})
-
-    # fetch from git
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init googletest
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SUBMOD_RESULT
-    )
-
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
-
-  else() 
-
-    # check has been downloaded
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/googletest/CMakeLists.txt")
-        message(FATAL_ERROR "googletest submodule was not downloaded.")
-    endif() 
-
-  endif() # ILANG_FETCH_DEPS
-
-endif()
 

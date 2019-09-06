@@ -32,11 +32,13 @@ Ila SimplePipe::BuildModel() {
   auto rs2_val = Ite(rs2 == 0, r0, Ite(rs2 == 1, r1, Ite(rs2 == 2, r2, r3)));
 
   auto NOP = pipe_ila.NewInstr("NOP");
-  { NOP.SetDecode(op == BvConst(0, 2));
-    NOP.SetUpdate(r0,r0);
-    NOP.SetUpdate(r1,r1);
-    NOP.SetUpdate(r2,r2);
-    NOP.SetUpdate(r3,r3); }
+  {
+    NOP.SetDecode(op == BvConst(0, 2));
+    NOP.SetUpdate(r0, r0);
+    NOP.SetUpdate(r1, r1);
+    NOP.SetUpdate(r2, r2);
+    NOP.SetUpdate(r3, r3);
+  }
 
   auto ADD = pipe_ila.NewInstr("ADD");
   {
@@ -62,7 +64,6 @@ Ila SimplePipe::BuildModel() {
   return pipe_ila;
 }
 
-
 Ila UndetVal::BuildModel() {
   auto m = Ila("undetval");
   auto r0 = m.NewBvState("r0", 8);
@@ -71,25 +72,23 @@ Ila UndetVal::BuildModel() {
   auto r3 = m.NewBvState("r3", 8);
   auto r4 = m.NewBvState("r4", 8);
 
-  auto f1 = FuncRef("nondet8_1",SortRef::BV(8));
-  auto f2 = FuncRef("nondet8_2",SortRef::BV(8));
+  auto f1 = FuncRef("nondet8_1", SortRef::BV(8));
+  auto f2 = FuncRef("nondet8_2", SortRef::BV(8));
 
   auto nondet = f1();
 
   auto INST = m.NewInstr("INST");
   {
-    INST.SetDecode( BoolConst(true) );
-    INST.SetUpdate(r0, nondet + 1 ) ;
-    INST.SetUpdate(r1, nondet + 2) ;
-    INST.SetUpdate(r2, f1() + 3 ) ;
-    INST.SetUpdate(r3, f2() + 4) ;
-    INST.SetUpdate(r4, f2() + 5) ;
+    INST.SetDecode(BoolConst(true));
+    INST.SetUpdate(r0, nondet + 1);
+    INST.SetUpdate(r1, nondet + 2);
+    INST.SetUpdate(r2, f1() + 3);
+    INST.SetUpdate(r3, f2() + 4);
+    INST.SetUpdate(r4, f2() + 5);
   }
 
-  return  m;
+  return m;
 }
-
-
 
 Ila UndetFunc::BuildModel() {
   auto m = Ila("undetfunc");
@@ -99,24 +98,24 @@ Ila UndetFunc::BuildModel() {
   auto r3 = m.NewBvState("r3", 8);
   auto r4 = m.NewBvState("r4", 8);
 
-  auto f1 = FuncRef("nondet8_1",SortRef::BV(8), SortRef::BV(8));
-  auto f2 = FuncRef("nondet8_2",SortRef::BV(8), SortRef::BV(8), SortRef::BV(8));
+  auto f1 = FuncRef("nondet8_1", SortRef::BV(8), SortRef::BV(8));
+  auto f2 =
+      FuncRef("nondet8_2", SortRef::BV(8), SortRef::BV(8), SortRef::BV(8));
 
   auto nondet = f1(r0);
 
   auto INST = m.NewInstr("INST2");
   {
-    INST.SetDecode( BoolConst(true) );
-    INST.SetUpdate(r0, nondet    + 1) ;
-    INST.SetUpdate(r1, nondet    + 2) ;
-    INST.SetUpdate(r2, f1(r0)    + 1) ;
-    INST.SetUpdate(r3, f2(r1,r2) + 2) ;
-    INST.SetUpdate(r4, f2(r3,r4) + 3) ;
+    INST.SetDecode(BoolConst(true));
+    INST.SetUpdate(r0, nondet + 1);
+    INST.SetUpdate(r1, nondet + 2);
+    INST.SetUpdate(r2, f1(r0) + 1);
+    INST.SetUpdate(r3, f2(r1, r2) + 2);
+    INST.SetUpdate(r4, f2(r3, r4) + 3);
   }
 
-  return  m;
+  return m;
 }
-
 
 Ila MonitorTest::BuildModel() {
   auto m = Ila("monitortest");
@@ -131,7 +130,7 @@ Ila MonitorTest::BuildModel() {
     INST.SetUpdate( r2, r1 + r2 ) ;
   }
 
-  return  m;
+  return m;
 }
 
 Ila CntTest::BuildModel() {

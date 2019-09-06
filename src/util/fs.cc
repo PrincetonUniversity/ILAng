@@ -1,20 +1,18 @@
 /// \file Utility to deal with filesystem
-/// This could be possible OS dependent
-/// So we want to provide a portable layer
-/// C++17 and after should support something like
-/// experimental/filesystem, but we don't rely on it
+/// This could be possible OS dependent so we want to provide a portable layer
+/// C++17 and after should support something like experimental/filesystem, but
+/// we don't rely on it
 // --- Hongce Zhang
 
 #include <ilang/util/fs.h>
-#include <ilang/util/log.h>
-#include <ilang/util/str_util.h>
 
 #include <fstream>
 #include <iomanip>
 
 #include <cstdlib>
+
 #if defined(_WIN32) || defined(_WIN64)
-// on windows
+// windows
 #include <direct.h>
 #include <winbase.h>
 #include <windows.h>
@@ -28,15 +26,18 @@
 #include <sys/time.h>
 #endif
 
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
+
 namespace ilang {
 
 static bool endsWith(const std::string& str, const std::string& suffix) {
-  return str.size() >= suffix.size() and
+  return str.size() >= suffix.size() &&
          0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
 }
 
 static bool startsWith(const std::string& str, const std::string& prefix) {
-  return str.size() >= prefix.size() and
+  return str.size() >= prefix.size() &&
          0 == str.compare(0, prefix.size(), prefix);
 }
 
@@ -47,7 +48,14 @@ bool os_portable_mkdir(const std::string& dir) {
   return _mkdir(dir.c_str()) == 0;
 #else
   // on *nix
-  return mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
+  struct stat statbuff;
+  if (stat(dir.c_str(), &statbuff) != -1) {
+    if (S_ISDIR(statbuff.st_mode)) {
+      ILA_WARN << "Directory " << dir << " already exists.";
+      return true;
+    }
+  }
+  return mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != -1;
 #endif
 }
 
@@ -64,7 +72,7 @@ std::string os_portable_append_dir(const std::string& dir1,
 #endif
   auto str1 = dir1;
   auto str2 = dir2;
-  if (not endsWith(str1, sep))
+  if (!endsWith(str1, sep))
     str1 += sep;
   if (startsWith(dir2, sep)) {
     ILA_ERROR << "appending root path:" << dir2 << " to " << dir1;

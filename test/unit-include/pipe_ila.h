@@ -23,15 +23,13 @@ public:
   static Ila BuildModel();
 };
 
-
-/// \brief UndetFunc -- function
+/// \brief UndetExample -- function
 class UndetFunc {
 public:
   static Ila BuildModel();
 };
 
-
-/// \brief MonitorTest -- building a monitor
+/// \brief UndetExample -- building a monitor
 class MonitorTest {
 public:
   static Ila BuildModel();

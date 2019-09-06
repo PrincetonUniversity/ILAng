@@ -1,8 +1,8 @@
 /// \file
 /// Header for memory model
 
-#ifndef MEMORY_MODEL_H__
-#define MEMORY_MODEL_H__
+#ifndef ILANG_MCM_MEMORY_MODEL_H__
+#define ILANG_MCM_MEMORY_MODEL_H__
 
 #include "ilang/mcm/ast_helper.h"
 #include "ilang/mcm/axiom_helper.h"
@@ -134,7 +134,7 @@ public:
   /// Return the set of states written by inst/parent-inst
   const StateNameSet& get_inst_write_set() const { return _inst_write_set; }
   /// Return the type of the trace step
-  const TraceStepType type() const { return _type; }
+  const TraceStepType& type() const { return _type; }
   /// Decide if the trace step is the initial trace step (a short-cut)
   bool is_init_tracestep() const { return _type == TraceStepType::INIT_EVT; }
   /// Decide if the trace step is the facet trace step (a short-cut)
@@ -397,4 +397,4 @@ private:
 
 } // namespace ilang
 
-#endif // MEMORY_MODEL_H__
+#endif // ILANG_MCM_MEMORY_MODEL_H__

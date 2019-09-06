@@ -11,9 +11,8 @@ path_classifiers:
   script:
     - scripts
 
-  example:
+  application:
     - apps
-    - examples
 
 extraction:
   cpp:

@@ -1,0 +1,30 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "instruction mapping": [],
+  "state mapping": {  
+    "rf":"rf",
+    "mem":"**MEM**mem"},
+
+  "interface mapping": {
+  	 "rst":"**RESET**", 
+  	 "clk":"**CLOCK**",
+     "op":"op",
+     "operand1":"operand1",
+     "operand2":"operand2",
+
+      "mem_w_en"  :"**MEM**mem.wen",
+      "mem_w_addr":"**MEM**mem.waddr",
+      "mem_w_data":"**MEM**mem.wdata",
+      "mem_r_en"  :"**MEM**mem.ren",
+      "mem_r_addr":"**MEM**mem.raddr",
+      "mem_r_data":"**MEM**mem.rdata"
+  },
+
+  "mapping control" : [],
+  "annotation" : {
+    "memory" : {
+      "rf":"internal",
+      "mem":"external"
+    }
+  }
+}

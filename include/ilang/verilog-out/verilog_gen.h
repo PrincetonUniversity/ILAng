@@ -7,17 +7,17 @@
 /// For 0-ary func, they will be treated as nondet
 /// apply the same nondet func twice, will generate two variables
 /// if you do want to share the nondet val, please reuse the sub-tree
-///
 
-#ifndef VERILOG_GEN_H__
-#define VERILOG_GEN_H__
+#ifndef ILANG_VERILOG_OUT_VERILOG_GEN_H__
+#define ILANG_VERILOG_OUT_VERILOG_GEN_H__
 
-#include "z3++.h"
-#include <ilang/ila/instr_lvl_abs.h>
 #include <list>
 #include <map>
 #include <unordered_map>
 #include <vector>
+
+#include <ilang/ila/instr_lvl_abs.h>
+#include <z3++.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -27,7 +27,6 @@ class VlgSglTgtGen;
 class VlgVerifTgtGen;
 class IntefaceDirectiveRecorder;
 class TestVerilogExport;
-
 
 /// \brief Base class of VerilogGenerator
 class VerilogGeneratorBase {
@@ -123,6 +122,10 @@ public:
 
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
+
+  /// Type for memory annotation
+  typedef std::map<std::string, bool> memory_export_annotation_t;
+
   // VerilogGen Configure
 public:
   /// the structure to configure the verilog generator
@@ -138,21 +141,26 @@ public:
     bool pass_node_name;
     /// whether to give random init to the register
     bool reg_random_init; // this is also to avoid Yosys optimization
+    /// whether to expand the memory and connect everything to the outside
+    /// cannot be true the same time as extMem
+    bool expand_mem;
 
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
-        bool ExternalMem = false, funcOption funcOpt = funcOption::Internal,
-        bool gen_start = false, bool pass_name = false, bool rand_init = false)
+        bool ExternalMem = true, funcOption funcOpt = funcOption::Internal,
+        bool gen_start = false, bool pass_name = false, bool rand_init = false,
+        bool ExpandMem = false)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(pass_name), reg_random_init(rand_init) {}
+          pass_node_name(pass_name), reg_random_init(rand_init), expand_mem(ExpandMem) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start, bool rand_init)
+                 bool gen_start, bool rand_init, bool ExpandMem)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(c.pass_node_name), reg_random_init(rand_init) {}
+          pass_node_name(c.pass_node_name), reg_random_init(rand_init),
+          expand_mem(ExpandMem) {}
     // set other fields if there are such need (?)
-  };
+  }; // end of struct VlgGenConfig
 
   // --------------------- HELPER for DEBUG PURPOSE ----------------------------
   //
@@ -201,6 +209,8 @@ protected:
   vlg_sigs_t mem_i;
   /// vector of memory output signals
   vlg_sigs_t mem_o;
+  /// vector of signals that probe each element of a memory
+  vlg_sigs_t mem_probe_o;
   /// vector of wires to be defined
   vlg_sigs_map_t wires;
   /// a map to store if a wire needs to keep
@@ -245,6 +255,9 @@ protected:
   std::map<std::string, std::map<unsigned, wport_t>> ila_wports;
   /// a collection of all function application
   function_app_vec_t ila_func_app;
+
+  // Annotations
+  memory_export_annotation_t memory_export_annotation;
 
   // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// Check if a name is reserved (clk/rst/modulename/decodeName/ctrName)
@@ -323,6 +336,10 @@ public:
   /// after parsing either the Instruction/ILA, use this function to dump to a
   /// file.
   virtual void DumpToFile(std::ostream& fout) const;
+
+  // --------------------- ANNOTATION INTERFACE ---------------------------- //
+  /// add memory annotation, please invoke right after constructor
+  void AnnotateMemory(const memory_export_annotation_t & annotation);
 }; // class VerilogGeneratorBase
 
 /// \brief Class of Verilog Generator
@@ -443,4 +460,4 @@ public:
 
 }; // namespace ilang
 
-#endif // VERILOG_GEN_H__
+#endif // ILANG_VERILOG_OUT_VERILOG_GEN_H__

@@ -1,14 +1,15 @@
 /// \file
 /// The header for the c++ API.
 
-#ifndef ILA_CPP_API_H__
-#define ILA_CPP_API_H__
+#ifndef ILANG_ILANG_CPP_H__
+#define ILANG_ILANG_CPP_H__
 
-#include "z3++.h"
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "z3++.h"
 
 /// \namespace ilang
 /// Defines the core data structure and APIs for constructing and storing ILA.
@@ -137,6 +138,11 @@ public:
   /// \brief Replace the original argument (must exist) with the new argument.
   void ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg);
 
+  /// \brief Set the entry number of the memory (size regardless of bit-width).
+  bool SetEntryNum(const int& num);
+  /// \brief GEt the entry number of the memory (size regardless of bit-width).
+  int GetEntryNum();
+
 }; // class ExprRef
 
 /******************************************************************************/
@@ -168,6 +174,10 @@ ExprRef Lshr(const ExprRef& a, const ExprRef& b);
 ExprRef operator+(const ExprRef& a, const ExprRef& b);
 /// Unsigned subtraction for bit-vectors.
 ExprRef operator-(const ExprRef& a, const ExprRef& b);
+/// Unsigned multiply for bit-vectors.
+ExprRef operator*(const ExprRef& a, const ExprRef& b);
+/// Unsigned division for bit-vectors.
+ExprRef operator/(const ExprRef& a, const ExprRef& b);
 
 /// Logical AND with Boolean constant.
 ExprRef operator&(const ExprRef& a, const bool& b);
@@ -185,6 +195,14 @@ ExprRef Lshr(const ExprRef& a, const int& b);
 ExprRef operator+(const ExprRef& a, const int& b);
 /// Unsigned subtraction with int constant.
 ExprRef operator-(const ExprRef& a, const int& b);
+/// Unsigned multiply with int constant.
+ExprRef operator*(const ExprRef& a, const int& b);
+/// Arithmetic signed remainder.
+ExprRef SRem(const ExprRef& a, const ExprRef& b);
+/// Arithmetic unsigned remainder.
+ExprRef URem(const ExprRef& a, const ExprRef& b);
+/// Arithmetic signed modular.
+ExprRef SMod(const ExprRef& a, const ExprRef& b);
 
 /******************************************************************************/
 // Binary comparison
@@ -289,6 +307,14 @@ ExprRef ZExt(const ExprRef& bv, const int& length);
 /// \param[in] bv source bit-vector.
 /// \param[in] length bit-width of the extended (result) bit-vector.
 ExprRef SExt(const ExprRef& bv, const int& length);
+/// \brief Left-rotate the bit-vector with immediate number of times. 
+/// \param[in] bv source bit-vector
+/// \param[in] immediate number of times to rotate the bv
+ExprRef LRotate(const ExprRef& bv, const int& immediate);
+/// \brief Right-rotate the bit-vector with immediate number of times. 
+/// \param[in] bv source bit-vector
+/// \param[in] immediate number of times to rotate the bv
+ExprRef RRotate(const ExprRef& bv, const int& immediate);
 
 /******************************************************************************/
 // Others
@@ -485,7 +511,7 @@ public:
 
   // ------------------------- GENERATORS --------------------------------- //
   /// \brief Export an ILA as Verilog
-  /// \param[in] filename the file name of the generated Verilog source
+  /// \param[in] fout the output stream of the generated Verilog source.
   void ExportToVerilog(std::ostream& fout) const;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -541,6 +567,32 @@ std::ostream& operator<<(std::ostream& out, const ExprRef& expr);
 std::ostream& operator<<(std::ostream& out, const InstrRef& instr);
 /// Print out the ILA.
 std::ostream& operator<<(std::ostream& out, const Ila& ila);
+
+/******************************************************************************/
+// Converters
+/******************************************************************************/
+/// \brief Export the ILA portable to file.
+/// \param[in] ila the source ILA model to export.
+/// \param[in] file_name the name of the exported ILA portable (JSON) file.
+bool ExportIlaPortable(const Ila& ila, const std::string& file_name);
+
+/// \brief Import the ILA portable from file.
+/// \param[in] file_name the name of the ILA portable (JSON) file to import.
+Ila ImportIlaPortable(const std::string& file_name);
+
+/// \brief Import the synthesized abstraction from file.
+/// \param[in] file_name the name of the synthesized abstraction (.ila) file.
+/// \param[in] ila_name the name of the generated ILA.
+Ila ImportSynthAbstraction(const std::string& file_name,
+                           const std::string& ila_name);
+
+/// \brief Import the synthesized (child-)abstraction from file, under the given
+/// parent ILA.
+/// \param[in] file_name the name of the synthesized child-abstraction.
+/// \param[in] parent the parent ILA.
+/// \param[in] ila_name the name pf the generated child-ILA.
+void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
+                                 const std::string& ila_name);
 
 /******************************************************************************/
 // Verification.
@@ -641,4 +693,4 @@ private:
 
 } // namespace ilang
 
-#endif // ILA_CPP_API_H__
+#endif // ILANG_ILANG_CPP_H__

@@ -1,11 +1,13 @@
 /// \file Source for Verilog Modifier
 
+#include <ilang/vtarget-out/vlg_mod.h>
+
 #include <algorithm>
 #include <fstream>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/vlg_mod.h>
 
 namespace ilang {
 
@@ -48,7 +50,7 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
   while (std::getline(fin, line)) {
 
     // keeps
-    while (keep_vec_it != keep_info.end() and
+    while (keep_vec_it != keep_info.end() &&
            lineno == std::get<0>(*keep_vec_it)) {
       // process it
       auto vname = std::get<1>(*keep_vec_it);
@@ -66,13 +68,13 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
     // todo: check other issues
 
     while (add_stmt_vec_it != add_stmt_info.end() 
-           and lineno == std::get<0>(*add_stmt_vec_it)) {
+           && lineno == std::get<0>(*add_stmt_vec_it)) {
       const auto & stmt = std::get<1>(*add_stmt_vec_it);
       line =  stmt + "\n" + line;
       add_stmt_vec_it++;
     }
 
-    while (assign_vec_it != assign_info.end() and
+    while (assign_vec_it != assign_info.end() &&
            lineno == std::get<0>(*assign_vec_it)) {
       const auto & vname = std::get<1>(*assign_vec_it);
       const auto & width = std::get<2>(*assign_vec_it);
@@ -81,7 +83,7 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
       assign_vec_it++;
     }
 
-    while (mod_decl_vec_it != mod_decl_info.end() and
+    while (mod_decl_vec_it != mod_decl_info.end() &&
            lineno >= std::get<0>(*mod_decl_vec_it)) {
       const auto & vname = std::get<1>(*mod_decl_vec_it);
       const auto & width = std::get<2>(*mod_decl_vec_it);
@@ -94,7 +96,7 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
       // else we will stop handle it and carry this to the next line
     }
 
-    while (mod_inst_vec_it != mod_inst_info.end() and
+    while (mod_inst_vec_it != mod_inst_info.end() &&
            lineno >= std::get<0>(*mod_inst_vec_it)) {
       const auto & vname = std::get<1>(*mod_inst_vec_it);
       const auto & width = std::get<2>(*mod_inst_vec_it);
@@ -154,7 +156,7 @@ void VerilogModifier::RecordKeepSignalName(const std::string& vlg_sig_name) {
   // check for repetition:
   for (auto&& info_item : fn_l_map[loc.first]) {
     auto lineno = std::get<0>(info_item);
-    const auto& vname = std::get<1>(info_item);
+    // const auto& vname = std::get<1>(info_item); // BYH: unused var
     if (lineno == loc.second /*&& vname == vlg_sig_info.get_signal_name()*/)
       return; // we already add it
     // WARNING: we are not adding keep to the same line!
@@ -192,15 +194,15 @@ std::string VerilogModifier::add_keep_to_a_line(const std::string& line_in,
 
 std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
                                               const std::string& vname) {
-  size_t left = 0;
+  // size_t left = 0; // BYH: unused var
   if (line_in.find(vname) == std::string::npos) {
     ILA_ERROR << "Implementation bug: not able to add keep to line:" << line_in
               << " required varname:" << vname;
     return line_in;
   }
 
-  if (std::string::npos == line_in.find('(') and
-      std::string::npos == line_in.find(')') and
+  if (std::string::npos == line_in.find('(') &&
+      std::string::npos == line_in.find(')') &&
       std::string::npos != line_in.find(';')) {
     // we are dealing with something like output a;
     auto defl = Split(line_in, ";");
@@ -241,10 +243,12 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
     }
     idx++;
   }
+#if 0 // BYH: foundIdx is unsigned, which would never be -1
   if (foundIdx == -1) {
     ILA_ERROR << "not able to modify line: '" << line_in << "' for :" << vname;
     return line_in;
   }
+#endif
 
   midSplit[foundIdx] = "(* keep *)" + midSplit[foundIdx];
 

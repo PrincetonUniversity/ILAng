@@ -17,7 +17,6 @@
 
 namespace ilang {
 
-
 // ------------- CONFIGURATIONS -------------------- //
 
 #define VLG_TRUE "`true"

@@ -23,6 +23,7 @@
 // I have to put this include here, because it needs to know the class
 // VerilogAnalyzerBase
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#include <ilang/verilog-in/verilog_const_parser.h>
 
 extern "C" {
 #include <verilogparser/verilog_ast_util.h>
@@ -31,6 +32,9 @@ extern "C" {
 
 namespace ilang {
 
+/// Declaration of VerilogAnalyzer
+class VerilogAnalyzer;
+
 /// \brief Class to convert port to signal info
 class SignalInfoPort : public SignalInfoBase {
 protected:
@@ -38,10 +42,12 @@ protected:
   ast_port_declaration* _def;
 
 public:
-  /// Constructor: from ast_port_declaration
+  /// Constructor: from ast_port_declaration -- will parse the parameters of
+  /// itself
   SignalInfoPort(ast_port_declaration* def, const std::string& full_name,
                  VerilogAnalyzerBase::hierarchical_name_type tp,
-                 const std::map<std::string,int> * const width_info);
+                 const std::map<std::string,int> * const width_info,
+                 const VerilogAnalyzer* _ana);
   /// Return its definition
   ast_port_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -53,10 +59,12 @@ protected:
   ast_reg_declaration* _def;
 
 public:
-  /// Constructor: from ast_port_declaration
+  /// Constructor: from ast_port_declaration -- will parse the parameters of
+  /// itself
   SignalInfoReg(ast_reg_declaration* def, const std::string& full_name,
                 VerilogAnalyzerBase::hierarchical_name_type tp,
-                const std::map<std::string,int> * const width_info);
+                const std::map<std::string,int> * const width_info,
+                const VerilogAnalyzer* _ana);
   /// Return its definition
   ast_reg_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -68,10 +76,12 @@ protected:
   ast_net_declaration* _def;
 
 public:
-  /// Constructor: from ast_port_declaration
+  /// Constructor: from ast_port_declaration -- will parse the parameters of
+  /// itself
   SignalInfoWire(ast_net_declaration* def, const std::string& full_name,
                  VerilogAnalyzerBase::hierarchical_name_type tp,
-                 const std::map<std::string,int> * const width_info);
+                 const std::map<std::string,int> * const width_info,
+                 const VerilogAnalyzer* _ana);
   /// Return its definition
   ast_net_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -99,6 +109,10 @@ public:
   using name_decl_buffer_t = VerilogAnalyzerBase::name_decl_buffer_t;
   /// Top module signal list
   using module_io_vec_t = VerilogAnalyzerBase::module_io_vec_t;
+  /// type of instance_name -> instance_ast_node
+  typedef std::map<std::string, ast_module_instantiation*> mod_inst_ast_t;
+  /// A map of module name -> the instantiation ast
+  typedef std::map<std::string, mod_inst_ast_t> name_insts_ast_map_t;
 
 protected:
   /// include path for all verilog modules
@@ -113,6 +127,9 @@ protected:
   name_names_map_t module_to_whereuses_map;
   /// module -> all sub modules
   name_insts_map_t modules_to_submodules_map;
+  /// module -> all sub modules and their instantiation ast
+  name_insts_ast_map_t modules_to_submodule_inst_ast_map;
+
   /// we need to know what instance name we would give for the topmodule,
   /// inorder to resolve signal names;
   std::string top_inst_name;
@@ -172,6 +189,8 @@ public:
     const std::map<std::string,int> * const width_info = NULL) const;
   /// Return the location of a module's endmodule statement
   vlg_loc_t get_endmodule_loc(const std::string& inst_name) const;
+  /// Return the module name of a net --- will check if the module names are
+  std::string get_module_name_of_net_name(const std::string& net_name) const;
 
   // --------------------- HELPERS ---------------------------- //
   /// Print Meta info (Usage PrintMeta(os, ?? ) << ?? ;  )
@@ -187,6 +206,14 @@ public:
   static vlg_loc_t Meta2Loc(const ast_metadata& md) {
     return vlg_loc_t(md.file, md.line);
   }
+  // --------------------- FOR verilog const parser ----------------------------
+  // //
+  /// Get the hierarchy information needed by constant parser
+  /// returns true if succeed
+  bool get_hierarchy_from_full_name(
+      const std::string& full_name,
+      VerilogConstantExprEval::param_def_hierarchy& hier,
+      ast_module_declaration** lowest_level) const;
 
 private:
   // --------------------- MEMBERS ---------------------------- //

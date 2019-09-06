@@ -1,15 +1,18 @@
 /// \file
 /// Verilog Analyzer
+
+#include <ilang/verilog-in/verilog_analysis.h>
+
 #include <cstdio>
+#include <sstream>
+#include <string>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/verilog-in/verilog_const_parser.h>
-#include <ilang/verilog-in/verilog_analysis.h>
-#include <string>
-#include <sstream>
 
 // extern int yy_flex_debug;
+extern int yydebug;
 
 namespace ilang {
 
@@ -36,10 +39,23 @@ const T2& GetMapRef(const std::map<T1, T2>& _map, const T1& k) {
   return pos->second;
 }
 
-void* ast_list_get_not_null(ast_list* list, unsigned int item) {
+static void* ast_list_get_not_null(ast_list* list, unsigned int item) {
   void* ret = ast_list_get(list, item);
   ILA_NOT_NULL(ret);
   return ret;
+}
+
+std::string VerilogAnalyzer::get_module_name_of_net_name(
+    const std::string& net_name) const {
+  ILA_ERROR_IF(!S_IN(".", net_name))
+      << net_name << " is not a net name, no '.'";
+  auto levels = Split(net_name, ".");
+  levels.pop_back(); // remove the last element
+  auto mod_name = Join(levels, ".");
+  ILA_ERROR_IF(check_hierarchical_name_type(mod_name) !=
+               hierarchical_name_type::MODULE)
+      << mod_name << " is not a module in the verilog";
+  return mod_name;
 }
 
 bool VerilogAnalyzer::_bad_state_return() const {
@@ -54,6 +70,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t& include_path,
                                  const std::string& optional_top_module)
     : vlg_include_path(include_path), vlg_src_files(srcs),
       top_inst_name(top_module_inst_name), _bad_state(false) {
+//yydebug = 1;
   instance_count++;
   if (instance_count != 1) {
     _bad_state = true;
@@ -115,7 +132,7 @@ void VerilogAnalyzer::invoke_parser() {
   }
   // derive the hierarchy.
   verilog_resolve_modules(yy_verilog_source_tree);
-  ILA_NOT_NULL(yy_verilog_source_tree) << "Parser returns empty AST";
+  ILA_NOT_NULL(yy_verilog_source_tree); // Parser returns empty AST
   ILA_ERROR_IF(yy_verilog_source_tree->modules == NULL)
       << "No Verilog module is found";
 }
@@ -173,6 +190,8 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree* source) {
 
     modules_to_submodules_map[name] =
         mod_inst_t(); // at least we should have an empty list
+    modules_to_submodule_inst_ast_map[name] =
+        mod_inst_ast_t(); // at least we should have an empty list
 
     for (unsigned int sm = 0; sm < module_ast_ptr->module_instantiations->items;
          sm++) {
@@ -194,6 +213,9 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree* source) {
         std::string submod_name_inst(
             ast_identifier_tostring(submod_inst->instance_identifier));
         modules_to_submodules_map[name].insert({submod_name_inst, submod_name});
+        modules_to_submodule_inst_ast_map[name].insert(
+            {submod_name_inst, submod});
+
       } // for each instance of sub module
     }   // for each sub module
   }     // for each module
@@ -335,8 +357,8 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       void* ptr_from_list_ =
           ast_list_get_not_null(port_ptr->port_names, name_idx);
       ast_identifier port_id_ptr;
-      if (not port_ptr->is_list_id) { // in this case, it is not a list of
-                                      // ast_identifier
+      if (!port_ptr->is_list_id) { // in this case, it is not a list of
+                                   // ast_identifier
         // but a list of ast_single_assignment(ast_new_lvalue_id)
         ast_single_assignment* asm_ptr = (ast_single_assignment*)ptr_from_list_;
         ILA_ASSERT(asm_ptr->lval->type == ast_lvalue_type_e::NET_IDENTIFIER ||
@@ -384,7 +406,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       if (internalDef) {
         std::stringstream outbuf;
         PrintMetaAst(outbuf << "Reg:" << net_name
-                               << " seems to have been defined multiple times.",
+                            << " seems to have been defined multiple times.",
                      reg_decl_ptr);
         ILA_ERROR << outbuf.rdbuf();
       }
@@ -411,7 +433,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
         // else
         std::stringstream outinfo;
         PrintMetaAst(outinfo << "Wire:" << net_name
-                               << " has been declared multiple times",
+                             << " has been declared multiple times",
                      net_decl_ptr);
         ILA_ERROR << outinfo.rdbuf();
       }
@@ -531,19 +553,19 @@ VerilogAnalyzer::get_module_inst_loc(const std::string& inst_name) const {
   // goes deep down the hierarchy
   auto curr_mod_name = top_module_name;
   for (unsigned hId = 1; hId < level_names.size() - 1; hId++) {
-    auto inst_name = level_names[hId];
+    auto inst_name_i = level_names[hId];
     auto pos =
-        GetMapRef(modules_to_submodules_map, curr_mod_name).find(inst_name);
+        GetMapRef(modules_to_submodules_map, curr_mod_name).find(inst_name_i);
     if (pos == GetMapRef(modules_to_submodules_map, curr_mod_name).end()) {
-      ILA_ERROR << inst_name << " not found.";
+      ILA_ERROR << inst_name_i << " not found.";
       return vlg_loc_t(); // this instance name does not exists
     }
     curr_mod_name = pos->second;
   }
 
   auto last_level_name = level_names[level_names.size() - 1]; // the last one
-  if (not IN(last_level_name,
-             GetMapRef(modules_to_submodules_map, curr_mod_name))) {
+  if (!IN(last_level_name,
+          GetMapRef(modules_to_submodules_map, curr_mod_name))) {
     ILA_ERROR << inst_name << " not found in the last level.";
     return vlg_loc_t(); // this instance name does not exists
   }
@@ -595,8 +617,10 @@ VerilogAnalyzer::name2loc(const std::string& net_name) const {
     return Meta2Loc(((ast_reg_declaration*)ptr_)->meta);
   if (is_wire(tp_))
     return Meta2Loc(((ast_net_declaration*)ptr_)->meta);
+
   ILA_ASSERT(false)
       << "Implementation bug: name2loc: should not be reachable. Type:" << tp_;
+  return vlg_loc_t("", 0);
 }
 
 /// Find a signal
@@ -614,23 +638,27 @@ SignalInfoBase VerilogAnalyzer::get_signal(const std::string& net_name,
   if (ast_ptr == NULL)
     return bad_signal;
 
+  // auto mod_name = get_module_name_of_net_name(net_name);
+  // ast_module_declaration* mod_ast_ptr =
+  //    (ast_module_declaration*)find_declaration_of_name(mod_name);
+
   switch (tp_) {
   case I_WIRE_wo_INTERNAL_DEF:
   case O_WIRE_wo_INTERNAL_DEF:
   case IO_WIRE_wo_INTERNAL_DEF:
-    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, width_info);
+    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, width_info, this);
 
   case I_WIRE_w_INTERNAL_DEF:
   case O_WIRE_w_INTERNAL_DEF:
   case IO_WIRE_w_INTERNAL_DEF:
   case WIRE:
-    return SignalInfoWire((ast_net_declaration*)ast_ptr, net_name, tp_, width_info);
+    return SignalInfoWire((ast_net_declaration*)ast_ptr, net_name, tp_, width_info, this);
 
   case O_REG_wo_INTERNAL_DEF:
-    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, width_info);
+    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, width_info, this);
   case O_REG_w_INTERNAL_DEF:
   case REG:
-    return SignalInfoReg((ast_reg_declaration*)ast_ptr, net_name, tp_, width_info);
+    return SignalInfoReg((ast_reg_declaration*)ast_ptr, net_name, tp_, width_info, this);
   case MODULE:
     ILA_ERROR << "Module instance:" << net_name << " is not a signal.";
   default:
@@ -687,13 +715,17 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io(
 
       void* ast_ptr = find_declaration_of_name(port_name);
 
+      // auto mod_name = get_module_name_of_net_name(port_name);
+      // ast_module_declaration* mod_ast_ptr =
+      //    (ast_module_declaration*)find_declaration_of_name(mod_name);
+
       switch (tp_) {
       case I_WIRE_wo_INTERNAL_DEF:
       case O_WIRE_wo_INTERNAL_DEF:
       case IO_WIRE_wo_INTERNAL_DEF:
         retIoVec.insert(
             {short_name,
-             SignalInfoPort((ast_port_declaration*)ast_ptr, port_name, tp_, width_info)});
+             SignalInfoPort((ast_port_declaration*)ast_ptr, port_name, tp_, width_info, this)});
         break;
 
       case I_WIRE_w_INTERNAL_DEF:
@@ -701,18 +733,18 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io(
       case IO_WIRE_w_INTERNAL_DEF:
         retIoVec.insert(
             {short_name,
-             SignalInfoWire((ast_net_declaration*)ast_ptr, port_name, tp_, width_info)});
+             SignalInfoWire((ast_net_declaration*)ast_ptr, port_name, tp_, width_info, this)});
         break;
 
       case O_REG_wo_INTERNAL_DEF:
         retIoVec.insert(
             {short_name,
-             SignalInfoPort((ast_port_declaration*)ast_ptr, port_name, tp_, width_info)});
+             SignalInfoPort((ast_port_declaration*)ast_ptr, port_name, tp_, width_info, this)});
         break;
       case O_REG_w_INTERNAL_DEF:
         retIoVec.insert(
             {short_name,
-             SignalInfoReg((ast_reg_declaration*)ast_ptr, port_name, tp_, width_info)});
+             SignalInfoReg((ast_reg_declaration*)ast_ptr, port_name, tp_, width_info, this)});
         break;
       default:
         ILA_ASSERT(false) << "Implementation bug.";
@@ -730,7 +762,7 @@ VerilogAnalyzer::get_endmodule_loc(const std::string& inst_name) const {
   auto tp_ = check_hierarchical_name_type(inst_name);
   void* ptr_ = find_declaration_of_name(inst_name);
   ILA_NOT_NULL(ptr_);
-  if (not is_module(tp_)) {
+  if (!is_module(tp_)) {
     ILA_ERROR << inst_name
               << " should not be the argument of get_endmodule_loc, not a "
                  "module instance name.";
@@ -745,21 +777,71 @@ VerilogAnalyzer::get_endmodule_loc(const std::string& inst_name) const {
   return Meta2Loc(((ast_module_declaration*)ptr_)->meta);
 }
 
+bool VerilogAnalyzer::get_hierarchy_from_full_name(
+    const std::string& full_name,
+    VerilogConstantExprEval::param_def_hierarchy& hier,
+    ast_module_declaration** lowest_level) const {
+
+  std::vector<std::string> level_names = Split(full_name, ".");
+  level_names.pop_back(); // remove signal name
+  if (level_names.empty())
+    return false;
+  if (level_names[0] != top_inst_name)
+    return false;
+
+  if (level_names.size() == 1) { // we don't need hierachy things
+    *lowest_level = GetMap(name_module_map, top_module_name);
+    return true;
+  }
+
+  // go down the hierarchy
+  auto curr_mod_name = top_module_name;
+  for (unsigned hId = 1; hId < level_names.size(); hId++) {
+    auto inst_name = level_names[hId];
+    auto pos_mod_decl =
+        GetMapRef(modules_to_submodules_map, curr_mod_name).find(inst_name);
+    auto pos_mod_inst_ast =
+        GetMapRef(modules_to_submodule_inst_ast_map, curr_mod_name)
+            .find(inst_name);
+
+    if (pos_mod_decl ==
+            GetMapRef(modules_to_submodules_map, curr_mod_name).end() ||
+        pos_mod_inst_ast ==
+            GetMapRef(modules_to_submodule_inst_ast_map, curr_mod_name).end())
+      return false; // this instance name does not exists
+
+    hier.push_back(std::make_pair(GetMap(name_module_map, curr_mod_name),
+                                  pos_mod_inst_ast->second));
+
+    curr_mod_name = pos_mod_decl->second; // move the module declaraion
+  }
+  *lowest_level = GetMap(name_module_map, curr_mod_name);
+  return true;
+
+} // get_hierarchy_from_full_name
+
 // ------------------- signal info base ----------------------------------
 
-unsigned range_to_width(ast_range* range, int width = -1) {
+unsigned range_to_width(ast_range* range, const std::string& full_name,
+                        const VerilogAnalyzer* _ana, int width = -1) {
   if (range == NULL)
     return 1;
   ast_expression* left = range->upper;
   ast_expression* right = range->lower;
 
-  VerilogConstantExprEval leval(left);
-  VerilogConstantExprEval reval(right);
+  VerilogConstantExprEval eval;
+  VerilogConstantExprEval::param_def_hierarchy hierarchy;
+  ast_module_declaration* mod;
+  if (!(_ana->get_hierarchy_from_full_name(full_name, hierarchy, &mod))) {
+    ILA_ERROR << full_name << " 's module is not found, cannot analyze width!";
+    return 1;
+  }
+  eval.PopulateParameterDefByHierarchy(hierarchy, mod);
 
-  unsigned lr = leval.Eval();
-  unsigned rr = reval.Eval();
+  unsigned lr = (unsigned)eval.Eval(left);
+  unsigned rr = (unsigned)eval.Eval(right);
 
-  if (leval.error() or reval.error()) {
+  if (eval.error()) {
     if (width > 0) 
       return width;
     else
@@ -772,9 +854,10 @@ unsigned range_to_width(ast_range* range, int width = -1) {
 SignalInfoPort::SignalInfoPort(ast_port_declaration* def,
                                const std::string& full_name,
                                VerilogAnalyzerBase::hierarchical_name_type tp,
-                               const std::map<std::string,int> * const width_info)
+                               const std::map<std::string,int> * const width_info,
+                               const VerilogAnalyzer* _ana)
     : SignalInfoBase(Split(full_name, ".").back(), full_name,
-                     range_to_width(def->range, 
+                     range_to_width(def->range,  full_name, _ana,
                         width_info == NULL ? -1 : 
                         (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ),
                      tp,
@@ -789,11 +872,12 @@ SignalInfoPort::SignalInfoPort(ast_port_declaration* def,
 SignalInfoReg::SignalInfoReg(ast_reg_declaration* def,
                              const std::string& full_name,
                              VerilogAnalyzerBase::hierarchical_name_type tp,
-                             const std::map<std::string,int> * const width_info)
+                               const std::map<std::string,int> * const width_info,
+                               const VerilogAnalyzer* _ana)
     : SignalInfoBase(Split(full_name, ".").back(), full_name,
-                     range_to_width(def->range, 
-                       width_info == NULL ? -1 : 
-                       (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ),
+                     range_to_width(def->range,  full_name, _ana,
+                        width_info == NULL ? -1 : 
+                        (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ),
                      tp,
                      VerilogAnalyzer::Meta2Loc(def->meta)),
       _def(def) {
@@ -805,11 +889,12 @@ SignalInfoReg::SignalInfoReg(ast_reg_declaration* def,
 SignalInfoWire::SignalInfoWire(ast_net_declaration* def,
                                const std::string& full_name,
                                VerilogAnalyzerBase::hierarchical_name_type tp,
-                               const std::map<std::string,int> * const width_info)
+                               const std::map<std::string,int> * const width_info,
+                               const VerilogAnalyzer* _ana)
     : SignalInfoBase(Split(full_name, ".").back(), full_name,
-                     range_to_width(def->range, 
-                       width_info == NULL ? -1 : 
-                       (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ),
+                     range_to_width(def->range,  full_name, _ana,
+                        width_info == NULL ? -1 : 
+                        (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ),
                      tp,
                      VerilogAnalyzer::Meta2Loc(def->meta)),
       _def(def) {

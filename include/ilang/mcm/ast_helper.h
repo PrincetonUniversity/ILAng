@@ -74,6 +74,19 @@ private:
   bool InAddrOrData;
 }; // class NestedMemAddrDataAvoider
 
+/// \brief Class of traversing to find the application of functions in an AST
+class FunctionApplicationFinder {
+protected:
+  // ------------------------- MEMBERS -------------------------------------- //
+  std::set<std::shared_ptr<Func>> _func_refs;
+
+public:
+  // ------------------------- CONSTRUCTOR ---------------------------------- //
+  FunctionApplicationFinder(const ExprPtr& expr);
+  // get the set of the pointer of the functions
+  const std::set<std::shared_ptr<Func>> GetReferredFunc() const;
+}; // class FunctionApplicationFinder
+
 /*
 /// \brief Class of traversing to detect nested store
 class PureNestedStoreDetector {

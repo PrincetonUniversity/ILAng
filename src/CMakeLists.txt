@@ -8,18 +8,19 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 ##
 ## source files
 ##
-add_subdirectory(util)
 add_subdirectory(ila)
+add_subdirectory(mcm)
+add_subdirectory(target-json)
+add_subdirectory(target-sc)
+add_subdirectory(util)
 add_subdirectory(verification)
 add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
 add_subdirectory(smt-inout)
-add_subdirectory(mcm)
-add_subdirectory(portable)
 
 if(${ILANG_BUILD_SYNTH})
-  add_subdirectory(synth-interface)
+  add_subdirectory(target-itsy)
 endif()
 
 ##
@@ -27,13 +28,22 @@ endif()
 ##
 target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
 
-if(${ILANG_BUILD_COV})
+set_property(
+  TARGET ${ILANG_LIB_NAME}
+  PROPERTY POSITION_INDEPENDENT_CODE ON
+)
 
-  if(${CMAKE_COMPILER_IS_GNUCXX})
+if(${CMAKE_COMPILER_IS_GNUCXX})
 
-    target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-arcs)
-    target_compile_options(${ILANG_LIB_NAME} PUBLIC -ftest-coverage)
+  if(${CMAKE_PROJECT_NAME} MATCHES ${PROJECT_NAME})
+    if(${CMAKE_BUILD_TYPE} MATCHES Debug)
+      target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Wall")
+    endif()
+  endif()
 
+  if(${ILANG_BUILD_COV})
+    target_compile_options(${ILANG_LIB_NAME} PUBLIC "-fprofile-arcs")
+    target_compile_options(${ILANG_LIB_NAME} PUBLIC "-ftest-coverage")
   endif()
 
 endif()
@@ -149,6 +159,12 @@ if(${ILANG_BUILD_SYNTH})
 
 endif()
 
+if(${ILANG_BUILD_SYNTH})
+  set(SYNTH_INTERFACE TRUE)
+else()
+  set(SYNTH_INTERFACE FALSE)
+endif()
+
 
 # ---------------------------------------------------------------------------- #
 # INSTALL
@@ -184,6 +200,11 @@ else()
   install(
     FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
+  )
+
+  install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/util/log.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang/util
   )
 
 endif()

@@ -26,7 +26,6 @@ namespace ilang {
 // ------------- END of CONFIGURAIONS -------------------- //
 
 // ------------------------ ILA ----------------------------- //
-
 void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
   // add ila input
   size_t ila_input_num = _host->input_num();
@@ -69,6 +68,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   std::set<std::string> port_of_ila;    // store the name of ila port also
 
   // .. record function
+
+  // this is the string to construct
   auto retStr = vlg_ila.moduleName + " " + _ila_mod_inst_name + " (\n";
 
   std::set<std::string> func_port_skip_set;
@@ -76,7 +77,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     func_port_skip_set.insert(func_app.result.first);
     port_connected.insert(func_app.result.first);
     /// new reg : put in when __START__
-    if (not IN(func_app.func_name, func_cnt))
+    if (! IN(func_app.func_name, func_cnt))
       func_cnt.insert({func_app.func_name, 0});
     unsigned func_no = func_cnt[func_app.func_name]++;
 
@@ -114,7 +115,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       retStr += "   ." + arg.first + "(" + func_arg_w + "),\n";
       argNo++;
     }
-  }
+  } // end of functions
 
   // handle input
   for (auto&& w : vlg_ila.inputs) {
@@ -132,13 +133,13 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     else if (w.first == vlg_ila.startName) { // .__START__(__START__)
       retStr += "   ." + vlg_ila.startName + "(" + "__START__" + "),\n";
     } else {
-      ILA_ERROR_IF(not IN("__ILA_I_" + w.first, vlg_wrapper.wires))
+      ILA_ERROR_IF(! IN("__ILA_I_" + w.first, vlg_wrapper.wires))
           << "__ILA_I_" + w.first << " has not been defined yet";
       retStr += "   ." + w.first + "(__ILA_I_" + w.first + "),\n";
     }
-  }
+  } // end of inputs
 
-  // TODO:: Function here !
+  // TODO:: FUnction here !
   // handle output
   for (auto&& w : vlg_ila.outputs) {
     if (IN(w.first, func_port_skip_set))
@@ -160,6 +161,13 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     }
   }
 
+  // for internal memory connect the probes
+  for (auto && port : vlg_ila.mem_probe_o) {
+      std::string wrapper_wire_name = "__ILA_SO_" + port.first;
+      vlg_wrapper.add_wire(wrapper_wire_name, port.second, true);
+      retStr += "   ." + port.first + "(" + wrapper_wire_name + "),\n";
+  }
+
   // handle memory io - use internal storage for this purpose
   for (auto&& ila_name_rport_pair : vlg_ila.ila_rports) {
     const auto& ila_name = ila_name_rport_pair.first;
@@ -167,7 +175,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     const auto adw = GetMemInfo(ila_name);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 and dw > 0)
+    ILA_ASSERT(aw > 0 && dw > 0)
         << "Implementation bug: unable to find mem:" << ila_name;
 
     for (auto&& rport : rports) {
@@ -198,7 +206,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     const auto adw = GetMemInfo(ila_name);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 and dw > 0)
+    ILA_ASSERT(aw > 0 && dw > 0)
         << "Implementation bug: unable to find mem:" << ila_name;
 
     for (auto&& wport : wports) {
@@ -227,7 +235,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   // handle state-output
   std::string sep;
   for (auto&& r : vlg_ila.regs) {
-    if (not IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
+    if (! IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
       ILA_WARN << "__ILA_SO_" + r.first << " will be ignored";
 
       retStr += sep + "   ." + r.first + "()"; // __ILA_SO_" + r.first + "
@@ -276,7 +284,6 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
 
 // ------------------------ ALL instantiation ----------------------------- //
-
 void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
   // instantiate ila module
   if (target_type == target_type_t::INSTRUCTIONS) {
@@ -297,7 +304,6 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
 } // ConstructWrapper_add_module_instantiation
 
 // ------------------------ OTERHS (refs) ----------------------------- //
-
 void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
 

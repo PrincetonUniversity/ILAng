@@ -18,6 +18,7 @@ enum AST_UID_SORT { BOOL = 1, BV, MEM };
 enum AST_UID_EXPR { VAR = 1, CONST, OP };
 /// Unified ID for ExprOp.
 enum AST_UID_EXPR_OP {
+  // XXX Add new op to the END of the list to make it backward compatible
   INVALID = 0,
   NEG,
   NOT,
@@ -30,6 +31,7 @@ enum AST_UID_EXPR_OP {
   LSHR,
   ADD,
   SUB,
+  MUL,
   EQ,
   LT,
   GT,
@@ -43,7 +45,13 @@ enum AST_UID_EXPR_OP {
   SEXT,
   APP_FUNC,
   IMPLY,
-  ITE
+  ITE,
+  DIV,
+  LROTATE,
+  RROTATE,
+  SREM,
+  UREM,
+  SMOD
 };
 
 /******************************************************************************/

@@ -48,6 +48,7 @@ VlgVerifTgtGen::VlgVerifTgtGen(
       _advanced_param_ptr(adv_ptr),
       _bad_state(false) {
   load_json(_rf_var_map_name, rf_vmap);
+  supplementary_info.FromJson(rf_vmap);
   load_json(_rf_cond_name, rf_cond);
   sup_info.FromJson(rf_vmap);
   set_module_instantiation_name();
@@ -99,13 +100,12 @@ VlgVerifTgtGen::VlgVerifTgtGen(
   }
 
   // check vmap
-  if (not IN("models", rf_vmap) || not rf_vmap["models"].is_object()) {
+  if (!IN("models", rf_vmap) || !rf_vmap["models"].is_object()) {
     ILA_ERROR << "'model' field must exist in vmap and be a map of ILA/VERILOG "
                  "-> 'instance name' ";
     _bad_state = true;
   }
-  if (not IN("state mapping", rf_vmap) ||
-      not rf_vmap["state mapping"].is_object()) {
+  if (!IN("state mapping", rf_vmap) || !rf_vmap["state mapping"].is_object()) {
     ILA_ERROR << "'state mapping' field must exist in vmap and be a map : "
                  "ila_var -> impl_var";
     _bad_state = true;
@@ -383,9 +383,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     bool invariantExists = false;
     if (IN("global invariants", rf_cond)) {
       auto& inv = rf_cond["global invariants"];
-      if (inv.is_array() and inv.size() != 0)
+      if (inv.is_array() && inv.size() != 0)
         invariantExists = true;
-      else if (inv.is_string() and inv.get<std::string>() != "")
+      else if (inv.is_string() && inv.get<std::string>() != "")
         invariantExists = true;
       else if (
         ( _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL or
@@ -403,7 +403,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         invariantExists = true;
     }
     auto sub_output_path = os_portable_append_dir(_output_path, "invariants");
-    if (_backend == backend_selector::COSA and invariantExists) {
+    if (_backend == backend_selector::COSA && invariantExists) {
       auto target = VlgSglTgtGen_Cosa(
           sub_output_path,
           NULL, // invariant
@@ -414,7 +414,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                        "absmem.v");
-    } else if (_backend == backend_selector::JASPERGOLD and invariantExists) {
+    } else if (_backend == backend_selector::JASPERGOLD && invariantExists) {
       auto target = VlgSglTgtGen_Jasper(
           sub_output_path,
           NULL, // invariant
@@ -448,7 +448,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     auto& instrs = rf_cond["instructions"];
     for (auto&& instr : instrs) {
       std::string iname = instr["instruction"].get<std::string>();
-      if (_vtg_config.CheckThisInstructionOnly != "" and
+      if (_vtg_config.CheckThisInstructionOnly != "" &&
           _vtg_config.CheckThisInstructionOnly != iname)
         continue; // skip, not checking this instruction
 
@@ -545,32 +545,35 @@ bool VlgVerifTgtGen::bad_state_return(void) {
 } // bad_state_return
 
 // return npos if no comments in
-static size_t find_comments(const std::string &line) {
-  enum state_t {PLAIN, STR, LEFT }  state, next_state;
+static size_t find_comments(const std::string& line) {
+  enum state_t { PLAIN, STR, LEFT } state, next_state;
   state = PLAIN;
   size_t ret = 0;
-  for (const auto & c : line) {
+  for (const auto& c : line) {
     if (state == PLAIN) {
       if (c == '/')
         next_state = LEFT;
+      else if (c == '"')
+        next_state = STR;
       else
         next_state = PLAIN;
     } else if (state == STR) {
-      if (c == '"')
+      if (c == '"' || c == '\n')
         next_state = PLAIN;
+      // the '\n' case is in case we encounter some issue to find
+      // the ending of a string
       else
         next_state = STR;
     } else if (state == LEFT) {
       if (c == '/') {
         ILA_ASSERT(ret > 0);
-        return ret-1;
-      }
-      else
+        return ret - 1;
+      } else
         next_state = PLAIN;
     } else
       ILA_ASSERT(false);
     state = next_state;
-    ++ ret;
+    ++ret;
   }
   return std::string::npos;
 }
@@ -589,7 +592,7 @@ void VlgVerifTgtGen::load_json(const std::string& fname, nlohmann::json& j) {
   // remove the comments
   std::string contents;
   std::string line;
-  while(std::getline(fin,line)) {
+  while (std::getline(fin,line)) {
     auto comment_begin = find_comments(line);
     if (comment_begin != std::string::npos)
       contents += line.substr(0,comment_begin);
@@ -598,7 +601,6 @@ void VlgVerifTgtGen::load_json(const std::string& fname, nlohmann::json& j) {
     contents += "\n";
   }
   j = nlohmann::json::parse(contents);
-  // fin >> j;
 } // load_json
 
 }; // namespace ilang

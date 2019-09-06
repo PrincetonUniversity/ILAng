@@ -59,7 +59,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
 
   auto& instr = get_current_instruction_rf();
 
-  if (!instr.is_null() and IN("ready bound", instr) and
+  if (!instr.is_null() && IN("ready bound", instr) &&
       instr["ready bound"].is_number_integer())
     max_bound = instr["ready bound"].get<int>();
   else
@@ -293,7 +293,6 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
     // start decode -- issue enforce (e.g. valid, input)
   } // end of no flush
 } // ConstructWrapper_add_condition_signals
-
 
 } // namespace ilang
 

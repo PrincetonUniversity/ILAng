@@ -1,8 +1,12 @@
 /// \file
 /// Source for the c++ API.
 
-#include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
+
+#include <ilang/config.h>
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/target-itsy/interface.h>
+#include <ilang/target-json/interface.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/unroller.h>
@@ -110,6 +114,16 @@ void ExprRef::ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg) {
   get()->replace_arg(org_arg.get(), new_arg.get());
 }
 
+bool ExprRef::SetEntryNum(const int& num) {
+  auto res = ExprFuse::SetMemSize(get(), num);
+  return res;
+}
+
+int ExprRef::GetEntryNum() {
+  auto num = ExprFuse::GetMemSize(get());
+  return num;
+}
+
 ExprRef operator-(const ExprRef& a) {
   auto v = ExprFuse::Negate(a.get());
   return ExprRef(v);
@@ -165,6 +179,31 @@ ExprRef operator-(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef operator/(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Div(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef SRem(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::SRem(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef URem(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::URem(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef SMod(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::SMod(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator*(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Mul(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator&(const ExprRef& a, const bool& b) {
   auto v = ExprFuse::And(a.get(), b);
   return ExprRef(v);
@@ -202,6 +241,11 @@ ExprRef operator+(const ExprRef& a, const int& b) {
 
 ExprRef operator-(const ExprRef& a, const int& b) {
   auto v = ExprFuse::Sub(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator*(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Mul(a.get(), b);
   return ExprRef(v);
 }
 
@@ -401,6 +445,16 @@ ExprRef ZExt(const ExprRef& bv, const int& length) {
 
 ExprRef SExt(const ExprRef& bv, const int& length) {
   auto v = ExprFuse::SExt(bv.get(), length);
+  return ExprRef(v);
+}
+
+ExprRef LRotate(const ExprRef& bv, const int& immediate) {
+  auto v = ExprFuse::LRotate(bv.get(), immediate);
+  return ExprRef(v);
+}
+
+ExprRef RRotate(const ExprRef& bv, const int& immediate) {
+  auto v = ExprFuse::RRotate(bv.get(), immediate);
   return ExprRef(v);
 }
 
@@ -632,6 +686,40 @@ std::ostream& operator<<(std::ostream& out, const InstrRef& instr) {
 
 std::ostream& operator<<(std::ostream& out, const Ila& ila) {
   return out << ila.get();
+}
+
+bool ExportIlaPortable(const Ila& ila, const std::string& file_name) {
+  return IlaSerDesMngr::SerToFile(ila.get(), file_name);
+}
+
+Ila ImportIlaPortable(const std::string& file_name) {
+  auto m = IlaSerDesMngr::DesFromFile(file_name);
+  return Ila(m);
+}
+
+Ila ImportSynthAbstraction(const std::string& file_name,
+                           const std::string& ila_name) {
+#ifdef SYNTH_INTERFACE
+  auto m = ImportSynthAbsFromFile(file_name, ila_name);
+  return Ila(m);
+#else  // SYNTH_INTERFACE
+  auto m = Ila(ila_name);
+  ILA_ERROR << "Synthesis interface not built.";
+  ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
+  return m;
+#endif // SYNTH_INTERFACE
+}
+
+void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
+                                 const std::string& ila_name) {
+#ifdef SYNTH_INTERFACE
+  auto m = ImportSynthAbsFromFileHier(file_name, parent.get(), ila_name);
+  ILA_NOT_NULL(m);
+  return;
+#else
+  ILA_ERROR << "Synthesis interface not built.";
+  ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
+#endif
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)

@@ -3,11 +3,9 @@
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
-#include <ilang/util/str_util.h>
 #include <ilang/util/fs.h>
+#include <ilang/util/str_util.h>
 #include <vector>
-
-
 
 namespace ilang {
 
@@ -24,41 +22,40 @@ void EndRecordLog() {
   SetLogPath(""); // log to /tmp
 #ifndef NDEBUG
   SetToStdErr(0); // still log to stderr
-#else               // NDEBUG
+#else             // NDEBUG
   SetToStdErr(0); // not log to stderr
-#endif              // NDEBUG
+#endif            // NDEBUG
 }
 
-#define EXPECT_ERROR( m ) do {        \
-  RecordLog();                        \
-  std::string error_msg;              \
-  GET_STDERR_MSG( m , error_msg );    \
-  EndRecordLog();                     \
-} while(0);
+#define EXPECT_ERROR(m)                                                        \
+  do {                                                                         \
+    RecordLog();                                                               \
+    std::string error_msg;                                                     \
+    GET_STDERR_MSG(m, error_msg);                                              \
+    EndRecordLog();                                                            \
+  } while (0);
 
 TEST(TestUtil, DirAppend) {
 
-  EXPECT_EQ( os_portable_append_dir("/a","b"),  "/a/b" );
-  EXPECT_EQ( os_portable_append_dir("/a/","b"), "/a/b" );
-  EXPECT_EQ( os_portable_append_dir("a/","b"),  "a/b"  );
-  EXPECT_EQ( os_portable_append_dir("a","b"),   "a/b"  );
-  EXPECT_EQ( os_portable_append_dir("a/","./b"),"a/./b"  );
-  EXPECT_EQ( os_portable_append_dir("/a/","./b"),"/a/./b"  );
+  EXPECT_EQ(os_portable_append_dir("/a", "b"), "/a/b");
+  EXPECT_EQ(os_portable_append_dir("/a/", "b"), "/a/b");
+  EXPECT_EQ(os_portable_append_dir("a/", "b"), "a/b");
+  EXPECT_EQ(os_portable_append_dir("a", "b"), "a/b");
+  EXPECT_EQ(os_portable_append_dir("a/", "./b"), "a/./b");
+  EXPECT_EQ(os_portable_append_dir("/a/", "./b"), "/a/./b");
 
-  EXPECT_ERROR( os_portable_append_dir("a","/b") );
-  EXPECT_ERROR( os_portable_append_dir("/a/","/b") );
-  EXPECT_ERROR( os_portable_append_dir("/a","/b") );
+  EXPECT_ERROR(os_portable_append_dir("a", "/b"));
+  EXPECT_ERROR(os_portable_append_dir("/a/", "/b"));
+  EXPECT_ERROR(os_portable_append_dir("/a", "/b"));
 }
-
 
 TEST(TestUtil, FileNameFromDir) {
 
-  EXPECT_EQ( os_portable_file_name_from_path("a"),     "a" );
-  EXPECT_EQ( os_portable_file_name_from_path("a/b"),   "b" );
-  EXPECT_EQ( os_portable_file_name_from_path("./a/b"), "b" );
+  EXPECT_EQ(os_portable_file_name_from_path("a"), "a");
+  EXPECT_EQ(os_portable_file_name_from_path("a/b"), "b");
+  EXPECT_EQ(os_portable_file_name_from_path("./a/b"), "b");
 
-  EXPECT_ERROR( os_portable_file_name_from_path("a/") );
-
+  EXPECT_ERROR(os_portable_file_name_from_path("a/"));
 }
 
 TEST(TestUtil, RemoveExtension) {
@@ -150,13 +147,14 @@ TEST(TestUtil, ExecShellRedirectTimeOut) {
 
 
 TEST(TestUtil, RegularExpr) {
-  if(IsRExprUsable() ) {
+  if (IsRExprUsable()) {
     auto l = ReFindList("s1 == 2", "[A-Za-z0-9]+");
     EXPECT_EQ(l.size(), 2);
     EXPECT_EQ(l[0], "s1");
     EXPECT_EQ(l[1], "2");
 
-    auto l2 = ReFindAndDo("s1 == 2", "[A-Za-z0-9]+", [](std::string s) -> std::string {return s;} );
+    auto l2 = ReFindAndDo("s1 == 2", "[A-Za-z0-9]+",
+                          [](std::string s) -> std::string { return s; });
 
     EXPECT_EQ(l2.size(), 2);
     EXPECT_EQ(l2[0], "s1");

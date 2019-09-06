@@ -3,50 +3,17 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
-#include <ilang/synth-interface/synth_engine_interface.h>
+#include <ilang/util/fs.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include "unit-include/config.h"
-#include "unit-include/pipe_ila.h"
 #include "unit-include/memswap.h"
+#include "unit-include/pipe_ila.h"
 #include "unit-include/util.h"
 
 namespace ilang {
 
 #define SET_GLOBAL_CONFIG (config.VerificationSettingAvoidIssueStage=true)
-
-TEST(TestVlgTargetGen, AesIlaInfo) {
-
-  auto aesFile = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/all";
-  auto aesuFile = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/allu";
-  auto aes = ImportSynthAbsFromFile(aesFile, "AES");
-  auto aesu = ImportSynthAbsFromFile(aesuFile, "AES_U");
-
-  // aes->AddChild(aesu);
-
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. instr:" << aes->instr_num();
-  for (unsigned i = 0; i < aes->instr_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo") << "\t" << aes->instr(i)->name().str()
-                                         << "\t" << aes->instr(i)->decode();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. state:" << aes->state_num();
-  for (unsigned i = 0; i < aes->state_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo") << "\t" << aes->state(i)->name().str();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << std::endl;
-
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. instr:" << aesu->instr_num();
-  for (unsigned i = 0; i < aes->instr_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo") << "\t" << aesu->instr(i)->name().str()
-                                         << "\t" << aesu->instr(i)->decode();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. state:" << aesu->state_num();
-  for (unsigned i = 0; i < aesu->state_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo")
-        << "\t" << aesu->state(i)->name().str();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << std::endl;
-}
 
 TEST(TestVlgTargetGen, PipeExample) {
   auto config = VerilogVerificationTargetGenerator::vtg_config_t();
@@ -69,7 +36,6 @@ TEST(TestVlgTargetGen, PipeExample) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
 
 // test all kinds of rfmap issue
@@ -104,10 +70,10 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
   VerilogVerificationTargetGenerator vg(
-      {},                          // no include
+      {},                                // no include
       {dirName + "simple_pipe_wrong.v"}, //
-      "pipeline_v",                // top_module_name
-      dirName + "rfmap/vmap.json", // variable mapping
+      "pipeline_v",                      // top_module_name
+      dirName + "rfmap/vmap.json",       // variable mapping
       dirName + "rfmap/cond.json", dirName + "disprove/", ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
       config);
@@ -116,6 +82,7 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
 
   vg.GenerateTargets();
 }
+
 
 TEST(TestVlgTargetGen, Memory) {
   auto config = VerilogVerificationTargetGenerator::vtg_config_t();
@@ -138,9 +105,53 @@ TEST(TestVlgTargetGen, Memory) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
 
+TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
+  auto ila_model = MemorySwap::BuildSimpleSwapModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg; // default configuration
+  VerilogGeneratorBase::VlgGenConfig vlg_cfg;
+  vlg_cfg.extMem = false;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                    // no include
+      {dirName + "swap_im.v"},  // vlog files
+      "swap",                // top_module_name
+      dirName + "vmap-expand.json", // variable mapping
+      dirName + "cond-expand.json", // cond path
+      dirName,               // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      vtg_cfg,
+      vlg_cfg
+      );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
+TEST(TestVlgTargetGen, MemoryInternalExternal) {
+  auto ila_model = MemorySwap::BuildRfAsMemModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                       // no include
+      {dirName + "rf_as_mem.v"},     // vlog files
+      "proc",                  // top_module_name
+      dirName + "vmap-rfarray.json", // variable mapping
+      dirName + "cond-rfarray.json", // cond path
+      dirName,                  // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
 
 TEST(TestVlgTargetGen, MemoryRead) {
   auto config = VerilogVerificationTargetGenerator::vtg_config_t();
@@ -150,12 +161,12 @@ TEST(TestVlgTargetGen, MemoryRead) {
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
-      {},                    // no include
-      {dirName + "read.v"},  // vlog files
-      "rdtop",                // top_module_name
+      {},                       // no include
+      {dirName + "read.v"},     // vlog files
+      "rdtop",                  // top_module_name
       dirName + "vmap-rd.json", // variable mapping
       dirName + "cond-rd.json", // cond path
-      dirName,               // output path
+      dirName,                  // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
       config);
@@ -163,7 +174,6 @@ TEST(TestVlgTargetGen, MemoryRead) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
 
 TEST(TestVlgTargetGen, MemorySwapAbsRead) {
@@ -181,7 +191,7 @@ TEST(TestVlgTargetGen, MemorySwapAbsRead) {
       "swap",                // top_module_name
       dirName + "vmap.json", // variable mapping
       dirName + "cond.json", // cond path
-      dirName + "rdabs/",          // output path
+      dirName + "rdabs/",    // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
       config);
@@ -189,9 +199,7 @@ TEST(TestVlgTargetGen, MemorySwapAbsRead) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
-
 
 TEST(TestVlgTargetGen, MemoryReadAbsRead) {
   VerilogVerificationTargetGenerator::vtg_config_t config;
@@ -203,12 +211,12 @@ TEST(TestVlgTargetGen, MemoryReadAbsRead) {
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
-      {},                    // no include
-      {dirName + "read.v"},  // vlog files
-      "rdtop",                // top_module_name
+      {},                       // no include
+      {dirName + "read.v"},     // vlog files
+      "rdtop",                  // top_module_name
       dirName + "vmap-rd.json", // variable mapping
       dirName + "cond-rd.json", // cond path
-      dirName + "rdabs/",      // output path
+      dirName + "rdabs/",       // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
       config);
@@ -216,9 +224,7 @@ TEST(TestVlgTargetGen, MemoryReadAbsRead) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
-
 
 TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
   VerilogVerificationTargetGenerator::vtg_config_t config;
@@ -230,12 +236,12 @@ TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
-      {},                    // no include
-      {dirName + "read.v"},  // vlog files
-      "rdtop",                // top_module_name
+      {},                       // no include
+      {dirName + "read.v"},     // vlog files
+      "rdtop",                  // top_module_name
       dirName + "vmap-rd.json", // variable mapping
       dirName + "cond-rd.json", // cond path
-      dirName + "rdabs_jg/",      // output path
+      dirName + "rdabs_jg/",    // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD,
       config);
@@ -243,7 +249,6 @@ TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
 
 TEST(TestVlgTargetGen, UndetValue) {
@@ -267,10 +272,7 @@ TEST(TestVlgTargetGen, UndetValue) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
-
-
 
 TEST(TestVlgTargetGen, UndetFunc) {
   VerilogVerificationTargetGenerator::vtg_config_t config;
@@ -280,12 +282,12 @@ TEST(TestVlgTargetGen, UndetFunc) {
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/undetf/";
   VerilogVerificationTargetGenerator vg(
-      {},                        // no include
+      {},                         // no include
       {dirName + "func.v"},       // vlog files
       "undetfunc",                // top_module_name
       dirName + "vmap-func.json", // variable mapping
       dirName + "cond-func.json", // cond path
-      dirName,                   // output path
+      dirName,                    // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
       config);
@@ -293,9 +295,7 @@ TEST(TestVlgTargetGen, UndetFunc) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
-
 }
-
 
 TEST(TestVlgTargetGen, AesExample) {}
 

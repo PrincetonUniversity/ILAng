@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------------------- #
 # External dependency
 # ---------------------------------------------------------------------------- #
+set(INSTALL_GTEST OFF CACHE INTERNAL "")
 add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest" 
   EXCLUDE_FROM_ALL)
 
@@ -39,11 +40,13 @@ set(ILANG_TEST_MAIN unit_tests)
 
 package_add_test(${ILANG_TEST_MAIN} 
   unit-src/eq_ilas.cc
+  unit-src/ila_sim_test.cc
+  unit-src/mcm_ilas.cc
   unit-src/memswap.cc
+  unit-src/pipe_ila.cc
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
-  unit-src/mcm_ilas.cc
-  unit-src/pipe_ila.cc
+  unit-src/util.cc
   t_api.cc
   t_case_aes_eq.cc
   t_crr.cc
@@ -56,6 +59,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_func.cc
   t_hash_ast.cc
   t_ila.cc
+  t_ila_sim.cc
   t_instr.cc
   t_instr_seq.cc
   t_keyvec.cc
@@ -69,14 +73,15 @@ package_add_test(${ILANG_TEST_MAIN}
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
+  t_util.cc
+  t_validate_model.cc
   t_verilog_analysis.cc
   t_verilog_analysis_error.cc
   t_verilog_gen.cc
+  t_verilog_mod.cc
+  t_vtarget_gen.cc
   t_z3adapter.cc
   t_z3sanity.cc
-  t_vtarget_gen.cc
-  t_verilog_mod.cc
-  t_util.cc
   t_inv_syn.cc
   t_inv_syn_ex.cc
   t_inv_extract.cc
@@ -99,7 +104,6 @@ configure_file(
   IMMEDIATE @ONLY
 )
 
-
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 
 add_custom_target(run_test
@@ -116,7 +120,7 @@ add_test(
     ExampleCMakeBuild
   COMMAND
     "${CMAKE_CTEST_COMMAND}"
-      --build-and-test  "${PROJECT_SOURCE_DIR}/boilerplate"
+      --build-and-test  "${PROJECT_SOURCE_DIR}/starter"
                         "${CMAKE_CURRENT_BINARY_DIR}/simple"
       --build-generator "${CMAKE_GENERATOR}"
       --test-command    "${CMAKE_CTEST_COMMAND}"

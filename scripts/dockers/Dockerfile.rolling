@@ -1,0 +1,148 @@
+FROM ubuntu:bionic as builder
+
+# var
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
+
+# root dir
+WORKDIR $BUILD_ROOT
+
+# build packages
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
+    bison \
+    build-essential \
+    cmake \
+    expect \
+    flex \
+    gawk \
+    git \
+    graphviz \
+    libboost-all-dev \
+    libgmp-dev \
+    libreadline-dev \
+    libffi-dev \
+    libmpfr-dev \
+    libmpc-dev \
+    pkg-config \
+    python3 \
+    python3-pip \
+    tcl-dev \
+    vim \
+    wget \
+    xdot \
+    && rm -rf /var/lib/apt/lists/*
+
+# portable build result
+WORKDIR $BUILD_ROOT
+RUN pip3 install virtualenv
+RUN virtualenv $VIRT_ENV
+
+# z3
+ENV Z3_DIR $BUILD_ROOT/z3
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/Z3Prover/z3/git/refs/heads/master z3_version.json
+RUN git clone https://github.com/Z3Prover/z3.git $Z3_DIR
+WORKDIR $Z3_DIR 
+RUN $BUILD_PREF/bin/python scripts/mk_make.py --prefix=$BUILD_PREF --python 
+WORKDIR $Z3_DIR/build
+RUN make -j"$(nproc)" && \
+    make install
+
+# Yosys
+ENV YOSYS_DIR $BUILD_ROOT/yosys
+WORKDIR $BUILD_ROOT
+RUN wget https://github.com/cliffordwolf/yosys/archive/yosys-0.8.tar.gz
+RUN mkdir -p $YOSYS_DIR 
+RUN tar zxvf yosys-0.8.tar.gz -C $YOSYS_DIR --strip-components 1
+WORKDIR $YOSYS_DIR 
+RUN make config-gcc && \
+    make -j"$(nproc)" && \
+    PREFIX=$BUILD_PREF make install
+
+# CoSA
+ENV COSA_DIR $BUILD_ROOT/CoSA
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/cristian-mattarei/CoSA/git/refs/heads/master cosa_version.json
+RUN git clone https://github.com/cristian-mattarei/CoSA.git $COSA_DIR
+WORKDIR $COSA_DIR
+RUN git checkout remotes/origin/dev -b dev
+RUN $BUILD_PREF/bin/pip3 install -e .
+
+# Boolector
+ENV BTOR_DIR $BUILD_ROOT/Boolector
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/Boolector/boolector/git/refs/heads/master btor_version.json
+RUN git clone --depth=1 https://github.com/Boolector/boolector.git $BTOR_DIR
+RUN pip3 install cython==0.29.3
+WORKDIR $BTOR_DIR
+RUN ./contrib/setup-lingeling.sh 
+RUN ./contrib/setup-cadical.sh
+RUN ./contrib/setup-btor2tools.sh
+RUN ./configure.sh --python --py3 --prefix $BUILD_PREF
+WORKDIR $BTOR_DIR/build
+RUN make -j"$(nproc)" && \
+    make install
+
+# PySMT
+WORKDIR $BUILD_ROOT
+RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/solvers/btor.py 
+RUN mv btor.py btor-solver.py
+RUN cp btor-solver.py $BUILD_PREF/lib/python3.6/site-packages/pysmt/solvers/btor.py
+RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/cmd/installers/btor.py 
+RUN mv btor.py btor-installer.py
+RUN cp btor-installer.py /ibuild/ilang-env/lib/python3.6/site-packages/pysmt/cmd/installers/btor.py
+
+# ILAng
+ENV ILANG_DIR $BUILD_ROOT/ILAng
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/Bo-Yuan-Huang/ILAng/git/refs/heads/master ilang_version.json
+RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILAng.git $ILANG_DIR
+WORKDIR $ILANG_DIR
+RUN mkdir -p build 
+WORKDIR $ILANG_DIR/build
+RUN cmake .. -DCMAKE_INSTALL_PREFIX="$BUILD_PREF" -DILANG_INSTALL_DEV=ON && \
+    make -j"$(nproc)" && \
+    make install 
+
+#
+# Deployment
+#
+FROM ubuntu:bionic
+
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
+    bison \
+    build-essential \
+    cmake \
+    flex \
+    git \
+    libboost-all-dev \
+    libgmp-dev \
+    libgomp1 \
+    libmpfr-dev \
+    libmpc-dev \
+    pkg-config \
+    python3 \
+    python3-pip \
+    tcl-dev \
+    vim \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
+
+WORKDIR /root/workspace
+
+RUN echo "source $BUILD_PREF/bin/activate" >> init.sh
+RUN echo "export CMAKE_PREFIX_PATH=$BUILD_PREF:\$CMAKE_PREFIX_PATH" >> init.sh
+RUN echo "cd $(pwd)" >> init.sh
+
+# configure files
+COPY --from=builder $BUILD_PREF $BUILD_PREF
+COPY --from=builder $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
+COPY --from=builder $BUILD_ROOT/ILAng/starter/ ./simple/
+
+# done
+CMD echo "run 'source init.sh' to start" && /bin/bash

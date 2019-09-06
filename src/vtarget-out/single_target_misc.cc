@@ -25,7 +25,6 @@ namespace ilang {
 
 // ------------- END of CONFIGURAIONS -------------------- //
 
-
 bool VlgSglTgtGen::bad_state_return(void) {
   ILA_ERROR_IF(_bad_state) << "VlgSglTgtGen is in a bad state, cannot proceed.";
   return _bad_state;
@@ -48,11 +47,11 @@ void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
 
 
 void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
-  if(not IN("verilog-inline-monitors",rf_vmap))
+  if(! IN("verilog-inline-monitors",rf_vmap))
     return; // no need for it
 
   auto & monitor_rec = rf_vmap["verilog-inline-monitors"];
-  if (not monitor_rec.is_object()) {
+  if (! monitor_rec.is_object()) {
     ILA_ERROR << "Expect verilog-inline-monitors to be map-type";
     return;
   }
@@ -60,7 +59,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
   for (auto && m_rec : monitor_rec.items()) {
     const auto & mname = m_rec.key(); // actually no use
     auto & mdef =  m_rec.value();
-    ILA_ERROR_IF(not (mdef.is_object() or mdef.is_array())) << 
+    ILA_ERROR_IF(! (mdef.is_object() or mdef.is_array())) << 
       "Expect verilog-inline-monitors's element to be map/list type";
     std::string vlg_expr;
     std::vector<std::string> repl_list;
@@ -71,7 +70,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
           vlg_expr = vlg_field.get<std::string>();
         } else if (vlg_field.is_array() or vlg_field.is_object() ) {
           for (auto && line : vlg_field.items()) {
-            if (not line.value().is_string()) {
+            if (! line.value().is_string()) {
               ILA_ERROR  << "Expecting string/list-of-string in `verilog` field of `verilog-inline-monitors`";
               continue;
             }
@@ -86,7 +85,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
           repl_list.push_back(vlg_inp_pair.value().get<std::string>());
         else if (ref_field.is_array()) {
           for (auto && vlg_name : ref_field.items()) {
-            if (not vlg_name.value().is_string()) {
+            if (! vlg_name.value().is_string()) {
                 ILA_ERROR  << "Expecting string/list-of-string in `verilog` field of `verilog-inline-monitors`";
                 continue;
               }
@@ -175,8 +174,6 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
   };
   _idr.InsertAbsMemAssmpt(inserter);
 } // ConstructWrapper_add_helper_memory
-
-
 
 
 void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {

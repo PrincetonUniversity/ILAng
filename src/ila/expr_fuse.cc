@@ -121,6 +121,26 @@ ExprPtr ExprFuse::Sub(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpSub>(l, r);
 }
 
+ExprPtr ExprFuse::Div(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpDiv>(l, r);
+}
+
+ExprPtr ExprFuse::SRem(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpSRem>(l, r);
+}
+
+ExprPtr ExprFuse::URem(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpURem>(l, r);
+}
+
+ExprPtr ExprFuse::SMod(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpSMod>(l, r);
+}
+
+ExprPtr ExprFuse::Mul(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpMul>(l, r);
+}
+
 ExprPtr ExprFuse::And(const ExprPtr l, const bool& r) {
   auto rc = ExprFuse::BoolConst(r);
   return ExprFuse::And(l, rc);
@@ -159,6 +179,11 @@ ExprPtr ExprFuse::Add(const ExprPtr l, const int& r) {
 ExprPtr ExprFuse::Sub(const ExprPtr l, const int& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Sub(l, rc);
+}
+
+ExprPtr ExprFuse::Mul(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
+  return ExprFuse::Mul(l, rc);
 }
 
 ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
@@ -215,12 +240,14 @@ ExprPtr ExprFuse::Eq(const ExprPtr l, const bool& r) {
 }
 
 ExprPtr ExprFuse::Eq(const ExprPtr l, const int& r) {
-  auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
+  auto rc = (l->is_bool()) ? ExprFuse::BoolConst(r == 1)
+                           : ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Eq(l, rc);
 }
 
 ExprPtr ExprFuse::Ne(const ExprPtr l, const int& r) {
-  auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
+  auto rc = (l->is_bool()) ? ExprFuse::BoolConst(r == 1)
+                           : ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Ne(l, rc);
 }
 
@@ -284,8 +311,35 @@ ExprPtr ExprFuse::Store(const ExprPtr mem, const int& addr, const int& data) {
   return ExprFuse::Store(mem, ac, dc);
 }
 
+bool ExprFuse::SetMemSize(const ExprPtr mem, const int& size) {
+  ILA_ASSERT(mem->is_mem()) << "Set size to non-memory variable " << mem;
+  ILA_ASSERT(size > 0) << "Setting non-positive memory size " << size;
+
+  if (mem->param_num() != 0) {
+    ILA_WARN << "Overwriting original paramters of " << mem;
+    return false;
+  }
+
+  mem->set_params({size});
+  return true;
+}
+
+int ExprFuse::GetMemSize(const ExprPtr mem) {
+  ILA_ASSERT(mem->is_mem()) << "Get size from non-memory variable " << mem;
+  if (mem->param_num() == 0) {
+    return 0;
+  } else {
+    ILA_ASSERT(mem->param_num() == 1) << "Unrecognized memory parameter set";
+    return mem->param(0);
+  }
+}
+
 ExprPtr ExprFuse::Concat(const ExprPtr hi, const ExprPtr lo) {
-  return std::make_shared<ExprOpConcat>(hi, lo);
+  auto const_zero = ExprFuse::BvConst(0x0, 1);
+  auto const_one = ExprFuse::BvConst(0x1, 1);
+  auto bv_hi = hi->is_bool() ? ExprFuse::Ite(hi, const_one, const_zero) : hi;
+  auto bv_lo = lo->is_bool() ? ExprFuse::Ite(lo, const_one, const_zero) : lo;
+  return std::make_shared<ExprOpConcat>(bv_hi, bv_lo);
 }
 
 ExprPtr ExprFuse::Extract(const ExprPtr bv, const int& hi, const int& lo) {
@@ -298,6 +352,14 @@ ExprPtr ExprFuse::ZExt(const ExprPtr bv, const int& out_width) {
 
 ExprPtr ExprFuse::SExt(const ExprPtr bv, const int& out_width) {
   return std::make_shared<ExprOpSExt>(bv, out_width);
+}
+
+ExprPtr ExprFuse::LRotate(const ExprPtr bv, const int& immediate) {
+  return std::make_shared<ExprOpLRotate>(bv, immediate);
+}
+
+ExprPtr ExprFuse::RRotate(const ExprPtr bv, const int& immediate) {
+  return std::make_shared<ExprOpRRotate>(bv, immediate);
 }
 
 ExprPtr ExprFuse::AppFunc(const FuncPtr func) {

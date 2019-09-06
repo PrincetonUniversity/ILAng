@@ -197,9 +197,8 @@ public:
           // OnlyEnforceInvariantsOnInitialStateOfInstrCheck(true),  // not used, always true
           OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
-          CosaGenJgTesterScript(false), CosaFullTrace(false), 
-          CosaAddKeep(true), MaxBound(127),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
+          CosaGenJgTesterScript(false),  CosaFullTrace(false), CosaAddKeep(true), MaxBound(127),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
