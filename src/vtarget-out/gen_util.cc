@@ -367,8 +367,8 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
   if (ila_state->sort()->is_mem()) {
     // we need to decide if this memory is internal/external;
     bool external = _vlg_cfg.extMem;
-    if (IN(ila_state_name, supplementary_info.memory_export))
-      external = supplementary_info.memory_export.at(ila_state_name);
+    if (IN(ila_state_name, sup_info.memory_export))
+      external = sup_info.memory_export.at(ila_state_name);
 
     if (!external) { // if internal
       // if you choose to expand the array then we are able to handle with out MEM directive
@@ -444,8 +444,8 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
           << "map mem:" << ila_state_name;
 
       bool external = _vlg_cfg.extMem;
-      if (IN(ila_state_name, supplementary_info.memory_export))
-        external = supplementary_info.memory_export.at(ila_state_name);
+      if (IN(ila_state_name, sup_info.memory_export))
+        external = sup_info.memory_export.at(ila_state_name);
 
       ILA_ERROR_IF(!external)
       <<"Should not use MEM directive since this memory is internal:" << ila_state_name;

@@ -18,7 +18,7 @@ namespace ilang {
 #define VLG_FALSE "`false"
 
 // initialize templates
-std::string abcGenerateSmtScript_wo_Array = R"***(
+static std::string abcGenerateSmtScript_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
 miter -assert %module%
@@ -81,14 +81,14 @@ std::string abcAigCmdGLA = R"***(
 )***";
 
 
-std::string abcCmdNoGLA = R"***(
+static std::string abcCmdNoGLA = R"***(
   read_blif %blifname%
   strash
   pdr
   inv_print -v
 )***";
 
-std::string abcCmdGLA = R"***(
+static std::string abcCmdGLA = R"***(
   read_blif %blifname%
   &get -n
   &gla -T 500 -F 200 -v

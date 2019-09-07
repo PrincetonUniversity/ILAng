@@ -609,7 +609,7 @@ void ExternalAbcTargetGen::ConstructWrapper(
 // --------------------- for CHC template ---------------------------- //
 
 // initialize templates
-std::string abcGenerateSmtScript_wo_Array = R"***(
+static std::string abcGenerateSmtScript_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
 miter -assert %module%
@@ -620,7 +620,7 @@ techmap; opt -fast
 write_blif %blifname%
 )***";
 
-std::string abcCmdNoGLA = R"***(
+static std::string abcCmdNoGLA = R"***(
   read_blif %blifname%
   strash
   pdr
@@ -628,7 +628,7 @@ std::string abcCmdNoGLA = R"***(
 )***";
 
 
-std::string abcCmdGLAnoCorr = R"***(
+static std::string abcCmdGLAnoCorr = R"***(
   read_blif %blifname%
   &get -n
   &gla -T %glatime% -F %glaframe% -v

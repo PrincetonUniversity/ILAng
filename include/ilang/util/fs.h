@@ -58,9 +58,9 @@ execute_result os_portable_execute_shell(const std::vector<std::string> & cmdarg
 std::string os_portable_file_name_from_path(const std::string& path);
 
 /// Extract path from path
-/// C:\a\b\c.txt -> C:\a\b\ 
+/// C:\a\b\c.txt -> "C:\a\b\ something "
 /// C:\a\b\c -> C:\a\b
-/// d/e/ghi  -> d/e/
+/// d/e/ghi  -> "d/e/"
 std::string os_portable_path_from_path(const std::string& path);
 
 /// read the last meaningful line from a file

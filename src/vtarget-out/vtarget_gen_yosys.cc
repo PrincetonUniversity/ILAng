@@ -395,7 +395,7 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
   { // export to ys_full_name
     std::ofstream ys_script_fout( ys_full_name );
     
-    std::string write_smt2_options = " -mem -bv -wires -stdt "; // future work : -stbv, or nothing
+    std::string write_smt2_options = " -mem -bv -stdt "; // future work : -stbv, or nothing
 
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;

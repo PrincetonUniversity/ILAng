@@ -105,8 +105,9 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
         break; 
       }
       vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
-      break; // just one round
     }while(not vg.in_bad_state());
+  
+  EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateInvariantVerificationTarget();
   auto design_stat = vg.GetDesignStatistics();

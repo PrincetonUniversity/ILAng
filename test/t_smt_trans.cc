@@ -108,7 +108,7 @@ TEST(TestSmtTrans,SmtToIndividualBvChc) {
   
 
 
-  std::string inv_syn_tmpl_wo_datatypes = R"***(
+  static std::string inv_syn_tmpl_wo_datatypes = R"***(
   ;----------------------------------------
   ;  Single Inductive Invariant Synthesis
   ;  Generated from ILAng

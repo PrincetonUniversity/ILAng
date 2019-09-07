@@ -553,7 +553,7 @@ void VlgSglTgtGen_Chc_wCNF::design_only_gen_smt(
   { // export to ys_script_name
     std::ofstream ys_script_fout( ys_script_name );
     
-    std::string write_smt2_options = " -mem -bv -wires "; // future work : -stbv, or nothing
+    std::string write_smt2_options = " -mem -bv "; // future work : -stbv, or nothing
     if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
       write_smt2_options += "-stdt ";
     else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)

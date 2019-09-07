@@ -66,8 +66,8 @@ ExternalChcTargetGen::ExternalChcTargetGen(const std::vector<std::string>& imple
   set_module_instantiation_name();
 
   has_rf_invariant =  ( IN("global invariants", rf_cond) && 
-    rf_cond["global invariants"].is_array() ||
-    rf_cond["global invariants"].size() != 0  ) ;
+    ( rf_cond["global invariants"].is_array() &&
+    rf_cond["global invariants"].size() != 0 ) ) ;
   
   // check vmap -- we just want to known their names
   if (not IN("models", rf_vmap) || not rf_vmap["models"].is_object()) {
@@ -613,7 +613,7 @@ void ExternalChcTargetGen::ConstructWrapper(
 // --------------------- for CHC template ---------------------------- //
 
 // initialize templates
-std::string chcGenerateSmtScript_wo_Array = R"***(
+static std::string chcGenerateSmtScript_wo_Array = R"***(
 hierarchy -check
 proc
 opt
@@ -627,7 +627,7 @@ opt;;
 )***";
 
 
-std::string inv_syn_tmpl_datatypes = R"***(
+static std::string inv_syn_tmpl_datatypes = R"***(
 ;----------------------------------------
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
@@ -689,7 +689,7 @@ std::string inv_syn_tmpl_datatypes = R"***(
 
 
 
-std::string inv_syn_tmpl_wo_datatypes = R"***(
+static std::string inv_syn_tmpl_wo_datatypes = R"***(
 ;----------------------------------------
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
@@ -825,7 +825,7 @@ void ExternalChcTargetGen::design_only_gen_smt(
   { // export to ys_script_name
     std::ofstream ys_script_fout( ys_script_name );
     
-    std::string write_smt2_options = " -mem -bv -wires "; // future work : -stbv, or nothing
+    std::string write_smt2_options = " -mem -bv "; // future work : -stbv, or nothing
     if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
       write_smt2_options += "-stdt ";
     else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
