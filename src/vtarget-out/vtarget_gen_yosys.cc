@@ -62,6 +62,7 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
 yosysGenerateSmtScript_wo_Array = R"***(
 hierarchy -check
 proc
+%setundef -undriven -expose%
 opt
 opt_expr -mux_undef
 opt
@@ -74,6 +75,7 @@ opt;;
 yosysGenerateSmtScript_w_Array = R"***(
 hierarchy -check
 proc
+%setundef -undriven -expose%
 opt
 opt_expr -mux_undef
 opt
@@ -400,7 +402,9 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
-    ys_script_fout << yosysGenerateSmtScript_wo_Array;
+    ys_script_fout << ReplaceAll(
+      yosysGenerateSmtScript_wo_Array, 
+      "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << os_portable_append_dir( _output_path, smt_name );   
   } // finish writing

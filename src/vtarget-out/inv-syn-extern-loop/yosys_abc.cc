@@ -614,6 +614,7 @@ read_verilog -formal %topfile%
 prep -top %module%
 miter -assert %module%
 flatten
+%setundef -undriven -expose%
 sim -clock clk -reset rst -n 1 -w %module%
 memory -nordff
 techmap; opt -fast
@@ -827,11 +828,13 @@ void ExternalAbcTargetGen::generate_blif(
     
     ys_script_fout << 
       ReplaceAll(
+      ReplaceAll(
       ReplaceAll( 
       ReplaceAll(abcGenerateSmtScript_wo_Array,
         "%topfile%", os_portable_append_dir( _output_path , top_file_name ) ),
         "%module%",  top_mod_name ),
-        "%blifname%",blifname);
+        "%blifname%",blifname),
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
   } // finish writing
 
   std::string yosys = "yosys";

@@ -83,6 +83,10 @@ public:
     // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
     /// The path to yosys, if yosys is not in the PATH, default empty
     std::string YosysPath;
+    /// whether to explicitly turn the undriven net to input
+    /// for smt-backend, the top level undriven net seems always turned into
+    /// inputs, but the lower level may not 
+    bool YosysUndrivenNetAsInput;
     /// Whether to use array sort on register file, not compatible with
     /// BitVec in YosysSmtStateSort, default false
     bool YosysSmtArrayForRegFile;
@@ -203,6 +207,7 @@ public:
           CosaGenJgTesterScript(false),  CosaFullTrace(false), CosaAddKeep(true), MaxBound(127),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
+          YosysUndrivenNetAsInput(false),
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
           VerificationSettingAvoidIssueStage(false), 
           InvariantSynthesisKeepMemory(true),

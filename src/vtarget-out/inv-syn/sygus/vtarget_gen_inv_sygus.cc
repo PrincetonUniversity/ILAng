@@ -27,12 +27,14 @@ opt_expr -mux_undef
 opt
 opt
 %flatten%
+%setundef -undriven -expose%
 memory -nordff
 proc
 opt;;
 )***";
 
-// should not be used
+// should not be used 
+// this is : "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""
 std::string sygusGenerateSmtScript_w_Array = R"***(
 hierarchy -check
 proc
@@ -420,8 +422,10 @@ void VlgSglTgtGen_Cvc4SyGuS::design_only_gen_smt(
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
     ys_script_fout << 
+      ReplaceAll(
       ReplaceAll(sygusGenerateSmtScript_wo_Array, "%flatten%", 
-        _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : "");
+        _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""),
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << smt_name;   
   } // finish writing
