@@ -155,6 +155,8 @@ protected:
   std::string top_file_name;
   /// chc file name
   std::string blif_fname;
+  /// aiger file name
+  std::string aiger_fname;
   // helper function to be implemented by COSA/JASPER
   /// Add an assumption
   virtual void add_an_assumption(const std::string& aspt,
@@ -171,8 +173,7 @@ protected:
   /// add rf inv as assumptions (if there are)
   void add_rf_inv_as_assertion();
   /// add property to vlg
-  void add_property(const std::string &precond, const std::string &all_assume_reg,
-    const std::set<std::string> focus_set);
+  void add_property(const std::set<std::string> focus_set);
   /// the wires referred needs to be added to wire/ports/implports
   void register_extra_io_wire();
   /// read in wrapper_tmpl_name and generate wrapper_name
@@ -186,10 +187,20 @@ protected:
   void generate_blif(
     const std::string & blif_name,
     const std::string & ys_script_name);  
+    
+  void generate_aiger(
+  const std::string & blif_name,
+  const std::string & aiger_name,
+  const std::string & map_name,
+  const std::string & ys_script_name) ;
 
   void export_script(const std::string& script_name,
     const std::string& abc_command_file_name, bool useGla, bool useCorr,
     unsigned gla_frame, unsigned gla_time);
+    
+  void export_script_aiger(const std::string& script_name,
+    const std::string& abc_command_file_name);
+    
 public:
   // okay to instantiate
   void do_not_instantiate(void) {}
@@ -211,8 +222,6 @@ public:
   void ConstructWrapper(
     const std::string& wrapper_name,
     const std::string& wrapper_tmpl_name,
-    const std::string& precond,
-    const std::string& all_assume_reg,
     const std::set<std::string> & focus_set);
   /// step 2: to blif
   void GenerateBlifProblem(
@@ -220,6 +229,11 @@ public:
     const std::string& bash_script_name,
     const std::string& abc_command_file_name,
     bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time);
+  /// step 2: to aiger
+  void GenerateAigerProblem(
+    const std::string& aiger_name,
+    const std::string& bash_script_name,
+    const std::string& abc_command_file_name);
 
   // ----------------------- ACCESSOR -------------------- //
   /// get the script names (should be only 1)

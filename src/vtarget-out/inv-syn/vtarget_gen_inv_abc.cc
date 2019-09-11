@@ -380,10 +380,8 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
     abc_cmd_fn << abc_cmd;
   } // generate abc command
 
-  if (aiger_fname != "")
+  if (aiger_fname != "" || blif_fname != "")
     fout << runnable << " -F " << abc_command_file_name << std::endl;
-  else if (blif_fname != "")
-    fout << runnable << " -F "<< abc_command_file_name  << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
@@ -606,7 +604,7 @@ void VlgSglTgtGen_Abc::generate_aiger(
       << "Executing Yosys failed!";
     ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
       << "Yosys returns error code:" << res.ret;
-} // design_only_gen_smt
+} // generate_aiger
 
 
 }; // namespace ilang

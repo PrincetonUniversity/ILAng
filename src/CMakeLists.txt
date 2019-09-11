@@ -35,11 +35,11 @@ set_property(
 
 if(${CMAKE_COMPILER_IS_GNUCXX})
 
-  if(${CMAKE_PROJECT_NAME} MATCHES ${PROJECT_NAME})
-    if(${CMAKE_BUILD_TYPE} MATCHES Debug)
-      target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Wall")
-    endif()
-  endif()
+  ## if(${CMAKE_PROJECT_NAME} MATCHES ${PROJECT_NAME})
+  ##   if(${CMAKE_BUILD_TYPE} MATCHES Debug)
+  ##     target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Wall")
+  ##   endif()
+  ## endif()
 
   if(${ILANG_BUILD_COV})
     target_compile_options(${ILANG_LIB_NAME} PUBLIC "-fprofile-arcs")

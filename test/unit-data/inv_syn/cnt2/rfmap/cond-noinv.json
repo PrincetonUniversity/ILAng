@@ -5,11 +5,7 @@
     {
       "instruction": "INC",
       "ready signal": [],  
-      "ready bound": 1,
-
-      "flush constraint": [],
-      "pre-flush end":[],
-      "post-flush end":[]
+      "ready bound": 1
     }
   ]
 }

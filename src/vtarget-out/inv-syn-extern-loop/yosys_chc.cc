@@ -98,36 +98,38 @@ std::string ExternalChcTargetGen::GetDesignUnderVerificationInstanceName() const
 // --------------------- for rf parsing (not very useful)  ----------------- //
 
 // return npos if no comments in
-static size_t find_comments(const std::string &line) {
-  enum state_t {PLAIN, STR, LEFT }  state, next_state;
+static size_t find_comments(const std::string& line) {
+  enum state_t { PLAIN, STR, LEFT } state, next_state;
   state = PLAIN;
   size_t ret = 0;
-  for (const auto & c : line) {
+  for (const auto& c : line) {
     if (state == PLAIN) {
       if (c == '/')
         next_state = LEFT;
+      else if (c == '"')
+        next_state = STR;
       else
         next_state = PLAIN;
     } else if (state == STR) {
-      if (c == '"')
+      if (c == '"' || c == '\n')
         next_state = PLAIN;
+      // the '\n' case is in case we encounter some issue to find
+      // the ending of a string
       else
         next_state = STR;
     } else if (state == LEFT) {
       if (c == '/') {
         ILA_ASSERT(ret > 0);
-        return ret-1;
-      }
-      else
+        return ret - 1;
+      } else
         next_state = PLAIN;
     } else
       ILA_ASSERT(false);
     state = next_state;
-    ++ ret;
+    ++ret;
   }
   return std::string::npos;
 }
-
 /// load json from a file name to the given j
 void ExternalChcTargetGen::load_json(const std::string& fname, nlohmann::json& j) {
   if (bad_state_return())

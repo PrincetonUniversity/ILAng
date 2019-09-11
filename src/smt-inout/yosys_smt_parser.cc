@@ -42,7 +42,9 @@ void YosysSmtParser::construct_flatten_dataype() {
           const auto & mod_tp_name = state_var._type.module_name;
           auto inst_name = get_mod_inst_name( state_var.internal_name );
           auto tp_mod_name = get_mod_name(mod_tp_name); // | _s|
-          ILA_ASSERT(IN(tp_mod_name, flatten_datatype));
+          ILA_ASSERT(IN(tp_mod_name, flatten_datatype))
+            << "state_var:" << state_var.internal_name << "/"
+            << state_var.verilog_name << " mod:" << mod_tp_name << " not in flatten_datatype";
           auto & sub_mod_state_var_vec = flatten_datatype[tp_mod_name];
           // from there, insert all the state here
           for(const auto & sub_mod_state_var : sub_mod_state_var_vec) {

@@ -152,38 +152,46 @@ bool run_jg_till_fail(const std::string & assumefile) {
   return has_cex;
 }
 
-void analyze_failed_property_and_time(const std::string & vcd_file_name,
-  std::string & failed_prop, double & time, double & start_time) {
+bool analyze_failed_property_and_time(const std::string & vcd_file_name,
+  std::string & failed_prop, double & time, double & start_time, const std::string& the_scope,
+  const std::string & start_signal, // "inst_begin_cond"
+  const std::string & expect_start_signal_value // "1'b1"
+  ) {
 
   VCDFileParser parser;
   VCDFile * trace = parser.parse_file(vcd_file_name);
 
   if (not trace) {
-    ILA_ERROR << "Error while reading waveform from: "<< vcd_file_name; return; }
+    ILA_ERROR << "Error while reading waveform from: "<< vcd_file_name; return false; }
   ILA_NOT_NULL(trace -> get_scope("$root"));
-  ILA_NOT_NULL(trace -> get_scope("wrapper"));
+  ILA_NOT_NULL(trace -> get_scope(the_scope));
 
   // determine the failing property time
   std::string starting_sig_hash;
   std::map<std::string,std::string> sig_hash_map;
-  for (VCDSignal* root_sig : trace -> get_scope("wrapper") -> signals ) {
+  for (VCDSignal* root_sig : trace -> get_scope(the_scope) -> signals ) {
     // find the hash of it
-    const auto & signame = root_sig -> reference;
+    auto signame = root_sig -> reference;
+    if (signame.size() >= 1 && signame.at(0)=='\\')
+      signame = signame.substr(1);
     if ( std::find(props.begin(),props.end(), signame) != props.end() ) {
       // if it is a signal name
       sig_hash_map.insert(std::make_pair(signame, root_sig -> hash));
     }
-    if ( signame == "inst_begin_cond" )
+    if ( signame == start_signal )
       starting_sig_hash = root_sig -> hash;
   }
 
   // determine the start signal time
-  VCDSignalValues * prop_sig_vals = trace -> get_signal_value(starting_sig_hash);
-  for (VCDTimedValue * tv : *prop_sig_vals) {
-    if ( val2vlgstr( *(tv -> value) ) == "1'b1" ) {
-      start_time = tv -> time;
-      std::cout << "Found starting time: @ " << start_time << std::endl; break;
+  if (not starting_sig_hash.empty()) {
+    VCDSignalValues * prop_sig_vals = trace -> get_signal_value(starting_sig_hash);
+    for (VCDTimedValue * tv : *prop_sig_vals) {
+      if ( val2vlgstr( *(tv -> value) ) == expect_start_signal_value ) {
+        start_time = tv -> time;
+        std::cout << "Found starting time: @ " << start_time << std::endl; break;
+      }
     }
+    ILA_WARN << "starting_sig_hash not found. Use given starting time: " <<start_time;
   }
   //
 
@@ -198,7 +206,7 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
         time = tv -> time;
         failed_prop = sig_hash_pair.first;
         std::cout << "Found property:" << failed_prop << " failed @ " << time << std::endl;
-        return;
+        return true;
       }
     }
   }
@@ -206,6 +214,7 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
   for(auto && sig_hash_pair : sig_hash_map ) {
     ILA_ERROR <<sig_hash_pair.first;
   }
+  return false;
 }
 
 
@@ -293,7 +302,7 @@ bool get_why(const std::string &prop_signal, double failtime, double starttime,
     std::string line;
     bool start = false;
     while (std::getline(fin,line)) {
-      if(!start && line.find("Cycle: " + std::to_string((int)(starttime/10) + 1 )) == 0) {
+      if(!start && line.find("Cycle: " + std::to_string(starttime == 0 ? 0 : (int)(starttime/10) + 1 )) == 0) {
         start = true;
       } else if (start) {
         if (line.find("-----------------") == 0) {
@@ -325,7 +334,8 @@ void filter_sigs(const std::set<std::string> & in, std::set<std::string> &out, c
 
 void get_signal_value_list(
   const std::string & vcd_file_name,
-  const std::string & scope, // "dut"
+  const std::string & top_module_name, // "eq_top"
+  const std::string & scope, // "hls_U"
   std::set<std::string> & whysig, double starttime,
   CexExtractor::cex_t & cex) {
   
@@ -341,11 +351,11 @@ void get_signal_value_list(
     auto scopes = collect_scope(sig->scope);
 
     // check scope -- only the top level
-    if ( not ( scopes.find("$root.wrapper." +  scope + ".") == 0 ) )
+    if ( not ( scopes.find("$root."+top_module_name+"." +  scope + ".") == 0 ) )
       continue;
 
     auto vlg_name = ReplaceAll(
-      scopes + sig->reference, "$root.wrapper.", "");
+      scopes + sig->reference, "$root."+top_module_name+".", "");
     std::string check_name = vlg_name;
     {
       auto pos = check_name.find('[');
@@ -437,23 +447,26 @@ int main(int argc, char **argv) {
   if (!has_cex)
     return 5; // i like 5
   
-  std::string prop; double starttime, failtime;
-  analyze_failed_property_and_time("cex.vcd",prop,failtime,starttime);
+  std::string prop; double starttime = 0.0, failtime;
+  if(!analyze_failed_property_and_time("cex.vcd",prop,failtime,starttime,"\\jasper::tcl_properties",
+      "inst_begin_cond", "1'b0")) {
+    return 1; // failed to extract
+  }
 
   std::set<std::string> whysig, dutsigs;
   if (deduce_why) {
     get_why(prop,failtime, starttime,whysig);
-    filter_sigs(whysig, dutsigs, "dut.");
+    filter_sigs(whysig, dutsigs, "hls_U.");
   } else {
     std::set<std::string> jg_info_whysig, after_fileter;
     if (not load_why(dutsigs,argv[3]) ) return 2;
     get_why(prop,failtime, starttime,jg_info_whysig);
-    filter_sigs(jg_info_whysig, after_fileter, "dut.");
-    suggest_remove(dutsigs, after_fileter);
+    filter_sigs(jg_info_whysig, after_fileter, "hls_U.");
+    suggest_remove(dutsigs, after_fileter); // dutsigs will be the one used
   }
 
   ilang::CexExtractor::cex_t cex;
-  get_signal_value_list("cex.vcd","dut",dutsigs,starttime, cex);
+  get_signal_value_list("cex.vcd","eq_top","hls_U",dutsigs,starttime, cex);
 
   CexExtractor::StoreCexToFile(cexfile, cex);
 

@@ -71,7 +71,7 @@ public:
   // -------------------- HELPERs ------------------ //
   /// to generate targets using the current invariants
   void ExportInvariantsToJasperAssumptionFile(const std::string & fn,
-	  const std::string & var_fn);
+	  const std::string & var_fn, const std::map<std::string,std::string> & repl_lists = std::map<std::string,std::string>());
 	/// load return counterexample from file
 	void LoadCexFromFile(const std::string & fn);
 
@@ -86,15 +86,23 @@ public:
 
   // -------------------- CEGAR ABC ------------------ //
 	/// generate abc target
-  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time,
+  void GenerateAbcSynthesisTarget( bool useAiger, bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time,
     const std::set<std::string> & focus_set = std::set<std::string>() );
   _inv_check_res_t RunSynAbcAuto(unsigned timeout);
   void JumpStart_FromExtract(bool cex_r);
-  bool ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file, const std::string & gla_file);
+  bool ExtractAbcSynthesisResult(InvariantInCnf & incremental_cnf, bool use_aiger, bool use_gla,
+    const InvariantInCnf & inv_cnf);
   
   void GenerateCexSimplifyTarget(const std::string precond, const std::set<std::string> & removal_set );
   _inv_check_res_t RunVerifyAuto(unsigned timeout);
   void AcceptNegCex(const std::set<std::string> & focus_var);
+
+  // -------------------- FREQHORN CHC ------------------ //
+	/// generate freqchc target
+	void GenerateFreqhornChcSynthesisTarget(const std::string & precond);
+  /// to extract reachability test result
+  void ExtractFreqhornSynthesisResult(bool autodet = true, bool reachable = true, 
+    const std::string & res_file = "");
 
   // -------------------- SYGUS ------------------ //
   /// this function tells you what name are truly states

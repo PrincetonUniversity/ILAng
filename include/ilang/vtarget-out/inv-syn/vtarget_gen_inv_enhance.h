@@ -167,7 +167,8 @@ protected:
   virtual void Export_modify_verilog() override;
   /// Export the cnf for FreqHorn's reference
   void Export_cnf(const InvariantInCnf & cnf, const std::string& cnf_fn) const;
-
+  /// Export the cnf for wky's FreqHorn's reference
+  void Export_coci(const InvariantInCnf & cnf, const std::string& cnf_fn) const;
 private:
  
   /// Convert the smt file to CHC -- datatype encoding

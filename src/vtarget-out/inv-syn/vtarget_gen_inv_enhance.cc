@@ -364,12 +364,21 @@ void VlgSglTgtGen_Chc_wCNF::Export_script(const std::string& script_name, const 
     runnable = os_portable_append_dir(_vtg_config.FreqHornPath, runnable);
   for (auto && op : _vtg_config.FreqHornOptions)
     options += " " + op;
-  options += " --mod " + _vlg_mod_inst_name;
-  options += " --cnf " + cnf_name;
+  if (_vtg_config.FreqHornHintsUseCnfStyle) {
+    options += " --mod " + _vlg_mod_inst_name;
+    options += " --cnf " + cnf_name;
+  } else {
+    options += " --grammar-file=\""+cnf_name+"\"";
+    options += " --chc-file=\""+chc_prob_fname+"\"";
+  }
   redirect = " 2> ../freqhorn.result";
 
-  if (chc_prob_fname != "")
-    fout << runnable << options << " " << chc_prob_fname << redirect << std::endl;
+  if (chc_prob_fname != "") {
+    if (_vtg_config.FreqHornHintsUseCnfStyle)
+      fout << runnable << options << " " << chc_prob_fname << redirect << std::endl;
+    else
+      fout << runnable << options << redirect << std::endl;
+  }
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
@@ -508,10 +517,31 @@ void VlgSglTgtGen_Chc_wCNF::ExportAll(const std::string& wrapper_name, // wrappe
 
   // you need to create the map function -- 
   Export_problem(extra_name); // the gensmt.ys 
-  Export_cnf(cnf, cnf_name);
+  if (_vtg_config.FreqHornHintsUseCnfStyle)
+    Export_cnf(cnf, cnf_name);
+  else
+    Export_coci(cnf, cnf_name);
   Export_script(script_name, cnf_name);
 }
 
+void VlgSglTgtGen_Chc_wCNF::Export_coci(const InvariantInCnf & cnf, const std::string& cnf_fn) const {
+  auto fn = os_portable_append_dir(_output_path, cnf_fn);
+  std::ofstream fout(fn);
+  if (!fout.is_open()) {
+    ILA_ERROR<<"Unable to open " << fn << " for write.";
+    return;
+  }
+  
+  std::vector<std::string> states;
+  for (auto && clause : cnf.GetCnfs()){
+    // for each clause
+    for (auto && literal : clause.second)
+      // complement, var, bit-idx
+      states.push_back("S_" + std::get<1>(literal) );
+  }
+  fout << "CTRL-STATE: " << Join(states, ", ") << std::endl;
+  fout << "DATA-OUT: " << Join(states, ", ") << std::endl << std::endl;
+}
 
 void VlgSglTgtGen_Chc_wCNF::Export_cnf(const InvariantInCnf & cnf, const std::string& cnf_fn) const {
   auto fn = os_portable_append_dir(_output_path, cnf_fn);

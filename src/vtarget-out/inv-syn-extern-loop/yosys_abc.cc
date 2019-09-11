@@ -346,16 +346,17 @@ void ExternalAbcTargetGen::add_rf_inv_as_assertion() {
     }
 } // add_rf_inv_as_assertion
 
-void ExternalAbcTargetGen::add_property(const std::string &precond, const std::string &all_assume_reg,
-    const std::set<std::string> focus_set) {
+void ExternalAbcTargetGen::add_property(const std::set<std::string> focus_set) {
   if (has_cex) {
     auto inv = _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("", focus_set);
     { // just for companion jaspergold check
       std::ofstream fout(os_portable_append_dir(_output_path, "cex.tcl"));
-      fout << "assert { " << precond << "|-> (" << all_assume_reg << " |-> ( " << inv << ") ) }; " << std::endl;
+      fout << "assert { " << "( " << inv << ") }; " << std::endl;
     }
     auto new_cond = ReplExpr(inv, true);
-    add_an_assertion("! (" + precond + ") || ( !(" + all_assume_reg +  ")||  ~(" + new_cond + ") )", "cex_nonreachable_assert");
+
+
+    add_an_assertion( " ~(" + new_cond + ")", "cex_nonreachable_assert");
     /// add rf_assumption
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
       add_rf_inv_as_assumption();
@@ -580,7 +581,6 @@ void ExternalAbcTargetGen::export_modify_verilog(const std::string& wrapper_name
 
 void ExternalAbcTargetGen::ConstructWrapper(
   const std::string& wrapper_name, const std::string &wrapper_tmpl_name,
-  const std::string & precond, const std::string& all_assume_reg,
   const std::set<std::string> & focus_set) {
 
   top_file_name = wrapper_name;
@@ -597,7 +597,7 @@ void ExternalAbcTargetGen::ConstructWrapper(
     return; //
   }
   // add cex / (if no cex) candidate ... prop to check
-  add_property(precond, all_assume_reg, focus_set);
+  add_property(focus_set);
   // register the wires...
   register_extra_io_wire();
   // replace text &
@@ -676,6 +676,29 @@ std::string abcCmdGLA = R"***(
   inv_print -v
 )***";
 
+static std::string abcAigCmdNoGLA = R"***(
+  &read %aigname%
+  &put
+  fold
+  pdr
+  inv_print -v
+)***";
+
+// yosys template
+static std::string abcGenerateAigerWInit_wo_Array = R"***(
+read_verilog -formal %topfile%
+prep -top %module%
+miter -assert %module%
+flatten
+sim -clock clk -reset rst -n 1 -w %module%
+memory -nordff
+opt_clean
+techmap
+abc -fast -g AND
+write_aiger -zinit -map %mapname% %aigname%
+write_blif %blifname%
+)***";
+
 // --------------------- for export CHC ---------------------------- //
 
   
@@ -727,6 +750,51 @@ void ExternalAbcTargetGen::export_script(const std::string& script_name,
   runnable_script_name.push_back(fname);
 } 
 
+
+void ExternalAbcTargetGen::export_script_aiger(const std::string& script_name,
+  const std::string& abc_command_file_name) {
+
+  runnable_script_name.clear();
+
+  auto fname = os_portable_append_dir(_output_path, script_name);
+  std::ofstream fout(fname);
+  if (!fout.is_open()) {
+    ILA_ERROR << "Error writing to file:" << fname;
+    return;
+  }
+  fout << "#!/bin/bash" << std::endl;
+  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
+
+  std::string runable;
+  ILA_ASSERT(s_backend == synthesis_backend_selector::ABC);
+
+  runable = "abc";
+  if (not _vtg_config.AbcPath.empty())
+    runable = os_portable_append_dir(_vtg_config.AbcPath, runable);
+
+
+  { // generate abc command
+    auto abc_cmd = abcAigCmdNoGLA;
+    abc_cmd = 
+      ReplaceAll(
+        ReplaceAll(abc_cmd, "%aigname%", aiger_fname),
+        "%blifname%", blif_fname);
+    auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);
+    std::ofstream abc_cmd_fn(abc_cmd_fname);
+    if (!abc_cmd_fn.is_open()) {
+      ILA_ERROR << "Error writing to file:" << abc_cmd_fname;
+      return;
+    }
+    abc_cmd_fn << abc_cmd;
+  } // generate abc command
+
+  if (aiger_fname != "")
+    fout << runable << " -F "<< abc_command_file_name  << std::endl;
+  else
+    fout << "echo 'Nothing to check!'" << std::endl;
+
+  runnable_script_name.push_back(fname);
+} 
 
 static void correct_blif_remove_non_init(const std::string & fn, const std::string & fo) {
   std::ifstream fin(fn);
@@ -782,6 +850,46 @@ void ExternalAbcTargetGen::generate_blif(
   }
 
 
+/// generate the wrapper's smt first
+void ExternalAbcTargetGen::generate_aiger(
+  const std::string & blif_name,
+  const std::string & aiger_name,
+  const std::string & map_name,
+  const std::string & ys_script_name) {
+  
+  auto ys_output_full_name =
+      os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
+  { // export to ys_script_name
+    std::ofstream ys_script_fout( ys_script_name );
+    
+    ys_script_fout << 
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll( 
+      ReplaceAll( 
+      ReplaceAll(abcGenerateAigerWInit_wo_Array,
+        "%topfile%", os_portable_append_dir( _output_path , top_file_name ) ),
+        "%module%",  top_mod_name ),
+        "%blifname%",blif_name),
+        "%aigname%", aiger_name),
+        "%mapname%", map_name);
+  } // finish writing
+
+  std::string yosys = "yosys";
+
+  if (not _vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
+
+  // execute it
+  std::vector<std::string> cmd;
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
+  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
+    ILA_ERROR_IF( res.failure != res.NONE  )
+      << "Executing Yosys failed!";
+    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
+      << "Yosys returns error code:" << res.ret;
+} // generate_aiger
+
 void ExternalAbcTargetGen::GenerateBlifProblem(
   const std::string& blif_name,
   const std::string& bash_script_name,
@@ -803,6 +911,27 @@ void ExternalAbcTargetGen::GenerateBlifProblem(
 
   export_script(bash_script_name, abc_command_file_name, useGla, useCorr, gla_frame, gla_time);
 }
+
+
+void ExternalAbcTargetGen::GenerateAigerProblem(
+  const std::string& aiger_name,
+  const std::string& bash_script_name,
+  const std::string& abc_command_file_name) {
+  
+  ILA_WARN_IF(!os_portable_mkdir(_output_path) ) << "Cannot create folder: " << _output_path;
+  
+  aiger_fname = aiger_name;
+
+  generate_aiger(
+    os_portable_append_dir(_output_path, "__aiger_prepare.blif"),
+    os_portable_append_dir(_output_path, aiger_fname),
+    os_portable_append_dir(_output_path, aiger_fname+".map"),
+    os_portable_append_dir(_output_path, "__gen_blif_script.ys")
+  );
+
+  export_script_aiger(bash_script_name, abc_command_file_name);
+}
+
 
 // ----------------------- BAD STATE -------------------- //
 /// If it is bad state, return true and display a message

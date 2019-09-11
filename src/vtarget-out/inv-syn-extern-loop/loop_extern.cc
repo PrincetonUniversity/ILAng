@@ -55,14 +55,17 @@ static std::string WidthToRange(int w) {
 
 /// to generate targets using the current invariants
 void InvariantSynthesizerExternalCegar::ExportInvariantsToJasperAssumptionFile(
-	const std::string & fn, const std::string & var_fn) {
+	const std::string & fn, const std::string & var_fn, const std::map<std::string, std::string> & repl_lists ) {
 	// format : assume { };
 	{ // write to fout
 		std::ofstream fout(fn);
 		if (not fout.is_open()) {
 			ILA_ERROR << "Fail to write to :" << fn; return; }
 			
-		for (auto && inv : inv_obj.GetVlgConstraints() ) {
+		for (auto inv : inv_obj.GetVlgConstraints() ) {
+      for (auto && orig_repl_pair : repl_lists) {
+        inv = ReplaceAll(inv, orig_repl_pair.first, orig_repl_pair.second);
+      }
 			auto inv_no_linebreak = ReplaceAll(ReplaceAll(inv, "\n" , " "), "\r", " ");
 			fout << "assume { " <<  inv_no_linebreak << " } \n";
 		}
@@ -220,7 +223,8 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
 
 /// generate chc target
 void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
-  const std::string & precond, const std::string & assume_reg, bool useGla,
+  bool useAiger,
+  bool useGla,
   bool useCorr, unsigned gla_frame, unsigned gla_time,
   const std::set<std::string> & focus_set) {
   if (check_in_bad_state()) return;
@@ -243,13 +247,18 @@ void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
 		_vtg_config, &adv_param		
 	);
 
-	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond, assume_reg, focus_set);
-	vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla, useCorr,
-    gla_frame, gla_time);
+	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", focus_set);
+  if (useAiger) {
+    vg.GenerateAigerProblem("wrapper.aig", "run.sh", "abccmd.txt");
+  } else {
+    vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla, useCorr,
+      gla_frame, gla_time);
+  }
 
 	runnable_script_name = vg.GetRunnableScriptName();
   
   vlg_mod_inst_name = vg.GetDesignUnderVerificationInstanceName();
+  ILA_INFO << "dut name : " << vlg_mod_inst_name;
   inv_obj.set_dut_inst_name(vlg_mod_inst_name);
 
   if (additional_width_info.empty())
@@ -309,8 +318,8 @@ void InvariantSynthesizerExternalCegar::JumpStart_FromExtract(bool cex_r) {
 }
 
 /// to extract reachability test result
-bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::string & blifname,
-  const std::string &ffmap_file, const std::string & gla_file) {
+bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(InvariantInCnf & incremental_cnf, bool use_aiger, bool use_gla,
+  const InvariantInCnf & inv_cnf) {
 
   if(check_in_bad_state()) return false;
 
@@ -321,11 +330,21 @@ bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::str
   // ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
   //   << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
   // not using aiger !!!
-  InvariantInCnf inv_cnf;
+  ILA_ASSERT(runnable_script_name.size() >= 1);
+
   bool succeed = 
     inv_obj.AddInvariantFromAbcResultFile(
-      blifname, ffmap_file, true, true, gla_file, false, "", 
-      inv_cnf, InvariantInCnf()); // empty reference
+      use_aiger ?
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "__aiger_prepare.blif"):
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
+      os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "ffmap.info"),
+      true,true, use_gla ? 
+        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "",
+      use_aiger,
+      use_aiger ?
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "",
+      incremental_cnf, inv_cnf ); // incrementall
+
   if (not succeed)
     return false;
   

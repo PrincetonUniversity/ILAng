@@ -109,6 +109,8 @@ public:
     std::string FreqHornPath;
     /// FreqHorn Configuration Options
     std::vector<std::string> FreqHornOptions;
+    /// FreqHorn style (cocistyple, cnfstyle)
+    bool FreqHornHintsUseCnfStyle;
     /// The path to ABC, if "abc" is not in the PATH, default empty
     std::string AbcPath;
     /// Whether to flatten the module hierarchy
@@ -205,6 +207,7 @@ public:
           VerificationSettingAvoidIssueStage(false), 
           InvariantSynthesisKeepMemory(true),
           InvariantCheckKeepMemory(true),
+          FreqHornHintsUseCnfStyle(true),
           YosysSmtFlattenHierarchy(false),
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL) ,
