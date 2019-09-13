@@ -139,6 +139,14 @@ else()
   set(SYNTH_INTERFACE FALSE)
 endif()
 
+##
+## static analysis only
+##
+if(${ILANG_STATIC_ANALYSIS})
+  set(STATIC_ANALYSIS TRUE)
+else()
+  set(STATIC_ANALYSIS FALSE)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # INSTALL

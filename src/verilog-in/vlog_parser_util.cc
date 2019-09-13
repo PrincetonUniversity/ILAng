@@ -3,19 +3,23 @@
 
 #include <ilang/verilog-in/vlog_parser_util.h>
 
+#include <ilang/config.h>
+
 namespace ilang {
 
+#ifdef STATIC_ANALYSIS
+extern void _static_analysis_only_free(char* x);
+#endif
+
 std::string _ast_identifier_tostring(ast_identifier id) {
-  std::string tr_str(ast_strdup(id->identifier));
+  auto id_cptr = ast_identifier_tostring(id);
+  auto id_bstr = static_cast<std::string>(id_cptr);
 
-  ast_identifier walker = id;
+#ifdef STATIC_ANALYSIS
+  _static_analysis_only_free(id_cptr);
+#endif
 
-  while (walker->next != NULL) {
-    walker = walker->next;
-    tr_str += walker->identifier;
-  }
-
-  return tr_str;
+  return id_bstr;
 }
 
 }; // namespace ilang

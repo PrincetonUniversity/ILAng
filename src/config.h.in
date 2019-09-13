@@ -10,5 +10,7 @@
 
 #cmakedefine SYNTH_INTERFACE
 
+#cmakedefine STATIC_ANALYSIS
+
 #endif // CONFIG_CMAKE_DEFINE_H__
 
