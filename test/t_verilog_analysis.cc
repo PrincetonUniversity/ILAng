@@ -107,7 +107,7 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("rm", 2);
     IS_WIDTH("a", 1); // F
     IS_WIDTH("b", 1); // F
-    IS_WIDTH("c", 1); // F
+    IS_WIDTH("c", 2); // F
     IS_WIDTH("d", 1); // F
   }                   // end of test1
   {                   // test 2

@@ -10,6 +10,7 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/verilog-in/vlog_parser_util.h>
 
 // extern int yy_flex_debug;
 extern int yydebug;
@@ -70,7 +71,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t& include_path,
                                  const std::string& optional_top_module)
     : vlg_include_path(include_path), vlg_src_files(srcs),
       top_inst_name(top_module_inst_name), _bad_state(false) {
-//yydebug = 1;
+  // yydebug = 1;
   instance_count++;
   if (instance_count != 1) {
     _bad_state = true;
@@ -147,7 +148,7 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
 
     ILA_NOT_NULL(module->identifier); // otherwise it is the parser bug
 
-    std::string mod_name(ast_identifier_tostring(module->identifier));
+    auto mod_name = _ast_identifier_tostring(module->identifier);
     if (IN(mod_name,
            name_module_map)) { // the module has been encountered, redefinition
       std::stringstream outinfo;
@@ -173,7 +174,7 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
       if (submod->resolved) { // Do Nothing
       } else
         ILA_WARN << "Verilog module "
-                 << ast_identifier_tostring(submod->module_identifer)
+                 << _ast_identifier_tostring(submod->module_identifer)
                  << "'s definition is not found.";
     }
   }
@@ -198,10 +199,10 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree* source) {
           (ast_module_instantiation*)ast_list_get_not_null(
               module_ast_ptr->module_instantiations, sm);
 
-      std::string submod_name(
+      auto submod_name =
           submod->resolved
-              ? ast_identifier_tostring(submod->declaration->identifier)
-              : ast_identifier_tostring(submod->module_identifer));
+              ? _ast_identifier_tostring(submod->declaration->identifier)
+              : _ast_identifier_tostring(submod->module_identifer);
 
       // get the instance names
       for (unsigned int si = 0; si < submod->module_instances->items; si++) {
@@ -209,8 +210,8 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree* source) {
             (ast_module_instance*)ast_list_get_not_null(
                 submod->module_instances, si);
         ILA_NOT_NULL(submod_inst);
-        std::string submod_name_inst(
-            ast_identifier_tostring(submod_inst->instance_identifier));
+        auto submod_name_inst =
+            _ast_identifier_tostring(submod_inst->instance_identifier);
         modules_to_submodules_map[name].insert({submod_name_inst, submod_name});
         modules_to_submodule_inst_ast_map[name].insert(
             {submod_name_inst, submod});
@@ -235,10 +236,10 @@ void VerilogAnalyzer::find_top_module(verilog_source_tree* source,
           (ast_module_instantiation*)ast_list_get_not_null(
               module_ast_ptr->module_instantiations, sm);
 
-      std::string submod_name(
+      auto submod_name =
           submod->resolved
-              ? ast_identifier_tostring(submod->declaration->identifier)
-              : ast_identifier_tostring(submod->module_identifer));
+              ? _ast_identifier_tostring(submod->declaration->identifier)
+              : _ast_identifier_tostring(submod->module_identifer);
 
       module_to_whereuses_map[submod_name].push_back(name);
     }
@@ -369,7 +370,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       // if (port_id_ptr->)
       ILA_NOT_NULL(port_id_ptr);
       ILA_NOT_NULL(port_id_ptr->identifier);
-      std::string port_name(ast_identifier_tostring(port_id_ptr));
+      auto port_name = _ast_identifier_tostring(port_id_ptr);
       ILA_ASSERT(port_name != "")
           << "Get an empty port name from the verilog parser";
       if (port_name == last_level_name) {
@@ -400,7 +401,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
     ast_reg_declaration* reg_decl_ptr =
         (ast_reg_declaration*)ast_list_get_not_null(
             mod_ast_ptr->reg_declarations, reg_decl_idx);
-    if (ast_identifier_tostring(reg_decl_ptr->identifier) == last_level_name) {
+    if (_ast_identifier_tostring(reg_decl_ptr->identifier) == last_level_name) {
       // now we know it is reg!
       if (internalDef) {
         std::stringstream outbuf;
@@ -421,7 +422,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
     ast_net_declaration* net_decl_ptr =
         (ast_net_declaration*)ast_list_get_not_null(
             mod_ast_ptr->net_declarations, net_decl_idx);
-    if (ast_identifier_tostring(net_decl_ptr->identifier) == last_level_name) {
+    if (_ast_identifier_tostring(net_decl_ptr->identifier) == last_level_name) {
       // now we know it is net!
       if (internalDef) {
         if (isReg) {
@@ -544,8 +545,8 @@ VerilogAnalyzer::get_module_inst_loc(const std::string& inst_name) const {
   if (level_names.size() ==
       1) { // already matched (so, we don't compare again) o.w. return above
     name_decl_buffer[inst_name] = GetMap(name_module_map, top_module_name);
-    ILA_ERROR
-        << "Top module has no instance! Use the declaration location instead.";
+    ILA_ERROR << "Top module has no instance! Use the declaration location "
+                 "instead.";
     return name2loc(inst_name);
   }
 
@@ -587,8 +588,8 @@ VerilogAnalyzer::get_module_inst_loc(const std::string& inst_name) const {
       ast_module_instance* submod_inst =
           (ast_module_instance*)ast_list_get_not_null(submod->module_instances,
                                                       smi);
-      std::string submod_name_inst(
-          ast_identifier_tostring(submod_inst->instance_identifier));
+      auto submod_name_inst =
+          _ast_identifier_tostring(submod_inst->instance_identifier);
       if (submod_name_inst == last_level_name)
         return Meta2Loc(submod_inst->instance_identifier->meta);
     } // for each instance in the instantiation
@@ -693,8 +694,8 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
       void* ptr_from_list_ =
           ast_list_get_not_null(port_ptr->port_names, name_idx);
       ast_identifier port_id_ptr;
-      if (port_ptr
-              ->is_reg) { // in this case, it is not a list of ast_identifier
+      if (!port_ptr->is_list_id) { // in this case, it is not a list of
+                                   // ast_identifier
         // but a list of ast_single_assignment(ast_new_lvalue_id)
         ast_single_assignment* asm_ptr = (ast_single_assignment*)ptr_from_list_;
         ILA_ASSERT(asm_ptr->lval->type == ast_lvalue_type_e::NET_IDENTIFIER ||
@@ -703,8 +704,7 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
       } else
         port_id_ptr = (ast_identifier)ptr_from_list_;
 
-      std::string short_name =
-          std::string(ast_identifier_tostring(port_id_ptr));
+      auto short_name = _ast_identifier_tostring(port_id_ptr);
       std::string port_name = top_inst_name + "." + short_name;
 
       auto tp_ = check_hierarchical_name_type(port_name);

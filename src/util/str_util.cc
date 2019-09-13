@@ -32,6 +32,15 @@ int StrToInt(const std::string& str, int base) {
   }
 }
 
+long long StrToLong(const std::string& str, int base) {
+  try {
+    return std::stoll(str, NULL, base);
+  } catch (const std::exception& e) {
+    ILA_ERROR << "Converting non-numeric value " << str << " to long int.\n";
+    return 0;
+  }
+}
+
 std::vector<std::string> Split(const std::string& str,
                                const std::string& delim) {
   std::vector<std::string> tokens;
