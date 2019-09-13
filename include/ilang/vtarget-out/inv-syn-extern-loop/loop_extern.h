@@ -78,11 +78,18 @@ public:
   // -------------------- CEGAR CHC ------------------ //
 	/// generate chc target
 	void GenerateChcSynthesisTarget(const std::string & precond);
+	/// generate chc target -- FreqHorn
+  void GenerateChcSynthesisTarget(const std::string & precond,
+    const std::string& cnf_name, const InvariantInCnf & inv_cnf);
 	/// run Synthesis : returns reachable/not
-	bool virtual RunSynAuto(bool isSyGuS = false);
+	bool virtual RunSynAuto(bool isSyGuS = false, bool use_freqhorn = false);
   /// to extract reachability test result
-  void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
+  void ExtractSynthesisResult(bool use_freqhorn, bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
+  /// parse a Z3 invariant for enhancement (for ABC, please use ExtractAbcSynthesisResult instead)
+  static void ExtractInvariantVarForEnhance(const std::string & vexpr, InvariantInCnf& incremental_cnf , bool per_clause);
+  void ExtractInvariantVarForEnhance(size_t inv_idx, InvariantInCnf& incremental_cnf , bool per_clause);
+  void VarlistToCnf(const std::set<std::string> & var_list, InvariantInCnf& incremental_cnf) const;
 
   // -------------------- CEGAR ABC ------------------ //
 	/// generate abc target

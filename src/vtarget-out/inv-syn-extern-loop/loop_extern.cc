@@ -93,6 +93,10 @@ void InvariantSynthesizerExternalCegar::LoadCexFromFile(const std::string & fn) 
 /// generate chc target
 void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget(const std::string & precond) {
   if (check_in_bad_state()) return;
+  if (s_backend != synthesis_backend_selector::Z3) {
+    ILA_ERROR << "Must use Z3 backend with GenerateChcSynthesisTarget";
+    return;
+  }
 
   // to send in the invariants
   advanced_parameters_t adv_param;
@@ -113,6 +117,7 @@ void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget(const std::st
 	);
 
 	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond);
+
 	design_smt_info = vg.GenerateChc("wrapper.smt2", "run.sh");
 
 	runnable_script_name = vg.GetRunnableScriptName();
@@ -125,8 +130,53 @@ void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget(const std::st
 }
 
 
+/// generate chc target
+void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget(const std::string & precond,
+  const std::string& cnf_name, const InvariantInCnf & inv_cnf) {
+  if (check_in_bad_state()) return;
+  if (s_backend != synthesis_backend_selector::FreqHorn) {
+    ILA_ERROR << "Must use FreqHorn backend with this GenerateChcSynthesisTarget";
+    return;
+  }
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
+	adv_param._candidate_inv_ptr = NULL;
+  adv_param._cex_obj_ptr = cex_extract.get();
+
+	ExternalChcTargetGen vg(
+		implementation_incl_path,
+		implementation_srcs_path,
+		implementation_top_module_name,
+		refinement_variable_mapping_path,
+		refinement_condition_path,
+		os_portable_append_dir(_output_path,"inv-syn-cegar-freqhorn") ,
+		tmpl_top_module_name,
+		v_backend, s_backend,
+		_vtg_config, &adv_param		
+	);
+
+	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond);
+
+  vg.ExportCnf(inv_cnf,cnf_name);
+
+	design_smt_info = vg.GenerateChc("wrapper.smt2", "run.sh", cnf_name);
+
+	runnable_script_name = vg.GetRunnableScriptName();
+  
+  vlg_mod_inst_name = vg.GetDesignUnderVerificationInstanceName();
+  inv_obj.set_dut_inst_name(vlg_mod_inst_name);
+
+  if (additional_width_info.empty())
+    additional_width_info = vg.GetSupplementaryInfo().width_info;
+}
+
+
+
+
 /// run Synthesis : returns reachable/not
-bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS) {
+bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS, bool use_freqhorn) {
 
   if(check_in_bad_state())
     return true;
@@ -157,26 +207,39 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS) {
   inv_syn_time += res.seconds;
   inv_syn_time_series.push_back(res.seconds);
 
-  std::string line;
-  { // read the result
+  if (use_freqhorn) {
+    std::stringstream sbuf;
     std::ifstream fin(synthesis_result_fn);
     if (not fin.is_open()) {
-      ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
-      bad_state = true;
-      return true; // reachable
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        bad_state = true;
+        return true; // reachable
     } 
-    std::getline(fin,line);  
-  } // finish file reading
-  cex_reachable = true;
-  if (S_IN("unsat", line))
-    cex_reachable = false; // not reachable
-  // else reachable
+    sbuf << fin.rdbuf();
+    cex_reachable = !(S_IN("proved",sbuf.str()));
+    if (S_IN("unknown",sbuf.str())) cex_reachable = true;
+  } else {
+    std::string line;
+    { // read the result
+      std::ifstream fin(synthesis_result_fn);
+      if (not fin.is_open()) {
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        bad_state = true;
+        return true; // reachable
+      } 
+      std::getline(fin,line);  
+    } // finish file reading
+    cex_reachable = true;
+    if (S_IN("unsat", line))
+      cex_reachable = false; // not reachable
+    // else reachable
+  }
   return cex_reachable;
 }
 
 
 /// to extract reachability test result
-void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, bool reachable, 
+void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool use_freqhorn, bool autodet, bool reachable, 
 	const std::string & given_smt_chc_result_txt) {
 
   if(check_in_bad_state()) return;
@@ -200,15 +263,18 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
 
   // ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
   //   << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
-    
-  if (1 /*current_inv_type == cur_inv_tp::CHC*/)
+  if (use_freqhorn) {
+    inv_obj.AddInvariantFromFreqHornResultFile(
+      *(design_smt_info.get()), "", os_portable_append_dir(_output_path, "freqhorn.result"), 
+      true,
+      true );
+  }
+  else
     inv_obj.AddInvariantFromChcResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy,
       false );
-  else
-    ILA_ERROR<<"Inv type unknown ";// << current_inv_type;
   
   std::cout << "Confirmed synthesized invariants:" << std::endl;
   for (auto && v : inv_obj.GetVlgConstraints() )
@@ -218,6 +284,62 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
   // current_inv_type = cur_inv_tp::NONE; // we have extracted, reset this marker
 } // ExtractSynthesisResult
 
+
+// -------------------- CEGAR FREQHORN ------------------------ //
+
+/// extra variable for enhancement, so not really a cnf
+void InvariantSynthesizerExternalCegar::ExtractInvariantVarForEnhance(const std::string & vexpr, InvariantInCnf& incremental_cnf , bool per_clause) {
+  const auto & inv_vlg = vexpr;
+  VarExtractor vext(
+    [](const std::string&s) -> bool {return false;}, // not ila input
+    [](const std::string&s) -> bool {return false;}, // not ila state
+    [](const std::string&s) -> bool {return true;} // but verilog state
+  );
+  vext.ParseToExtract(inv_vlg, true); // force verilog state
+
+  InvariantInCnf::clause cl;
+  std::set<std::string> v_in_this_cl;
+  vext.ForEachTokenReplace(
+    [&cl, &incremental_cnf, &v_in_this_cl, per_clause]
+     (const VarExtractor::token &t) -> std::string {
+      if (per_clause && t.second.find("&&")!=t.second.npos) {
+        incremental_cnf.InsertClause(cl);
+        cl.clear();
+        v_in_this_cl.clear();
+      }
+      if(t.first != VarExtractor::token_type::VLG_S)
+        return t.second;
+      const auto & vname = t.second;
+      auto pos = vname.rfind('[');
+      std::string vn = vname;
+      if (pos != vname.npos)
+        vn = vname.substr(0,pos);
+      if (!IN(vn,v_in_this_cl)) {
+        cl.push_back({false, vn,0});
+        v_in_this_cl.insert(vn);
+      }
+      return t.second;
+    }
+  );
+  incremental_cnf.InsertClause(cl);
+}
+
+/// extra variable for enhancement, so not really a cnf
+void InvariantSynthesizerExternalCegar::ExtractInvariantVarForEnhance(size_t inv_idx, InvariantInCnf& incremental_cnf , bool per_clause) {
+  ILA_ASSERT(inv_idx < inv_obj.NumInvariant());
+  const auto & inv_vlg = inv_obj.GetVlgConstraints().at(inv_idx);
+  ExtractInvariantVarForEnhance(inv_vlg, incremental_cnf, per_clause );
+}
+
+
+void InvariantSynthesizerExternalCegar::VarlistToCnf(const std::set<std::string> & var_list, InvariantInCnf& incremental_cnf) const {
+  InvariantInCnf::clause cl;
+  for (auto && vn : var_list) {
+      ILA_WARN_IF (vn.find(vlg_mod_inst_name+".") != 0) << vn << " does not start with : " << vlg_mod_inst_name+".";
+      cl.push_back({false, vn,0});
+  }
+  incremental_cnf.InsertClause(cl);
+}
 
 // -------------------- CEGAR ABC ------------------------ //
 

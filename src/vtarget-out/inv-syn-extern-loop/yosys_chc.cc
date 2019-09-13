@@ -977,7 +977,7 @@ void ExternalChcTargetGen::convert_smt_to_chc_datatype(const std::string & smt_f
 
 } // convert_smt_to_chc_datatype
   
-void ExternalChcTargetGen::export_script(const std::string& script_name) {
+void ExternalChcTargetGen::export_script(const std::string& script_name, const std::string& cnf_name) {
   runnable_script_name.clear();
 
   auto fname = os_portable_append_dir(_output_path, script_name);
@@ -990,26 +990,42 @@ void ExternalChcTargetGen::export_script(const std::string& script_name) {
   //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
   std::string runable;
+  std::string redirect;
   if (s_backend == synthesis_backend_selector::Z3) {
     runable = "z3";
     if (not _vtg_config.Z3Path.empty())
       runable = os_portable_append_dir(_vtg_config.Z3Path, runable);
   }
   else if(s_backend == synthesis_backend_selector::FreqHorn) {
-    runable = "freqhorn";
+    runable = "bv";
     if (not _vtg_config.FreqHornPath.empty())
       runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
+
+    ILA_ASSERT(!cnf_name.empty()) << "must provide cnf name for FreqHorn backend.";
+
+    if (_vtg_config.FreqHornHintsUseCnfStyle) {
+      runable += " --cnf " + cnf_name;
+    } else {
+      runable += " --grammar-file=\""+cnf_name+"\"";
+      runable += " --chc-file=\""+chc_prob_fname+"\"";
+    }
+    redirect = " 2> ../freqhorn.result";
   }
-  if (chc_prob_fname != "")
-    fout << runable << " "<< chc_prob_fname  << std::endl;
+
+  if (chc_prob_fname != "") {
+    if (s_backend == synthesis_backend_selector::FreqHorn &&  ! _vtg_config.FreqHornHintsUseCnfStyle)
+      fout << runable << redirect << std::endl;
+    else
+      fout << runable << " "<< chc_prob_fname << redirect  << std::endl;
+  }
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 
   runnable_script_name.push_back(fname);
-} 
+} // export_script
 
 std::shared_ptr<smt::YosysSmtParser> ExternalChcTargetGen::GenerateChc(const std::string& chc_name,
-    const std::string & script_name) {
+    const std::string & script_name, const std::string& cnf_name) {
 
   ILA_WARN_IF(!os_portable_mkdir(_output_path) ) << "Cannot create folder: " << _output_path;
   
@@ -1031,9 +1047,57 @@ std::shared_ptr<smt::YosysSmtParser> ExternalChcTargetGen::GenerateChc(const std
   else
     ILA_ASSERT(false) << "I don't know how to generate CHC encoding";
   // generate chc run script
-  export_script(script_name);
+  export_script(script_name, cnf_name);
   // inv_extract need this!
   return design_smt_info;
+}
+
+
+
+void ExternalChcTargetGen::export_cnf(const InvariantInCnf & cnf, const std::string& cnf_fn) const {
+  auto fn = os_portable_append_dir(_output_path, cnf_fn);
+  std::ofstream fout(fn);
+  if (!fout.is_open()) {
+    ILA_ERROR<<"Unable to open " << fn << " for write.";
+    return;
+  }
+
+  fout << cnf.GetCnfs().size() << std::endl; //# of clauses
+  for (auto && clause : cnf.GetCnfs()){
+    // for each clause
+    fout << clause.second.size()<< std::endl; //# of lterals
+    for (auto && literal : clause.second)
+      // complement, var, bit-idx
+      fout << std::get<1>(literal)  << ' ' << std::get<2>(literal) << ' ' << std::get<0>(literal) << std::endl;
+  }
+}
+
+
+void ExternalChcTargetGen::export_coci(const InvariantInCnf & cnf, const std::string& cnf_fn) const {
+  auto fn = os_portable_append_dir(_output_path, cnf_fn);
+  std::ofstream fout(fn);
+  if (!fout.is_open()) {
+    ILA_ERROR<<"Unable to open " << fn << " for write.";
+    return;
+  }
+  
+  std::vector<std::string> states;
+  for (auto && clause : cnf.GetCnfs()){
+    // for each clause
+    for (auto && literal : clause.second)
+      // complement, var, bit-idx
+      states.push_back("S_" + std::get<1>(literal) );
+  }
+  fout << "CTRL-STATE: " << Join(states, ", ") << std::endl;
+  fout << "DATA-OUT: " << Join(states, ", ") << std::endl << std::endl;
+}
+
+void ExternalChcTargetGen::ExportCnf(const InvariantInCnf & inv_cnf, const std::string& cnf_name) const {
+
+  if (_vtg_config.FreqHornHintsUseCnfStyle)
+    export_cnf(inv_cnf, cnf_name);
+  else
+    export_coci(inv_cnf, cnf_name);
 }
 
 

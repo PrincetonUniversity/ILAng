@@ -691,6 +691,7 @@ read_verilog -formal %topfile%
 prep -top %module%
 miter -assert %module%
 flatten
+%setundef -undriven -expose%
 sim -clock clk -reset rst -n 1 -w %module%
 memory -nordff
 opt_clean
@@ -868,6 +869,7 @@ void ExternalAbcTargetGen::generate_aiger(
     ys_script_fout << 
       ReplaceAll(
       ReplaceAll(
+      ReplaceAll(
       ReplaceAll( 
       ReplaceAll( 
       ReplaceAll(abcGenerateAigerWInit_wo_Array,
@@ -875,7 +877,8 @@ void ExternalAbcTargetGen::generate_aiger(
         "%module%",  top_mod_name ),
         "%blifname%",blif_name),
         "%aigname%", aiger_name),
-        "%mapname%", map_name);
+        "%mapname%", map_name),
+        "%setundef -undriven -expose%" , _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
   } // finish writing
 
   std::string yosys = "yosys";

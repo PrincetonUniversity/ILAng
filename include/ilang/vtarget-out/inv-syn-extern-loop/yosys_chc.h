@@ -191,7 +191,10 @@ protected:
     const std::string & wrapper_mod_name);
   void convert_smt_to_chc_datatype(
     const std::string & smt_fname, const std::string & chc_fname) ;
-  void export_script(const std::string& script_name);
+  void export_script(const std::string& script_name, const std::string& cnf_name);
+  void export_coci(const InvariantInCnf & cnf, const std::string& cnf_fn) const;
+  void export_cnf(const InvariantInCnf & cnf, const std::string& cnf_fn) const;
+
 public:
   // okay to instantiate
   void do_not_instantiate(void) {}
@@ -214,10 +217,13 @@ public:
     const std::string& wrapper_name,
     const std::string& wrapper_tmpl_name,
     const std::string& precond);
+  /// step 2: helper cnf for FreqHorn
+  void ExportCnf(const InvariantInCnf & inv_cnf, const std::string& cnf_name) const;
   /// step 2: to chc
   std::shared_ptr<smt::YosysSmtParser> GenerateChc(
     const std::string& chc_name,
-    const std::string& script_name);
+    const std::string& script_name,
+    const std::string& cnf_name = "");
 
   // ----------------------- ACCESSOR -------------------- //
   /// get the script names (should be only 1)
