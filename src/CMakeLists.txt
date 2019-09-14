@@ -142,10 +142,10 @@ endif()
 ##
 ## static analysis only
 ##
-if(${ILANG_STATIC_ANALYSIS})
-  set(STATIC_ANALYSIS TRUE)
+if(${ILANG_COVERITY})
+  set(COVERITY TRUE)
 else()
-  set(STATIC_ANALYSIS FALSE)
+  set(COVERITY FALSE)
 endif()
 
 # ---------------------------------------------------------------------------- #

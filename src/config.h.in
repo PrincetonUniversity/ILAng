@@ -10,7 +10,7 @@
 
 #cmakedefine SYNTH_INTERFACE
 
-#cmakedefine STATIC_ANALYSIS
+#cmakedefine COVERITY
 
 #endif // CONFIG_CMAKE_DEFINE_H__
 
