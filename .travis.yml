@@ -31,9 +31,9 @@ matrix:
         - gem install coveralls-lcov
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
-        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build; fi
       after_success:
-        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build; fi
 
     - name: "linux-clang"
       os: linux
@@ -114,7 +114,7 @@ addons:
       - z3
 
 script:
-  - source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR
+  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
 
 notifications:
     email: false
