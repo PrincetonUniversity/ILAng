@@ -39,7 +39,12 @@ TEST_F(TestValidateModel, nondeterministic_check) {
   bool res = true;
   GET_STDERR_MSG(res = CheckDeterminism(aes_nondet.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 }
 
 TEST_F(TestValidateModel, completeness) {
@@ -49,7 +54,12 @@ TEST_F(TestValidateModel, completeness) {
   bool res = true;
   GET_STDERR_MSG(res = CheckCompleteness(aes_v.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 }
 
 TEST_F(TestValidateModel, complete_model_with_old_value) {
@@ -60,7 +70,12 @@ TEST_F(TestValidateModel, complete_model_with_old_value) {
 
   GET_STDERR_MSG(res = CheckCompleteness(aes_v.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 
   CompleteModel(aes_v.get(), DEFAULT_UPDATE_METHOD::OLD_VALUE);
 
@@ -77,7 +92,12 @@ TEST_F(TestValidateModel, complete_model_with_nondet_value) {
 
   GET_STDERR_MSG(res = CheckCompleteness(aes_v.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 
   CompleteModel(aes_v.get(), DEFAULT_UPDATE_METHOD::NONDET_VALUE);
 
@@ -94,7 +114,12 @@ TEST_F(TestValidateModel, case_gb) {
 
   GET_STDERR_MSG(res = CheckCompleteness(gb.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 
   CompleteModel(gb.get(), DEFAULT_UPDATE_METHOD::OLD_VALUE);
 
@@ -111,7 +136,12 @@ TEST_F(TestValidateModel, case_rbm) {
 
   GET_STDERR_MSG(res = CheckCompleteness(rbm.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 
   CompleteModel(rbm.get(), DEFAULT_UPDATE_METHOD::OLD_VALUE);
 
