@@ -32,6 +32,8 @@ matrix:
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
         - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build; fi
+      script:
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
       after_success:
         - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build; fi
 
@@ -41,6 +43,8 @@ matrix:
       compiler: clang
       before_install:
         - export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH
+      script:
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
 
     - name: "gcc49"
       os: linux
@@ -60,6 +64,8 @@ matrix:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
         - eval "${MATRIX_EVAL}"
+      script:
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
 
     - name: "osx"
       os: osx
@@ -67,6 +73,8 @@ matrix:
         - brew install bison
         - export PATH="/usr/local/opt/bison/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/bison/lib"
+      script:
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build-osx.sh $TRAVIS_BUILD_DIR; fi
 
     - name: "coverity"
       os: linux
@@ -93,6 +101,8 @@ matrix:
         - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca- 
       before_script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR
+      script:
+        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
 
 addons:
   apt:
@@ -112,9 +122,6 @@ addons:
       - boost
       - boost-python
       - z3
-
-script:
-  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
 
 notifications:
     email: false
