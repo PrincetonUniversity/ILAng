@@ -31,11 +31,11 @@ matrix:
         - gem install coveralls-lcov
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
-        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build; fi
+        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build
       script:
-        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
+        - source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR
       after_success:
-        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build; fi
+        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build
 
     - name: "linux-clang"
       os: linux
@@ -44,7 +44,7 @@ matrix:
       before_install:
         - export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH
       script:
-        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
+        - source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR
 
     - name: "gcc49"
       os: linux
@@ -65,7 +65,7 @@ matrix:
       before_install:
         - eval "${MATRIX_EVAL}"
       script:
-        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
+        - source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR
 
     - name: "osx"
       os: osx
@@ -74,7 +74,7 @@ matrix:
         - export PATH="/usr/local/opt/bison/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/bison/lib"
       script:
-        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build-osx.sh $TRAVIS_BUILD_DIR; fi
+        - source $TRAVIS_BUILD_DIR/scripts/travis/build-osx.sh $TRAVIS_BUILD_DIR
 
     - name: "coverity"
       os: linux
@@ -102,7 +102,7 @@ matrix:
       before_script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR
       script:
-        - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR; fi
+        - echo ${COVERITY_SCAN_BRANCH} 
 
 addons:
   apt:
