@@ -266,9 +266,8 @@ public:
     auto vgen = VerilogGenerator();
     vgen.add_input("x", 1);
     vgen.add_input("x", 1);
-#ifndef NDEBUG
+    // ILA_CHECK cannot be catched
     // EXPECT_DEATH(vgen.add_input("x", 2), ".*");
-#endif
 
     vgen.add_output("y", 1);
     vgen.add_output("y", 1);
@@ -320,8 +319,23 @@ TEST_F(TestVerilogExport, get_width) { get_width(); }
 
 // pass node name, refset
 TEST_F(TestVerilogExport, new_id) { new_id(); }
-//
-TEST_F(TestVerilogExport, dup) { dup(); }
+
+// TEST_F(TestVerilogExport, dup) { dup(); }
+
+TEST(TestVerilogGen, dup) {
+  auto vgen = VerilogGenerator();
+  vgen.add_input("x", 1);
+  vgen.add_input("x", 1);
+  EXPECT_DEATH(vgen.add_input("x", 2), ".*");
+
+  vgen.add_output("y", 1);
+  vgen.add_output("y", 1);
+  EXPECT_DEATH(vgen.add_output("y", 2), ".*");
+
+  vgen.add_wire("z", 1);
+  vgen.add_wire("z", 1);
+  EXPECT_DEATH(vgen.add_wire("z", 2), ".*");
+}
 
 TEST_F(TestVerilogExport, death) { death(); }
 
