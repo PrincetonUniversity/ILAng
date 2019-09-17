@@ -102,7 +102,7 @@ matrix:
       before_script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR
       script:
-        - echo ${COVERITY_SCAN_BRANCH} 
+        - source $TRAVIS_BUILD_DIR/scripts/travis/build-static.sh $TRAVIS_BUILD_DIR
 
 addons:
   apt:
