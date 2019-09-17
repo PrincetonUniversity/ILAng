@@ -56,12 +56,12 @@ brew install bison flex boost boost-python z3
 | Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.8.5 | 1.54  | 3.0.4 | 2.5.25 | Release |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Default |
-| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.14.4 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Default |
-| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Debug   |
-| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Default |
-| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Default |
-| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5 | -     | 3.3.2 | 2.6.4  | Default |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Release |
+| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.15.2 | 4.8.6 | 1.65  | 3.0.4 | 2.6.4  | Release |
+| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Debug   |
+| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Release |
+| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Release |
+| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5 | -     | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
 
