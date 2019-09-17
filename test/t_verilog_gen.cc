@@ -267,19 +267,19 @@ public:
     vgen.add_input("x", 1);
     vgen.add_input("x", 1);
 #ifndef NDEBUG
-    EXPECT_DEATH(vgen.add_input("x", 2), ".*");
+    // EXPECT_DEATH(vgen.add_input("x", 2), ".*");
 #endif
 
     vgen.add_output("y", 1);
     vgen.add_output("y", 1);
 #ifndef NDEBUG
-    EXPECT_DEATH(vgen.add_output("y", 2), ".*");
+    // EXPECT_DEATH(vgen.add_output("y", 2), ".*");
 #endif
 
     vgen.add_wire("z", 1);
     vgen.add_wire("z", 1);
 #ifndef NDEBUG
-    EXPECT_DEATH(vgen.add_wire("z", 2), ".*");
+    // EXPECT_DEATH(vgen.add_wire("z", 2), ".*");
 #endif
   }
 
