@@ -49,14 +49,19 @@ TEST(TestVlgTargetGen, AesIlaInfo) {
 TEST(TestVlgTargetGen, PipeExample) {
   auto ila_model = SimplePipe::BuildModel();
 
-  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
   VerilogVerificationTargetGenerator vg(
-      {},                          // no include
-      {dirName + "simple_pipe.v"}, //
-      "pipeline_v",                // top_module_name
-      dirName + "rfmap/vmap.json", // variable mapping
-      dirName + "rfmap/cond.json", dirName + "verify/", ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(dirName, "verify"),          // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::COSA // engine
+  );
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -100,7 +105,6 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
   vg.GenerateTargets();
 }
 
-
 TEST(TestVlgTargetGen, Memory) {
   auto ila_model = MemorySwap::BuildModel();
 
@@ -123,41 +127,39 @@ TEST(TestVlgTargetGen, Memory) {
 TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
   auto ila_model = MemorySwap::BuildSimpleSwapModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg; // default configuration
+  VerilogVerificationTargetGenerator::vtg_config_t
+      vtg_cfg; // default configuration
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
   vlg_cfg.extMem = false;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
-      {},                    // no include
-      {dirName + "swap_im.v"},  // vlog files
-      "swap",                // top_module_name
+      {},                           // no include
+      {dirName + "swap_im.v"},      // vlog files
+      "swap",                       // top_module_name
       dirName + "vmap-expand.json", // variable mapping
       dirName + "cond-expand.json", // cond path
-      dirName,               // output path
+      dirName,                      // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
-      vtg_cfg,
-      vlg_cfg
-      );
+      VerilogVerificationTargetGenerator::backend_selector::COSA, vtg_cfg,
+      vlg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
 }
 
-
 TEST(TestVlgTargetGen, MemoryInternalExternal) {
   auto ila_model = MemorySwap::BuildRfAsMemModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
-      {},                       // no include
+      {},                            // no include
       {dirName + "rf_as_mem.v"},     // vlog files
-      "proc",                  // top_module_name
+      "proc",                        // top_module_name
       dirName + "vmap-rfarray.json", // variable mapping
       dirName + "cond-rfarray.json", // cond path
-      dirName,                  // output path
+      dirName,                       // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA);
 
