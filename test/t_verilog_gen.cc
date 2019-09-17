@@ -266,15 +266,21 @@ public:
     auto vgen = VerilogGenerator();
     vgen.add_input("x", 1);
     vgen.add_input("x", 1);
+#ifndef NDEBUG
     EXPECT_DEATH(vgen.add_input("x", 2), ".*");
+#endif
 
     vgen.add_output("y", 1);
     vgen.add_output("y", 1);
+#ifndef NDEBUG
     EXPECT_DEATH(vgen.add_output("y", 2), ".*");
+#endif
 
     vgen.add_wire("z", 1);
     vgen.add_wire("z", 1);
+#ifndef NDEBUG
     EXPECT_DEATH(vgen.add_wire("z", 2), ".*");
+#endif
   }
 
   void death() {
@@ -282,7 +288,9 @@ public:
     auto mi = i2->NewMemInput("mi", 8, 8);
 
     auto vgen = VerilogGenerator();
+#ifndef NDEBUG
     EXPECT_DEATH(vgen.insertInput(mi), ".*");
+#endif
   }
 
   void internal_func() {
