@@ -266,19 +266,20 @@ public:
     auto vgen = VerilogGenerator();
     vgen.add_input("x", 1);
     vgen.add_input("x", 1);
-    // ILA_CHECK cannot be catched
-    // EXPECT_DEATH(vgen.add_input("x", 2), ".*");
+#ifndef NDEBUG
+    EXPECT_DEATH(vgen.add_input("x", 2), ".*");
+#endif
 
     vgen.add_output("y", 1);
     vgen.add_output("y", 1);
 #ifndef NDEBUG
-    // EXPECT_DEATH(vgen.add_output("y", 2), ".*");
+    EXPECT_DEATH(vgen.add_output("y", 2), ".*");
 #endif
 
     vgen.add_wire("z", 1);
     vgen.add_wire("z", 1);
 #ifndef NDEBUG
-    // EXPECT_DEATH(vgen.add_wire("z", 2), ".*");
+    EXPECT_DEATH(vgen.add_wire("z", 2), ".*");
 #endif
   }
 
@@ -320,24 +321,13 @@ TEST_F(TestVerilogExport, get_width) { get_width(); }
 // pass node name, refset
 TEST_F(TestVerilogExport, new_id) { new_id(); }
 
+using TestVerilogExportDeathTest = TestVerilogExport;
+
 // TEST_F(TestVerilogExport, dup) { dup(); }
+TEST_F(TestVerilogExportDeathTest, dup) { dup(); }
 
-TEST(TestVerilogGen, dup) {
-  auto vgen = VerilogGenerator();
-  vgen.add_input("x", 1);
-  vgen.add_input("x", 1);
-  EXPECT_DEATH(vgen.add_input("x", 2), ".*");
-
-  vgen.add_output("y", 1);
-  vgen.add_output("y", 1);
-  EXPECT_DEATH(vgen.add_output("y", 2), ".*");
-
-  vgen.add_wire("z", 1);
-  vgen.add_wire("z", 1);
-  EXPECT_DEATH(vgen.add_wire("z", 2), ".*");
-}
-
-TEST_F(TestVerilogExport, death) { death(); }
+// TEST_F(TestVerilogExport, death) { death(); }
+TEST_F(TestVerilogExportDeathTest, death) { death(); }
 
 // ?? func -- death
 TEST_F(TestVerilogExport, internalfunc) { internal_func(); }
