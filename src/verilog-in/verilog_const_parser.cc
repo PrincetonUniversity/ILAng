@@ -7,6 +7,7 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/verilog-in/vlog_parser_util.h>
 
 namespace ilang {
 
@@ -69,41 +70,44 @@ VerilogConstantExprEval::_eval(ast_expression* e,
       }
       // to explicitly free it
       return ret;
-    } else if (e->primary->value_type == ast_primary_value_type::PRIMARY_MINMAX_EXP) {
-      if ( e->primary->value.minmax->left != NULL || e->primary->value.minmax->right != NULL 
-        || e->primary->value.minmax->aux == NULL) {
-          error_str = ast_expression_tostring(e);
-          ILA_ERROR << "Unable to parse " << error_str;
-          eval_error = true;
-          return 0;
-        }
+    } else if (e->primary->value_type ==
+               ast_primary_value_type::PRIMARY_MINMAX_EXP) {
+      if (e->primary->value.minmax->left != NULL ||
+          e->primary->value.minmax->right != NULL ||
+          e->primary->value.minmax->aux == NULL) {
+        error_str = ast_expression_tostring(e);
+        ILA_ERROR << "Unable to parse " << error_str;
+        eval_error = true;
+        return 0;
+      }
       return _eval(e->primary->value.minmax->aux, param_defs);
-    } else if (e->primary->value_type == ast_primary_value_type::PRIMARY_CONCATENATION) {
-      ast_concatenation * cc = e->primary->value.concatenation;
-      unsigned repeat = cc->repeat? _eval(cc->repeat, param_defs ) : 1;
+    } else if (e->primary->value_type ==
+               ast_primary_value_type::PRIMARY_CONCATENATION) {
+      ast_concatenation* cc = e->primary->value.concatenation;
+      unsigned repeat = cc->repeat ? _eval(cc->repeat, param_defs) : 1;
       unsigned total_width = 0;
       long long ret = 0;
       for (size_t idx = 0; idx < cc->items->items; ++idx) {
-        ast_expression * it = (ast_expression *)ast_list_get_not_null(cc->items, idx);
+        ast_expression* it =
+            (ast_expression*)ast_list_get_not_null(cc->items, idx);
         unsigned v = _eval(it, param_defs);
         unsigned width = it->primary->value.number->width;
         if (width == 0) {
           error_str = ast_expression_tostring(e);
           eval_error = true;
           return 0;
-        }  
+        }
         ret = ret << width;
-        ret = ret | v;        
+        ret = ret | v;
         total_width += width;
       }
       unsigned origin = ret;
-      for (unsigned idx = 1; idx < repeat; ++ idx) {
+      for (unsigned idx = 1; idx < repeat; ++idx) {
         ret = ret << total_width;
         ret = ret | origin;
       }
       return ret;
-    }
-     else { // parser error: unable to handle
+    } else { // parser error: unable to handle
       error_str = ast_expression_tostring(e);
       eval_error = true;
       return 0;
@@ -138,10 +142,10 @@ VerilogConstantExprEval::_eval(ast_expression* e,
     error_str = ast_expression_tostring(e);
     return 0;
   } else if (e->type == ast_expression_type::CONDITIONAL_EXPRESSION) {
-    double left =  _eval(e->left, param_defs);
+    double left = _eval(e->left, param_defs);
     double right = _eval(e->right, param_defs);
     double cond = _eval(e->aux, param_defs);
-    return cond?left:right;
+    return cond ? left : right;
   }
 
   eval_error = true;
@@ -164,7 +168,6 @@ double VerilogConstantExprEval::Eval(ast_expression* _s) {
   return val;
 }
 
-
 /// parse only the current module's parameter definitions, will update
 /// param_defs
 void VerilogConstantExprEval::ParseCurrentModuleParameters(
@@ -183,7 +186,7 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
     return;
   ILA_DLOG("vlg_cnst_parser")
       << "For each param in ParseCurrentModuleParameters "
-      << ast_identifier_tostring(m->identifier) << std::endl;
+      << _ast_identifier_tostring(m->identifier) << std::endl;
   for (unsigned pi = 0; pi < params->items; ++pi) {
 
     ILA_DLOG("vlg_cnst_parser") << "  For param " << pi << std::endl;
@@ -204,8 +207,7 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
 
       ILA_DLOG("vlg_cnst_parser")
           << "    for assignment #" << assignidx << std::endl;
-      std::string param_name =
-          ast_identifier_tostring(asn->lval->data.identifier);
+      auto param_name = _ast_identifier_tostring(asn->lval->data.identifier);
 
       double val;
       if (pi < ordered_parameter_override.size())
@@ -216,7 +218,8 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
         val = _eval(asn->expression, output_parameter_dict);
       if (eval_error) {
         eval_error = false;
-        ILA_WARN <<"ParseCurrentModuleParameters has error for : " << error_str << std::endl;
+        ILA_WARN << "ParseCurrentModuleParameters has error for : " << error_str
+                 << std::endl;
         continue; // if we encounter error, just skip it
       }
 
@@ -284,8 +287,7 @@ void VerilogConstantExprEval::PopulateParameterDefByHierarchy(
                 instance_ptr->module_parameters->module_parameter,
                 param_ov_idx);
         ILA_NOT_NULL(name_val_pair->port_name);
-        std::string param_name =
-            ast_identifier_tostring(name_val_pair->port_name);
+        auto param_name = _ast_identifier_tostring(name_val_pair->port_name);
         double val =
             _eval(name_val_pair->expression, current_module_param_defs);
         if (eval_error)
