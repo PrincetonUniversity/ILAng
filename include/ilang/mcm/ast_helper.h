@@ -1,15 +1,15 @@
 /// \file
 /// Header for AST helpers (some helper classes to handle AST)
 
-#ifndef AST_HELPER_H__
-#define AST_HELPER_H__
-
-#include "ilang/ila/instr_lvl_abs.h"
+#ifndef ILANG_MCM_AST_HELPER_H__
+#define ILANG_MCM_AST_HELPER_H__
 
 #include <functional>
 #include <set>
 #include <unordered_map>
 #include <utility>
+
+#include "ilang/ila/instr_lvl_abs.h"
 
 /// \namespace ilang
 namespace ilang {
@@ -87,78 +87,88 @@ public:
   const std::set<std::shared_ptr<Func>> GetReferredFunc() const;
 }; // class FunctionApplicationFinder
 
-/*
+#if 0
 /// \brief Class of traversing to detect nested store
 class PureNestedStoreDetector {
   /// Type of vector of (address, data) pair
-  typedef std::vector<std::pair<ExprPtr,ExprPtr> > AddrDataVec; // (addr,data)
-list
+  typedef std::vector<std::pair<ExprPtr, ExprPtr>>
+      AddrDataVec; // (addr,data) list
+
   /// Type of map, from points of expression to the pair collected so far for
-the sub tree typedef std::unordered_map<Expr *, AddrDataVec> HashTable; // here
-we do use the raw pointer public:
+  /// the sub tree
+  typedef std::unordered_map<Expr*, AddrDataVec>
+      HashTable; // here we do use the raw pointer public:
+
   // ------------------------- METHODS -------------------------------------- //
   /// \brief To decide if a expr contains nested store or not
-  bool isNestedStore(const ExprPtr &);
+  bool isNestedStore(const ExprPtr&);
   /// \brief Get the address/data pair of a given expr ptr
-  const AddrDataVec & getStoreAddrDataVec(const ExprPtr &);
+  const AddrDataVec& getStoreAddrDataVec(const ExprPtr&);
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   // a map
   HashTable map_;
 }
-*/
+#endif
 
-/*
+#if 0
 struct MRF_HASH_FUNC {
-  std::size_t operator() (const std::pair<TraceStep *, Expr *> & p) const {
+  std::size_t operator()(const std::pair<TraceStep*, Expr*>& p) const {
     return std::hash()(p.first) ^ std::hash()(p.second);
   }
 };
-*/
+#endif
 
-/*
+#if 0
 /// \brief class MemReadFinder(MRF) to find (only find) the address and data
-part that exists in a trace step? class MemReadFinder { public:
+part that exists in a trace step ? class MemReadFinder {
+public:
   // Type of (addr,data) pair list
-  typedef std::vector<std::pair<ExprPtr,ExprPtr> > AddrDataVec;
+  typedef std::vector<std::pair<ExprPtr, ExprPtr>> AddrDataVec;
+
 private:
   /// Type of the Hash Key
-  typedef Instr *  MRFHashKey; // typedef std::pair< TraceStep *, Expr * >
-MRFHashKey;
+  typedef Instr*
+      MRFHashKey; // typedef std::pair< TraceStep *, Expr * > MRFHashKey;
   /// Type of the dictionary value
-  typedef std::unordered_map<std::string,AddrDataVec> MRFVal;  // statename ->
-(addr,data) list
+  typedef std::unordered_map<std::string, AddrDataVec>
+      MRFVal; // statename -> (addr,data) list
   /// Type for caching the result of the search: Instr * -> (statename ->
-(addr,data) list ), for a instruction, for a given state, what are the addr/data
-that is read typedef std::unordered_map<MRFHashKey, MRFVal> MRFHashTable;
+  /// (addr,data) list ), for a instruction, for a given state, what are the
+  /// addr/data that is read
+  typedef std::unordered_map<MRFHashKey, MRFVal> MRFHashTable;
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// A wrapper of calling DepthFirstVisit with a function object
-  void FindAddrDataPairVecInExpr(const ExprPtr &node, MRFVal & nad_map_);
+  void FindAddrDataPairVecInExpr(const ExprPtr& node, MRFVal& nad_map_);
   /// a private function to be called to handle a node. The traversal is
-original in the Expr (template member function: DepthFirstVisit) void
-VisitNode(const ExprPtr &node, MRFVal & nad_map_); public:
+  /// original in the Expr (template member function: DepthFirstVisit)
+  void VisitNode(const ExprPtr& node, MRFVal& nad_map_);
+
+public:
   /// for an instruction, for a state, return the reference to the (addr,data)
-pair list
-  /// it has no way to check if sname is memvar or not, so it needs to be
-guaranteed that it is a memver's name const AddrDataVec &
-FindAddrDataPairVecInInst(const InstrPtr &instr, const std::string &sname);
+  /// pair list it has no way to check if sname is memvar or not, so it needs to
+  /// be guaranteed that it is a memver's name
+  const AddrDataVec& FindAddrDataPairVecInInst(const InstrPtr& instr,
+                                               const std::string& sname);
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor, it needs a NestedMemAddrDataAvoider reference (so we can
-share among different MemReadFinder) MemReadFinder(NestedMemAddrDataAvoider & n)
-: nested_finder_(n) {}
+  /// share among different MemReadFinder)
+  MemReadFinder(NestedMemAddrDataAvoider& n) : nested_finder_(n) {}
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The table to cache the results
   MRFHashTable map_;
   /// reference to the shared nested avoider
-  NestedMemAddrDataAvoider & nested_finder_;
+  NestedMemAddrDataAvoider& nested_finder_;
 
 }; // class MemReadFinder
-*/
+#endif
 
 } // namespace ilang
 
-#endif // AST_HELPER_H__
+#endif // ILANG_MCM_AST_HELPER_H__

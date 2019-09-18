@@ -17,6 +17,7 @@ static void* VlgParserAllocCstr(const std::string& str) {
 }
 
 void TestParseVerilog() { verilog_parser_init(); }
+
 int TestParseVerilogFrom(const std::string& fn) {
   std::FILE* fp = std::fopen(fn.c_str(), "r");
   if (fp == NULL)
@@ -25,7 +26,6 @@ int TestParseVerilogFrom(const std::string& fn) {
 
   verilog_preprocessor_set_file(yy_preproc, (char*)VlgParserAllocCstr(fn));
   auto ret = verilog_parse_file(fp);
-  ;
   std::fclose(fp);
 
   return ret;

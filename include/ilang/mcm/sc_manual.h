@@ -2,8 +2,8 @@
 /// Header for SC memory model (constructed manually, rather than fully
 /// automaticated generation)
 
-#ifndef SC_MANUAL_H__
-#define SC_MANUAL_H__
+#ifndef ILANG_MCM_SC_MANUAL_H__
+#define ILANG_MCM_SC_MANUAL_H__
 
 #include <ilang/mcm/inter_ila_unroller.h>
 #include <ilang/mcm/memory_model.h>
@@ -67,4 +67,4 @@ private:
 
 } // namespace ilang
 
-#endif // SC_MANUAL_H__
+#endif // ILANG_MCM_SC_MANUAL_H__

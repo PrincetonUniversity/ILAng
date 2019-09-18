@@ -1,8 +1,14 @@
 /// \file
 /// The header for the class InstrLvlAbs.
 
-#ifndef INSTR_LVL_ABS_H__
-#define INSTR_LVL_ABS_H__
+#ifndef ILANG_ILA_INSTR_LVL_ABS_H__
+#define ILANG_ILA_INSTR_LVL_ABS_H__
+
+#include <map>
+#include <memory>
+#include <ostream>
+#include <stack>
+#include <string>
 
 #include <ilang/ila/ast/func.h>
 #include <ilang/ila/expr_fuse.h>
@@ -11,11 +17,6 @@
 #include <ilang/ila/object.h>
 #include <ilang/ila/transition.h>
 #include <ilang/util/container.h>
-#include <map>
-#include <memory>
-#include <ostream>
-#include <stack>
-#include <string>
 
 /// \namespace ilang
 namespace ilang {
@@ -330,4 +331,4 @@ typedef std::map<InstrLvlAbsCnstPtr, InstrLvlAbsPtr> CnstIlaMap;
 
 } // namespace ilang
 
-#endif // INSTR_LVL_ABS_H__
+#endif // ILANG_ILA_INSTR_LVL_ABS_H__

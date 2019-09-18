@@ -4,6 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <ilang/ilang++.h>
+#include <ilang/util/fs.h>
+#include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-out/verilog_gen.h>
@@ -29,7 +32,47 @@ void parseable(const std::string& fname, VerilogGenerator& vgen) {
     ILA_INFO << "ParseErrorFileName = " << fname;
 }
 
+void ParseIla(const InstrLvlAbsPtr& ila) {
+  // test 1 gen all : internal mem
+  {
+    SetLogLevel(2);
+    auto vgen = VerilogGenerator();
+    vgen.ExportIla(ila);
+
+    char tmp_file_template[] = "/tmp/vlog_XXXXXX";
+    auto tmp_file_name = GetRandomFileName(tmp_file_template);
+    parseable(tmp_file_name, vgen);
+  }
+  // test 2 gen all : external mem
+  {
+    auto config = VerilogGenerator::VlgGenConfig(
+        true, VerilogGenerator::VlgGenConfig::funcOption::Internal);
+    auto vgen = VerilogGenerator(config);
+    vgen.ExportIla(ila);
+
+    char tmp_file_template[] = "/tmp/vlog_ext_XXXXXX";
+    auto tmp_file_name = GetRandomFileName(tmp_file_template);
+    parseable(tmp_file_name, vgen);
+  }
+}
+
+void FlattenIla(const InstrLvlAbsPtr& ila) {
+
+  for (auto i = 0; i < ila->instr_num(); i++) {
+    auto dep_ila = AbsKnob::ExtrDeptModl(ila->instr(i), "Flatten");
+    AbsKnob::FlattenIla(dep_ila);
+
+    auto vgen = VerilogGenerator();
+    vgen.ExportIla(dep_ila);
+
+    char tmp_file_template[] = "/tmp/vlog_flat_XXXXXX";
+    auto tmp_file_name = GetRandomFileName(tmp_file_template);
+    parseable(tmp_file_name, vgen);
+  }
+}
+
 TEST(TestVerilogGen, Init) { VerilogGenerator(); }
+
 TEST(TestVerilogGen, ParseInst) {
   auto ila_ptr_ = SimpleCpu("proc");
   // test 1 gen Add : internal mem
@@ -87,37 +130,58 @@ TEST(TestVerilogGen, ParseInst) {
   }
 } // TEST (ParseInst)
 
-TEST(TestVerilogGen, ParseIla) {
-  auto ila_ptr_ = SimpleCpu("proc");
-  // test 1 gen all : internal mem
-  {
-    auto vgen = VerilogGenerator();
-    vgen.ExportIla(ila_ptr_);
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_all.v", vgen);
-  }
-  // test 2 gen all : external mem
-  {
-    auto config = VerilogGenerator::VlgGenConfig(
-        true, VerilogGenerator::VlgGenConfig::funcOption::Internal);
-    auto vgen = VerilogGenerator(config);
-    vgen.ExportIla(ila_ptr_);
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_all_extmem.v", vgen);
-  }
-} // TEST: ParseILA
-TEST(TestVerilogGen, FlattenIla) {
+TEST(TestVerilogGen, CpReg) {
   EqIlaGen ila_gen;
-  auto ila_ptr = ila_gen.GetIlaHier1("CpReg");
+  auto ila = ila_gen.GetIlaHier1("CpReg");
+  ParseIla(ila);
+  FlattenIla(ila);
+}
 
-  auto dep_ila_ptr =
-      AbsKnob::ExtrDeptModl(ila_ptr->instr("instr1"), "FlattenCpReg");
-  AbsKnob::FlattenIla(dep_ila_ptr);
+TEST(TestVerilogGen, SimpleProc) {
+  auto ila = SimpleCpu("proc");
+  ParseIla(ila);
+  FlattenIla(ila);
+}
 
-  auto vgen = VerilogGenerator();
-  vgen.ExportIla(dep_ila_ptr);
+TEST(TestVerilogGen, AES_V) {
+  auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
+  auto file = os_portable_append_dir(dir, "aes_v.json");
+  auto ila = ImportIlaPortable(file);
+  ParseIla(ila.get());
+  FlattenIla(ila.get());
+}
 
-  parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_flatten.v", vgen);
+TEST(TestVerilogGen, AES_C) {
+  auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
+  auto file = os_portable_append_dir(dir, "aes_c.json");
+  auto ila = ImportIlaPortable(file);
+  ParseIla(ila.get());
+  FlattenIla(ila.get());
+}
 
-} // TEST: FlattenILA
+TEST(TestVerilogGen, GB_Low) {
+  auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "gb");
+  auto file = os_portable_append_dir(dir, "gb_low.json");
+  auto ila = ImportIlaPortable(file);
+  ParseIla(ila.get());
+  FlattenIla(ila.get());
+}
+
+TEST(TestVerilogGen, RBM) {
+  auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "rbm");
+  auto file = os_portable_append_dir(dir, "rbm.json");
+  auto ila = ImportIlaPortable(file);
+  ParseIla(ila.get());
+  FlattenIla(ila.get());
+}
+
+TEST(TestVerilogGen, OC) {
+  auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "oc");
+  auto file = os_portable_append_dir(dir, "oc.json");
+  auto ila = ImportIlaPortable(file);
+  ParseIla(ila.get());
+  FlattenIla(ila.get());
+}
 
 class T1 {
   friend class TestVerilogExport;
@@ -248,10 +312,12 @@ TEST_F(TestVerilogExport, get_width) { get_width(); }
 
 // pass node name, refset
 TEST_F(TestVerilogExport, new_id) { new_id(); }
-//
-TEST_F(TestVerilogExport, dup) { dup(); }
 
-TEST_F(TestVerilogExport, death) { death(); }
+using TestVerilogExportDeathTest = TestVerilogExport;
+
+TEST_F(TestVerilogExportDeathTest, dup) { dup(); }
+
+TEST_F(TestVerilogExportDeathTest, death) { death(); }
 
 // ?? func -- death
 TEST_F(TestVerilogExport, internalfunc) { internal_func(); }

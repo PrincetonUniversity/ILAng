@@ -2,6 +2,7 @@
 /// Source for the op expression
 
 #include <ilang/ila/ast/expr_op.h>
+
 #include <ilang/ila/ast/func.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
@@ -491,7 +492,7 @@ z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(expr_vec.size() == 1) << "Extend take 1 argument.";
   ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
   auto bv = expr_vec[0];
-  auto org_wid = arg(0)->sort()->bit_width(); 
+  auto org_wid = arg(0)->sort()->bit_width();
   unsigned wid = static_cast<unsigned>(param(0) - org_wid);
   return Z3SExt(ctx, bv, wid);
 }
@@ -504,7 +505,7 @@ ExprOpLRotate::ExprOpLRotate(const ExprPtr bv, const int& immediate)
   set_sort(bv->sort());
 }
 
-z3::expr ExprOpLRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec, 
+z3::expr ExprOpLRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                   const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 1) << "Rotate takes 1 argument.";
   ILA_ASSERT(param_num() == 1) << "Rotate takes 1 parameter.";
@@ -521,7 +522,7 @@ ExprOpRRotate::ExprOpRRotate(const ExprPtr bv, const int& immediate)
   set_sort(bv->sort());
 }
 
-z3::expr ExprOpRRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec, 
+z3::expr ExprOpRRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                   const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 1) << "Rotate takes 1 argument.";
   ILA_ASSERT(param_num() == 1) << "Rotate takes 1 parameter.";

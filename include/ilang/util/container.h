@@ -1,8 +1,8 @@
 /// \file
 /// Header for containers, e.g. KeyVec.
 
-#ifndef CONTAINER_H__
-#define CONTAINER_H__
+#ifndef ILANG_UTIL_CONTAINER_H__
+#define ILANG_UTIL_CONTAINER_H__
 
 #include <map>
 #include <memory>
@@ -155,4 +155,4 @@ private:
 
 } // namespace ilang
 
-#endif // CONTAINER_H__
+#endif // ILANG_UTIL_CONTAINER_H__

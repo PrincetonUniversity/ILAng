@@ -2,6 +2,7 @@
 /// Source of instruction sequencing
 
 #include <ilang/ila/transition.h>
+
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -41,12 +42,12 @@ size_t InstrTranNode::next_num() const { return next_.size(); }
 size_t InstrTranNode::prev_num() const { return prev_.size(); }
 
 const ItNodePtr InstrTranNode::next(const size_t& i) const {
-  ILA_ASSERT(i < next_.size()) << "Access overflow for out-going nodes.\n";
+  ILA_ASSERT(i < next_.size()) << "Access overflow for out-going nodes.";
   return next_.at(i);
 }
 
 const ItNodePtr InstrTranNode::prev(const size_t& i) const {
-  ILA_ASSERT(i < prev_.size()) << "Access overflow for in-comming nodes.\n";
+  ILA_ASSERT(i < prev_.size()) << "Access overflow for in-comming nodes.";
   return prev_.at(i);
 }
 
@@ -106,7 +107,6 @@ bool InstrSeq::CheckTransition() const {
 }
 
 InstrIdxKeyVecPtr InstrSeq::Sort() {
-  // ILA_ASSERT(sorted_->empty());
   // TODO
   return sorted_;
 }

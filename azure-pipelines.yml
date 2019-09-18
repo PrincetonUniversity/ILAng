@@ -27,7 +27,7 @@ jobs:
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build 
       cd build
-      cmake ..
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
       cmake --build .
       cmake --build . --target install 
       cmake --build . --target test
@@ -53,7 +53,7 @@ jobs:
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build 
       cd build
-      cmake ..
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
       cmake --build .
       cmake --build . --target install 
       cmake --build . --target test
@@ -74,7 +74,7 @@ jobs:
   - script: |
       mkdir -p build 
       cd build
-      cmake ..
+      cmake .. -DCMAKE_BUILD_TYPE=Release
       cmake --build .
       sudo cmake --build . --target install 
       cmake --build . --target test
@@ -126,6 +126,7 @@ jobs:
   - script: |
       md build
       cd build
+      # For building the test, we need CMAKE_MSVC_RUNTIME_LIBRARY (which will be supported in CMake 3.15+)
       cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
       cmake --build .
       cmake --build . --target install

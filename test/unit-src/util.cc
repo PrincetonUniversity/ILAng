@@ -15,11 +15,13 @@ std::string GetRandomFileName(char* file_name_template) {
 #ifdef __unix__
   auto res = mkstemp(file_name_template);
   ILA_CHECK(res != -1) << "Fail creating file";
+  close(res); // avoid resource exhaustion - not thread safe
   return static_cast<std::string>(file_name_template);
 
 #elif __APPLE__
   auto res = mkstemp(file_name_template);
   ILA_CHECK(res != -1) << "Fail creating file";
+  close(res); // avoid resource exhaustion - not thread safe
   return static_cast<std::string>(file_name_template);
 
 #else
@@ -46,7 +48,7 @@ void CheckIlaEqLegacy(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b) {
       state_mapping =
           ExprFuse::And(state_mapping, ExprFuse::Eq(var_org, var_des));
     } catch (...) {
-      ILA_DLOG("Portable") << "Fail automatically matcing state vars";
+      ILA_WARN << "Fail automatically matching state vars";
     }
   }
 

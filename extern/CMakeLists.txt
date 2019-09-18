@@ -6,7 +6,7 @@
 #   PATH   extern/glog
 # ---------------------------------------------------------------------------- #
 # find installed package 
-find_package(glog QUIET)
+find_package(glog 0.4.0 QUIET)
 
 # build from embeded subtree (in-source) 
 if(NOT GLOG_FOUND)
@@ -25,7 +25,7 @@ endif() # GLOG_FOUND
 #   PATH   extern/json
 # ---------------------------------------------------------------------------- #
 # find installed package
-find_package(nlohmann_json QUIET)
+find_package(nlohmann_json 3.6.1 QUIET)
 
 # build from embeded subtree (in-source)
 if(NOT NLOHMANN_JSON_FOUND)
@@ -44,7 +44,7 @@ endif() # NLOHMANN_JSON_FOUND
 #   PATH   extern/vlog-parser
 # ---------------------------------------------------------------------------- #
 # find installed package
-find_package(verilogparser QUIET)
+find_package(verilogparser 1.1.0 QUIET)
 
 # embed to build tree if not installed
 if(NOT VERILOGPARSER_FOUND)
@@ -80,7 +80,7 @@ endif() # VERILOGPARSER_FOUND
 if(${ILANG_BUILD_SYNTH})
 
   # find installed package
-  find_package(ilasynth QUIET)
+  find_package(ilasynth 1.0 QUIET)
 
   # embed to build tree if not installed
   if(NOT ILASYNTH_FOUND)

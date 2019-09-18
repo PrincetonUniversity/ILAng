@@ -9,12 +9,16 @@
 #include <cstdlib>
 
 #if defined(_WIN32) || defined(_WIN64)
+
 // windows
 #include <direct.h>
+
 #else
+
 // *nix
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #endif
 
 #include <ilang/util/log.h>
@@ -39,14 +43,13 @@ bool os_portable_mkdir(const std::string& dir) {
   return _mkdir(dir.c_str()) == 0;
 #else
   // on *nix
+  auto res = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != -1;
+
   struct stat statbuff;
   if (stat(dir.c_str(), &statbuff) != -1) {
-    if (S_ISDIR(statbuff.st_mode)) {
-      ILA_WARN << "Directory " << dir << " already exists.";
-      return true;
-    }
+    return res || S_ISDIR(statbuff.st_mode);
   }
-  return mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != -1;
+  return false;
 #endif
 }
 

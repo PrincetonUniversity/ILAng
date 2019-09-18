@@ -7,12 +7,11 @@
 ///
 ///  --- Hongce Zhang
 
-#ifndef VERILOG_ANALYSIS_WRAPPER_H__
-#define VERILOG_ANALYSIS_WRAPPER_H__
+#ifndef ILANG_VERILOG_IN_VERILOG_ANALYSIS_WRAPPER_H__
+#define ILANG_VERILOG_IN_VERILOG_ANALYSIS_WRAPPER_H__
 
 #include <iostream>
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -249,4 +248,4 @@ std::ostream& operator<<(std::ostream& os,
 
 }; // namespace ilang
 
-#endif // VERILOG_ANALYSIS_WRAPPER_H__
+#endif // ILANG_VERILOG_IN_VERILOG_ANALYSIS_WRAPPER_H__

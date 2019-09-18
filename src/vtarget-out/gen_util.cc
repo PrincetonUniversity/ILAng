@@ -4,12 +4,14 @@
 /// go in the same file and make it that long.
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
+
 #include <cmath>
+
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 namespace ilang {
 
@@ -112,16 +114,9 @@ bool VlgSglTgtGen::TryFindVlgState(const std::string& sname) {
 /// it is normal that you cannot find
 /// them in the verilog
 std::set<std::string> wrapper_signals = {
-  "__START__",
-  "__IEND__",
-  "__ISSUE__",
-  "__STARTED__",
-  "__RESETED__",
-  "__ENDED__",
-  "__ENDFLUSH__",
-  "__FLUSHENDED__",
-  "__CYCLE_CNT__"
-};
+    "__START__",    "__IEND__",       "__ISSUE__",
+    "__STARTED__",  "__RESETED__",    "__ENDED__",
+    "__ENDFLUSH__", "__FLUSHENDED__", "__CYCLE_CNT__"};
 
 // for ila state: add __ILA_SO_
 // for verilog signal: keep as it is should be fine
@@ -133,7 +128,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   const auto& sname = t.second;
 
   if (token_tp == VarExtractor::token_type::UNKN_S) {
-    ILA_WARN_IF(!IN(sname,wrapper_signals) && !IN(sname, vlg_wrapper.wires))
+    ILA_WARN_IF(!IN(sname, wrapper_signals) && !IN(sname, vlg_wrapper.wires))
         << "In refinement relations: unknown reference to name:" << sname
         << " keep unchanged.";
     return sname;
@@ -372,15 +367,18 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       external = supplementary_info.memory_export.at(ila_state_name);
 
     if (!external) { // if internal
-      // if you choose to expand the array then we are able to handle with out MEM directive
+      // if you choose to expand the array then we are able to handle with out
+      // MEM directive
       int addr_range = std::pow(2, ila_state->sort()->addr_width()); // 2^N
       // construct expansion expression
       std::string map_expr;
-      for (int idx = 0; idx < addr_range; ++ idx) {
+      for (int idx = 0; idx < addr_range; ++idx) {
         if (!map_expr.empty())
-          map_expr += "&&";  
-        map_expr += "( __ILA_SO_" + ila_state_name +"_"+std::to_string(idx)+" == " +
-          ReplExpr( vlg_st_name + "[" + std::to_string(idx) + "]" , true) + ")";
+          map_expr += "&&";
+        map_expr +=
+            "( __ILA_SO_" + ila_state_name + "_" + std::to_string(idx) +
+            " == " +
+            ReplExpr(vlg_st_name + "[" + std::to_string(idx) + "]", true) + ")";
       }
 
       std::string map_sig = new_mapping_id();
@@ -389,7 +387,9 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       add_wire_assign_assumption(map_sig, map_expr, "vmap");
       return map_sig;
     } else {
-      ILA_ERROR << "Please use **MEM**.? directive for memory state matching of "<< ila_state_name;
+      ILA_ERROR
+          << "Please use **MEM**.? directive for memory state matching of "
+          << ila_state_name;
       return VLG_TRUE;
     }
   }
@@ -436,7 +436,8 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
         external = supplementary_info.memory_export.at(ila_state_name);
 
       ILA_ERROR_IF(!external)
-      <<"Should not use MEM directive since this memory is internal:" << ila_state_name;
+          << "Should not use MEM directive since this memory is internal:"
+          << ila_state_name;
       // may be we need to log them here
       if (is_assert == false) {
         _idr.SetMemName(m.get<std::string>(), ila_state_name);

@@ -1,16 +1,17 @@
 /// \file Header for generating abstract memory
 // --- Hongce Zhang
 
-#ifndef ABS_MEM_H__
-#define ABS_MEM_H__
+#ifndef ILANG_VTARGET_OUT_ABS_MEM_H__
+#define ILANG_VTARGET_OUT_ABS_MEM_H__
 
-#include <ilang/verilog-out/verilog_gen.h>
-#include <ilang/vtarget-out/absmem.h>
 #include <map>
 #include <set>
 #include <string>
 #include <tuple>
 #include <vector>
+
+#include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/absmem.h>
 
 namespace ilang {
 
@@ -81,4 +82,4 @@ public:
 
 }; // namespace ilang
 
-#endif // ABS_MEM_H__
+#endif // ILANG_VTARGET_OUT_ABS_MEM_H__

@@ -1,8 +1,8 @@
 /// \file
 /// Header for generating verification condition for equivalence checking.
 
-#ifndef EQ_CHECK_CRR_H__
-#define EQ_CHECK_CRR_H__
+#ifndef ILANG_VERIFICATION_EQ_CHECK_CRR_H__
+#define ILANG_VERIFICATION_EQ_CHECK_CRR_H__
 
 #include "z3++.h"
 #include <ilang/ila/comp_ref_rel.h>
@@ -124,4 +124,4 @@ private:
 
 } // namespace ilang
 
-#endif // EQ_CHECK_CRR_H__
+#endif // ILANG_VERIFICATION_EQ_CHECK_CRR_H__

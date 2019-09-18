@@ -2,11 +2,10 @@
 /// Source for the class Expr
 
 #include <ilang/ila/ast/expr.h>
+
 #include <ilang/util/log.h>
 
 namespace ilang {
-
-// typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 Expr::Expr() {}
 

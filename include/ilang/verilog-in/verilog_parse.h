@@ -1,11 +1,10 @@
 /// \file
 /// Header for testing Verilog files
 
-#ifndef VERILOG_PARSE_H__
-#define VERILOG_PARSE_H__
+#ifndef ILANG_VERILOG_IN_VERILOG_PARSE_H__
+#define ILANG_VERILOG_IN_VERILOG_PARSE_H__
 
-#include <cstdio>
-#include <iostream>
+#include <string>
 
 /// \namespace ilang
 namespace ilang {
@@ -15,4 +14,4 @@ int TestParseVerilogFrom(const std::string& fn);
 
 }; // namespace ilang
 
-#endif // VERILOG_PARSE_H__
+#endif // ILANG_VERILOG_IN_VERILOG_PARSE_H__

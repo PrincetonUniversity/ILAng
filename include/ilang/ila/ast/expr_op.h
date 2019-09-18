@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class ExprOp
 
-#ifndef EXPR_OP_H__
-#define EXPR_OP_H__
+#ifndef ILANG_ILA_AST_EXPR_OP_H__
+#define ILANG_ILA_AST_EXPR_OP_H__
 
 #include <ilang/ila/ast/expr.h>
 
@@ -432,4 +432,4 @@ public:
 
 } // namespace ilang
 
-#endif // EXPR_OP_H__
+#endif // ILANG_ILA_AST_EXPR_OP_H__

@@ -2,6 +2,7 @@
 /// Source for the class Z3EXprAdapter
 
 #include <ilang/ila/z3_expr_adapter.h>
+
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -16,7 +17,6 @@ z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
 
   expr->DepthFirstVisit(*this);
 
-  // auto pos = expr_map_.find(expr.get());
   auto pos = expr_map_.find(expr);
   ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.";
 

@@ -9,6 +9,7 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 ## source files
 ##
 add_subdirectory(ila)
+add_subdirectory(ila-handler)
 add_subdirectory(mcm)
 add_subdirectory(target-json)
 add_subdirectory(target-sc)
@@ -138,6 +139,14 @@ else()
   set(SYNTH_INTERFACE FALSE)
 endif()
 
+##
+## static analysis only
+##
+if(${ILANG_COVERITY})
+  set(COVERITY TRUE)
+else()
+  set(COVERITY FALSE)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # INSTALL

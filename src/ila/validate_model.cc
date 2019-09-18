@@ -1,3 +1,6 @@
+/// \file
+/// The source for validating ILA.
+
 #include <ilang/ila/validate_model.h>
 
 #include "z3++.h"
@@ -95,4 +98,5 @@ void CompleteModel(const InstrLvlAbsPtr& model_ptr, DEFAULT_UPDATE_METHOD dum) {
     }
   }
 }
+
 } // namespace ilang

@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class BoolVal, BvVal, and MemVal
 
-#ifndef SORT_VALUE_H__
-#define SORT_VALUE_H__
+#ifndef ILANG_ILA_AST_SORT_VALUE_H__
+#define ILANG_ILA_AST_SORT_VALUE_H__
 
 #include <map>
 #include <memory>
@@ -152,4 +152,4 @@ typedef MemVal::MemValMap MemValMap;
 
 } // namespace ilang
 
-#endif // SORT_VALUE_H__
+#endif // ILANG_ILA_AST_SORT_VALUE_H__

@@ -2,6 +2,7 @@
 /// The source for the class Instr.
 
 #include <ilang/ila/instr.h>
+
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 
@@ -92,6 +93,10 @@ std::ostream& Instr::Print(std::ostream& out) const {
 }
 
 std::ostream& operator<<(std::ostream& out, InstrPtr i) {
+  return i->Print(out);
+}
+
+std::ostream& operator<<(std::ostream& out, InstrCnstPtr i) {
   return i->Print(out);
 }
 

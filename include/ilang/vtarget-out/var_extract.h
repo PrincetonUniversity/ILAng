@@ -4,8 +4,8 @@
 /// and change their name if needed and generate a string
 // --- Hongce Zhang
 
-#ifndef VAR_EXTRACT_H__
-#define VAR_EXTRACT_H__
+#ifndef ILANG_VTARGET_OUT_VAR_EXTRACT_H__
+#define ILANG_VTARGET_OUT_VAR_EXTRACT_H__
 
 #include <functional>
 #include <string>
@@ -65,4 +65,4 @@ public:
 
 }; // namespace ilang
 
-#endif // VAR_EXTRACT_H__
+#endif // ILANG_VTARGET_OUT_VAR_EXTRACT_H__

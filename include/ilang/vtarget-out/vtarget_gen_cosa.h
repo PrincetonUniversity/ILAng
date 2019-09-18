@@ -3,17 +3,18 @@
 /// Internally, we use the
 // ---Hongce Zhang
 
-#ifndef VTARGET_GEN_COSA_H__
-#define VTARGET_GEN_COSA_H__
+#ifndef ILANG_VTARGET_OUT_VTARGET_GEN_COSA_H__
+#define ILANG_VTARGET_OUT_VTARGET_GEN_COSA_H__
 
-#include <ilang/config.h>
-
-#include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vlg_mod.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include <ilang/config.h>
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ilang {
 
@@ -136,4 +137,4 @@ public:
 
 }; // namespace ilang
 
-#endif // VTARGET_GEN_COSA_H__
+#endif // ILANG_VTARGET_OUT_VTARGET_GEN_COSA_H__

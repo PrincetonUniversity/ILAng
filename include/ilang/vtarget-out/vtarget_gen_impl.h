@@ -11,31 +11,30 @@
 ///         although it might be easier
 ///  we need to copy some of the vlg-out's functionality
 
-#ifndef VTARGET_GEN_IMPL_H__
-#define VTARGET_GEN_IMPL_H__
+#ifndef ILANG_VTARGET_OUT_VTARGET_GEN_IMPL_H__
+#define ILANG_VTARGET_OUT_VTARGET_GEN_IMPL_H__
 
-#include <ilang/config.h>
-
-#include "nlohmann/json.hpp"
-#include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/verilog-in/verilog_analysis_wrapper.h>
-#include <ilang/verilog-out/verilog_gen.h>
-#include <ilang/vtarget-out/directive.h>
-#include <ilang/vtarget-out/var_extract.h>
-#include <ilang/vtarget-out/vtarget_gen.h>
-#include <ilang/vtarget-out/supplementary_info.h>
 #include <list>
 #include <map>
 #include <unordered_map>
 #include <vector>
 
+#include "nlohmann/json.hpp"
+#include <ilang/config.h>
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/directive.h>
+#include <ilang/vtarget-out/supplementary_info.h>
+#include <ilang/vtarget-out/var_extract.h>
+#include <ilang/vtarget-out/vtarget_gen.h>
+
 namespace ilang {
 
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
-
-  // --------------------- TYPE DEFINITION ------------------------ //
 public:
+  // --------------------- TYPE DEFINITION ------------------------ //
   /// Type of the target
   typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
   /// Type of the ready condition
@@ -77,9 +76,8 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _supplementary_info,
-      VerilogInfo* _vlg_info_ptr,
-      const std::string& vlg_mod_inst_name,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _supplementary_info,
+      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
@@ -136,9 +134,9 @@ protected:
   /// func apply counter
   func_app_cnt_t func_cnt;
   /// max bound , default 127
-  unsigned max_bound;
+  unsigned max_bound = 127;
   /// the width of the counter
-  unsigned cnt_width;
+  unsigned cnt_width = 1;
 
 private:
   /// Counter of mapping
@@ -158,6 +156,7 @@ protected:
   const ExprPtr IlaGetInput(const std::string& sname) const;
   /// Get (a,d) width of a memory, if not existing, (0,0)
   std::pair<unsigned, unsigned>
+
   GetMemInfo(const std::string& ila_mem_name) const;
   /// Test if a string represents an ila state name
   bool TryFindIlaState(const std::string& sname);
@@ -245,7 +244,7 @@ protected:
   /// Store the configuration
   vtg_config_t _vtg_config;
   /// Store the vlg configurations
-  const VerilogGenerator::VlgGenConfig& _vlg_cfg; 
+  const VerilogGenerator::VlgGenConfig& _vlg_cfg;
   /// Store the selection of backend
   backend_selector _backend;
 
@@ -425,4 +424,4 @@ private:
 
 }; // namespace ilang
 
-#endif // VTARGET_GEN_IMPL_H__
+#endif // ILANG_VTARGET_OUT_VTARGET_GEN_IMPL_H__
