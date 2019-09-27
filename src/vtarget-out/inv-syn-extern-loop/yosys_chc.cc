@@ -1001,10 +1001,16 @@ void ExternalChcTargetGen::export_script(const std::string& script_name, const s
     if (not _vtg_config.FreqHornPath.empty())
       runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
 
-    ILA_ASSERT(!cnf_name.empty()) << "must provide cnf name for FreqHorn backend.";
+    for (auto && op : _vtg_config.FreqHornOptions)
+      runable += " " + op;
+    
+    if (! S_IN("--grammar ", runable))
+      ILA_ASSERT(!cnf_name.empty()) << "must provide cnf name for FreqHorn backend.";
+
 
     if (_vtg_config.FreqHornHintsUseCnfStyle) {
-      runable += " --cnf " + cnf_name;
+      if (!cnf_name.empty())
+        runable += " --cnf " + cnf_name;
     } else {
       runable += " --grammar-file=\""+cnf_name+"\"";
       runable += " --chc-file=\""+chc_prob_fname+"\"";

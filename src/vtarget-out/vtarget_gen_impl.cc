@@ -127,6 +127,10 @@ const VlgTgtSupplementaryInfo & VlgVerifTgtGen::GetSupplementaryInfo() const {
   return sup_info;
 }
 
+const Cvc4SygusBase::correction_t & VlgVerifTgtGen::GetParsingCorrections() const {
+  return inv_parsing_corrections;
+}
+
 // ------------------------- SMT TARGET ------------------------- //
 
 /*
@@ -193,8 +197,11 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynSygusTargets(
   runnable_script_name.push_back(
     os_portable_append_dir(
       os_portable_append_dir(_output_path, "inv-syn-sygus/"), "run.sh"));
+  
+  inv_parsing_corrections = target.GetParsingCorrections();
 
   return target.GetDesignSmtInfo();
+
 }
 
 void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool useAiger) {

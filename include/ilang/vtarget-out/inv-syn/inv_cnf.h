@@ -31,6 +31,15 @@ public:
   static void CanonicalizeClause(clause & c);
   /// clause to string
   static std::string Clause2Str(const clause & c);
+  /// some list of vars to clause
+  static void VarsToClause(const std::set<std::string> & vars, clause & out);
+
+public:
+  /// export for wky-enhance
+  void ExportInCnfFormat(std::ostream & os) const;
+  /// export for wky-bv
+  void ExportInCociFormat(std::ostream & os) const;
+
 
 public:
   // members function : insert clause

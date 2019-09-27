@@ -57,7 +57,7 @@ static std::string inv_syn_tmpl_datatypes = R"***(
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
 ;----------------------------------------
-(set-option :fp.engine spacer)
+%(set-option :fp.engine spacer)%
 
 
 %%
@@ -119,7 +119,7 @@ static std::string inv_syn_tmpl_wo_datatypes = R"***(
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
 ;----------------------------------------
-(set-option :fp.engine spacer)
+%(set-option :fp.engine spacer)%
 
 %%
 
@@ -364,6 +364,7 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
   }
 } // PreExportProcess
 
+
 /// export the script to run the verification :
 /// like "yosys gemsmt.ys"
 void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
@@ -393,12 +394,23 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
       runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
     for (auto && op : _vtg_config.FreqHornOptions)
       options += " " + op;
-    options += " --mod " + _vlg_mod_inst_name;
+
+    if (_vtg_config.FreqHornHintsUseCnfStyle) {
+      ILA_ERROR_IF(! S_IN(" --cnf ", options) && ! S_IN(" --grammar ", options)) << "You must provide grammar in FreqHorn options!";
+    } else {
+      ILA_ERROR_IF(! S_IN(" --grammar-file=", options)) << "You must provide grammar in FreqHorn options!";
+      options += " --chc-file=\""+chc_prob_fname+"\"";
+    }
+
     redirect = " 2> ../freqhorn.result";
   }
 
-  if (chc_prob_fname != "")
-    fout << runable << options << " " << chc_prob_fname << redirect << std::endl;
+  if (chc_prob_fname != "") {
+    if (_vtg_config.FreqHornHintsUseCnfStyle || s_backend == synthesis_backend_selector::Z3)
+      fout << runable << options << " " << chc_prob_fname << redirect << std::endl;
+    else
+      fout << runable << options << redirect << std::endl;
+  }
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
@@ -604,7 +616,9 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_bitvec(
 
   std::string chc;
 
-  chc = inv_syn_tmpl_datatypes;
+  chc = ReplaceAll(inv_syn_tmpl_datatypes, 
+    "%(set-option :fp.engine spacer)%" ,
+    s_backend == synthesis_backend_selector::FreqHorn ? "" : "(set-option :fp.engine spacer)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
@@ -660,7 +674,9 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {
     const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
-    auto tmpl = inv_syn_tmpl_wo_datatypes;
+    auto tmpl = ReplaceAll(inv_syn_tmpl_wo_datatypes, 
+      "%(set-option :fp.engine spacer)%" ,
+      s_backend == synthesis_backend_selector::FreqHorn ? "" : "(set-option :fp.engine spacer)");
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %BIs%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %BIs%)" );
@@ -670,7 +686,9 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
       datatype_top_mod, wrapper_mod_name);
     chc = ReplaceAll(chc, "%%", smt_converted );
   } else {
-    chc = inv_syn_tmpl_datatypes;
+    chc = ReplaceAll(inv_syn_tmpl_datatypes, 
+      "%(set-option :fp.engine spacer)%" ,
+      s_backend == synthesis_backend_selector::FreqHorn ? "" : "(set-option :fp.engine spacer)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");

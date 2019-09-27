@@ -131,6 +131,8 @@ public:
     bool AbcUseCorr;  
     /// ABC option : whether to pass aiger to ABC
     bool AbcUseAiger;  
+    /// ABC option : whether to minimize invariant
+    bool AbcMinimizeInv;
     /// ABC option : the way to handle assumptions
     typedef enum _abc_assumption_style_t {
       AigMiterExtraOutput = 0, // Use AIG's extra output to represent, cannot use with GLA
@@ -217,6 +219,7 @@ public:
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL) ,
           AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false),
+          AbcMinimizeInv(false),
           AbcAssumptionStyle(_abc_assumption_style_t::AssumptionRegister) {}
   } vtg_config_t;
 

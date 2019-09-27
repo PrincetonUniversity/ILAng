@@ -251,6 +251,9 @@ protected:
 	std::string synthesis_result_fn;
 	///
 	bool cex_reachable;
+  
+public:
+  long long total_freqhorn_cand;
 
 }; // class InvariantSynthesizerExternalCegar 
 

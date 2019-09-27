@@ -26,6 +26,7 @@
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/supplementary_info.h>
 #include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sygus_base.h>
 
 #include <list>
 #include <map>
@@ -456,6 +457,8 @@ protected:
   nlohmann::json rf_cond;
   /// refinement relation : supplementary information
   VlgTgtSupplementaryInfo sup_info;
+  /// the corrections for sygus cvc4 inv parsing
+  Cvc4SygusBase::correction_t inv_parsing_corrections;
 
 public:
   // --------------------- METHODS ---------------------------- //
@@ -483,6 +486,8 @@ public:
   void GenerateDesignOnlyCandidateInvChcCheckTargets(synthesis_backend_selector s_backend);
   /// return the result from parsing supplymentary information
   const VlgTgtSupplementaryInfo & GetSupplementaryInfo() const;
+  /// accessor of the inv parsing corrections
+  const Cvc4SygusBase::correction_t & GetParsingCorrections() const;
 
 protected:
   // --------------------- METHODS ---------------------------- //

@@ -58,7 +58,7 @@ InvariantSynthesizerCegar::InvariantSynthesizerCegar(
     _vtg_config(vtg_config), _vlg_config(config),
     // ------------ statistics bookkeeping --------------- //
     eqcheck_time(0), inv_validate_time(0), inv_proof_attempt_time(0), 
-    inv_syn_time(0) 
+    inv_syn_time(0) , inv_enhance_time(0), total_freqhorn_cand(0)
   {
     // detect some wrong settings here
     if(vbackend != verify_backend_selector::COSA) {
@@ -264,7 +264,10 @@ void InvariantSynthesizerCegar::MergeCnf(const InvariantInCnf& incremental_cnf) 
 }
 
 /// extra variable for enhancement, so not really a cnf
-void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(size_t inv_idx, InvariantInCnf& incremental_cnf , bool per_clause) {
+void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(
+  size_t inv_idx, InvariantInCnf& incremental_cnf , bool per_clause,
+  const std::set<std::string> & vars_to_remove ) 
+  {
   ILA_ASSERT(inv_idx < inv_obj.NumInvariant());
   const auto & inv_vlg = inv_obj.GetVlgConstraints().at(inv_idx);
   VarExtractor vext(
@@ -277,7 +280,7 @@ void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(size_t inv_idx, In
   InvariantInCnf::clause cl;
   std::set<std::string> v_in_this_cl;
   vext.ForEachTokenReplace(
-    [&cl, &incremental_cnf, &v_in_this_cl, per_clause]
+    [&cl, &incremental_cnf, &v_in_this_cl, per_clause, &vars_to_remove]
      (const VarExtractor::token &t) -> std::string {
       if (per_clause && t.second.find("&&")!=t.second.npos) {
         incremental_cnf.InsertClause(cl);
@@ -291,7 +294,7 @@ void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(size_t inv_idx, In
       std::string vn = vname;
       if (pos != vname.npos)
         vn = vname.substr(0,pos);
-      if (!IN(vn,v_in_this_cl)) {
+      if (!IN(vn,v_in_this_cl) && !(IN(vn,vars_to_remove))) {
         cl.push_back({false, vn,0});
         v_in_this_cl.insert(vn);
       }
@@ -353,8 +356,8 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incre
     << "Running synthesis script " << runnable_scripts[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   
-  inv_syn_time += res.seconds;
-  inv_syn_time_series.push_back(res.seconds);
+  inv_enhance_time += res.seconds;
+  // inv_syn_time_series.push_back(res.seconds);
   
   bool freq_enhance_okay = false;
   { // run freqhorn
@@ -365,14 +368,16 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incre
         freq_enhance_okay = false;
     } else {
       sbuf << fin.rdbuf();
-      freq_enhance_okay = S_IN("proved",sbuf.str());
+      freq_enhance_okay = S_IN("proved",sbuf.str()) || S_IN("proven",sbuf.str());
       if (S_IN("unknown",sbuf.str()))
         freq_enhance_okay = false;
       if (freq_enhance_okay) {
         ILA_INFO << "Enhance Info: Lemma/Gen/Spec = " 
           << retrieveColonEol (sbuf.str(), "learned lemmas:") << " "
           << retrieveColonEol (sbuf.str(), "TotalGen:") << " "
-          << retrieveColonEol (sbuf.str(), "TotalSpec:") ;
+          << retrieveColonEol (sbuf.str(), "TotalSpec:") << " "
+          << retrieveColonEol (sbuf.str(), "TotalCand:") ;
+        total_freqhorn_cand += retrieveColonEol (sbuf.str(), "TotalCand:");
       }
     }
   } // end of freqhorn chc result
@@ -550,7 +555,10 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
       inv_obj.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
-      _vtg_config.YosysSmtFlattenHierarchy ))
+      _vtg_config.YosysSmtFlattenHierarchy,
+      true,
+      sygus_corrections
+       )) // correction is needed
     << "SyGuS solver failed to generate an invariant";
   } else if (current_inv_type == cur_inv_tp::FREQHORN_CHC) {
     if (design_smt_info == nullptr) {
@@ -720,7 +728,23 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
     sbuf << fin.rdbuf();
     cex_reachable = !(S_IN("proved",sbuf.str()));
     if (S_IN("unknown",sbuf.str())) cex_reachable = true;
+    // count cands
+    total_freqhorn_cand += retrieveColonEol (sbuf.str(), "TotalCand:");
   } // end of freqhorn chc result
+  else if (current_inv_type == SYGUS_CHC) {
+    std::string line;
+    { // read the result
+      std::ifstream fin(synthesis_result_fn);
+      if (not fin.is_open()) {
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        status = cegar_status::FAILED;
+        bad_state = true;
+        return true; // reachable
+      } 
+      std::getline(fin,line);  
+    } // finish file reading
+    cex_reachable = line.find("unknown") == 0;
+  }
   else {
     std::string line;
     { // read the result
@@ -766,12 +790,14 @@ void InvariantSynthesizerCegar::LoadPrevStatisticsState(const std::string & fn) 
       inv_proof_attempt_time != 0 ||
       inv_syn_time != 0 ||
       inv_validate_time != 0 ||
+      inv_enhance_time != 0 ||
       ! inv_syn_time_series.empty() ) {
     ILA_ERROR << "Not loading the statistics state from initial time!";
     }
   eqcheck_time += local_info.TimeOfEqCheck;
   inv_proof_attempt_time += local_info.TimeOfInvProof;
   inv_syn_time += local_info.TimeOfInvSyn;
+  inv_enhance_time += local_info.TimeOfInvSynEnhance;
   inv_validate_time += local_info.TimeOfInvValidate;
   inv_syn_time_series.insert(inv_syn_time_series.end(),local_info.TimeOfInvSynSeries.begin(), local_info.TimeOfInvSynSeries.end());
 }
@@ -779,11 +805,12 @@ void InvariantSynthesizerCegar::LoadPrevStatisticsState(const std::string & fn) 
 DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
   DesignStatistics ret;
 
-  ret.TimeOfEqCheck     = eqcheck_time;
-  ret.TimeOfInvProof    = inv_proof_attempt_time;
-  ret.TimeOfInvSyn      = inv_syn_time;
-  ret.TimeOfInvValidate = inv_validate_time;
-  ret.TimeOfInvSynSeries= inv_syn_time_series;
+  ret.TimeOfEqCheck       = eqcheck_time;
+  ret.TimeOfInvProof      = inv_proof_attempt_time;
+  ret.TimeOfInvSyn        = inv_syn_time;
+  ret.TimeOfInvSynEnhance = inv_enhance_time;
+  ret.TimeOfInvValidate   = inv_validate_time;
+  ret.TimeOfInvSynSeries  = inv_syn_time_series;
 
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Design information not available!";
@@ -807,6 +834,10 @@ DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
 }
 const InvariantObject & InvariantSynthesizerCegar::GetInvariants() const {
   return inv_obj;
+}
+
+void InvariantSynthesizerCegar::RemoveInvariantsByIdx(size_t idx) {
+  inv_obj.RemoveInvByIdx(idx);
 }
 
 
@@ -911,6 +942,8 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enume
   status = cegar_status::S_RES;
 
   current_inv_type = cur_inv_tp::SYGUS_CHC;
+
+  sygus_corrections = vg.GetParsingCorrections();
 }
 
 
@@ -976,7 +1009,9 @@ bool InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisResultAsCandidateI
   if( inv_candidate.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
-      _vtg_config.YosysSmtFlattenHierarchy ) == false) {
+      _vtg_config.YosysSmtFlattenHierarchy,
+      true,
+      sygus_corrections ) == false) {
     return false; // sygus failed
   }
     

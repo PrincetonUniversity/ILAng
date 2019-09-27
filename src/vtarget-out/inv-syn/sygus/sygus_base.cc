@@ -43,8 +43,7 @@ const std::map<int,std::set<unsigned>> nums(
 );
 // bitwidth -> (op -> n-ary)
 const std::map<unsigned,std::map<std::string,unsigned>> arithmOp (
-  {
-  }
+  {{128,{{"bvadd",2}}}}
 );
 
 struct extract_op {
@@ -77,10 +76,9 @@ struct extract_op {
 // result_width : h,l, from, result_width
 const std::map<unsigned, std::vector<extract_op>> extractExtOp (
   {
-    {5, {
-      extract_op(11,7,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"}),
-      extract_op(19,15,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"}),
-      extract_op(24,20,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"})} }, //  extract_15_0_128_16
+    {16, {
+      extract_op(15,0,128,16, {}),
+      } }, //  extract_15_0_128_16
     /*{1, {
       extract_op(31,31,32,1),
       extract_op(20,20,32,1),

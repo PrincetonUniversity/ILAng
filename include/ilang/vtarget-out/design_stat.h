@@ -28,6 +28,8 @@ struct DesignStatistics {
   double TimeOfInvProof;
   /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
   double TimeOfInvSyn;
+  /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
+  double TimeOfInvSynEnhance;
   /// the series of time
   std::vector<double> TimeOfInvSynSeries;
   /// Total time

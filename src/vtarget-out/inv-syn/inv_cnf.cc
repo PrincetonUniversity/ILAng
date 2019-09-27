@@ -11,6 +11,12 @@
 
 namespace ilang {
 
+
+void InvariantInCnf::VarsToClause(const std::set<std::string> & vars, clause & out) {
+  for (auto && v : vars)
+    out.push_back({false, v ,0});
+}
+
 /// literal to string
 std::string InvariantInCnf::Lit2Str(const literal & l) {
   auto idx = std::to_string(std::get<2>(l));
@@ -60,6 +66,31 @@ void InvariantInCnf::InsertClauseIncremental(const InvariantInCnf & ref) {
 
 void InvariantInCnf::Clear() {
   _cnf_.clear();
+}
+
+
+/// export for wky-enhance
+void InvariantInCnf::ExportInCnfFormat(std::ostream & os) const {
+  os << GetCnfs().size() << std::endl; //# of clauses
+  for (auto && clause : GetCnfs()){
+    // for each clause
+    os << clause.second.size()<< std::endl; //# of lterals
+    for (auto && literal : clause.second)
+      // complement, var, bit-idx
+      os << std::get<1>(literal)  << ' ' << std::get<2>(literal) << ' ' << std::get<0>(literal) << std::endl;
+  }
+}
+/// export for wky-bv
+void InvariantInCnf::ExportInCociFormat(std::ostream & os) const {
+  std::vector<std::string> states;
+  for (auto && clause : GetCnfs()){
+    // for each clause
+    for (auto && literal : clause.second)
+      // complement, var, bit-idx
+      states.push_back("S_" + std::get<1>(literal) );
+  }
+  os << "CTRL-STATE: " << Join(states, ", ") << std::endl;
+  os << "DATA-OUT: " << Join(states, ", ")   << std::endl << std::endl;
 }
 
 }; // namespace ilang

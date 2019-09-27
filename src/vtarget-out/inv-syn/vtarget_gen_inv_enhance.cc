@@ -531,16 +531,7 @@ void VlgSglTgtGen_Chc_wCNF::Export_coci(const InvariantInCnf & cnf, const std::s
     ILA_ERROR<<"Unable to open " << fn << " for write.";
     return;
   }
-  
-  std::vector<std::string> states;
-  for (auto && clause : cnf.GetCnfs()){
-    // for each clause
-    for (auto && literal : clause.second)
-      // complement, var, bit-idx
-      states.push_back("S_" + std::get<1>(literal) );
-  }
-  fout << "CTRL-STATE: " << Join(states, ", ") << std::endl;
-  fout << "DATA-OUT: " << Join(states, ", ") << std::endl << std::endl;
+  cnf.ExportInCociFormat(fout);
 }
 
 void VlgSglTgtGen_Chc_wCNF::Export_cnf(const InvariantInCnf & cnf, const std::string& cnf_fn) const {
@@ -550,15 +541,7 @@ void VlgSglTgtGen_Chc_wCNF::Export_cnf(const InvariantInCnf & cnf, const std::st
     ILA_ERROR<<"Unable to open " << fn << " for write.";
     return;
   }
-
-  fout << cnf.GetCnfs().size() << std::endl; //# of clauses
-  for (auto && clause : cnf.GetCnfs()){
-    // for each clause
-    fout << clause.second.size()<< std::endl; //# of lterals
-    for (auto && literal : clause.second)
-      // complement, var, bit-idx
-      fout << std::get<1>(literal)  << ' ' << std::get<2>(literal) << ' ' << std::get<0>(literal) << std::endl;
-  }
+  cnf.ExportInCnfFormat(fout);
 }
 
 void VlgSglTgtGen_Chc_wCNF::Export_script(const std::string& script_name) {

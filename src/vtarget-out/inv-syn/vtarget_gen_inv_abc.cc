@@ -52,6 +52,7 @@ std::string abcAigCmdNoGLA = R"***(
   &put
   fold
   pdr
+  {inv_min}
   inv_print -v
 )***";
 
@@ -79,6 +80,7 @@ std::string abcAigCmdGLA = R"***(
   dc2 -v
   dc2 -v
   pdr
+  {inv_min}
   inv_print -v
 )***";
 
@@ -87,6 +89,7 @@ static std::string abcCmdNoGLA = R"***(
   read_blif %blifname%
   strash
   pdr
+  {inv_min}
   inv_print -v
 )***";
 
@@ -115,6 +118,7 @@ static std::string abcCmdGLA = R"***(
   dc2 -v
   dc2 -v
   pdr
+  {inv_min}
   inv_print -v
 )***";
 
@@ -366,6 +370,7 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
     }
     abc_cmd = ReplaceAll(abc_cmd, "{scorr}",  useCorr ? "scorr -v -l -k -F 4":"");
     abc_cmd = ReplaceAll(abc_cmd, "{lcorr}",  useCorr ? "lcorr -v":"");
+    abc_cmd = ReplaceAll(abc_cmd, "{inv_min}", _vtg_config.AbcMinimizeInv ? "inv_min -l":"");
   } // end assembling the abc command
 
 

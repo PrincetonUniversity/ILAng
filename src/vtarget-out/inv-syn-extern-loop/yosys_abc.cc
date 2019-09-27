@@ -625,6 +625,7 @@ static std::string abcCmdNoGLA = R"***(
   read_blif %blifname%
   strash
   pdr
+  inv_min
   inv_print -v
 )***";
 
@@ -646,6 +647,7 @@ static std::string abcCmdGLAnoCorr = R"***(
   dc2
   dc2 -v
   pdr
+  inv_min
   inv_print -v
 )***";
 
@@ -674,6 +676,7 @@ std::string abcCmdGLA = R"***(
   dc2 -v
   dc2 -v
   pdr
+  inv_min
   inv_print -v
 )***";
 
@@ -682,6 +685,7 @@ static std::string abcAigCmdNoGLA = R"***(
   &put
   fold
   pdr
+  inv_min
   inv_print -v
 )***";
 

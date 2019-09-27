@@ -18,6 +18,7 @@ void DesignStatistics::StoreToFile(const std::string & fn) const {
   fout << TimeOfInvValidate << std::endl;
   fout << TimeOfInvProof << std::endl;
   fout << TimeOfInvSyn << std::endl;
+  fout << TimeOfInvSynEnhance << std::endl;
   fout << TotalTime << std::endl;
   fout << TimeOfInvSynSeries.size() << std::endl;
   for (auto && t : TimeOfInvSynSeries) 
@@ -34,6 +35,7 @@ void DesignStatistics::LoadFromFile(const std::string & fn) {
   fin >> TimeOfInvValidate;
   fin >> TimeOfInvProof;
   fin >> TimeOfInvSyn;
+  fin >> TimeOfInvSynEnhance;
   fin >> TotalTime;
   unsigned series;
   double tmp;

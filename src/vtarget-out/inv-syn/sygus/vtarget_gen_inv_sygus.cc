@@ -376,6 +376,12 @@ std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Cvc4SyGuS::GetDesignSmtInfo() 
   return design_smt_info;
 }
 
+Cvc4SygusBase::correction_t VlgSglTgtGen_Cvc4SyGuS::GetParsingCorrections() const {
+  return inv_parsing_corrections;
+}
+
+
+
 void VlgSglTgtGen_Cvc4SyGuS::ExportAll(const std::string& wrapper_name, // wrapper.v
                         const std::string& ila_vlg_name, // no use
                         const std::string& script_name,  // the run.sh
@@ -415,8 +421,12 @@ void VlgSglTgtGen_Cvc4SyGuS::design_only_gen_smt(
       os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
   { // export to ys_script_name
     std::ofstream ys_script_fout( ys_script_name );
-    
-    std::string write_smt2_options = " -mem -bv -wires -stdt "; // future work : -stbv, or nothing
+
+    std::string write_smt2_options;
+    if (_vtg_config.SygusOptions.SygusPassInfo == _vtg_config.SygusOptions.TransferFunc)
+      write_smt2_options = " -mem -bv -stdt "; // future work : -stbv, or nothing
+    else
+      write_smt2_options = " -mem -bv -wires -stdt ";
 
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
@@ -475,6 +485,8 @@ void VlgSglTgtGen_Cvc4SyGuS::convert_datapoints_to_sygus(const std::string & smt
   Cvc4SygusInputGenerator gen_sygus_input(
     *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, dp, sup_info.width_info );
   gen_sygus_input.ExportToFile(sygus_fname);
+
+  inv_parsing_corrections = gen_sygus_input.GetCorrectionMap();
 } // convert_datapoints_to_sygus
 
 void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fname, const std::string & sygus_chc_fname) {
@@ -490,6 +502,8 @@ void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fn
     *(design_smt_info.get()), var_names, _vtg_config.SygusOptions,
     smt_converted, sup_info.width_info);
   gen_sygus_input.ExportToFile(sygus_chc_fname);
+
+  inv_parsing_corrections = gen_sygus_input.GetCorrectionMap();
 } // convert_smt_to_chc
   
   /*

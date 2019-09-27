@@ -118,6 +118,8 @@ protected:
   const std::vector<std::string> & var_names;
   /// how hard to try: try enumerate
   bool enumerate;
+  /// the correction needed for parsing
+  Cvc4SygusBase::correction_t inv_parsing_corrections;
 
 protected:
   /// Add an assumption -- needed by base class
@@ -186,6 +188,8 @@ public:
                          const std::string& mem_name) override;
   /// accessor of the design info 
   std::shared_ptr<smt::YosysSmtParser> GetDesignSmtInfo() const;
+  /// accessor of the inv parsing corrections
+  Cvc4SygusBase::correction_t GetParsingCorrections() const;
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 

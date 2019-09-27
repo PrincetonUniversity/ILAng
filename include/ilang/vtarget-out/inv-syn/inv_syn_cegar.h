@@ -8,6 +8,7 @@
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
 #include <ilang/vtarget-out/design_stat.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sygus_base.h>
 
 #include <string>
 #include <memory>
@@ -136,7 +137,7 @@ public:
   void MergeCnf(const InvariantInCnf& incremental_cnf);
   /// extra variable for enhancement, so not really a cnf
   void ExtractInvariantVarForEnhance(size_t inv_idx, InvariantInCnf& incremental_cnf,
-    bool per_clause);
+    bool per_clause, const std::set<std::string> & vars_to_remove = {} );
 
 
   // -------------------- ACCESSOR ------------------ //
@@ -154,6 +155,8 @@ public:
   DesignStatistics GetDesignStatistics() const;
   /// Here you can extract the invariants and export them if needed
   const InvariantObject & GetInvariants() const;
+  /// remove a confirmed invariant
+  void RemoveInvariantsByIdx(size_t idx);
   /// Here you can extract the invariants and export them if needed
   const InvariantObject & GetCandidateInvariants() const;
   /// here you can acess the internal datapoint object
@@ -203,6 +206,8 @@ protected:
   std::vector<std::string> sygus_vars;
   /// will also convert the above to a set (easier to index)
   std::set<std::string> sygus_vars_set;
+  /// for parsing inv syn corrections
+  Cvc4SygusBase::correction_t  sygus_corrections;
 
   // --------------------------------------------------
   // for book-keeping purpose
@@ -242,8 +247,14 @@ protected:
   double inv_proof_attempt_time;
   /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
   double inv_syn_time;
+  /// the enhance ment time
+  double inv_enhance_time;
   /// the series of synthesis time
   std::vector<double> inv_syn_time_series;
+  
+public:
+  /// total cands there are
+  long long total_freqhorn_cand;
 
 
 }; // class InvariantSynthesizerCegar 

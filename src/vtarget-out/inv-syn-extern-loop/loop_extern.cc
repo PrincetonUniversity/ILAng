@@ -39,7 +39,7 @@ InvariantSynthesizerExternalCegar::InvariantSynthesizerExternalCegar(
     _vtg_config(vtg_config),
     // ------------ statistics bookkeeping --------------- //
 		eqcheck_time(0), inv_validate_time(0), inv_proof_attempt_time(0), 
-    inv_syn_time(0)
+    inv_syn_time(0), total_freqhorn_cand(0)
 	{
 
 	}
@@ -173,6 +173,13 @@ void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget(const std::st
 }
 
 
+static int inline retrieveColonEol(const std::string & msg, const std::string & label) {
+  size_t pos_1, endl_1;
+  pos_1 = msg.find(label);
+  endl_1 = msg.find('\n', pos_1);
+  return StrToInt(msg.substr(pos_1 + label.length(),endl_1));
+}
+
 
 
 /// run Synthesis : returns reachable/not
@@ -218,6 +225,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS, bool use_freqho
     sbuf << fin.rdbuf();
     cex_reachable = !(S_IN("proved",sbuf.str()));
     if (S_IN("unknown",sbuf.str())) cex_reachable = true;
+    total_freqhorn_cand += retrieveColonEol (sbuf.str(), "TotalCand:");
   } else {
     std::string line;
     { // read the result
