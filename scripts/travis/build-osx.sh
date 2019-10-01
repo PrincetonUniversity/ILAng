@@ -8,4 +8,5 @@ cd build
 cmake .. -DCMAKE_BUILD_TYPE=Debug -DBoost_NO_BOOST_CMAKE=ON
 make -j$(nproc)
 sudo make install
-make test
+make run_test
+ctest -R ExampleCMakeBuild
