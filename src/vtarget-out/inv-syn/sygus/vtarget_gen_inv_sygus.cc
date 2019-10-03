@@ -343,9 +343,12 @@ void VlgSglTgtGen_Cvc4SyGuS::Export_mem(const std::string& mem_name) {
   VlgAbsMem::OutputMemFile(fout, _vtg_config.VerificationSettingAvoidIssueStage);
 }
 
+void VlgSglTgtGen_Cvc4SyGuS::Export_problem(const std::string& extra_name) {
+  ILA_ASSERT(false) << "Illegal use of VlgSglTgtGen_Cvc4SyGuS::Export_problem, not implemented";
+}
 
 // export the sygus file
-void VlgSglTgtGen_Cvc4SyGuS::Export_problem(const std::string& extra_name) {
+void VlgSglTgtGen_Cvc4SyGuS::Export_problem(const std::string& extra_name, const Cvc4Syntax & syntax) {
   // used by export script!
   design_prob_fname = extra_name;
 
@@ -363,12 +366,12 @@ void VlgSglTgtGen_Cvc4SyGuS::Export_problem(const std::string& extra_name) {
        VlgVerifTgtGenBase::_vtg_config::_sygus_options_t::TransferFunc)
     convert_smt_to_chc_sygus (
       os_portable_append_dir(_output_path, "__design_smt.smt2"), 
-      os_portable_append_dir(_output_path, extra_name));
+      os_portable_append_dir(_output_path, extra_name), syntax);
   else  // datapoints
     convert_datapoints_to_sygus(
       os_portable_append_dir(_output_path, "__design_smt.smt2"), 
       datapoints,
-      os_portable_append_dir(_output_path, extra_name));
+      os_portable_append_dir(_output_path, extra_name), syntax);
 
 } // Export_problem
 
@@ -381,12 +384,20 @@ Cvc4SygusBase::correction_t VlgSglTgtGen_Cvc4SyGuS::GetParsingCorrections() cons
 }
 
 
+void VlgSglTgtGen_Cvc4SyGuS::ExportAll(const std::string& wrapper_name,
+                        const std::string& ila_vlg_name,
+                        const std::string& script_name,
+                        const std::string& extra_name,
+                        const std::string& mem_name) {
+  ILA_ASSERT(false) << "Illegal use of class VlgSglTgtGen_Cvc4SyGuS";
+}
 
 void VlgSglTgtGen_Cvc4SyGuS::ExportAll(const std::string& wrapper_name, // wrapper.v
                         const std::string& ila_vlg_name, // no use
                         const std::string& script_name,  // the run.sh
                         const std::string& extra_name,   // the sygus
-                        const std::string& mem_name) {   // no use
+                        const std::string& mem_name,
+                        const Cvc4Syntax & syntax) {   // no use
 
   PreExportProcess();
 
@@ -405,7 +416,7 @@ void VlgSglTgtGen_Cvc4SyGuS::ExportAll(const std::string& wrapper_name, // wrapp
   Export_mem(mem_name);
 
   // you need to create the map function -- 
-  Export_problem(extra_name); // the gensmt.ys 
+  Export_problem(extra_name, syntax); // the gensmt.ys 
   
   Export_script(script_name);
 }
@@ -477,19 +488,19 @@ void VlgSglTgtGen_Cvc4SyGuS::load_smt_from_file(const std::string & smt_fname, s
   }
 } // load_smt_from_file
 
-void VlgSglTgtGen_Cvc4SyGuS::convert_datapoints_to_sygus(const std::string & smt_fname, TraceDataPoints * dp, const std::string & sygus_fname) {
+void VlgSglTgtGen_Cvc4SyGuS::convert_datapoints_to_sygus(const std::string & smt_fname, TraceDataPoints * dp, const std::string & sygus_fname, const Cvc4Syntax & syntax) {
 
   std::string smt_converted;
   load_smt_from_file(smt_fname, smt_converted);
 
   Cvc4SygusInputGenerator gen_sygus_input(
-    *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, dp, sup_info.width_info );
+    *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, dp, sup_info.width_info, syntax );
   gen_sygus_input.ExportToFile(sygus_fname);
 
   inv_parsing_corrections = gen_sygus_input.GetCorrectionMap();
 } // convert_datapoints_to_sygus
 
-void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fname, const std::string & sygus_chc_fname) {
+void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fname, const std::string & sygus_chc_fname, const Cvc4Syntax & syntax) {
   
   ILA_ASSERT (_vtg_config.YosysSmtFlattenDatatype)
      << "For SyGuS through passing transfer function, datatype must be flattened!";
@@ -500,128 +511,11 @@ void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fn
 
   Cvc4SygusChcGenerator gen_sygus_input(
     *(design_smt_info.get()), var_names, _vtg_config.SygusOptions,
-    smt_converted, sup_info.width_info);
+    smt_converted, sup_info.width_info, syntax);
   gen_sygus_input.ExportToFile(sygus_chc_fname);
 
   inv_parsing_corrections = gen_sygus_input.GetCorrectionMap();
 } // convert_smt_to_chc
   
-  /*
-  std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
-
-  // construct the template
-
-  std::string chc;
-  if (_vtg_config.YosysSmtFlattenDatatype) {
-    const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
-    auto tmpl = inv_syn_tmpl_wo_datatypes;
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %BIs%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %BIs%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Is%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Is%)" );
-    chc = RewriteDatatypeChc(
-      tmpl,
-      datatype_top_mod, wrapper_mod_name);
-    chc = ReplaceAll(chc, "%%", smt_converted );
-  } else {
-    chc = inv_syn_tmpl_datatypes;
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
-    chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
-    chc = ReplaceAll(chc, "%%", smt_converted );
-  } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
-
-  { // write file
-    std::string chc_out_fn = os_portable_append_dir( _output_path , chc_fname);
-    std::ofstream chc_fout(chc_out_fn);
-    if (not chc_fout.is_open()) {
-      ILA_ERROR << "Error writing to : "<< chc_out_fn;
-      return;
-    }
-    chc_fout << chc;
-  } // end write file
- */
-
-
-// %WrapperName%
-// %WrapperDataType%
-// %BeforeInitVar%
-// %InitVar%
-// %State%
-// %StatePrime%
-// %BIs% %Is%  %Ss% %Sps%
-/*
-
-
-std::string RewriteDatatypeChc(
-  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
-  const std::string & wrapper_mod_name);
-  
-std::string RewriteDatatypeChc(
-  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
-  const std::string & wrapper_mod_name) {
-  
-  std::string chc = tmpl;
-
-  std::vector<smt::var_type> inv_tps;
-  smt::YosysSmtParser::convert_datatype_to_type_vec(dt, inv_tps);
-  auto WrapperDataType = smt::var_type::toString(inv_tps);
-
-  // %BeforeInitVar%
-  // %InitVar%
-  // %State%
-  // %StatePrime%
-  // declare-var s ...
-  std::string BeforeInitVar;
-  std::string InitVar;
-  std::string State;
-  std::string StatePrime;
-  // %BIs% %Is%  %Ss% %Sps%
-  std::string BIs;
-  std::string Is;
-  std::string Ss;
-  std::string Sps;
-  bool first = true;
-
-  std::set<std::string> name_set; // avoid repetition
-  for (auto && st : dt) {
-    auto st_name = st.verilog_name.back() == '.' || st.verilog_name.empty() ? st.internal_name : st.verilog_name;
-    st_name = ReplaceAll(st_name, "|", ""); // remove its ||
-    // check no repetition is very important!
-    ILA_ASSERT(not IN(st_name, name_set)) << "Bug: name repetition!";
-    ILA_ASSERT(st._type._type != smt::var_type::tp::Datatype);
-    name_set.insert(st_name);
-    auto type_string = st._type.toString();
-    BeforeInitVar += "(declare-var |BI_" + st_name + "| " + type_string + ")\n";
-    InitVar       += "(declare-var |I_"  + st_name + "| " + type_string + ")\n";
-    State         += "(declare-var |S_"  + st_name + "| " + type_string + ")\n";
-    StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
-
-    if(not first) {
-      BIs += " "; Is  += " "; Ss  += " "; Sps += " ";
-    }
-    first = false;
-    BIs += "|BI_" + st_name + "|";
-    Is  += "|I_"  + st_name + "|";
-    Ss  += "|S_"  + st_name + "|";
-    Sps += "|S'_" + st_name + "|";
-  }
-  // Replacement
-  chc = ReplaceAll(chc, "%WrapperName%",     wrapper_mod_name);
-  chc = ReplaceAll(chc, "%WrapperDataType%", WrapperDataType);
-  chc = ReplaceAll(chc, "%BeforeInitVar%",   BeforeInitVar);
-  chc = ReplaceAll(chc, "%InitVar%",         InitVar);
-  chc = ReplaceAll(chc, "%State%",           State);
-  chc = ReplaceAll(chc, "%StatePrime%",      StatePrime);
-  chc = ReplaceAll(chc, "%BIs%",             BIs);
-  chc = ReplaceAll(chc, "%Is%",              Is);
-  chc = ReplaceAll(chc, "%Ss%",              Ss);
-  chc = ReplaceAll(chc, "%Sps%",             Sps);
-
-  return chc;  
-} // RewriteDatatypeChc
-*/
 
 }; // namespace ilang

@@ -85,7 +85,7 @@ public:
 	bool virtual RunSynAuto(bool isSyGuS = false, bool use_freqhorn = false);
   /// to extract reachability test result
   void ExtractSynthesisResult(bool use_freqhorn, bool autodet = true, bool reachable = true, 
-    const std::string & res_file = "");
+    const std::string & res_file = "", bool isCvc4Syn = false);
   /// parse a Z3 invariant for enhancement (for ABC, please use ExtractAbcSynthesisResult instead)
   static void ExtractInvariantVarForEnhance(const std::string & vexpr, InvariantInCnf& incremental_cnf , bool per_clause);
   void ExtractInvariantVarForEnhance(size_t inv_idx, InvariantInCnf& incremental_cnf , bool per_clause);
@@ -129,9 +129,15 @@ public:
   void PruneCandidateInvariant(const std::set<std::string> &drop_names = std::set<std::string>());
   /// remove all of them
   void RemoveAllCandidateInvariant();
-  /// to generate synthesis target (for using the whole transfer function)
+  /// to generate synthesis target (for using the data points)
   void GenerateSynthesisTargetSygusDatapoints(
     const std::set<std::string> &drop_names,
+    const Cvc4Syntax & syntax,
+    bool enumerate = false);
+  /// to generate synthesis target (for using the whole transfer function)
+  void GenerateSynthesisTargetSygusTransFunc(
+    const std::set<std::string> &drop_names,
+    const Cvc4Syntax & syntax,
     bool enumerate = false);
   /// to generate targets using the current invariants
   void ExportCandidateInvariantsToJasperAssertionFile(

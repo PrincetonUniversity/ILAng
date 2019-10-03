@@ -24,21 +24,45 @@ ExternalSygusTargetGen::ExternalSygusTargetGen(
 
 ExternalSygusTargetGen::correction_t ExternalSygusTargetGen::GenerateSygusSynthesisTarget(
   const std::string & script_name,
-  const std::string & sygus_problem_name) {
+  const std::string & sygus_problem_name,
+  const Cvc4Syntax & syntax) {
   
   ILA_WARN_IF(!os_portable_mkdir(_output_path) ) << "Cannot create folder: " << _output_path;
 
-  Cvc4SygusInputGenerator gen_sygus_input(
-  *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, datapoints, _width_info );
+  if(datapoints) {
 
-  auto sygus_fname = os_portable_append_dir(_output_path, sygus_problem_name);
-  gen_sygus_input.ExportToFile(sygus_fname);
+    Cvc4SygusInputGenerator gen_sygus_input(
+    *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, datapoints, _width_info, syntax );
 
-  GenerateSygusScript(script_name, sygus_problem_name);
+    auto sygus_fname = os_portable_append_dir(_output_path, sygus_problem_name);
+    gen_sygus_input.ExportToFile(sygus_fname);
+    GenerateSygusScript(script_name, sygus_problem_name);
 
-  runnable_script_name.push_back(os_portable_append_dir(_output_path, script_name));
+    runnable_script_name.push_back(os_portable_append_dir(_output_path, script_name));
 
-  return correction_t(gen_sygus_input.GetCorrectionMap());
+    return correction_t(gen_sygus_input.GetCorrectionMap());
+  } else {
+
+    ILA_ASSERT (_vtg_config.YosysSmtFlattenDatatype)
+      << "For SyGuS through passing transfer function, datatype must be flattened!";
+    // now when you call load_smt_from_file, it has already been flattened
+
+    std::string smt_converted;
+    smt_converted = design_smt_info->Export();
+
+    Cvc4SygusChcGenerator gen_sygus_input(
+      *(design_smt_info.get()), var_names, _vtg_config.SygusOptions,
+      smt_converted, _width_info, syntax);
+
+    auto sygus_fname = os_portable_append_dir(_output_path, sygus_problem_name);
+    gen_sygus_input.ExportToFile(sygus_fname);
+    GenerateSygusScript(script_name, sygus_problem_name);
+
+    runnable_script_name.push_back(os_portable_append_dir(_output_path, script_name));
+
+    return correction_t(gen_sygus_input.GetCorrectionMap());
+  }
+
 }
 
 const std::vector<std::string> & ExternalSygusTargetGen::GetRunnableScriptName() const {

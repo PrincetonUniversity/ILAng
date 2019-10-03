@@ -27,7 +27,8 @@ namespace ilang
       const std::vector<std::string> & _var_name_vec, // the variables we are going to consider
       const sygus_options_t & SygusOptions,           // the options
       const std::string & flattened_smt,
-      const std::map<std::string,int> & additional_width_info
+      const std::map<std::string,int> & additional_width_info,
+      const Cvc4Syntax & syntax
       );
     /// no copy constructor
     Cvc4SygusChcGenerator(const Cvc4SygusChcGenerator &) = delete;

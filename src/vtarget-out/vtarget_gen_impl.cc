@@ -167,7 +167,8 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateSmtTargets() {
 
 
 std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynSygusTargets(synthesis_backend_selector s_backend,
-    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names, bool enumerate) {
+    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names, bool enumerate,
+    const Cvc4Syntax & syntax) {
   ILA_ASSERT(not sygus_var_names.empty()) << "BUG: must call SetSygusVarNames before _generate_sygus_inv_syn_target";
 
   if (vlg_info_ptr)
@@ -192,7 +193,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynSygusTargets(
       sygus_var_names, enumerate ); // no datapoints
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
-                    "absmem.v"  /*USELESS*/);
+                    "absmem.v"  /*USELESS*/, syntax);
   runnable_script_name.clear();
   runnable_script_name.push_back(
     os_portable_append_dir(

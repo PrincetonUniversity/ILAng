@@ -477,7 +477,7 @@ public:
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynEnhanceTargets(const InvariantInCnf & cnf);
   /// generate inv-syn-sygus target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynSygusTargets(synthesis_backend_selector s_backend,
-    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names, bool enumerate); 
+    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names, bool enumerate, const Cvc4Syntax & syntax); 
   /// just to get the smt info
   std::shared_ptr<smt::YosysSmtParser> GenerateSmtTargets();
   /// generate the runable script name

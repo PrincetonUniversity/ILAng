@@ -910,7 +910,10 @@ std::set<std::string> InvariantSynthesizerCegar::SetSygusVarnameListAndDeduceWid
 }
 
 /// can be used for datapoints/transfer function
-void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enumerate) {
+void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(
+  const Cvc4Syntax & synatx,
+  bool enumerate
+  ) {
   // generate a target -- based on selection
   if (check_in_bad_state()) return;
   ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
@@ -920,6 +923,11 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enume
   adv_param._inv_obj_ptr = &inv_obj; 
   adv_param._candidate_inv_ptr = NULL;
   adv_param._cex_obj_ptr = cex_extract.get();
+
+  vtg_config_t  _vtg_config_tmp(_vtg_config);
+  ILA_WARN_IF(_vtg_config.YosysSmtFlattenDatatype == false) << "Forcing flatten dp @ GenerateSynthesisTargetSygusTransFunc";
+  ILA_WARN_IF(s_backend != synthesis_backend_selector::CVC4) << "Forcing synthesis backend @ GenerateSynthesisTargetSygusTransFunc";
+  _vtg_config_tmp.YosysSmtFlattenDatatype = true;
   
   VlgVerifTgtGen vg(
       implementation_incl_path,         // include
@@ -930,12 +938,12 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enume
       _output_path,                     // output path
       _host,                            // ILA
       verify_backend_selector::YOSYS,   // verification backend setting
-      _vtg_config,                      // target configuration
+      _vtg_config_tmp,                  // target configuration
       _vlg_config,                      // verilog generator configuration
       &adv_param                        // advanced parameter
       );
   
-  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, NULL, sygus_vars, enumerate);
+  design_smt_info = vg.GenerateInvSynSygusTargets(synthesis_backend_selector::CVC4, NULL, sygus_vars, enumerate, synatx);
 
   runnable_script_name = vg.GetRunnableScriptName();
 
@@ -948,7 +956,10 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enume
 
 
 /// can be used for datapoints/transfer function
-void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints(bool enumerate) {
+void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints(
+  const Cvc4Syntax & synatx,
+  bool enumerate
+  ) {
   // generate a target -- based on selection
   if (check_in_bad_state()) return;
   ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
@@ -980,7 +991,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints(bool enum
       &adv_param                        // advanced parameter
       );
   
-  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, &datapoints, sygus_vars, enumerate);
+  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, &datapoints, sygus_vars, enumerate, synatx);
 
   runnable_script_name = vg.GetRunnableScriptName();
 

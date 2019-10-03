@@ -23,8 +23,9 @@ Cvc4SygusInputGenerator::Cvc4SygusInputGenerator(
   const std::vector<std::string> & inv_var_name_vec, // the variables we are going to consider
   const sygus_options_t & SygusOptions,           // the options
   TraceDataPoints * datapoints,
-  const std::map<std::string, int> & additional_width_info
-  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions, "", additional_width_info),
+  const std::map<std::string, int> & additional_width_info,
+  const Cvc4Syntax & syntax
+  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions, "", additional_width_info, syntax),
       dpts(datapoints)
       // not customize inv arg
   { }

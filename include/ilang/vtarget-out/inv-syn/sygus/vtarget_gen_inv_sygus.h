@@ -154,6 +154,8 @@ protected:
   /// export extra things: the chc script, the smt template
   virtual void
   Export_problem(const std::string& extra_name) override;
+  virtual void
+  Export_problem(const std::string& extra_name, const Cvc4Syntax & syntax);
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
@@ -165,11 +167,11 @@ private:
  
   /// Convert the smt file to CHC format's sygus
   void convert_smt_to_chc_sygus(
-    const std::string & smt_fname, const std::string & sygus_chc_fname);
+    const std::string & smt_fname, const std::string & sygus_chc_fname, const Cvc4Syntax & syntax);
   /// Convert the datapoints to the CHC format (in this case, it does not heavily depend on the chc)
   /// but you still need to read it in, I think
   void convert_datapoints_to_sygus(const std::string & smt_fname,
-    TraceDataPoints * dp, const std::string & sygus_fname);
+    TraceDataPoints * dp, const std::string & sygus_fname, const Cvc4Syntax & syntax);
 
   /// load smt info from the output of design_only_gen_smt
   void load_smt_from_file(const std::string & smt_fname, std::string & smt_converted);
@@ -186,6 +188,12 @@ public:
                          const std::string& script_name,
                          const std::string& extra_name,
                          const std::string& mem_name) override;
+  void virtual ExportAll(const std::string& wrapper_name,
+                         const std::string& ila_vlg_name,
+                         const std::string& script_name,
+                         const std::string& extra_name,
+                         const std::string& mem_name,
+                         const Cvc4Syntax & syntax);
   /// accessor of the design info 
   std::shared_ptr<smt::YosysSmtParser> GetDesignSmtInfo() const;
   /// accessor of the inv parsing corrections

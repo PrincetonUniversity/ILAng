@@ -7,6 +7,7 @@
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/vtarget-out/inv-syn/sygus/sygus_dp.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sygus_chc.h>
 
 namespace ilang {
 
@@ -34,7 +35,7 @@ public:
 
   /// the only function
   correction_t GenerateSygusSynthesisTarget(const std::string & script_name,
-    const std::string & sygus_problem_name);
+    const std::string & sygus_problem_name, const Cvc4Syntax & syntax);
   /// return the runnable script name
   const std::vector<std::string> & GetRunnableScriptName() const;
 

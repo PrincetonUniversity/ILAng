@@ -123,6 +123,66 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
 } // CegarPipelineExample
 
 
+TEST(TestVlgVerifInvSyn, CegarCntAbc) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false;
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.AbcPath = "/home/hongce/abc/";
+  cfg.AbcUseGla = true;
+  cfg.AbcUseAiger = true;
+  cfg.AbcUseCorr = false;
+  cfg.CosaSolver = "btor";
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt-abc/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "verilog/opposite.v"}, //
+      "opposite",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto("INC")) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.GenerateSynthesisTarget();
+      if(vg.RunSynAuto()) {
+        EXPECT_TRUE(false); // cex is really reachable!!!
+        ILA_ERROR<<"Unexpected counterexample!";
+        break; 
+      }
+      vg.ExtractSynthesisResult();
+    }while(not vg.in_bad_state());
+
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
+} // CegarCntAbc
+
 
 TEST(TestVlgVerifInvSyn, SimpleCntCegarFreqHorn) {
   auto ila_model = CntTest::BuildModel();
@@ -133,16 +193,34 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegarFreqHorn) {
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
+  cfg.YosysUndrivenNetAsInput = true;
   cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
   cfg.CosaPath = "/home/hongce/CoSA/";
   cfg.Z3Path = "N/A";
   cfg.FreqHornPath = "/home/hongce/ila/aeval/build/tools/bv/";
-  cfg.FreqHornOptions = {"--eqs --bvnot"};
+  cfg.FreqHornHintsUseCnfStyle = true;
+  cfg.FreqHornOptions = {
+    "--skip-cnf --skip-const-check --skip-stat-collect --ante-size 1 --conseq-size 1  --cnf cnt-no-group.cnf --use-arith-bvnot --no-const-enum-vars-on m1.v,m1.imp"};
   cfg.CosaSolver = "btor";
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
   auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2-cegar-freqhorn/";
-
+  
+  InvariantInCnf var_in_cnf;
+  { // save grammar file
+    os_portable_mkdir(outDir + "inv-syn");
+    InvariantInCnf::clause cl;
+    InvariantInCnf::VarsToClause( {
+      "m1.imp", "m1.v"
+      } , cl);
+    var_in_cnf.InsertClause(cl);
+    std::ofstream fout(outDir + "inv-syn/cnt-no-group.cnf");
+    if (fout.is_open())
+      var_in_cnf.ExportInCnfFormat(fout);
+    else
+      EXPECT_TRUE(false);
+  } // save grammar file
+  
   InvariantSynthesizerCegar vg(
       {},                          // no include
       {dirName + "verilog/opposite.v"}, //
@@ -249,6 +327,9 @@ TEST(TestVlgVerifInvSyn, PipeExampleDirect) {
   vg.GenerateTargets();
 
 }
+
+
+
 
 
 // This tests has no extra start cycle
@@ -437,6 +518,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAig) {
   cfg.AbcPath = "/home/hongce/abc/";
   cfg.AbcUseGla = true;
   cfg.AbcUseAiger = true;
+  cfg.AbcMinimizeInv = false;
   cfg.AbcUseCorr = false;
   cfg.CosaSolver = "btor";
 
@@ -588,33 +670,51 @@ retry:
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
   auto ila_model = SimplePipe::BuildModel();
 
-  std::vector<std::vector<std::string>> level_of_syntax = 
-  {
-    {"--conc --impl --bw 4 --dot-name"},
-    {"--conc --impl --or --bw 4 --dot-name"},
-    {"--conc --impl --or --neqs --bw 4 --dot-name"},
-    {"--conc --impl --or --adds --bvnot --ext --bw 4 --dot-name"},
-    {"--conc --impl --or --neqs --impl-or --bw 4 --dot-name"},
-    {"--conc --impl --or --neqs --impl-or --adds --bvnot --ext --bw 4 --dot-name"},
-    {"--conc --impl --or --neqs --impl-or --impl-or-simple --conj-impl --bw 4 --dot-name"},
-    {"--conc --impl --or --neqs --impl-or --impl-or-simple --conj-impl --conj-impl-or --bw 4 --dot-name"},
-  };
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
-  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
   cfg.CosaAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true;
   cfg.YosysSmtFlattenHierarchy = true;
+  cfg.YosysUndrivenNetAsInput = true;
   cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
   cfg.CosaPath = "/home/hongce/CoSA/";
   cfg.Z3Path = "N/A";
   cfg.FreqHornPath = "/home/hongce/ila/aeval/build/tools/bv/";
-  cfg.FreqHornOptions = level_of_syntax[0];
+  cfg.FreqHornHintsUseCnfStyle = true;
+
+  std::vector<std::string> fh_options = {
+    "--ante-size","1","--conseq-size","1","--find-one",
+    "--skip-cnf --skip-const-check --skip-stat-collect","--ctrl-no-cross-var-eq",
+    "--cti-prune --no-merge-cti --cnf pipe-no-group.cnf --grammar pipe.gmr"};
+
+  //std::vector<std::string> fh_options = {
+  //  "--ante-size","1","--conseq-size","1", "--2-chance",
+  //  "--skip-cnf --skip-const-check --skip-stat-collect","--ctrl-no-cross-var-eq",
+  //  "--no-merge-cti --cnf pipe-no-group.cnf --grammar pipe.gmr"};
+
+  cfg.FreqHornOptions = fh_options;
   cfg.CosaSolver = "btor";
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
   auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-freqhorn/";
+
+  InvariantInCnf var_in_cnf;
+  { // save grammar file
+    os_portable_mkdir(outDir + "inv-syn");
+    InvariantInCnf::clause cl;
+    InvariantInCnf::VarsToClause( {
+      "m1.reg_0_w_stage","m1.reg_1_w_stage", "m1.reg_2_w_stage", "m1.reg_3_w_stage",
+      "m1.id_ex_reg_wen","m1.ex_wb_reg_wen", "m1.id_ex_rd", "m1.ex_wb_rd"
+      } , cl);
+    var_in_cnf.InsertClause(cl);
+    std::ofstream fout(outDir + "inv-syn/pipe-no-group.cnf");
+    if (fout.is_open())
+      var_in_cnf.ExportInCnfFormat(fout);
+    else
+      EXPECT_TRUE(false);
+  } // save grammar file
 
   InvariantSynthesizerCegar vg(
       {},                          // no include
@@ -634,17 +734,19 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
         break; // no more cex found
       vg.ExtractVerificationResult();
 
-      unsigned syntax_level = 0;
-      vg.ChangeFreqHornSyntax(level_of_syntax[syntax_level]);
-freqhorn_retry:
+      unsigned conseq_size = 1;
+      
+  pipe_conseq_retry:
+      fh_options[3] = std::to_string(conseq_size);
+      vg.ChangeFreqHornSyntax(fh_options);
+
       vg.GenerateSynthesisTarget();
       if(vg.RunSynAuto()) {
-        if (++syntax_level < level_of_syntax.size()) {
-          std::cout << "Upgrade to syntax level: " << syntax_level << std::endl;
-          vg.ChangeFreqHornSyntax(level_of_syntax[syntax_level]);
-          goto freqhorn_retry;
-        }
-        EXPECT_TRUE(false); // cex is really reachable!!!
+        conseq_size ++;
+        ILA_INFO << "Conseq size increase to #" << conseq_size;
+        if (conseq_size < 3)
+          goto pipe_conseq_retry;
+        // else
         ILA_ERROR<<"Unexpected counterexample! Probably the syntax is not good enough!";
         break; 
       }
@@ -664,28 +766,8 @@ freqhorn_retry:
   ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
 
   // test invariant import and export also here
-  InvariantObject invs(vg.GetInvariants());
-  invs.ExportToFile(outDir+"inv_results.txt");
-  invs.ClearAllInvariants();
-  invs.ImportFromFile(outDir+"inv_results.txt");
-  
-  // check they are the same
-  EXPECT_EQ(
-    vg.GetInvariants().NumInvariant(), 
-    invs.NumInvariant());
-  EXPECT_EQ(
-    vg.GetInvariants().GetExtraVarDefs().size(), 
-    invs.GetExtraVarDefs().size());
-  EXPECT_EQ(
-    vg.GetInvariants().GetExtraFreeVarDefs().size(), 
-    invs.GetExtraFreeVarDefs().size());
+  vg.GetInvariants().ExportToFile(outDir+"inv_results.txt");
 
-  for (auto pos = invs.GetVlgConstraints().begin(), 
-        pos2 = vg.GetInvariants().GetVlgConstraints().begin(); 
-      pos != invs.GetVlgConstraints().end();
-      ++ pos, ++ pos2  ) {
-    EXPECT_EQ(*pos, *pos2);
-  }
 } // CegarPipelineExample
 
 
@@ -790,6 +872,130 @@ TEST(TestVlgVerifInvSyn, InvariantImportExport) {
   EXPECT_EQ( vg.ProofCandidateInvariants(), vg.INV_PROVED );
 }
 
+
+TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapointSimple) {
+  unsigned num_cegar = 0;
+  unsigned num_force = 0;
+  unsigned num_prune = 0;
+
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false; // if not using transfunc it does not matter
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "/home/hongce/z3s/bin/";
+  cfg.Cvc4Path = "/home/hongce/cvc-installs/latest/bin/";
+  cfg.CosaSolver = "z3";
+  cfg.SygusOptions.SygusPassInfo = 
+    VerilogVerificationTargetGenerator::vtg_config_t::_sygus_options_t::DataPoints;
+
+  TraceDataPoints dp;
+  std::vector<std::string> sygus_var_name = {
+    "m1.reg_0_w_stage", "m1.reg_1_w_stage", "m1.reg_2_w_stage", "m1.reg_3_w_stage",
+    "m1.id_ex_reg_wen", "m1.id_ex_rd", "m1.ex_wb_reg_wen", "m1.ex_wb_rd" };
+
+  std::set<std::string> sim_var_name;
+  for (auto &&n : sygus_var_name)
+    sim_var_name.insert("sim." + n);
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-sygus-dp/";
+
+  SimTraceExtractor simtrace(
+    dirName + "sim/simtrace.vcd", "sim.m1",
+    sim_var_name,
+    [](double time, const SimTraceExtractor::ex_t &) -> bool {return time > 40;},
+    [](const std::string & name) -> std::string {return name.substr(4); } // remove sim.
+  );
+
+  dp.AddPosEx(simtrace);
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::CVC4,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+  
+  Cvc4Syntax syntax;
+  syntax.ctrl_data_sep_width = 2;
+  syntax.other_comp_sep_width = 2;
+
+  vg.SetSygusVarnameList(sygus_var_name);
+  vg.SetInitialDatapoint(dp); // assign (reset) the datapoints
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto("ADD")) // the ADD
+        break; // no more cex found
+
+      num_cegar ++;
+
+      std::cout << "EQ check cex found, query sygus for invariant candidate..."; std::cout.flush();
+      vg.ExtractVerificationResult(); // also the cex
+
+      bool succeed = true;
+      bool prev_succeed;
+  retry:
+      prev_succeed = succeed;
+      vg.GenerateSynthesisTargetSygusDatapoints(syntax,!succeed); // the cex is used in this step
+      vg.RunSynAuto();
+      succeed = vg.ExtractSygusDatapointSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
+      if (not succeed) {
+        EXPECT_TRUE(prev_succeed);
+        num_force ++;
+        goto retry;
+      }
+      //if (vg.ProofCandidateInvariants() != vg.INV_PROVED) {
+        auto res = vg.ValidateSygusDatapointCandidateInvariant();
+        if (res != vg.INV_PROVED) {
+          vg.PruneCandidateInvariant();
+          num_prune ++;
+          goto retry;
+        }
+      //}
+      // quick proof attempt  -- if proved, add to confirmed
+      // quick disaprove attempt -- if disaproved add to cex, if proved add to confirm
+      // proof attempt (assert all) (assume none)
+      // disaprove attempt (assert all) (assume rf/confirmed)
+    }while(not vg.in_bad_state()); // first generate enough guesses
+    std::cout << "No more EQ check cex found, begin validating candidate invariants...\n";
+    // if ( vg.ProofCandidateInvariant(time) )  // if it can be proved in a time bound, we are good, will add to ...
+ 
+  // final validation
+  vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
+  std::cout << "---------Synthesized Invariants----------\n";
+  for (auto && vlg: vg.GetInvariants().GetVlgConstraints() )
+    std::cout << vlg << std::endl;
+  
+  vg.GetInvariants().ExportToFile(outDir+"confirmed_inv.txt");
+
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
+  ILA_INFO << "#cegar= " << num_cegar;
+  ILA_INFO << "#force=" << num_force;
+  ILA_INFO << "#prune= " << num_prune;
+}
+
+
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   unsigned num_cegar = 0;
   unsigned num_force = 0;
@@ -843,6 +1049,10 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
+
+  Cvc4Syntax syntax;
+  syntax.ctrl_data_sep_width = 2;
+  syntax.other_comp_sep_width = 2;
   
   vg.SetSygusVarnameList(sygus_var_name);
   vg.SetInitialDatapoint(dp); // assign (reset) the datapoints
@@ -861,7 +1071,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       bool prev_succeed;
   retry:
       prev_succeed = succeed;
-      vg.GenerateSynthesisTargetSygusDatapoints(!succeed); // the cex is used in this step
+      vg.GenerateSynthesisTargetSygusDatapoints(syntax,!succeed); // the cex is used in this step
       vg.RunSynAuto();
       succeed = vg.ExtractSygusDatapointSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
       if (not succeed) {
@@ -926,7 +1136,38 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   ILA_INFO << "#prune= " << num_prune;
 }
 
+/*
 
+// ------------------- hardwired templates --------------------- //
+const unsigned ctrl_data_sep_width = 5;
+
+const unsigned other_comp_sep_width = ctrl_data_sep_width;
+
+const std::vector<std::string> compOp({});
+
+const std::map<int,std::set<unsigned>> nums(
+  {
+    //{16,{0xff00,0xff01,0xff02, 0xff04, 0xff10, 0xff20}},
+    {28,{0}}
+  }
+);
+// bitwidth -> (op -> n-ary)
+const std::map<unsigned,std::map<std::string,unsigned>> arithmOp (
+  {{4,{{"bvnot",1}}}}
+);
+
+// to -> (op -> from)
+// result_width : h,l, from, result_width
+const std::map<unsigned, std::vector<extract_op>> extractExtOp (
+  {
+    {5, {
+      extract_op(11,7,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"}),
+      extract_op(19,15,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"}),
+      extract_op(24,20,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"})} }, //  extract_15_0_128_16
+    
+  }
+);
+*/
 
 TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
   auto ila_model = CntTest::BuildModel();
@@ -963,6 +1204,11 @@ TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
 
   EXPECT_FALSE(vg.in_bad_state());
 
+  Cvc4Syntax syntax;
+  syntax.ctrl_data_sep_width = 5;
+  syntax.other_comp_sep_width = 5;
+  syntax.arithmOp = {{4,{{"bvnot",1}}}};
+
     do{
       vg.GenerateVerificationTarget();
       if(vg.RunVerifAuto("INC")) // the INC
@@ -970,14 +1216,29 @@ TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
       vg.ExtractVerificationResult();
       //vg.SetInitialDatapoint(dp);
       vg.SetSygusVarnameList(sygus_var_name);
-      vg.GenerateSynthesisTargetSygusTransFunc();
-      vg.RunSynAuto();
+      vg.GenerateSynthesisTargetSygusTransFunc(syntax);
+      if ( vg.RunSynAuto() ) {
+        ILA_ERROR << "CEX reachable, possibly bad syntax!";
+        break;
+      }
       vg.ExtractSynthesisResult(); // if should be the correct invariants
     }while(not vg.in_bad_state());
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
+
+
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
 } // CegarCntSygusTransFunc
 
-#if 0
 // no use : does not terminate and the result is not reasonable
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
 
@@ -1017,6 +1278,10 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
 
   EXPECT_FALSE(vg.in_bad_state());
 
+  Cvc4Syntax syntax;
+  syntax.ctrl_data_sep_width = 5;
+  syntax.other_comp_sep_width = 5;
+
     do{
       vg.GenerateVerificationTarget();
       if(vg.RunVerifAuto("ADD")) // the ADD
@@ -1024,13 +1289,12 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
       vg.ExtractVerificationResult();
       //vg.SetInitialDatapoint(dp);
       vg.SetSygusVarnameList(sygus_var_name);
-      vg.GenerateSynthesisTargetSygusTransFunc();
+      vg.GenerateSynthesisTargetSygusTransFunc(syntax);
       vg.RunSynAuto();
       vg.ExtractSynthesisResult();
     }while(not vg.in_bad_state());
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
 
 }
-#endif
 
 }; // namespace ilang

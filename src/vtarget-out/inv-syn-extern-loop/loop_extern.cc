@@ -226,7 +226,21 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS, bool use_freqho
     cex_reachable = !(S_IN("proved",sbuf.str()));
     if (S_IN("unknown",sbuf.str())) cex_reachable = true;
     total_freqhorn_cand += retrieveColonEol (sbuf.str(), "TotalCand:");
-  } else {
+  } else if (isSyGuS) {
+    std::string line;
+    { // read the result
+      std::ifstream fin(synthesis_result_fn);
+      if (not fin.is_open()) {
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        cex_reachable = true;
+        bad_state = true;
+        return true; // reachable
+      } 
+      std::getline(fin,line);  
+    } // finish file reading
+    cex_reachable = line.find("unknown") == 0;
+  }
+  else {
     std::string line;
     { // read the result
       std::ifstream fin(synthesis_result_fn);
@@ -247,8 +261,8 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS, bool use_freqho
 
 
 /// to extract reachability test result
-void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool use_freqhorn, bool autodet, bool reachable, 
-	const std::string & given_smt_chc_result_txt) {
+void InvariantSynthesizerExternalCegar::ExtractSynthesisResult( bool use_freqhorn, bool autodet, bool reachable, 
+	const std::string & given_smt_chc_result_txt, bool isCvc4Syn) {
 
   if(check_in_bad_state()) return;
 
@@ -276,6 +290,16 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool use_freqhorn
       *(design_smt_info.get()), "", os_portable_append_dir(_output_path, "freqhorn.result"), 
       true,
       true );
+  } else if (isCvc4Syn) {
+    ILA_ASSERT(
+      inv_obj.AddInvariantFromSygusResultFile(
+      *(design_smt_info.get()), "", res_file, 
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy,
+      true,
+      sygus_gen_corrections
+       )) // correction is needed
+    << "SyGuS solver failed to generate an invariant";
   }
   else
     inv_obj.AddInvariantFromChcResultFile(
@@ -694,12 +718,14 @@ void InvariantSynthesizerExternalCegar::RemoveAllCandidateInvariant(){
 
 /// to generate synthesis target (for using the whole transfer function)
 void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(
-    const std::set<std::string> &drop_names, bool enumerate) {
+    const std::set<std::string> &drop_names,
+    const Cvc4Syntax & syntax,
+    bool enumerate) {
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Please first parse a design_smt_info";
     return;
   }
-  datapoints.SetNegEx(* cex_extract.get()); // you can reset the pos ex using SetInitialDatapoint 
+  // datapoints.SetNegEx(* cex_extract.get()); // you can reset the pos ex using SetInitialDatapoint 
 
   std::vector<std::string> local_vars;
   { // remove those to drop
@@ -712,16 +738,77 @@ void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(
     os_portable_append_dir( _output_path, "inv-syn-sygus" ),
     additional_width_info,
     _vtg_config,
-    & datapoints,
+    NULL,
     local_vars,
     design_smt_info,
     enumerate
   );
-  sygus_gen_corrections = vg.GenerateSygusSynthesisTarget("run.sh","wrapper.smt2");  
+  sygus_gen_corrections = vg.GenerateSygusSynthesisTarget("run.sh","wrapper.smt2", syntax);  
 
 	runnable_script_name = vg.GetRunnableScriptName();
 }
 
+
+
+/// to generate synthesis target (for using the whole transfer function)
+void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusTransFunc(
+    const std::set<std::string> &drop_names,
+    const Cvc4Syntax & syntax,
+    bool enumerate) {
+  // if (design_smt_info == nullptr) {
+  //  ILA_ERROR << "Please first parse a design_smt_info";
+  //  return;
+  //}
+
+  {
+    // to send in the invariants
+    advanced_parameters_t adv_param;
+    adv_param._inv_obj_ptr = &inv_obj; 
+    adv_param._candidate_inv_ptr = NULL;
+    adv_param._cex_obj_ptr = cex_extract.get();
+
+    ExternalChcTargetGen vg(
+      implementation_incl_path,
+      implementation_srcs_path,
+      implementation_top_module_name,
+      refinement_variable_mapping_path,
+      refinement_condition_path,
+      os_portable_append_dir(_output_path,"inv-syn-cegar") ,
+      tmpl_top_module_name,
+      v_backend, synthesis_backend_selector::Z3,
+      _vtg_config, &adv_param		
+    );
+
+    vg.ConstructWrapper("wrapper.v", "wrapper.tpl", ""); // precod
+
+    design_smt_info = vg.GenerateChc("wrapper-chc.smt2", "run.sh");
+    vlg_mod_inst_name = vg.GetDesignUnderVerificationInstanceName();
+    inv_obj.set_dut_inst_name(vlg_mod_inst_name);
+  }
+
+  // datapoints.SetNegEx(* cex_extract.get()); 
+  // you can reset the pos ex using SetInitialDatapoint 
+
+  std::vector<std::string> local_vars;
+  { // remove those to drop
+    for (auto && vn : sygus_vars)
+      if (IN(vn, drop_names)) continue;
+      else local_vars.push_back(vn);
+  }
+
+  ExternalSygusTargetGen vg(
+    os_portable_append_dir( _output_path, "inv-syn-sygus" ),
+    additional_width_info,
+    _vtg_config,
+    NULL,
+    local_vars,
+    design_smt_info,
+    enumerate
+  );
+  sygus_gen_corrections = vg.GenerateSygusSynthesisTarget("run.sh","wrapper.smt2", syntax);  
+
+	runnable_script_name = vg.GetRunnableScriptName();
+}
 /// to generate targets using the current invariants
 void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAssertionFile(
   const std::string & precond,

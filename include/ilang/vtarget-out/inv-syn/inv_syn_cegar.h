@@ -95,10 +95,10 @@ public:
   bool virtual RunSynAuto();
   
   /// to generate synthesis target (for using the whole transfer function)
-  void GenerateSynthesisTargetSygusTransFunc(bool enumerate = false);
+  void GenerateSynthesisTargetSygusTransFunc(const Cvc4Syntax &, bool enumerate = false );
 
   /// to generate synthesis target (for using the whole transfer function)
-  void GenerateSynthesisTargetSygusDatapoints(bool enumerate = false);
+  void GenerateSynthesisTargetSygusDatapoints(const Cvc4Syntax &, bool enumerate = false);
   /// to extract the synthesis attempt
   bool ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
   /// to validate if the previous attempt is good (inductive or not)

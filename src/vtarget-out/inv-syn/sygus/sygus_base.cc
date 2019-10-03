@@ -29,52 +29,41 @@ const std::string Val_template = R"#!#!#(
 )#!#!#";
 
 // ------------------- hardwired templates --------------------- //
-const unsigned ctrl_data_sep_width = 5;
+unsigned ctrl_data_sep_width = 5;
 
-const unsigned other_comp_sep_width = ctrl_data_sep_width;
+unsigned other_comp_sep_width = ctrl_data_sep_width;
 
-const std::vector<std::string> compOp({});
+std::vector<std::string> compOp({});
 
-const std::map<int,std::set<unsigned>> nums(
+std::map<int,std::set<unsigned>> nums(
   {
     //{16,{0xff00,0xff01,0xff02, 0xff04, 0xff10, 0xff20}},
     {28,{0}}
   }
 );
 // bitwidth -> (op -> n-ary)
-const std::map<unsigned,std::map<std::string,unsigned>> arithmOp (
+std::map<unsigned,std::map<std::string,unsigned>> arithmOp (
   {{128,{{"bvadd",2}}}}
 );
 
-struct extract_op {
-  unsigned high;
-  unsigned low;
-  unsigned from;
-  unsigned to;
-  const std::string reps;
-  const std::string smt;
-  const std::string replacement;
-  const std::string exheading;
-  const std::set<std::string> from_state_name;
-  extract_op (unsigned h, unsigned l, unsigned f, unsigned t, const std::set<std::string> & s = std::set<std::string>()) :
-    high(h),low(l),from(f),to(t),
-      reps("extract_" + std::to_string(high) + "_" 
-        + std::to_string(low) + "_" + std::to_string(from) + "_"
-        + std::to_string(to)),
-      replacement("(_ extract "+ std::to_string(high) + " " + std::to_string(low) +")"),
-      smt("((_ extract "+ std::to_string(high) + " " + std::to_string(low) +") x)"),
-      exheading("(define-fun |" + reps + "| ((x (_ BitVec " + std::to_string(from) + ")))"
-        + " (_ BitVec " + std::to_string(to) + ") " + smt + ")"),
-      from_state_name(s)
-     { 
-      ILA_ASSERT(h-l+1 == t);
-      ILA_ASSERT(from >= to);
-      ILA_ASSERT(h>=l); }
-};
+extract_op::extract_op (unsigned h, unsigned l, unsigned f, unsigned t, const std::set<std::string> & s) :
+  high(h),low(l),from(f),to(t),
+    reps("extract_" + std::to_string(high) + "_" 
+      + std::to_string(low) + "_" + std::to_string(from) + "_"
+      + std::to_string(to)),
+    replacement("(_ extract "+ std::to_string(high) + " " + std::to_string(low) +")"),
+    smt("((_ extract "+ std::to_string(high) + " " + std::to_string(low) +") x)"),
+    exheading("(define-fun |" + reps + "| ((x (_ BitVec " + std::to_string(from) + ")))"
+      + " (_ BitVec " + std::to_string(to) + ") " + smt + ")"),
+    from_state_name(s)
+    { 
+    ILA_ASSERT(h-l+1 == t);
+    ILA_ASSERT(from >= to);
+    ILA_ASSERT(h>=l); }
 
 // to -> (op -> from)
 // result_width : h,l, from, result_width
-const std::map<unsigned, std::vector<extract_op>> extractExtOp (
+std::map<unsigned, std::vector<extract_op>> extractExtOp (
   {
     {16, {
       extract_op(15,0,128,16, {}),
@@ -110,6 +99,7 @@ const std::string cmpOp_lv1_template_Bool_hw = R"#!#!#(
 
 const std::string cmpOp_lv1_eqOnly_template_hw = R"#!#!#(
   (= Exp%width% Exp%width%)
+  (not (= Exp%width% Exp%width%))
 )#!#!#";
 
 
@@ -139,7 +129,11 @@ const std::string syntax_arithmetic_lv1_hw = R"#!#!#(
 %extraheading%
 
 (synth-fun INV (%arg%) Bool
-  ((Start Bool (IMP))
+  ((Start Bool (CONJIMP))
+
+  (CONJIMP Bool (IMP
+                 (and IMP CONJIMP)
+                ))
 
   (IMP Bool ((=> PreCond PostCond)))
 
@@ -313,118 +307,6 @@ const std::string syntax_arithmetic_lvR = R"#!#!#(
 
 
 
-const std::string template_hardwired = R"#!#!#(
-(define-fun extract150 ((x (_ BitVec 128))) (_ BitVec 16) ((_ extract 15 0) x))
-
-(synth-fun INV ((|m1.aes_step| (_ BitVec 1)) (|m1.aes_reg_state| (_ BitVec 2)) (|m1.byte_counter| (_ BitVec 4)) (|m1.operated_bytes_count| (_ BitVec 16)) (|m1.block_counter| (_ BitVec 128)) (|m1.uaes_ctr| (_ BitVec 128)) (|m1.aes_reg_ctr| (_ BitVec 128)) (|m1.aes_time_enough| (_ BitVec 1))) Bool
-  ((Start Bool (IMP))
-   (IMP Bool ((=> PreCond PostCond)))
-   (PreCond Bool (true
-                  CtrlAtom
-                  CtrlConj))
-   (CtrlConj Bool ((and CtrlAtom CtrlAtom)))
-   (CtrlAtom Bool (CtrlJudgement
-                   (not CtrlJudgement)))   
-   (CtrlJudgement Bool (
-  (= Exp1 Exp1)
-
-  (= Exp2 Exp2)
-
-  (= Exp4 Exp4)
-
-))
-
-   (PostCond Bool (DataAtom
-                  DataDisj))
-   (DataDisj Bool ((or DataAtom DataAtom)))
-   (DataAtom Bool (DataJudgement
-                   (not DataJudgement)))   
-   (DataJudgement Bool (
-  (= Exp1 Exp1)
-
-  (= Exp2 Exp2)
-
-  (= Exp4 Exp4)
-  
-  (= Exp16 Exp16)
-  (bvult Exp16 Exp16)
-
-  (= Exp128 Exp128)
-  (bvult Exp128 Exp128)
-
-))               
-  
-     
- (Exp1 (_ BitVec 1) ( VarOrVal1
-                      (bvand VarOrVal1 VarOrVal1)
-                      (bvor VarOrVal1 VarOrVal1)
-                      (bvnot VarOrVal1)))
-  
- (Exp2 (_ BitVec 2) ( VarOrVal2
-                      (bvnot VarOrVal2)
-                      ))
-  
- (Exp4 (_ BitVec 4) ( VarOrVal4
-                      (bvnot VarOrVal4)
-                      ))
-  
- (Exp16 (_ BitVec 16) ( VarOrVal16
-                      (bvadd VarOrVal16 VarOrVal16)
-                      (bvnot VarOrVal16)
-                      (extract150 Var128)
-                      ))
-  
- (Exp128 (_ BitVec 128) ( VarOrVal128
-                      (bvadd VarOrVal128 VarOrVal128)
-                      (bvnot VarOrVal128)
-                      ))
-
-   
-   (VarOrVal1 (_ BitVec 1) (Var1
-                            Val1))
-
-   (VarOrVal2 (_ BitVec 2) (Var2
-                            Val2))
-
-   (VarOrVal4 (_ BitVec 4) (Var4
-                            Val4))
-
-   (VarOrVal16 (_ BitVec 16) (Var16
-                            Val16))
-
-   (VarOrVal128 (_ BitVec 128) (Var128
-                            Val128))
-   
-    (Var1 (_ BitVec 1) (|m1.aes_step| |m1.aes_time_enough|))
-
-    (Var2 (_ BitVec 2) (|m1.aes_reg_state|))
-
-    (Var4 (_ BitVec 4) (|m1.byte_counter|))
-
-    (Var16 (_ BitVec 16) (|m1.operated_bytes_count|))
-
-    (Var128 (_ BitVec 128) (|m1.block_counter| |m1.uaes_ctr| |m1.aes_reg_ctr|))
-
-   
-    (Val1 (_ BitVec 1) (#b0 #b1))
-
-    (Val2 (_ BitVec 2) (#b00 #b01 #b10 #b11))
-
-    (Val4 (_ BitVec 4) (#b0000 #b0001 #b0010 #b0011 #b0100 #b0101 #b0110 #b0111 #b1000 #b1001 #b1010 #b1011 #b1100 #b1101 #b1110 #b1111))
-
-    (Val16 (_ BitVec 16) (#b0000000000000000 
-      #xff00 #xff01 #xff02 #xff04 #xff10 #xff20 
-      #b1111111111111111))
-
-    (Val128 (_ BitVec 128) (
-        #b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 
-        #b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000  
-        #b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-        ))
-))
-)#!#!#";
-
-
 // the reset are 
 // (constraint (INV #x0a #x0b ...))
 // (check-synth)
@@ -457,7 +339,8 @@ Cvc4SygusBase::Cvc4SygusBase(
   const std::vector<std::string> & inv_var_name_vec, // the variables we are going to consider
   const sygus_options_t & SygusOptions,           // the options
   const std::string & customized_invariant_arg,
-  const std::map<std::string, int> & width_info
+  const std::map<std::string, int> & width_info,
+  const Cvc4Syntax & syntax
   ) : 
   var_names (inv_var_name_vec), design_info(smt_design_info), 
   options(SygusOptions),
@@ -468,6 +351,14 @@ Cvc4SygusBase::Cvc4SygusBase(
   ILA_WARN_IF(SygusOptions.UseExtract) << "Not supported yet : extract";
   ILA_WARN_IF(SygusOptions.UseExtend)  << "Not supported yet : extend";
   ILA_WARN_IF(SygusOptions.UseConcat)  << "Not supported yet : concat";
+
+  // assign syntax
+  ctrl_data_sep_width = syntax.ctrl_data_sep_width;
+  other_comp_sep_width = syntax.other_comp_sep_width;
+  compOp = syntax.compOp;
+  nums = syntax.nums;
+  arithmOp = syntax.arithmOp;
+  extractExtOp = syntax.extractExtOp;
 
   arg_to_widx();
 }

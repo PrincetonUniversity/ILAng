@@ -69,6 +69,8 @@ public:
     unsigned MaxBound;
     /// Only enforce var eq on updated vars, should not be used
     bool OnlyAssumeUpdatedVarsEq; // should be false
+    /// Assumption OverConstrainCheck
+    bool CosaAssumptionOverlyConstrainedCheck;
     // ----------- Options for CoSA script -------------- //
     /// If not empty, the generated script will include the path of Cosa
     std::string CosaPath;
@@ -207,7 +209,8 @@ public:
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
           CosaGenJgTesterScript(false),  CosaFullTrace(false), CosaAddKeep(true), MaxBound(127),
-          OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
+          OnlyAssumeUpdatedVarsEq(false), CosaAssumptionOverlyConstrainedCheck(false), // we suggest you give true
+          CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
           YosysUndrivenNetAsInput(false),
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),

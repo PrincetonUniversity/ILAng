@@ -19,6 +19,37 @@
 namespace ilang
 {
 
+
+struct extract_op {
+  unsigned high;
+  unsigned low;
+  unsigned from;
+  unsigned to;
+  const std::string reps;
+  const std::string smt;
+  const std::string replacement;
+  const std::string exheading;
+  const std::set<std::string> from_state_name;
+  extract_op (unsigned h, unsigned l, unsigned f, unsigned t, const std::set<std::string> & s = std::set<std::string>());
+};
+
+  /// \brief cvc4sy grammar 
+  struct Cvc4Syntax{
+    /// control data width sep
+    unsigned ctrl_data_sep_width;
+    /// other sep
+    unsigned other_comp_sep_width;
+    /// comparator ops (2-ary)
+    std::vector<std::string> compOp;
+    /// width -> numbers
+    std::map<int,std::set<unsigned>> nums;
+    /// bitwidth -> (op -> n-ary) 
+    std::map<unsigned,std::map<std::string,unsigned>> arithmOp;
+    /// extracts
+    std::map<unsigned, std::vector<extract_op>> extractExtOp;
+  }; // struct Cvc4Syntax
+
+
   /// \brief to generate an input based on pos/neg examples
   class Cvc4SygusBase {
   public:
@@ -45,7 +76,8 @@ namespace ilang
       const std::vector<std::string> & _var_name_vec,   // the variables we are going to consider
       const sygus_options_t & SygusOptions,             // the options
       const std::string & customized_invariant_arg,      // whether to replace the %arg% w. something new
-      const std::map<std::string, int> & additional_width_info
+      const std::map<std::string, int> & additional_width_info,
+      const Cvc4Syntax & syntax
       );
     /// no copy constructor
     Cvc4SygusBase(const Cvc4SygusBase &) = delete;
