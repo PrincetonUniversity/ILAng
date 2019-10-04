@@ -2,7 +2,6 @@
 /// The implementation of the JSON to ILA deserializer.
 
 #include <ilang/target-json/json_to_ila_deserializer.h>
-#include <ilang/target-json/serdes_config.h>
 
 #include <cstdlib>
 #include <unordered_set>
@@ -10,6 +9,7 @@
 
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/ila/expr_fuse.h>
+#include <ilang/target-json/serdes_config.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -327,7 +327,7 @@ ExprPtr J2IDes::DesExprOp(const unsigned& ast_expr_op_uid,
   }
   case AST_UID_EXPR_OP::SMOD: {
     return ExprFuse::SMod(args.at(0), args.at(1));
-  } 
+  }
   case AST_UID_EXPR_OP::MUL: {
     return ExprFuse::Mul(args.at(0), args.at(1));
   }
@@ -494,7 +494,7 @@ void J2IDes::DesIlaUnit(const json& j_ila) {
     ILA_WARN_IF(fetch_it == id_expr_map_.end()) << "Fetch not found";
     m->SetFetch(fetch_it->second);
   } catch (...) {
-    ILA_WARN << "Fetch not defined";
+    m->SetFetch(ExprFuse::BvConst(1, 1));
   }
 
   // valid
@@ -505,7 +505,7 @@ void J2IDes::DesIlaUnit(const json& j_ila) {
     ILA_WARN_IF(valid_it == id_expr_map_.end()) << "Valid not found";
     m->SetValid(valid_it->second);
   } catch (...) {
-    ILA_WARN << "Valid not defined";
+    m->SetValid(ExprFuse::BoolConst(true));
   }
 
   // instructions

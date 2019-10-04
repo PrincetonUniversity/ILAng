@@ -7,14 +7,14 @@
 ///   2c. wire and assign
 // ---Hongce Zhang (hongcez@princeton.edu)
 
-#ifndef VLG_MOD_H__
-#define VLG_MOD_H__
-
-#include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#ifndef ILANG_VTARGET_OUT_VLG_MOD_H__
+#define ILANG_VTARGET_OUT_VLG_MOD_H__
 
 #include <map>
 #include <string>
 #include <vector>
+
+#include <ilang/verilog-in/verilog_analysis_wrapper.h>
 
 namespace ilang {
 
@@ -126,8 +126,8 @@ protected:
                                       std::string& line_out,
                                       const std::string& vname, unsigned width);
 
-}; // class v
+}; // class VerilogModifier
 
 }; // namespace ilang
 
-#endif // VLG_MOD_H__
+#endif // ILANG_VTARGET_OUT_VLG_MOD_H__

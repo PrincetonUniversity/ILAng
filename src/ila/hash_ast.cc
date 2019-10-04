@@ -3,8 +3,10 @@
 
 // XXX Current replacing is not efficient.
 
-#include <functional>
 #include <ilang/ila/hash_ast.h>
+
+#include <functional>
+
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -57,8 +59,7 @@ static std::hash<int> int_hash_fn;
 
 size_t ExprMngr::Hash(const ExprPtr n) const {
   if (n->is_op()) { // ExprOp
-    auto n_op = std::dynamic_pointer_cast<ExprOp>(n);
-    ILA_ASSERT(n_op) << "Dynamic cast fail for ExprOp " << n;
+    auto n_op = std::static_pointer_cast<ExprOp>(n);
 
     std::string op_name_str = n_op->op_name();
     auto hash = str_hash_fn(op_name_str);
@@ -74,8 +75,7 @@ size_t ExprMngr::Hash(const ExprPtr n) const {
     return n->name().id();
   } else { // ExprConst
     ILA_ASSERT(n->is_const()) << "Unrecognized expr type";
-    auto n_const = std::dynamic_pointer_cast<ExprConst>(n);
-    ILA_ASSERT(n_const) << "Dynamic cast fail for ExprConst " << n;
+    auto n_const = std::static_pointer_cast<ExprConst>(n);
 
     if (n_const->is_bool()) {
       return str_hash_fn(n_const->val_bool()->str());

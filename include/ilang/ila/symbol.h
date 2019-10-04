@@ -1,8 +1,8 @@
 /// \file
 /// The header for the class Symbol.
 
-#ifndef SYMBOL_H__
-#define SYMBOL_H__
+#ifndef ILANG_ILA_SYMBOL_H__
+#define ILANG_ILA_SYMBOL_H__
 
 #include <fstream>
 #include <ostream>
@@ -65,10 +65,8 @@ private:
   /// Static counter for symbols IDs.
   static size_t counter_;
 
-  // ------------------------- HELPERS -------------------------------------- //
-
 }; // class Symbol
 
 } // namespace ilang
 
-#endif // SYMBOL_H__
+#endif // ILANG_ILA_SYMBOL_H__

@@ -2,6 +2,7 @@
 /// Source for the class BoolVal, BvVal, and MemVal
 
 #include <ilang/ila/ast/sort_value.h>
+
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 

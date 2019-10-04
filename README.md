@@ -1,12 +1,13 @@
 [![ILAng](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png)](https://bo-yuan-huang.gitbook.io/ilang/)
 
+[![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)
 [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)
 [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)
 [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
-[![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/17719/badge.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ilang)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/Bo-Yuan-Huang/ILAng.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Bo-Yuan-Huang/ILAng/context:cpp)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
 [![license](https://img.shields.io/github/license/bo-yuan-huang/ilang.svg?style=flat)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-manual-blue.svg)](https://bo-yuan-huang.gitbook.io/ilang/)
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://bo-yuan-huang.github.io/ILAng-Doc/doxygen-output-html/namespaceilang.html)
@@ -55,12 +56,12 @@ brew install bison flex boost boost-python z3
 | Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.8.5 | 1.54  | 3.0.4 | 2.5.25 | Release |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Default |
-| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.14.4 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Default |
-| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Debug   |
-| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Default |
-| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Default |
-| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5 | -     | 3.3.2 | 2.6.4  | Default |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Release |
+| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.15.2 | 4.8.6 | 1.65  | 3.0.4 | 2.6.4  | Release |
+| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Debug   |
+| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Release |
+| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Release |
+| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5 | -     | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
 

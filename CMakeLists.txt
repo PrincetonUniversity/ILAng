@@ -11,7 +11,7 @@ endif()
 # PROJECT
 # name version language
 # ---------------------------------------------------------------------------- #
-project(ilang VERSION     0.9.3
+project(ilang VERSION     1.0.0
               LANGUAGES   CXX
 )
 
@@ -25,6 +25,7 @@ option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
 option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
 option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
+option(ILANG_COVERITY    "Build for Coverity static analysis."              OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries."                           ON)
 
 include(CMakeDependentOption)

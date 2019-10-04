@@ -54,32 +54,15 @@ WORKDIR $BUILD_ROOT
 ADD https://api.github.com/repos/cristian-mattarei/CoSA/git/refs/heads/master cosa_version.json
 RUN git clone https://github.com/cristian-mattarei/CoSA.git $COSA_DIR
 WORKDIR $COSA_DIR
-RUN git checkout remotes/origin/dev -b dev
 RUN $BUILD_PREF/bin/pip3 install -e .
 
-# Boolector
-ENV BTOR_DIR $BUILD_ROOT/Boolector
+# PySMT - Boolector
 WORKDIR $BUILD_ROOT
-ADD https://api.github.com/repos/Boolector/boolector/git/refs/heads/master btor_version.json
-RUN git clone --depth=1 https://github.com/Boolector/boolector.git $BTOR_DIR
-RUN pip3 install cython==0.29.3
-WORKDIR $BTOR_DIR
-RUN ./contrib/setup-lingeling.sh 
-RUN ./contrib/setup-cadical.sh
-RUN ./contrib/setup-btor2tools.sh
-RUN ./configure.sh --python --py3 --prefix $BUILD_PREF
-WORKDIR $BTOR_DIR/build
-RUN make -j"$(nproc)" && \
-    make install
-
-# PySMT
-WORKDIR $BUILD_ROOT
+RUN wget https://raw.githubusercontent.com/Bo-Yuan-Huang/pysmt/master/pysmt/cmd/installers/btor.py
+RUN mv btor.py $BUILD_PREF/lib/python3.6/site-packages/pysmt/cmd/installers/btor.py
 RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/solvers/btor.py 
-RUN mv btor.py btor-solver.py
-RUN cp btor-solver.py $BUILD_PREF/lib/python3.6/site-packages/pysmt/solvers/btor.py
-RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/cmd/installers/btor.py 
-RUN mv btor.py btor-installer.py
-RUN cp btor-installer.py /ibuild/ilang-env/lib/python3.6/site-packages/pysmt/cmd/installers/btor.py
+RUN mv btor.py $BUILD_PREF/lib/python3.6/site-packages/pysmt/solvers/btor.py
+RUN $BUILD_PREF/bin/pip3 install cython
 
 #
 # Deployment

@@ -2,22 +2,22 @@
 ///
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
+
+#include <cmath>
+#include <iostream>
+
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
-#include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/vtarget_gen_jasper.h>
-
-#include <cmath>
-#include <iostream>
 
 namespace ilang {
 
-// ------------------------------ VlgVerifTgtGen
-// --------------------------------- //
+// ------------------------------ VlgVerifTgtGen ---------------------------- //
 
 VlgVerifTgtGen::VlgVerifTgtGen(
     const std::vector<std::string>& implementation_include_path,
@@ -143,10 +143,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Cosa(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
-           vlg_info_ptr, _vlg_mod_inst_name,
-          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend);
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+          _vlg_impl_include_path, _vtg_config, _backend);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                        "absmem.v");
@@ -154,10 +153,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Jasper(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
-          vlg_info_ptr, _vlg_mod_inst_name,
-          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend);
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+          _vlg_impl_include_path, _vtg_config, _backend);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } // end if backend...
@@ -184,9 +182,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Cosa(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
-            vlg_info_ptr, _vlg_mod_inst_name,
-            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
@@ -195,9 +192,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Jasper(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info,
-            vlg_info_ptr, _vlg_mod_inst_name,
-            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
@@ -269,8 +265,7 @@ static size_t find_comments(const std::string& line) {
         return ret - 1;
       } else
         next_state = PLAIN;
-    } else
-      ILA_ASSERT(false);
+    }
     state = next_state;
     ++ret;
   }

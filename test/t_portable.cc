@@ -16,8 +16,8 @@ void Check(Ila& a, Ila& b) { CheckIlaEqLegacy(a.get(), b.get()); }
 void SerDes(const std::string& dir, const std::string& file,
             bool check = true) {
   auto file_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, dir);
-  auto aes_file = os_portable_append_dir(file_dir, file);
-  auto ila = ImportIlaPortable(aes_file);
+  auto ila_file = os_portable_append_dir(file_dir, file);
+  auto ila = ImportIlaPortable(ila_file);
 
   char tmp_file_template[] = "/tmp/ila_XXXXXX";
   auto tmp_file_name = GetRandomFileName(tmp_file_template);

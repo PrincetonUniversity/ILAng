@@ -1,6 +1,8 @@
 /// \file Verilog Wrapper Class
-#include <ilang/util/log.h>
+
 #include <ilang/verilog-in/verilog_analysis.h>
+
+#include <ilang/util/log.h>
 
 namespace ilang {
 

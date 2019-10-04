@@ -1,10 +1,12 @@
 /// \file
 /// Source for some utility functions for string formating.
 
-#include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+
 #include <regex>
 #include <sstream>
+
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -13,14 +15,6 @@ std::string StrToUpper(const std::string& str) {
   std::transform(res.begin(), res.end(), res.begin(), toupper);
   return res;
 }
-
-#if 0
-std::string StrToLower(const std::string& str) {
-  std::string res = str;
-  std::transform(res.begin(), res.end(), res.begin(), tolower);
-  return res;
-}
-#endif
 
 bool StrToBool(const std::string& str) {
   std::string up = StrToUpper(str);
@@ -37,7 +31,6 @@ int StrToInt(const std::string& str, int base) {
     return 0;
   }
 }
-
 
 long long StrToLong(const std::string& str, int base) {
   try {
@@ -175,17 +168,6 @@ ReFindAndDo(const std::string& s, const std::string& re,
 }
 
 bool IsRExprUsable() { return false; }
-#endif
-
-#if 0
-std::string StrConcat(const std::string& l, const std::string& r) {
-  return (l + "_" + r);
-}
-
-std::string StrConcat(const std::string& l, const std::string& m,
-                      const std::string& r) {
-  return (l + "_" + m + "_" + r);
-}
 #endif
 
 } // namespace ilang

@@ -39,7 +39,12 @@ TEST_F(TestValidateModel, nondeterministic_check) {
   bool res = true;
   GET_STDERR_MSG(res = CheckDeterminism(aes_nondet.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 }
 
 TEST_F(TestValidateModel, completeness) {
@@ -49,7 +54,12 @@ TEST_F(TestValidateModel, completeness) {
   bool res = true;
   GET_STDERR_MSG(res = CheckCompleteness(aes_v.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 }
 
 TEST_F(TestValidateModel, complete_model_with_old_value) {
@@ -60,7 +70,12 @@ TEST_F(TestValidateModel, complete_model_with_old_value) {
 
   GET_STDERR_MSG(res = CheckCompleteness(aes_v.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 
   CompleteModel(aes_v.get(), DEFAULT_UPDATE_METHOD::OLD_VALUE);
 
@@ -77,11 +92,71 @@ TEST_F(TestValidateModel, complete_model_with_nondet_value) {
 
   GET_STDERR_MSG(res = CheckCompleteness(aes_v.get()), msg);
   EXPECT_FALSE(res);
+
+#ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
 
   CompleteModel(aes_v.get(), DEFAULT_UPDATE_METHOD::NONDET_VALUE);
 
   GET_STDERR_MSG(res = CheckCompleteness(aes_v.get()), msg);
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(msg.empty());
+}
+
+TEST_F(TestValidateModel, case_gb) {
+  auto gb_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "gb");
+  auto gb_file = os_portable_append_dir(gb_dir, "gb_low.json");
+  auto gb = ImportIlaPortable(gb_file);
+  auto res = true;
+
+  GET_STDERR_MSG(res = CheckCompleteness(gb.get()), msg);
+  EXPECT_FALSE(res);
+
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
+
+  CompleteModel(gb.get(), DEFAULT_UPDATE_METHOD::OLD_VALUE);
+
+  GET_STDERR_MSG(res = CheckCompleteness(gb.get()), msg);
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(msg.empty());
+}
+
+TEST_F(TestValidateModel, case_rbm) {
+  auto rbm_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "rbm");
+  auto rbm_file = os_portable_append_dir(rbm_dir, "rbm.json");
+  auto rbm = ImportIlaPortable(rbm_file);
+  auto res = true;
+
+  GET_STDERR_MSG(res = CheckCompleteness(rbm.get()), msg);
+  EXPECT_FALSE(res);
+
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#else
+  EXPECT_TRUE(msg.empty());
+#endif
+
+  CompleteModel(rbm.get(), DEFAULT_UPDATE_METHOD::OLD_VALUE);
+
+  GET_STDERR_MSG(res = CheckCompleteness(rbm.get()), msg);
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(msg.empty());
+}
+
+TEST_F(TestValidateModel, case_oc) {
+  auto oc_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "oc");
+  auto oc_file = os_portable_append_dir(oc_dir, "oc.json");
+  auto oc = ImportIlaPortable(oc_file);
+  auto res = true;
+
+  GET_STDERR_MSG(res = CheckCompleteness(oc.get()), msg);
   EXPECT_TRUE(res);
   EXPECT_TRUE(msg.empty());
 }

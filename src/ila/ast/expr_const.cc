@@ -2,27 +2,25 @@
 /// Source for the class ExprConst
 
 #include <ilang/ila/ast/expr_const.h>
+
 #include <ilang/util/log.h>
 
 /// \namespace ilang
 namespace ilang {
 
 ExprConst::ExprConst(const BoolVal& bool_val) {
-  // set_sort(Sort());
   set_sort(Sort::MakeBoolSort());
   val_ = std::make_shared<BoolVal>(bool_val);
 }
 
 ExprConst::ExprConst(const BvVal& bv_val, const int& bit_width) {
   set_sort(Sort::MakeBvSort(bit_width));
-  // set_sort(Sort(bit_width));
   val_ = std::make_shared<BvVal>(bv_val);
 }
 
 ExprConst::ExprConst(const MemVal& mem_val, const int& addr_width,
                      const int& data_width) {
   set_sort(Sort::MakeMemSort(addr_width, data_width));
-  // set_sort(Sort(addr_width, data_width));
   val_ = std::make_shared<MemVal>(mem_val);
 }
 
@@ -30,7 +28,7 @@ ExprConst::~ExprConst() {}
 
 z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
                               const std::string& suffix) const {
-  ILA_ASSERT(z3expr_vec.empty()) << "Constant should be terminating nodes.\n";
+  ILA_ASSERT(z3expr_vec.empty()) << "Constant should be terminating nodes.";
 
   if (is_bool()) {
     auto bool_ptr = val_bool();
@@ -39,7 +37,7 @@ z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
     auto bv_ptr = val_bv();
     return ctx.bv_val(bv_ptr->val(), sort()->bit_width());
   } else {
-    ILA_ASSERT(is_mem()) << "Neither bool, bv, nor mem.\n";
+    ILA_ASSERT(is_mem()) << "Neither bool, bv, nor mem.";
     auto addr_sort = ctx.bv_sort(sort()->addr_width());
     auto data_sort = ctx.bv_sort(sort()->data_width());
 
@@ -69,31 +67,25 @@ std::ostream& ExprConst::Print(std::ostream& out) const {
     auto bv_ptr = val_bv();
     return bv_ptr->Print(out);
   } else {
-    ILA_ASSERT(is_mem()) << "Print neither bool, bv, nor mem.\n";
+    ILA_ASSERT(is_mem()) << "Print neither bool, bv, nor mem.";
     auto mem_ptr = val_mem();
     return mem_ptr->Print(out);
   }
 }
 
 BoolValPtr ExprConst::val_bool() const {
-  ILA_ASSERT(is_bool()) << "Not boolean constant\n";
-  auto ptr = std::dynamic_pointer_cast<BoolVal>(val_);
-  ILA_ASSERT(ptr) << "Fail casting to BoolVal\n";
-  return ptr;
+  ILA_ASSERT(is_bool()) << "Not boolean constant";
+  return std::static_pointer_cast<BoolVal>(val_);
 }
 
 BvValPtr ExprConst::val_bv() const {
-  ILA_ASSERT(is_bv()) << "Not bitvector constant\n";
-  auto ptr = std::dynamic_pointer_cast<BvVal>(val_);
-  ILA_ASSERT(ptr) << "Fail casting to BvVal\n";
-  return ptr;
+  ILA_ASSERT(is_bv()) << "Not bitvector constant";
+  return std::static_pointer_cast<BvVal>(val_);
 }
 
 MemValPtr ExprConst::val_mem() const {
-  ILA_ASSERT(is_mem()) << "Not memory constatnc\n";
-  auto ptr = std::dynamic_pointer_cast<MemVal>(val_);
-  ILA_ASSERT(ptr) << "Fail casting to MemVal\n";
-  return ptr;
+  ILA_ASSERT(is_mem()) << "Not memory constatnc";
+  return std::static_pointer_cast<MemVal>(val_);
 }
 
 } // namespace ilang

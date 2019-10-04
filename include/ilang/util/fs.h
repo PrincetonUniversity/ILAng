@@ -5,8 +5,8 @@
 /// experimental/filesystem, but we don't rely on it
 // --- Hongce Zhang
 
-#ifndef FS_H__
-#define FS_H__
+#ifndef ILANG_UTIL_FS_H__
+#define ILANG_UTIL_FS_H__
 
 #include <string>
 
@@ -33,4 +33,4 @@ std::string os_portable_file_name_from_path(const std::string& path);
 
 }; // namespace ilang
 
-#endif // FS_H__
+#endif // ILANG_UTIL_FS_H__

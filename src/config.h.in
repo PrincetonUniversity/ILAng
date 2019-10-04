@@ -10,5 +10,7 @@
 
 #cmakedefine SYNTH_INTERFACE
 
+#cmakedefine COVERITY
+
 #endif // CONFIG_CMAKE_DEFINE_H__
 

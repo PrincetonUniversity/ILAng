@@ -1,8 +1,8 @@
 /// \file
 /// Header for TSO memory model
 
-#ifndef TSO_MANUAL_H__
-#define TSO_MANUAL_H__
+#ifndef ILANG_MCM_TSO_MANUAL_H__
+#define ILANG_MCM_TSO_MANUAL_H__
 
 #include "ilang/mcm/memory_model.h"
 
@@ -76,4 +76,4 @@ private:
 
 } // namespace ilang
 
-#endif // TSO_MANUAL_H__
+#endif // ILANG_MCM_TSO_MANUAL_H__

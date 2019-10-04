@@ -1,9 +1,11 @@
 /// \file
 /// Source for a collection of ILA helpers.
 
-#include <functional>
-#include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
+
+#include <functional>
+
+#include <ilang/util/log.h>
 #include <ilang/verification/rewrite_expr.h>
 #include <ilang/verification/rewrite_ila.h>
 
@@ -188,15 +190,12 @@ void AbsKnob::RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
   dst->set_decode(d_dst);
 
   // update
-  for (auto it = expr_map.begin(); it != expr_map.end(); it++) {
-    // state
-    auto s_src = it->first;
-    auto s_dst = it->second;
-    // update function
-    auto u_src = src->update(s_src);
-    if (u_src) {
-      auto u_dst = AbsKnob::Rewrite(u_src, expr_map);
-      dst->set_update(s_dst, u_dst);
+  auto updated_states = src->updated_states();
+  for (auto& state_name : updated_states) {
+    auto update_src = src->update(state_name);
+    if (update_src) {
+      auto update_dst = AbsKnob::Rewrite(update_src, expr_map);
+      dst->set_update(state_name, update_dst);
     }
   }
 }
@@ -274,7 +273,7 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
 InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
                                     const std::string& dst_name) {
   ILA_NOT_NULL(src);
-  ILA_WARN_IF(!src->parent()) << "Copying non-root ILA " << src;
+  ILA_WARN_IF(src->parent()) << "Copying non-root ILA " << src;
 
   auto dst = InstrLvlAbs::New(dst_name);
   dst->set_spec(src->is_spec());
@@ -376,7 +375,7 @@ InstrPtr AbsKnob::DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
 
 void AbsKnob::DuplInstrSeq(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst) {
-  ILA_WARN << "DuplInstrSeq not implemented yet.";
+  // ILA_WARN << "DuplInstrSeq not implemented yet.";
   // TODO
 }
 

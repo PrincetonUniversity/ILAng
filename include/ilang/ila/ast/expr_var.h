@@ -1,11 +1,12 @@
 /// \file
 /// Header for the class ExprVar
 
-#ifndef EXPR_VAR_H__
-#define EXPR_VAR_H__
+#ifndef ILANG_ILA_AST_EXPR_VAR_H__
+#define ILANG_ILA_AST_EXPR_VAR_H__
+
+#include <string>
 
 #include <ilang/ila/ast/expr.h>
-#include <string>
 
 /// \namespace ilang
 namespace ilang {
@@ -54,4 +55,4 @@ private:
 
 } // namespace ilang
 
-#endif // EXPR_VAR_H__
+#endif // ILANG_ILA_AST_EXPR_VAR_H__

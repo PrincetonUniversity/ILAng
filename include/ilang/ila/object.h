@@ -1,12 +1,13 @@
 /// \file
 /// The header for the class Object.
 
-#ifndef OBJECT_H__
-#define OBJECT_H__
+#ifndef ILANG_ILA_OBJECT_H__
+#define ILANG_ILA_OBJECT_H__
 
-#include <ilang/ila/symbol.h>
 #include <memory>
 #include <string>
+
+#include <ilang/ila/symbol.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -55,4 +56,4 @@ typedef Object::ObjPtr ObjPtr;
 
 } // namespace ilang
 
-#endif // OBJECT_H__
+#endif // ILANG_ILA_OBJECT_H__

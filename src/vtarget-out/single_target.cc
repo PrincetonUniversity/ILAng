@@ -2,17 +2,18 @@
 ///
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
+
+#include <cmath>
+#include <fstream>
+#include <iostream>
+
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/mcm/ast_helper.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/vtarget_gen_impl.h>
-
-#include <cmath>
-#include <fstream>
-#include <iostream>
 
 namespace ilang {
 

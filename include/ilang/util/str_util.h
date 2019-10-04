@@ -1,8 +1,8 @@
 /// \file
 /// Header for some utily functions for string formating.
 
-#ifndef STR_UTIL_H__
-#define STR_UTIL_H__
+#ifndef ILANG_UTIL_STR_UTIL_H__
+#define ILANG_UTIL_STR_UTIL_H__
 
 #include <algorithm>
 #include <functional>
@@ -53,15 +53,6 @@ std::vector<std::string> ReFindAndDo(const std::string& s,
 
 bool IsRExprUsable();
 
-#if 0
-/// Concatenate two string with "_".
-std::string StrConcat(const std::string& l, const std::string& r);
-
-/// Concatenate three string with "_".
-std::string StrConcat(const std::string& l, const std::string& m,
-                      const std::string& r);
-#endif
-
 } // namespace ilang
 
-#endif // STR_UTIL_H__
+#endif // ILANG_UTIL_STR_UTIL_H__

@@ -1,8 +1,8 @@
 /// \file
 /// Header for a collection of ILA helpers.
 
-#ifndef ABS_KNOB_H__
-#define ABS_KNOB_H__
+#ifndef ILANG_VERIFICATION_ABS_KNOB_H__
+#define ILANG_VERIFICATION_ABS_KNOB_H__
 
 #include <ilang/ila/instr_lvl_abs.h>
 
@@ -123,4 +123,4 @@ private:
 
 } // namespace ilang
 
-#endif // ABS_KNOB_H__
+#endif // ILANG_VERIFICATION_ABS_KNOB_H__

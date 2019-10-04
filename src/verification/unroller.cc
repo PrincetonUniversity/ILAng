@@ -1,11 +1,13 @@
 /// \file
 /// Source for unrolling ILA execution.
 
-#include <ilang/util/log.h>
-#include <ilang/verification/abs_knob.h>
 #include <ilang/verification/unroller.h>
+
 #include <map>
 #include <vector>
+
+#include <ilang/util/log.h>
+#include <ilang/verification/abs_knob.h>
 
 namespace ilang {
 

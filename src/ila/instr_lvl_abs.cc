@@ -2,6 +2,7 @@
 /// The source for the class InstrLvlAbs.
 
 #include <ilang/ila/instr_lvl_abs.h>
+
 #include <ilang/util/log.h>
 
 // Do the simplification by hashing AST sub-trees.
@@ -95,22 +96,6 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   // register to States
   states_.push_back(name, var);
 }
-
-#if 0
-void InstrLvlAbs::AddFreeVar(const ExprPtr free_var) {
-  // sanity check
-  ILA_NOT_NULL(free_var);
-  ILA_ASSERT(free_var->is_var()) << "Register non-var to free_vars_.";
-  // should be the first
-  auto name = free_var->name();
-  auto poss = states_.find(name);
-  auto posi = inputs_.find(name);
-  ILA_ASSERT(poss == states_.end() && posi == inputs_.end())
-      << "Free variable " << free_var << "has been declared.";
-  // register to free_vars_
-  free_vars_.push_back(name, free_var);
-}
-#endif
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   // sanity check

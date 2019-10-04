@@ -1,14 +1,15 @@
 /// \file
 /// Header for bounded model checking
 
-#ifndef LEGACY_BMC_H__
-#define LEGACY_BMC_H__
+#ifndef ILANG_VERIFICATION_LEGACY_BMC_H__
+#define ILANG_VERIFICATION_LEGACY_BMC_H__
+
+#include <map>
 
 #include "z3++.h"
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/container.h>
-#include <map>
 
 /// \namespace ilang
 namespace ilang {
@@ -78,4 +79,4 @@ private:
 
 } // namespace ilang
 
-#endif // LEGACY_BMC_H__
+#endif // ILANG_VERIFICATION_LEGACY_BMC_H__

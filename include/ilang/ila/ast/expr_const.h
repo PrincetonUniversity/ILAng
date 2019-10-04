@@ -1,8 +1,8 @@
 /// \file
 /// Header for constant expression
 
-#ifndef EXPR_CONST_H__
-#define EXPR_CONST_H__
+#ifndef ILANG_ILA_AST_EXPR_CONST_H__
+#define ILANG_ILA_AST_EXPR_CONST_H__
 
 #include <ilang/ila/ast/expr.h>
 #include <ilang/ila/ast/sort_value.h>
@@ -53,4 +53,4 @@ private:
 
 } // namespace ilang
 
-#endif // EXPR_CONST_H__
+#endif // ILANG_ILA_AST_EXPR_CONST_H__

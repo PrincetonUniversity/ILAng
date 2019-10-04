@@ -1,14 +1,15 @@
 /// \file
 /// Headers for macros, type definitions, etc.
 
-#ifndef DEFINES_H__
-#define DEFINES_H__
+#ifndef ILANG_ILA_DEFINES_H__
+#define ILANG_ILA_DEFINES_H__
+
+#include <memory>
+#include <vector>
 
 #include "z3++.h"
 #include <ilang/ila/symbol.h>
 #include <ilang/util/container.h>
-#include <memory>
-#include <vector>
 
 /// \namespace ilang
 namespace ilang {
@@ -24,4 +25,4 @@ typedef std::shared_ptr<Z3ExprMap> Z3ExprMapPtr;
 
 } // namespace ilang
 
-#endif // DEFINES_H__
+#endif // ILANG_ILA_DEFINES_H__

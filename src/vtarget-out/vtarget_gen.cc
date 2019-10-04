@@ -2,9 +2,10 @@
 /// This is used to avoid include json explicitly
 // --- Hongce Zhang
 
-#include <ilang/util/log.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+
+#include <ilang/util/log.h>
 
 namespace ilang {
 

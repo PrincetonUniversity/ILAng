@@ -2,6 +2,7 @@
 /// Source for the class Sort
 
 #include <ilang/ila/ast/sort.h>
+
 #include <ilang/util/log.h>
 
 namespace ilang {

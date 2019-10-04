@@ -1,14 +1,15 @@
 /// \file
 /// Header for unrolling ILA execution.
 
-#ifndef UNROLLER_H__
-#define UNROLLER_H__
+#ifndef ILANG_VERIFICATION_UNROLLER_H__
+#define ILANG_VERIFICATION_UNROLLER_H__
+
+#include <set>
+#include <vector>
 
 #include "z3++.h"
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ila/z3_expr_adapter.h>
-#include <set>
-#include <vector>
 
 /// \namespace ilang
 namespace ilang {
@@ -285,4 +286,4 @@ private:
 
 } // namespace ilang
 
-#endif // UNROLLER_H__
+#endif // ILANG_VERIFICATION_UNROLLER_H__
