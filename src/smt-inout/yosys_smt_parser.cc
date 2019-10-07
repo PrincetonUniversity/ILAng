@@ -433,6 +433,10 @@ std::string YosysSmtParser::Export() {
   return smt_ast.toString();
 }
 
+const smt_file & YosysSmtParser::GetRawSmtAst() const {
+  return smt_ast;
+}
+
 
 /// return a reference to module def order
 const std::vector<std::string> & YosysSmtParser::get_module_def_orders() const {

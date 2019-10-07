@@ -89,6 +89,8 @@ public:
   void AddNoChangeStateUpdateFunction();
   /// Export to string
   std::string Export();
+  /// Get the unflattened datatype
+  const smt_file & GetRawSmtAst() const;
   // -------------- Helpers -------------------- //
   /// return a reference to module def order
   const std::vector<std::string> & get_module_def_orders() const;

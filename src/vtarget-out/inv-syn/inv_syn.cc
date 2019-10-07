@@ -287,21 +287,48 @@ std::string JoinListWithAnd(const std::vector<std::string> & l) {
   return "(and " + Join(l, " ")+")";
 }
 
-// a local helper function to return the type of a smt (define-fun ) stmt 
-bool isBoolDefine(const std::string & stmt) {
- return false; // todo:
+size_t skipArgs(const std::string & stmt, size_t start) {
+  // need to fit 
+  auto pos = start;
+  ILA_ASSERT(stmt.at(pos) == '(') << "Expecting '('";
+  unsigned level = 0;
+  do {
+    if (stmt.at(pos) == '(')
+      level ++;
+    else if (stmt.at(pos) == ')')
+      level --;
+    pos ++;
+  } while(level != 0);
+  return pos;
 }
+
+// a local helper function to return the type of a smt (define-fun ) stmt 
+bool is_returntype_bool(const std::string & stmt) {
+  std::string beginning("(define-fun |");
+  ILA_ASSERT (stmt.find(beginning) == 0) << "Not a `(define-fun |` stmt";
+  auto pos =  beginning.length()+1;
+  auto end_func_name_pos = stmt.find('|',pos);
+  auto start_arg_list = stmt.find('(', end_func_name_pos);
+  auto end_arg_list = skipArgs(stmt, start_arg_list);
+  auto Bool_pos = stmt.find("Bool", end_arg_list);
+  auto Bitvec_pos = stmt.find("(_ BitVec", end_arg_list);
+  if (Bool_pos < Bitvec_pos)
+    return true;
+  return false;
+}
+
 
 // extract 
 bool extractSigDefFromLine(
   const std::string & mod_name,
   const std::string & line,
   std::set<std::string> & s, 
-  std::vector<std::string> & v) {
-  
+  std::vector<std::pair<std::string,bool>> & v) {
+  // list of (name, is bool?)
   bool found_match_state = false;
   std::string search_target_wire_num = "(define-fun |" + mod_name + "#";
   std::string search_target_n = "(define-fun |" + mod_name + "_n ";
+  bool returnBool;
   if (line.find(search_target_wire_num) == 0) { // begins with it
     auto mark = line.find("; \\");
     if (mark != line.npos) {
@@ -316,7 +343,7 @@ bool extractSigDefFromLine(
         auto num = num_start.substr(0,end);
         auto smt_expr = "|" + mod_name + "#" + num + "|";
 
-        v.push_back(smt_expr); // |mod#n|
+        v.push_back(std::make_pair(smt_expr,is_returntype_bool(line))); // |mod#n|
 
         found_match_state = true;
       }
@@ -332,7 +359,7 @@ bool extractSigDefFromLine(
 
       auto smt_expr = "|" + mod_name + "_n " + signame + "|";
 
-      v.push_back(smt_expr);  // |mod_n signal|
+      v.push_back(std::make_pair(smt_expr,is_returntype_bool(line)));  // |mod_n signal|
       found_match_state = true;
     }
   }
@@ -458,7 +485,9 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
               dspt == "noreset" ||
               dspt == "funcmap" ||
               dspt == "absmem" ||
-              dspt == "additional_mapping_control_assume"
+              dspt == "additional_mapping_control_assume" ||
+              dspt == "func_arg" ||
+              dspt == "func_result"
                 )
               wn_amc_wrapper_item.insert(expr);
             else if(
@@ -475,10 +504,10 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
 
       } // gen wire name
 
-      std::vector<std::string> amc_design_item; // no wn here : in the submodule 
-      std::vector<std::string> amc_wrapper_item; // in the top module
-      std::vector<std::string> asst_item; // assertions
-      std::vector<std::string> aspt_item; // assumptions
+      std::vector<std::pair<std::string,bool>> amc_design_item; // no wn here : in the submodule 
+      std::vector<std::pair<std::string,bool>> amc_wrapper_item; // in the top module
+      std::vector<std::pair<std::string,bool>> asst_item; // assertions
+      std::vector<std::pair<std::string,bool>> aspt_item; // assumptions
       { // find number name --- smt name
         // algo : go line by line, check in "wn_" or not, if so, add ow ignored
         enum {BEFORE, SUBMODULE, TOPMODULE} state = BEFORE;
@@ -526,21 +555,52 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
 
       { // construct expressions
         // (signame |%d%_s|) or (signame |%w%_s|), use " " to join and add "(and" ")"
-        for_each(amc_design_item.begin(), amc_design_item.end(),
-          [](std::string & s) -> void {s = "(zbv2bool ("+s+" |__Sv__|))";} );
-        amc_design = JoinListWithAnd(amc_design_item);
+        std::vector<std::string> items;
+        items.clear();
+        for (auto && name_bool_pair: amc_design_item) {
+          if (name_bool_pair.second)
+            items.push_back("("+name_bool_pair.first+" |__Sv__|)");
+          else
+            items.push_back("(zbv2bool ("+name_bool_pair.first+" |__Sv__|))");
+        }
+        amc_design = JoinListWithAnd(items);
 
-        for_each(amc_wrapper_item.begin(), amc_wrapper_item.end(),
-          [](std::string & s) -> void {s = "(zbv2bool ("+s+" |__Sw__|))";} );
-        amc_wrapper = JoinListWithAnd(amc_wrapper_item);
+
+        items.clear();
+        for (auto && name_bool_pair: amc_wrapper_item) {
+          if (name_bool_pair.second)
+            items.push_back("("+name_bool_pair.first+" |__Sw__|)");
+          else
+            items.push_back("(zbv2bool ("+name_bool_pair.first+" |__Sw__|))");
+        }
+        amc_wrapper = JoinListWithAnd(items);
         
+        items.clear();
+        for (auto && name_bool_pair: aspt_item) {
+          if (name_bool_pair.second)
+            items.push_back("("+name_bool_pair.first+" |__Sw__|)");
+          else
+            items.push_back("(zbv2bool ("+name_bool_pair.first+" |__Sw__|))");
+        }
+        aspt = JoinListWithAnd(items);
+
+        items.clear();
+        for (auto && name_bool_pair: aspt_item) {
+          if (name_bool_pair.second)
+            items.push_back("("+name_bool_pair.first+" |__Sw__|)");
+          else
+            items.push_back("(zbv2bool ("+name_bool_pair.first+" |__Sw__|))");
+        }
+        asst = JoinListWithAnd(items);
+
+        /*
         for_each(aspt_item.begin(), aspt_item.end(),
           [](std::string & s) -> void {s = "("+s+" |__Sw__|)";} );
         aspt = JoinListWithAnd(aspt_item);
 
         for_each(asst_item.begin(), asst_item.end(),
           [](std::string & s) -> void {s = "("+s+" |__Sw__|)";} );
-        asst = JoinListWithAnd(asst_item);
+        asst = JoinListWithAnd(asst_item);*/
 
       } // construct expressions
     } // Construct exprs done

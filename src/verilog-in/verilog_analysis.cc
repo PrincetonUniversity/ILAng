@@ -140,6 +140,12 @@ void VerilogAnalyzer::invoke_parser() {
 void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
   ILA_NOT_NULL(source);
   ILA_NOT_NULL(source->modules);
+  
+  if (source->modules->items == 0) {
+    ILA_WARN << "Verilog parser returns no modules!";
+    _bad_state = true;
+    return;
+  }
 
   for (unsigned int m = 0; m < source->modules->items; m++) {
 
@@ -178,7 +184,8 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
                  << "'s definition is not found.";
     }
   }
-}
+  ILA_ERROR_IF(name_module_map.empty()) << "No module parsed!";
+} // check_resolve_modules
 
 void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree* source) {
   ILA_NOT_NULL(source);
@@ -224,6 +231,7 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree* source) {
 // extract the top module name
 void VerilogAnalyzer::find_top_module(verilog_source_tree* source,
                                       const std::string& optional_top_module) {
+  // std::cerr << " ------------ START -------- " << std::endl;
   ILA_NOT_NULL(source);
   ILA_NOT_NULL(source->modules);
   for (auto&& nm_pos : name_module_map) {
@@ -242,8 +250,10 @@ void VerilogAnalyzer::find_top_module(verilog_source_tree* source,
               : ast_identifier_tostring(submod->module_identifer));
 
       module_to_whereuses_map[submod_name].push_back(name);
+      //std::cerr << "submodule: " << submod_name << " is used in module: " << name << std::endl;
     }
   }
+  // std::cerr << " ------------ END -------- " << std::endl;
 
   std::set<std::string> top_module_candidates;
   for (auto&& nm_pos : name_module_map) {
