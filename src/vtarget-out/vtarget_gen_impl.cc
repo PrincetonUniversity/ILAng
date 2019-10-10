@@ -432,6 +432,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } else if (_backend == backend_selector::YOSYS and invariantExists) {
+      /*
       auto target = VlgSglTgtGen_Yosys(
           sub_output_path,
           NULL, // invariant
@@ -441,6 +442,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           _advanced_param_ptr);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
+      */
+     ILA_WARN << "CHC w. Provided Inv in RFmap, checking Inv skipped.";
     }
     if(invariantExists)
       runnable_script_name.push_back(

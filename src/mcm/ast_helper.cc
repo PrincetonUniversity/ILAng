@@ -7,6 +7,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/mcm/memory_model.h>
 #include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -153,6 +154,103 @@ FunctionApplicationFinder::FunctionApplicationFinder(const ExprPtr& expr) {
 const std::set<std::shared_ptr<Func>>
 FunctionApplicationFinder::GetReferredFunc() const {
   return _func_refs;
+}
+
+
+/******************************************************************************/
+// Helper Class: Ast2TensorIr
+/******************************************************************************/
+
+
+void Ast2TensorIr::CollectSums(const ExprPtr& e) {
+  if (!e->is_op())
+      return;
+    std::shared_ptr<ExprOp> eop = std::dynamic_pointer_cast<ExprOp>(e);
+    if (eop && eop->op_name() == "ADD") {
+      for (size_t idx = 0; idx < eop->arg_num(); idx ++ )
+        CollectSums(eop->arg(idx));
+    } else if (eop) {
+      sums.push_back(eop);
+    }
+}
+
+
+std::string Ast2TensorIr::HierPrint(const ExprPtr& e) {
+  std::stringstream sbuf;
+  
+  std::shared_ptr<ExprVar> var = std::dynamic_pointer_cast<ExprVar>(e);
+  if (var) {
+    
+    return var->name().str() + ".astype(out_dtype)" ;
+  }
+
+  e->Print(sbuf);
+  std::string op = sbuf.str();
+  if (op.find("MUL") == 0)
+    op = "*";
+  std::string res = "(";
+
+  for (size_t idx = 0; idx < e->arg_num(); idx ++ ) {
+    res+= HierPrint(e->arg(idx)) + " ";
+    if (idx == 0)
+      res += op + " ";
+  }
+  res += ')';
+
+  return res;
+}
+
+void Ast2TensorIr::CovertK_patternmatching() {
+  auto e1 = HierPrint(sums[0]);
+  std::cout << ReplaceAll(e1, "out_dtype", "\"uint8\"") << std::endl;
+  auto kpos = e1.find_first_of("0123456789");
+  if (kpos != e1.npos) {
+    std::string digit = e1.substr(kpos,1);
+    e1 = ReplaceAll(e1, digit, "[k]");
+  }
+
+  for (auto pos = sums.begin() + 1; pos != sums.end(); ++ pos) {
+    auto e2 = HierPrint(*pos);
+    std::cout <<  ReplaceAll(e2, "out_dtype", "\"uint8\"")  << std::endl;
+    auto kpos2 = e2.find_first_of("0123456789");
+    auto kpos3 = e2.find_first_not_of("0123456789", kpos2);
+    if (kpos2 != e2.npos) {
+      std::string digit = e2.substr(kpos2,kpos3-kpos2);
+      e2 = ReplaceAll(e2, digit, "[k]");
+    }
+    ILA_ASSERT(e1 == e2) << e1 << "/" << e2;
+  }
+  ir = e1;
+}
+
+Ast2TensorIr::Ast2TensorIr(const ExprPtr& expr) {
+  CollectSums(expr);
+  CovertK_patternmatching();
+  ir = "tvm.sum( " + ir + ", axis = k )" ;
+  ir = ReplaceAll(ir, "out_dtype", "\"uint8\"");
+}
+
+std::string Ast2TensorIr::GetTensorIr() const {
+  std::string tensorirtemplate = R"##(
+    A_buf = tvm.placeholder((**length**,), dtype='uint8', name='A_buf')
+    B_buf = tvm.placeholder((**length**,), dtype='uint8', name='B_buf')
+    
+    k = tvm.reduce_axis((**length**,), name='k')
+    C = tvm.compute((1,),
+                    lambda i: **tensorir**, name="C")
+                                      
+    a_buffer = tvm.decl_buffer(A_buf.shape, dtype='uint8', name="a_buffer",
+                               offset_factor=1, scope = "local.A_buffer",
+                               strides=[1])
+    b_buffer = tvm.decl_buffer(B_buf.shape, dtype='uint8', name="b_buffer",
+                               offset_factor=1, scope = "local.B_buffer",
+                               strides=[1])
+    
+    out_buffer = tvm.decl_buffer(
+        C.shape, out.dtype, scope ="local.acc_buffer"))##";
+  return ReplaceAll(ReplaceAll(tensorirtemplate, "**tensorir**", ir),
+    "**length**" , std::to_string(sums.size()))
+    ;
 }
 
 /******************************************************************************/

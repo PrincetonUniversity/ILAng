@@ -137,6 +137,10 @@ void VlgSglTgtGen_Yosys::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
       << "-------- aspt:" << aspt << " contains unfriendly dot.";
+  if (dspt == "invariant_assume") {
+    ILA_WARN << "Ignore invariant assume : " << assumption_wire_name;
+    return;
+  }
   _problems.assumptions[dspt].exprs.push_back(assumption_wire_name);
   //_problems.assumptions.push_back(convert_expr_to_yosys(aspt));
 }
@@ -157,6 +161,10 @@ void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
 /// Add an assumption
 void VlgSglTgtGen_Yosys::add_a_direct_assumption(const std::string& aspt,
                                                 const std::string& dspt) {
+  if (dspt == "invariant_assume") {
+    ILA_WARN << "Ignore invariant assume : " << aspt;
+    return;
+  }
   _problems.assumptions[dspt].exprs.push_back(aspt);
 }
 /// Add an assertion
@@ -210,7 +218,7 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
 
           vlg_mod_inv_vec.push_back(
             "wire " + assumption_wire_name + 
-            " = " + p );
+            " = " + p +";");
           
           p = assumption_wire_name;
         }

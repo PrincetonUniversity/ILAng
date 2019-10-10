@@ -87,6 +87,26 @@ public:
   const std::set<std::shared_ptr<Func>> GetReferredFunc() const;
 }; // class FunctionApplicationFinder
 
+
+/// \brief Class of traversing to find the application of functions in an AST
+class Ast2TensorIr {
+protected:
+  // ------------------------- MEMBERS -------------------------------------- //
+  std::string ir;
+
+public:
+  std::vector<std::shared_ptr<ExprOp>> sums;
+  // ------------------------- CONSTRUCTOR ---------------------------------- //
+  Ast2TensorIr(const ExprPtr& expr);
+  void CovertK_patternmatching();
+  void CollectSums(const ExprPtr& e);
+  std::string HierPrint(const ExprPtr& e);
+
+  // get the set of the pointer of the functions
+  std::string GetTensorIr() const;
+}; // class FunctionApplicationFinder
+
+
 /*
 /// \brief Class of traversing to detect nested store
 class PureNestedStoreDetector {

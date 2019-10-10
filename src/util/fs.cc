@@ -271,7 +271,8 @@ execute_result os_portable_execute_shell(
 
   // now forked ...
   if (pid == 0) {
-    setpgid(0,0); // creates a new proces group 
+    if(timeout != 0) // only if we want to have the time-out feature
+      setpgid(0,0); // creates a new proces group 
     
     close(pipefd[0]); // close the read end
     int report_to_parent;

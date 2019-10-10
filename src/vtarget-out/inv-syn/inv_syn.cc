@@ -487,7 +487,8 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
               dspt == "absmem" ||
               dspt == "additional_mapping_control_assume" ||
               dspt == "func_arg" ||
-              dspt == "func_result"
+              dspt == "func_result" ||
+              dspt == "post_value_holder"
                 )
               wn_amc_wrapper_item.insert(expr);
             else if(
@@ -585,7 +586,7 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
         aspt = JoinListWithAnd(items);
 
         items.clear();
-        for (auto && name_bool_pair: aspt_item) {
+        for (auto && name_bool_pair: asst_item) {
           if (name_bool_pair.second)
             items.push_back("("+name_bool_pair.first+" |__Sw__|)");
           else
