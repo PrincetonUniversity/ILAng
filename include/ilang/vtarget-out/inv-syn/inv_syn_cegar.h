@@ -85,6 +85,9 @@ public:
   /// to extract reachability test result
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
+  /// to extract reachability test result
+  void PrepareCexForGrain(bool autodet = true, bool reachable = true, 
+    const std::string & res_file = "");
   /// to extract reachability test result, this will extract to candidate invariant
   void ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
@@ -93,6 +96,7 @@ public:
   bool virtual RunVerifAuto(const std::string & script_selection);
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto();
+  void VerifGenCex(const std::string & path);
   
   /// to generate synthesis target (for using the whole transfer function)
   void GenerateSynthesisTargetSygusTransFunc(const Cvc4Syntax &, bool enumerate = false );

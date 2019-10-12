@@ -39,6 +39,8 @@ public:
   void ExportInCnfFormat(std::ostream & os) const;
   /// export for wky-bv
   void ExportInCociFormat(std::ostream & os) const;
+  /// load from file
+  void ImportFromFile(std::istream & os);
 
 
 public:

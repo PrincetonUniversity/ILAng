@@ -259,26 +259,27 @@ void VlgSglTgtGen_Cvc4SyGuS::Export_script(const std::string& script_name) {
 
   std::string runnable = "cvc4";
   std::string redirect_file = "../__synthesis_result.txt";
-  std::string options = " --sygus-stream --sygus-pbe";
-  if (enumerate)
-    options = " --sygus-stream"; // force searching all 
+  std::string options;
+  //std::string options = " --sygus-stream --sygus-pbe";
+  //if (enumerate)
+  //  options = " --sygus-stream"; // force searching all 
 
   if (not _vtg_config.Cvc4Path.empty())
     runnable = os_portable_append_dir(_vtg_config.Cvc4Path, runnable);
 
   if (design_prob_fname != "")
     fout << runnable << options << " --lang=sygus "<< design_prob_fname  
-         << " > " << redirect_file << " &" << std::endl;
+         << " > " << redirect_file << " " << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 
   // we will always return as long as we see some answer
-  fout << "inotifywait " << redirect_file << " -e modify\n";
-  fout << "while [ ! -s \"" << redirect_file << "\" ]; do\n";
-  fout << "  echo \"Empty file ... +1s\"\n";
-  fout << "  sleep 1\n";
-  fout << "done\n";
-  fout << "trap 'kill $(jobs -p)' EXIT\n";
+  // fout << "inotifywait " << redirect_file << " -e modify\n";
+  // fout << "while [ ! -s \"" << redirect_file << "\" ]; do\n";
+  // fout << "  echo \"Empty file ... +1s\"\n";
+  // fout << "  sleep 1\n";
+  // fout << "done\n";
+  // fout << "trap 'kill $(jobs -p)' EXIT\n";
 } // Export_script
 
 

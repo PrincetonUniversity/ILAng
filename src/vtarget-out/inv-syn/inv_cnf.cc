@@ -69,6 +69,26 @@ void InvariantInCnf::Clear() {
 }
 
 
+/// load from file
+void InvariantInCnf::ImportFromFile(std::istream & ins) {
+  unsigned num_clause;
+  ins >> num_clause;
+  for (unsigned idx = 0; idx < num_clause; ++ idx) {
+    unsigned num_literal;
+    ins >> num_literal;
+    clause cl;
+    for (unsigned lidx = 0; lidx < num_literal; ++ lidx){
+      std::string s_name;
+      unsigned bitslice;
+      bool complemented;
+      ins >> s_name >> bitslice >> complemented;
+      cl.push_back(
+        {complemented, s_name, bitslice});
+    } // for each literal
+    InsertClause(cl); // put a clause
+  } // for each clause
+}
+
 /// export for wky-enhance
 void InvariantInCnf::ExportInCnfFormat(std::ostream & os) const {
   os << GetCnfs().size() << std::endl; //# of clauses

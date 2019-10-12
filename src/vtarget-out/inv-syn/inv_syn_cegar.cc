@@ -596,6 +596,93 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
 
 } // ExtractSynthesisResult
 
+
+void InvariantSynthesizerCegar::PrepareCexForGrain(bool autodet, bool reachable, 
+  const std::string & given_smt_chc_result_txt) {
+  
+  if(check_in_bad_state()) return;
+
+  std::string res_file = given_smt_chc_result_txt;
+  if (autodet) {
+    reachable = cex_reachable;
+    res_file = synthesis_result_fn;
+  }
+  
+  ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
+
+  if (reachable) {
+    ILA_ERROR << "Verification failed with true counterexample!";
+    status = cegar_status::FAILED;
+    return;
+  }
+
+  ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
+    << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
+    
+  if (current_inv_type == cur_inv_tp::CHC) {
+    if (design_smt_info == nullptr) {
+      ILA_ERROR << "Design SMT-LIB2 info is not available. "
+        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
+      return;
+    }
+    inv_obj.AddInvariantFromChcResultFile(
+      *(design_smt_info.get()), "", res_file, 
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy );
+  } else if (current_inv_type == cur_inv_tp::SYGUS_CHC) { // we reparse even for SyGuS cex
+    if (design_smt_info == nullptr) {
+      ILA_ERROR << "Design SMT-LIB2 info is not available. "
+        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
+      return;
+    } 
+    ILA_ASSERT(
+      inv_obj.AddInvariantFromSygusResultFile(
+      *(design_smt_info.get()), "", res_file, 
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy,
+      true,
+      sygus_corrections
+       )) // correction is needed
+    << "SyGuS solver failed to generate an invariant";
+  } else if (current_inv_type == cur_inv_tp::FREQHORN_CHC) {
+    if (design_smt_info == nullptr) {
+      ILA_ERROR << "Design SMT-LIB2 info is not available. "
+        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
+      return;
+    }
+    inv_obj.AddInvariantFromFreqHornResultFile(
+      *(design_smt_info.get()), "", os_portable_append_dir(_output_path, "freqhorn.result"), 
+      true,
+      true );
+  } else if (current_inv_type == cur_inv_tp::CEGAR_ABC){
+    ILA_ASSERT(
+    inv_obj.AddInvariantFromAbcResultFile(
+       _vtg_config.AbcUseAiger ?
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "__aiger_prepare.blif"):
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
+      os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "ffmap.info"),
+      true,true, _vtg_config.AbcUseGla ? 
+        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "",
+      _vtg_config.AbcUseAiger,
+      _vtg_config.AbcUseAiger ?
+          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "", inv_cnf, InvariantInCnf() )
+    ) << "Extracting of invariant failed!";
+  }
+  else
+    ILA_ERROR<<"Inv type unknown:" << current_inv_type;
+  
+  std::cout << "Confirmed synthesized invariants:" << std::endl;
+  for (auto && v : inv_obj.GetVlgConstraints() )
+    std::cout << v << std::endl;
+
+  status = cegar_status::NEXT_V;
+  current_inv_type = cur_inv_tp::NONE; // we have extracted, reset this marker
+  // remove it then
+  RemoveInvariantsByIdx(GetInvariants().NumInvariant() - 1);
+} // PrepareCexForGrain
+
+
+
 // -------------------------------- AUTO RUNS ------------------------------------------- //
 
 /// a helper function (only locally available)
@@ -674,6 +761,10 @@ bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selectio
   ILA_INFO << "No counterexample has been found. CEGAR loop finishes.";
   return true;
 }
+void InvariantSynthesizerCegar::VerifGenCex(const std::string & path) {
+  std::system(("cp " + path + " " + vcd_file_name).c_str());
+}
+
 /// run Synthesis
 bool InvariantSynthesizerCegar::RunSynAuto() {
   if(check_in_bad_state())
@@ -686,7 +777,7 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(runnable_script_name[0]);
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
-    << "RunVerifAuto: cannot change dir to:" << new_wd;
+    << "RunSynAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
   execute_result res;
   if (current_inv_type == SYGUS_CEX || current_inv_type == SYGUS_CHC ) {
@@ -1082,7 +1173,7 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ValidateS
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(inv_validate_script[0]);
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
-    << "RunVerifAuto: cannot change dir to:" << new_wd;
+    << "ValidateSygusDatapointCandidateInvariant: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing verify script:" << inv_validate_script[0];
   auto res = os_portable_execute_shell({"bash", 
     os_portable_file_name_from_path( inv_validate_script[0]) },
@@ -1216,7 +1307,7 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ProofCand
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(run_script[0]);
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
-    << "RunVerifAuto: cannot change dir to:" << new_wd;
+    << "ProofCandidateInvariants: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  run_script[0] ;
   auto res = os_portable_execute_shell({"bash",
     os_portable_file_name_from_path( run_script[0] )}, redirect_fn, BOTH, timeout);

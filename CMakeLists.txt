@@ -108,6 +108,8 @@ add_subdirectory(interfacer)
 # Making the executable
 # ---------------------------------------------------------------------------- #
 
+add_subdirectory(chc-cex-interpret)
+
 
 # ---------------------------------------------------------------------------- #
 # INSTALL
