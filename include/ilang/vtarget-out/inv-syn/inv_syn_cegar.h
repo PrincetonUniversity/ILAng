@@ -93,7 +93,7 @@ public:
     const std::string & res_file = "");
 
   /// run Verification : returns eq true/false
-  bool virtual RunVerifAuto(const std::string & script_selection);
+  bool virtual RunVerifAuto(const std::string & script_selection, const std::string & pid_fname = "");
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto();
   void VerifGenCex(const std::string & path);

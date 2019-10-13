@@ -193,7 +193,8 @@ execute_result os_portable_execute_shell(
   const std::vector<std::string> & cmdargs,
   const std::string & redirect_output_file,
   redirect_t rdt,
-  unsigned timeout ) 
+  unsigned timeout,
+  const std::string & pid_file_name ) 
 {
   int pipefd[2];
   execute_result _ret;
@@ -271,6 +272,7 @@ execute_result os_portable_execute_shell(
 
   // now forked ...
   if (pid == 0) {
+
     if(timeout != 0) // only if we want to have the time-out feature
       setpgid(0,0); // creates a new proces group 
     
@@ -347,6 +349,10 @@ execute_result os_portable_execute_shell(
 
     child_pid = pid;
     
+    if (!pid_file_name.empty()) {
+      std::ofstream fout(pid_file_name);
+      fout << child_pid << std::endl;
+    }
     // set alarm
     if(timeout != 0) {
       shared_time_out = 0;
@@ -393,6 +399,11 @@ execute_result os_portable_execute_shell(
     _ret.failure = execute_result::NONE;
     _ret.timeout = timeout != 0 && shared_time_out;
     
+
+    if (!pid_file_name.empty()) {
+      std::ofstream fout(pid_file_name);
+      fout << 0 << std::endl;
+    }
 
     close(pipefd[0]);
     return _ret;

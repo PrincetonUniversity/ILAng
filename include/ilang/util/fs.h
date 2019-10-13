@@ -50,7 +50,8 @@ enum redirect_t {NONE = 0 , STDOUT = 1 , STDERR = 2, BOTH = 3};
 /// timeout (if 0 will wait forever)
 execute_result os_portable_execute_shell(const std::vector<std::string> & cmdargs, 
     const std::string & redirect_output_file = "", redirect_t rdt = redirect_t::BOTH,
-    unsigned timeout = 0);
+    unsigned timeout = 0,
+    const std::string & pid_file_name = "");
 
 /// Extract filename from path
 /// C:\a\b\c.txt -> c.txt

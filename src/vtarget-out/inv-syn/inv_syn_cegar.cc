@@ -719,7 +719,7 @@ bool static has_verify_tool_unknown_cosa(const std::string & fn) {
   return false;
 } // has_verify_tool_error_cosa
 /// run Verification
-bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selection) {
+bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selection, const std::string & pid_fname) {
   auto script_sel = select_script_to_run(runnable_script_name, script_selection );
   if(check_in_bad_state())
     return true;
@@ -733,7 +733,7 @@ bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selectio
   ILA_INFO << "Executing verify script:" << script_sel;
   auto res = os_portable_execute_shell({"bash", 
     os_portable_file_name_from_path( script_sel) },
-   redirect_fn, redirect_t::BOTH);
+   redirect_fn, redirect_t::BOTH, 0, pid_fname);
   ILA_ERROR_IF(res.failure != execute_result::NONE)
     << "Running verification script " << script_sel << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
