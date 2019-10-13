@@ -971,7 +971,7 @@ DesignStatistics InvariantSynthesizerExternalCegar::GetDesignStatistics() const 
   ret.TimeOfInvSynSeries= inv_syn_time_series;
 
   if (design_smt_info == nullptr) {
-    ILA_ERROR << "Design information not available!";
+    ILA_WARN << "Design information not available!";
     return ret;
   }
   std::string query_mod_name = implementation_top_module_name;

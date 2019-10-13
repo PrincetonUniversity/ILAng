@@ -86,7 +86,7 @@ public:
   /// clear all stored invariants
   void ClearAllInvariants();
   /// export invariants to a file
-  void ExportToFile(const std::string &fn) const;
+  void ExportToFile(const std::string &fn, bool export_smt_encoding = true) const;
   /// import invariants that has been previous exported
   void ImportFromFile(const std::string &fn);
   /// this is to support making candidate invariant as confirmed

@@ -258,7 +258,7 @@ size_t InvariantObject::NumInvariant() const {
 }
 
 /// export invariants to a file
-void InvariantObject::ExportToFile(const std::string &fn) const {
+void InvariantObject::ExportToFile(const std::string &fn, bool export_smt_encoding) const {
   ILA_ASSERT(smt_formula_vec.size() == inv_vlg_exprs.size())
     << "# of smt formulae =/= # of vlg exprs ";
   std::ofstream fout(fn);
@@ -291,13 +291,14 @@ void InvariantObject::ExportToFile(const std::string &fn) const {
       << "The expression contains line-break, cannot be handled correctly!";
     fout<< vlg_var << "\n";
   }
-  for (auto && smt_str : smt_formula_vec) {
-    auto smt_no_line_break = ReplaceAll(ReplaceAll(smt_str, "\n", " "), "\r", " ");
-    if (smt_no_line_break.empty())
-      fout << "(get-info :name)\n" ;
-    else
-      fout << smt_no_line_break << "\n";
-  }
+  if (export_smt_encoding)
+    for (auto && smt_str : smt_formula_vec) {
+      auto smt_no_line_break = ReplaceAll(ReplaceAll(smt_str, "\n", " "), "\r", " ");
+      if (smt_no_line_break.empty())
+        fout << "(get-info :name)\n" ;
+      else
+        fout << smt_no_line_break << "\n";
+    }
 }
 /// import invariants that has been previous exported
 void InvariantObject::ImportFromFile(const std::string &fn) {
