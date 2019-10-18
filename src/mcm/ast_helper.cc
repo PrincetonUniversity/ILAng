@@ -6,6 +6,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/mcm/memory_model.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
@@ -134,21 +135,34 @@ bool NestedMemAddrDataAvoider::NotNested(const ExprPtr& node) {
 // Helper Class: FunctionApplicationFinder
 /******************************************************************************/
 
+void FunctionApplicationFinder::hasFuncAppOnNode(const ExprPtr& e) {
+  if (!e->is_op())
+    return;
+  std::shared_ptr<ExprOp> eop = std::dynamic_pointer_cast<ExprOp>(e);
+  if (!(eop && eop->op_name() == "APP"))
+    return;
+  std::shared_ptr<ExprOpAppFunc> apply_op =
+      std::dynamic_pointer_cast<ExprOpAppFunc>(eop);
+  if (!apply_op)
+    return;
+  // extract function and added it to the set
+  _func_refs.insert(apply_op->func());
+}
+
+
+void FunctionApplicationFinder::hasFuncApp(const ExprPtr& expr) {
+  if (IN(expr.get(),visited))
+    return;
+  visited.insert(expr.get());
+  for (size_t i = 0; i != expr->arg_num(); i++) {
+    const ExprPtr arg_i = expr->arg(i);
+    hasFuncApp(expr);
+  }
+  hasFuncAppOnNode(expr);
+}
+
 FunctionApplicationFinder::FunctionApplicationFinder(const ExprPtr& expr) {
-  auto traversaler = [this](const ExprPtr& e) -> void {
-    if (!e->is_op())
-      return;
-    std::shared_ptr<ExprOp> eop = std::dynamic_pointer_cast<ExprOp>(e);
-    if (!(eop && eop->op_name() == "APP"))
-      return;
-    std::shared_ptr<ExprOpAppFunc> apply_op =
-        std::dynamic_pointer_cast<ExprOpAppFunc>(eop);
-    if (!apply_op)
-      return;
-    // extract function and added it to the set
-    _func_refs.insert(apply_op->func());
-  };
-  expr->DepthFirstVisit(traversaler);
+  hasFuncApp(expr);
 }
 // get the set of the pointer of the functions
 const std::set<std::shared_ptr<Func>>
