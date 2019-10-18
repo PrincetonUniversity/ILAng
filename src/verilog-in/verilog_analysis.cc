@@ -70,7 +70,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t& include_path,
                                  const std::string& optional_top_module)
     : vlg_include_path(include_path), vlg_src_files(srcs),
       top_inst_name(top_module_inst_name), _bad_state(false) {
-//yydebug = 1;
+  //yydebug = 1;
   instance_count++;
   if (instance_count != 1) {
     _bad_state = true;
@@ -374,7 +374,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
         ILA_ASSERT(asm_ptr->lval->type == ast_lvalue_type_e::NET_IDENTIFIER ||
                    asm_ptr->lval->type == ast_lvalue_type_e::VAR_IDENTIFIER);
         port_id_ptr = asm_ptr->lval->data.identifier;
-      } else
+      } else // otherwise it is a list of id
         port_id_ptr = (ast_identifier)ptr_from_list_;
 
       // if (port_id_ptr->)
@@ -398,7 +398,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
         drt = port_ptr->direction;
       }
     } // for
-  }
+  } // check if it is port
 
   // let's find if there exists a wire/reg for it / not I/O
   bool internalDef = false;
@@ -424,15 +424,18 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       isReg = true;
       reg_or_wire_ptr = reg_decl_ptr;
     }
-  }
+  } // check if it is internal reg
 
   ILA_DLOG("VerilogAnalyzer._check_hierarchical_name_type") << "Check net";
   for (unsigned int net_decl_idx = 0;
        net_decl_idx < mod_ast_ptr->net_declarations->items; net_decl_idx++) {
-    ast_net_declaration* net_decl_ptr =
-        (ast_net_declaration*)ast_list_get_not_null(
+    ast_net_declaration * net_decl_ptr =
+        (ast_net_declaration *)ast_list_get_not_null(
             mod_ast_ptr->net_declarations, net_decl_idx);
-    if (ast_identifier_tostring(net_decl_ptr->identifier) == last_level_name) {
+    // this is double bug cancellation. (it's identifier is actually ast_single_assignment)
+    ast_single_assignment* asm_ptr = (ast_single_assignment*)(net_decl_ptr->identifier_assignment);
+    
+    if (_ast_identifier_tostring(asm_ptr->lval->data.identifier) == last_level_name) {
       // now we know it is net!
       if (internalDef) {
         if (isReg) {
@@ -451,7 +454,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       isReg = false;
       reg_or_wire_ptr = net_decl_ptr;
     }
-  }
+  } // net declaration
 
   ILA_DLOG("VerilogAnalyzer._check_hierarchical_name_type") << "Check done";
   // let's decide what it is
