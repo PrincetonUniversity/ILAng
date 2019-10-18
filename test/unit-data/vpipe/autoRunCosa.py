@@ -7,7 +7,7 @@ env = '/home/hongce/cosaEnv/bin/activate'
 cosa = '/home/hongce/CoSA/CoSA.py'
 solver = 'btor'
 
-cmd = "env bash -c 'source %s ; %s --problem %s --solver=%s --vcd'"
+cmd = "env bash -c 'source %s ; %s --problem %s --solver-name=%s --vcd'"
 
 
 # --------------------- HELPER --------------------- ##        

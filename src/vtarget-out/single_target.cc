@@ -458,7 +458,6 @@ void VlgSglTgtGen::ConstructWrapper() {
   // 6. helper memory
   ConstructWrapper_add_helper_memory(); // need to decide what is the target
                                         // type
-                                        // -- no need
 
   // 5.0 add the extra wires to the top module wrapper
   if (_backend == backend_selector::COSA || 
