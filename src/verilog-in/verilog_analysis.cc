@@ -435,7 +435,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
     // this is double bug cancellation. (it's identifier is actually ast_single_assignment)
     ast_single_assignment* asm_ptr = (ast_single_assignment*)(net_decl_ptr->identifier_assignment);
     
-    if (_ast_identifier_tostring(asm_ptr->lval->data.identifier) == last_level_name) {
+    if (ast_identifier_tostring(asm_ptr->lval->data.identifier) == last_level_name) {
       // now we know it is net!
       if (internalDef) {
         if (isReg) {
