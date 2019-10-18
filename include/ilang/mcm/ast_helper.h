@@ -78,8 +78,14 @@ private:
 class FunctionApplicationFinder {
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// the functions used in app_func
   std::set<std::shared_ptr<Func>> _func_refs;
-
+  /// record whether a node has been visited
+  std::set<Expr *> visited;
+  /// does a node contain a funcapp
+  void hasFuncAppOnNode(const ExprPtr& e);
+  /// does a tree contain funcapps?
+  void hasFuncApp(const ExprPtr& expr);
 public:
   // ------------------------- CONSTRUCTOR ---------------------------------- //
   FunctionApplicationFinder(const ExprPtr& expr);
