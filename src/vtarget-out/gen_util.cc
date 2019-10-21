@@ -373,6 +373,12 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
     if (!external) { // if internal
       // if you choose to expand the array then we are able to handle with out MEM directive
       int addr_range = std::pow(2, ila_state->sort()->addr_width()); // 2^N
+      int specify_range = ExprFuse::GetMemSize(ila_state);
+      ILA_ERROR_IF (specify_range > addr_range) << "For memory state: " << ila_state_name <<
+        ", its address width is" << ila_state->sort()->addr_width() << " which can hold " <<addr_range << " addrs"
+        << ", but range: " << specify_range << " is specified with SetEntryNum";
+      if (specify_range != 0)
+        addr_range = specify_range;
       // construct expansion expression
       std::string map_expr;
       for (int idx = 0; idx < addr_range; ++ idx) {
