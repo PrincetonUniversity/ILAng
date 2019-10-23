@@ -20,7 +20,9 @@
       "mem_r_data":"**MEM**mem.rdata"
   },
 
-  "mapping control" : [],
+  "mapping control" : [
+    "m1.operand1 <= 5 && m1.operand2 <= 5"
+  ],
   "annotation" : {
     "memory" : {
       "rf":"internal",
