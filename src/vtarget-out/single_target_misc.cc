@@ -248,7 +248,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
         else if (ref_field.is_array()) {
           for (auto && vlg_name : ref_field.items()) {
             if (! vlg_name.value().is_string()) {
-                ILA_ERROR  << "Expecting string/list-of-string in `verilog` field of `verilog-inline-monitors`";
+                ILA_ERROR  << "Expecting string/list-of-string in `refs` field of `verilog-inline-monitors`";
                 continue;
               }
             repl_list.push_back(vlg_name.value().get<std::string>());
