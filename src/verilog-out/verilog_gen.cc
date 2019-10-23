@@ -209,12 +209,14 @@ void VerilogGeneratorBase::add_ite_stmt(const vlg_stmt_t& cond,
 
 // the mems to be created
 void VerilogGeneratorBase::add_internal_mem(const vlg_name_t& mem_name,
-                                            int addr_width, int data_width) {
-  mems_internal.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width)});
+                                            int addr_width, int data_width,
+                                            int entry_num) {
+  mems_internal.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width,entry_num)});
 }
 void VerilogGeneratorBase::add_external_mem(const vlg_name_t& mem_name,
-                                            int addr_width, int data_width) {
-  mems_external.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width)});
+                                            int addr_width, int data_width,
+                                            int entry_num) {
+  mems_external.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width, entry_num)});
   /* NO, this should not be done
   vlg_name_t addr_name = mem_name + "_addr_" + new_id();
   vlg_name_t data_name = mem_name + "_data_" + new_id();
@@ -286,10 +288,22 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
   }
 
   // now we deal w. the internal mems
-  for (auto const& mem : mems_internal) // mems.first is just a name
-    fout << "reg " << std::setw(10) << WidthToRange(std::get<2>(mem.second))
+  for (auto const& mem : mems_internal) { // mems.first is just a name
+    int data_width = std::get<2>(mem.second);
+    int addr_width = std::get<1>(mem.second);
+    int entry_num_specified = std::get<3>(mem.second);
+    int n_elem_allowed = std::pow(2, addr_width);
+    int n_elem = n_elem_allowed;
+    ILA_ERROR_IF(entry_num_specified != 0 && entry_num_specified > n_elem_allowed)
+      << "Memory : " << std::get<0>(mem.second) << ", addr_width:" << addr_width
+      << " is forced to have " << entry_num_specified << " entries, which is greater than "
+      << "the maximum allowed entry count: " << n_elem_allowed;
+    if (entry_num_specified != 0 && entry_num_specified <= n_elem_allowed)
+      n_elem = entry_num_specified;
+    fout << "reg " << std::setw(10) << WidthToRange(data_width)
          << " " << (std::get<0>(mem.second))
-         << WidthToRange(std::pow(2, std::get<1>(mem.second))) << ";\n";
+         << WidthToRange(n_elem) << ";\n";
+  }
   // we require that the statements must have ";" ending itself
   for (auto const& stmt : statements)
     fout << stmt << "\n";
@@ -352,7 +366,8 @@ void VerilogGenerator::insertInput(const ExprPtr& input) {
     // when in expr parse, remember it is (EXTERNAL mem)
     add_external_mem(sanitizeName(input),         // name
                      input->sort()->addr_width(), // addr_width
-                     input->sort()->data_width());
+                     input->sort()->data_width(),
+                     ExprFuse::GetMemSize(input));
   } else {
     add_input(sanitizeName(input), get_width(input));
     add_wire(sanitizeName(input), get_width(input));
@@ -372,16 +387,21 @@ void VerilogGenerator::insertState(const ExprPtr& state) {
     if (external) {
       add_external_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
-                       state->sort()->data_width());
+                       state->sort()->data_width(),
+                       ExprFuse::GetMemSize(state));
       ILA_DLOG("VerilogGen.insertState")
           << "insert emem:" << state->name().str();
     } else {
       add_internal_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
-                       state->sort()->data_width());
+                       state->sort()->data_width(),
+                       ExprFuse::GetMemSize(state));
       if (cfg_.expand_mem) { // vtg should put it to be true here
         // add output
+        int n_elem_specified = ExprFuse::GetMemSize(state);
         int addr_range = std::pow(2, state->sort()->addr_width());
+        if (n_elem_specified != 0 && n_elem_specified <= addr_range)
+          addr_range = n_elem_specified;
         int data_width = state->sort()->data_width();
         for (int idx = 0; idx < addr_range ; ++ idx ) {
           auto probe_wire_name = sanitizeName(state)+"_" + std::to_string(idx);
