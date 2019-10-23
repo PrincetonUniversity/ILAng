@@ -155,7 +155,7 @@ void FunctionApplicationFinder::hasFuncApp(const ExprPtr& expr) {
   visited.insert(expr.get());
   for (size_t i = 0; i != expr->arg_num(); i++) {
     const ExprPtr arg_i = expr->arg(i);
-    hasFuncApp(expr);
+    hasFuncApp(arg_i);
   }
   hasFuncAppOnNode(expr);
 }

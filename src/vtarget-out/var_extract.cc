@@ -38,7 +38,7 @@ bool isStateBegin(unsigned char c) { return std::isalpha(c) || c=='#' || c == '_
 bool isStateCont(unsigned char c, size_t idx, const std::string& s) {
   if (std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == ']' )
     return true;
-  if (not s.empty() and s.front() == '#' and c == '#')
+  if (! s.empty() && s.front() == '#' && c == '#')
     return true;
   else if (c == '[') {
     auto rp = s.find(']', idx);
@@ -100,7 +100,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
         is_state = false;
         auto subs = in.substr(left, idx - left);
         token_type tp;
-        if (not subs.empty() and subs.front() == '#' and subs.find('#',1) != subs.npos) {
+        if (! subs.empty() && subs.front() == '#' && subs.find('#',1) != subs.npos) {
           _tokens.push_back({ KEEP, ReplaceAll(subs,"#","")});
           left = idx;
           if (is_num_new)
