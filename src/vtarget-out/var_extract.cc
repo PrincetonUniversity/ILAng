@@ -153,7 +153,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
     if (is_num)
       _tokens.push_back({token_type::NUM, subs});
     else if (is_state) {
-      if (not subs.empty() and subs.front() == '#' and subs.find('#',1) != subs.npos)
+      if (! subs.empty() && subs.front() == '#' && subs.find('#',1) != subs.npos)
           _tokens.push_back({ KEEP, ReplaceAll(subs,"#","")});
       else {
         token_type tp;
