@@ -68,6 +68,29 @@ TEST(TestVlgTargetGen, PipeExample) {
   vg.GenerateTargets();
 }
 
+
+TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir, "vmap-rfmap-pvholder.json"),         // variable mapping
+      os_portable_append_dir(rfDir, "cond-rfmap-pvholder.json"),         // instruction mapping
+      os_portable_append_dir(dirName, "verify_pvholder"),          // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::COSA // engine
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
 // test all kinds of rfmap issue
 // test bad states
 
@@ -162,6 +185,29 @@ TEST(TestVlgTargetGen, MemoryInternalExternal) {
       dirName,                       // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
+TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
+  auto ila_model = MemorySwap::BuildRfAsMemModelRegEntry6();
+  VlgVerifTgtGenBase::vtg_config_t vtg_cfg;
+  vtg_cfg.CosaAddKeep = false;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                            // no include
+      {dirName + "rf_as_mem_6rf.v"},     // vlog files
+      "proc",                        // top_module_name
+      dirName + "vmap-rfarray.json", // variable mapping
+      dirName + "cond-rfarray.json", // cond path
+      dirName + "rfarray_rf6/",      // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      vtg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
