@@ -91,7 +91,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     // add as a module input, also
     vlg_wrapper.add_input(func_reg_w, func_app.result.second);
 
-    add_reg_cassign_assumption(func_reg, func_reg_w, "__START__",
+    add_reg_cassign_assumption(func_reg, func_reg_w, func_app.result.second, "__START__",
                                "func_result");
     // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " +
     // func_reg_w + ";" );
@@ -109,7 +109,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
                              "_arg" + IntToStr(argNo) + "_reg";
       vlg_wrapper.add_reg(func_arg, arg.second);
       vlg_wrapper.add_wire(func_arg_w, arg.second, true);
-      add_reg_cassign_assumption(func_arg, func_arg_w, "__START__", "func_arg");
+      add_reg_cassign_assumption(func_arg, func_arg_w, arg.second, "__START__", "func_arg");
       // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " +
       // func_arg_w + ";" );
 

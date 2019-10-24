@@ -1,0 +1,61 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "instruction mapping": [],
+  "state mapping": {  
+  	"r0":[ ["__START__", "#r0_pvholder#"] , ["1'b1", "m1.registers[0]"] ] ,
+    "r1":[ ["__START__", "#r1_pvholder#"] , ["1'b1", "m1.registers[1]"] ] ,
+    "r2":[ ["__START__", "#r2_pvholder#"] , ["1'b1", "m1.registers[2]"] ] ,
+    "r3":[ ["__START__", "#r3_pvholder#"] , ["1'b1", "m1.registers[3]"] ] },
+
+  "interface mapping": {
+  	 "rst":"**RESET**", 
+  	 "clk":"**CLOCK**",
+  	 "inst":"inst",
+  	 "dummy_read_rf":"**KEEP**",
+  	 "dummy_rf_data":"**KEEP**"
+  },
+
+  "post-value-holder": {
+    "r0_pvholder" : {
+      "cond": "#stage_tracker# == 1",
+      "val":"m1.registers[0]",
+      "width":8
+    },
+    "r1_pvholder" : {
+      "cond": "#stage_tracker# == 1",
+      "val":"m1.registers[1]",
+      "width":8
+    },
+    "r2_pvholder" : {
+      "cond": "#stage_tracker# == 1",
+      "val":"m1.registers[2]",
+      "width":8
+    },
+    "r3_pvholder" : {
+      "cond": "#stage_tracker# == 1",
+      "val":"m1.registers[3]",
+      "width":8
+    }
+  },
+  "verilog-inline-monitors" : {
+    "stage_tracker" : {
+      "verilog": 
+        ["always @(posedge clk) begin",
+         "  if (__START__) stage_tracker <= 0;",
+         "  else if (__STARTED__ && !__ENDED__) stage_tracker <= stage_tracker + 1;",
+         "end"],
+      "defs" :[ ["stage_tracker", 2, "reg"] ],
+      "refs" :[]
+    },
+
+    "ref_test" : {
+      "verilog": 
+        ["always @(posedge clk) begin",
+         "  if (__START__) ref_test <= 0;",
+         "  else if (__STARTED__ && !__ENDED__ && stage_tracker == 1) ref_test <= m1.registers[0] + 1;",
+         "end"],
+      "defs" :[ ["ref_test", 2, "reg"] ],
+      "refs" :[ "m1.registers[0]" ]
+    }
+  }// end of monitor
+}

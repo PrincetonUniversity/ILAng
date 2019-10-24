@@ -72,5 +72,20 @@ TEST(TestUtil, RegularExpr) {
     EXPECT_EQ(l2[1], "2");
   }
 }
+TEST(TestUtil, LongWidth) {
+  std::string bit1_times63;
+  unsigned long long v;
+  for (int i=0;i<63;++i) {
+    bit1_times63 += "1";
+    v = v << 1;
+    v = v | 1;
+  }
+  auto ret = StrToLong(bit1_times63,2);
+  EXPECT_EQ(ret,v); // 63-bit does work
+
+  std::string bit1_times64 = bit1_times63 + "1";
+  auto bad = StrToLong(bit1_times64,2);
+  EXPECT_EQ(bad,0); // 64-bit does not work
+}
 
 } // namespace ilang

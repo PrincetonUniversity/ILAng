@@ -2,6 +2,7 @@
 # Test Outputs
 verify/*
 verify_jg/*
+verify_pvholder/*
 disprove/*
 vmem/invariants
 vmem/SWAP
@@ -10,6 +11,7 @@ vmem/Rd
 vmem/ADD1
 vmem/LOAD
 vmem/STORE
+vmem/rfarray_rf6/*
 undetf/INST
 undetf/INST2
 undetf/INST3

@@ -224,7 +224,14 @@ protected:
   void ConstructWrapper_add_helper_memory();
   /// Add buffers and assumption/assertions about the
   void ConstructWrapper_add_uf_constraints();
-
+  /// Add post value holder (val @ cond == ...)
+  void ConstructWrapper_add_post_value_holder();
+  /// A sub function of the above post-value-holder hanlder
+  int ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::json & pv_cond_val,
+                            const std::string & pv_name, int width, bool create_reg);
+  /// Add Verilog inline monitor
+  void ConstructWrapper_add_vlg_monitor();
+  
 protected:
   /// get the ila module instantiation string
   std::string ConstructWrapper_get_ila_module_inst();
@@ -299,6 +306,7 @@ protected:
   /// assignment, but in CoSA has to be an assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
+                                          int width,
                                           const std::string& cond,
                                           const std::string& dspt) = 0;
 

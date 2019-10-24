@@ -15,6 +15,7 @@ public:
   static Ila BuildModel();
   static Ila BuildSimpleSwapModel();
   static Ila BuildRfAsMemModel();
+  static Ila BuildRfAsMemModelRegEntry6();
   static Ila BuildRdModel();
 
 }; // class MemorySwap

@@ -162,6 +162,9 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("i3.a", 15);
     IS_WIDTH("i4.sig", 2);
     IS_WIDTH("i4.a", 5);
+    IS_WIDTH("wn1", 42);
+    IS_WIDTH("wn2", 5);
+    IS_WIDTH("wn3", 42);
   } // end of test4
 }
 

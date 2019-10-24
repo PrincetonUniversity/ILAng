@@ -1,0 +1,43 @@
+{
+  "target ILA": "vlg-gen/pipe.v:simpePipe",
+  "target Verilog": "verilog/simple_pipe.v:pipeline_v",
+  // this is a comment
+  "global invariants": [ 
+    "(! (m1.reg_0_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd0) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd0) ) )",
+    "(! (m1.reg_1_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd1) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd1) ) )",
+    "(! (m1.reg_2_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd2) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd2) ) )",
+    "(! (m1.reg_3_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd3) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd3) ) )",
+    "(! (m1.reg_0_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd0) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd0) ) )",
+    "(! (m1.reg_1_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd1) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd1) ) )",
+    "(! (m1.reg_2_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd2) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd2) ) )",
+    "(! (m1.reg_3_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd3) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd3) ) )",
+    "(! (m1.reg_0_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd0) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd0) ) )",
+    "(! (m1.reg_1_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd1) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd1) ) )",
+    "(! (m1.reg_2_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd2) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd2) ) )",
+    "(! (m1.reg_3_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd3) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd3) ) )",
+    "(! (m1.reg_0_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd0) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd0) ) )",
+    "(! (m1.reg_1_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd1) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd1) ) )",
+    "(! (m1.reg_2_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd2) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd2) ) )",
+    "(! (m1.reg_3_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd3) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd3) ) )"
+  ],
+
+  "instructions": [
+    {
+      "instruction": "NOP",
+      "ready signal": ["#stage_tracker# == 2"]
+    },
+    {
+      "instruction": "ADD",
+      "ready signal": ["#stage_tracker# == 2"]
+    },
+    {
+      "instruction": "SUB",
+      "ready signal": ["#stage_tracker# == 2"]
+    },
+    {
+      "instruction": "AND",
+      "ready signal": ["#stage_tracker# == 2"]
+    }
+  ]
+}
+

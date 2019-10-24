@@ -84,8 +84,8 @@ public:
   /// Type of Verilog ITEs statements
   typedef std::vector<vlg_ite_stmt_t> vlg_ite_stmts_t;
   /// Type of the memorys that are going to be created
-  typedef std::tuple<vlg_name_t, int, int>
-      vlg_mem_t; // name addr_width data_width
+  typedef std::tuple<vlg_name_t, int, int, int>
+      vlg_mem_t; // name addr_width data_width entryNum
   /// Type of collection of memorys
   typedef std::map<vlg_name_t, vlg_mem_t> vlg_mems_rec_t;
   /// This is type of an individual write.
@@ -314,10 +314,10 @@ public:
                     const vlg_stmt_t& fstmt);
   /// record an internal memory
   void add_internal_mem(const vlg_name_t& mem_name, int addr_width,
-                        int data_width);
+                        int data_width, int entry_num);
   /// record an external memory
   void add_external_mem(const vlg_name_t& mem_name, int addr_width,
-                        int data_width);
+                        int data_width, int entry_num);
   /// add an item to the preheader
   void add_preheader(const vlg_stmt_t& stmt);
 

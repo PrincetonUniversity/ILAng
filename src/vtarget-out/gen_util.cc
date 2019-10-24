@@ -370,6 +370,12 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       // if you choose to expand the array then we are able to handle with out
       // MEM directive
       int addr_range = std::pow(2, ila_state->sort()->addr_width()); // 2^N
+      int specify_range = ExprFuse::GetMemSize(ila_state);
+      ILA_ERROR_IF (specify_range > addr_range) << "For memory state: " << ila_state_name <<
+        ", its address width is" << ila_state->sort()->addr_width() << " which can hold " <<addr_range << " addrs"
+        << ", but range: " << specify_range << " is specified with SetEntryNum";
+      if (specify_range != 0)
+        addr_range = specify_range;
       // construct expansion expression
       std::string map_expr;
       for (int idx = 0; idx < addr_range; ++idx) {
@@ -395,13 +401,28 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
   }
   // check for state match
   std::string vlg_state_name = vlg_st_name;
-  if (vlg_state_name.find(".") == std::string::npos) {
+  if (vlg_state_name.find(".") == std::string::npos && 
+      vlg_state_name.find("#") == std::string::npos) {
     vlg_state_name = _vlg_mod_inst_name + "." + vlg_state_name;
   } // auto-add module name
-  auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name);
-  ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
-      << "ila state:" << ila_state_name
-      << " has mismatched type w. verilog signal:" << vlg_state_name;
+
+  { // handle []
+    auto pos = vlg_state_name.find('[');
+    auto vlg_state_name_wo_idx = vlg_state_name;
+    if (pos != vlg_state_name.npos)
+      vlg_state_name_wo_idx = vlg_state_name_wo_idx.substr(0,pos);
+    
+    if (vlg_info_ptr->check_hierarchical_name_type(vlg_state_name_wo_idx) != VerilogInfo::hierarchical_name_type::NONE) {
+      // if this is truly a state name
+      auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name_wo_idx);
+      ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
+          << "ila state:" << ila_state_name
+          << " has mismatched type w. verilog signal:" << vlg_state_name_wo_idx;
+    } else {
+      ILA_INFO_IF(!S_IN('#', vlg_state_name_wo_idx)) << "rfmap: treating: "<< vlg_state_name_wo_idx << " as an expression.";
+    }
+  }
+
 
   // add signal -- account for jg's bug
   if (_backend == backend_selector::JASPERGOLD and

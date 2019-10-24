@@ -31,6 +31,6 @@
   	 "dummy_read_rf":"**KEEP**",
   	 "dummy_rf_data":"**SO**"
   },
-
-  "mapping control" : []
+  // the following line has no use, it is just a case of finding wire
+  "mapping control" : ["m1.reg_0_w_stage_nxt != 2'b11"]  
 }

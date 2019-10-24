@@ -109,4 +109,46 @@ Ila MemorySwap::BuildRfAsMemModel() {
   return proc;
 }
 
+
+Ila MemorySwap::BuildRfAsMemModelRegEntry6() {
+  // build the ila
+  auto proc = Ila("proc");
+  proc.SetValid(BoolConst(true));
+
+  auto op = proc.NewBvInput("op", 2);
+  auto operand1 = proc.NewBvInput("operand1", 3);
+  auto operand2 = proc.NewBvInput("operand2", 3);
+
+  auto rf  = proc.NewMemState("rf",  3, 8); // but only r0-r5
+  auto mem = proc.NewMemState("mem", 8, 8);
+
+  rf.SetEntryNum(6); // but only r0-r5
+  auto operand1_clipped = Ite( Ugt( operand1,  5), BvConst(0,3), operand1);
+  auto operand2_clipped = Ite( Ugt( operand2,  5), BvConst(0,3), operand2);
+
+  { // ADD1
+    auto ADD1 = proc.NewInstr("ADD1");
+    ADD1.SetDecode(op == 0);
+    ADD1.SetUpdate(rf, 
+      Ite(Ugt( operand1,  5), rf,
+      Store(rf, operand1_clipped, Load(rf, operand2_clipped) + 1))
+      );
+  }
+  { // STORE
+    auto STORE = proc.NewInstr("STORE");
+    STORE.SetDecode(op == 1);
+    STORE.SetUpdate(mem, Store(mem, Load(rf, operand1_clipped), Load(rf, operand2_clipped)));
+  }
+  { // LOAD
+    auto LOAD = proc.NewInstr("LOAD");
+    LOAD.SetDecode(op == 2);
+    LOAD.SetUpdate(rf, 
+      Ite(Ugt( operand1,  5), rf,
+      Store(rf, operand1_clipped, Load(mem, Load(rf, operand2_clipped)))));
+  }
+
+  return proc;
+}
+
+
 } // namespace ilang
