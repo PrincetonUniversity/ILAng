@@ -130,7 +130,9 @@ end
 endmodule
 
 
-module subm_same(input [1:0] in, output [1:0] out);
+module subm_same(
+  input [1:0] in, 
+  output [1:0] out);
 
 reg a;
 reg b;
