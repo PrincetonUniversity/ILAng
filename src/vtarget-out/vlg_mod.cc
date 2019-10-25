@@ -253,14 +253,8 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   auto vlg_sig_info =
       vlg_info_ptr->get_signal(vlg_sig_name); // will check it exists
   auto width = vlg_sig_info.get_width();
-  if (width == 0) { // will use the supplementary info if cannot find it find verilog
-    auto pos = sup_width_info.find(vlg_sig_name);
-    ILA_ERROR_IF(pos == sup_width_info.end() ||  
-      pos->second == 0) << "Unable to determine the width of signal:" << vlg_sig_name;
-    if (pos != sup_width_info.end()) {
-      width = pos->second;
-    }
-  }
+  ILA_ERROR_IF(width == 0) << "Unable to determine the width of signal:" << vlg_sig_name;
+
 
   auto short_name = vlg_sig_info.get_signal_name();
 
