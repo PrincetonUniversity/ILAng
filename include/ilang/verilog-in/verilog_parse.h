@@ -9,7 +9,7 @@
 /// \namespace ilang
 namespace ilang {
 
-void TestParseVerilog();
+// void TestParseVerilog();
 int TestParseVerilogFrom(const std::string& fn);
 
 }; // namespace ilang
