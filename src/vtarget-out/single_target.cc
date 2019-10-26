@@ -395,6 +395,8 @@ void VlgSglTgtGen::ConstructWrapper() {
   ILA_DLOG("VtargetGen") << "STEP:" << 8;
 
   // 7. uni-functions
+  if (target_type == target_type_t::INSTRUCTIONS)
+    ConstructWrapper_add_uf_constraints();
 
   // post value holder --- ABC cannot work on this
   if (target_type == target_type_t::INSTRUCTIONS) {
