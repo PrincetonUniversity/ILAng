@@ -15,7 +15,9 @@
 
 namespace ilang {
 
-TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
+// this will probably create problem as it only init but does no
+// release, removed
+// TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
 
 TEST(TestVerilogAnalysis, BaseFuncNoError) {
   auto fn = std::string(ILANG_TEST_SRC_ROOT) +

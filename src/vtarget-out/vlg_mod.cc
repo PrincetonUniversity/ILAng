@@ -253,6 +253,9 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   auto vlg_sig_info =
       vlg_info_ptr->get_signal(vlg_sig_name); // will check it exists
   auto width = vlg_sig_info.get_width();
+  ILA_ERROR_IF(width == 0) << "Unable to determine the width of signal:" << vlg_sig_name;
+
+
   auto short_name = vlg_sig_info.get_signal_name();
 
   auto vname =
@@ -324,14 +327,88 @@ std::string VerilogModifier::add_assign_wire_to_this_line(
   }*/
 }
 
+
+// return npos if no comments in
+static size_t find_comments(const std::string& line) {
+  enum state_t { PLAIN, STR, LEFT } state, next_state;
+  state = PLAIN;
+  size_t ret = 0;
+  for (const auto& c : line) {
+    if (state == PLAIN) {
+      if (c == '/')
+        next_state = LEFT;
+      else if (c == '"')
+        next_state = STR;
+      else
+        next_state = PLAIN;
+    } else if (state == STR) {
+      if (c == '"' || c == '\n')
+        next_state = PLAIN;
+      // the '\n' case is in case we encounter some issue to find
+      // the ending of a string
+      else
+        next_state = STR;
+    } else if (state == LEFT) {
+      if (c == '/') {
+        ILA_ASSERT(ret > 0);
+        return ret - 1;
+      } else
+        next_state = PLAIN;
+    } else
+      ILA_ASSERT(false);
+    state = next_state;
+    ++ret;
+  }
+  return std::string::npos;
+}
+
+static bool is_good_id_name(const std::string & idname) {
+  if (idname.length() == 0)
+    return false;
+  if ( ! isalpha( idname.at(0) ) && idname.at(0)!='_' )
+    return false;
+  for (size_t idx = 1; idx < idname.length(); ++idx) {
+    if (! isalnum( idname.at(idx) ) && idname.at(idx) != '_' )
+      return false;
+  }
+  return true;
+}
+
+static bool containUsefulPortInfo(const std::string &line, bool & newstyle){
+  auto pos = find_comments(line);
+  auto line_no_comment = line.substr(0,pos); // remove comment
+  auto wl = SplitSpaceTabEnter(line_no_comment); // should not go to the right
+  if (std::find(wl.begin(), wl.end(), "output") != wl.end() ||
+      std::find(wl.begin(), wl.end(), "input") != wl.end() ) {
+    newstyle = true;
+    return true;
+  }
+  if (S_IN(',', line_no_comment)) {
+    newstyle = false;
+    return true;
+  }
+  if (wl.size() == 1 && is_good_id_name(wl.at(0))) {
+    newstyle = false;
+    return true;
+  }
+  return false;
+}
+
 bool VerilogModifier::add_mod_decl_wire_to_this_line(const std::string& line_in,
                                                      std::string& line_out,
                                                      const std::string& vname,
                                                      unsigned width) {
+  static bool new_style = false;
 
   auto pos = line_in.find(';'); // the left most ; because we will insert later
-  if (pos == std::string::npos)
+  if (pos == std::string::npos) {
+    bool set_new_style;
+    bool contain_useful_info = containUsefulPortInfo(line_in, set_new_style);
+    if (contain_useful_info)
+      new_style = set_new_style;
     return false; // unsuccessful
+  }
+    
   auto pos_rp = line_in.rfind(')', pos);
   if (pos_rp == std::string::npos) {
     ILA_ERROR
@@ -342,15 +419,20 @@ bool VerilogModifier::add_mod_decl_wire_to_this_line(const std::string& line_in,
   auto left = line_in.substr(0, pos_rp);
   auto right = line_in.substr(pos_rp);
 
-  auto wl = SplitSpaceTabEnter(left); // should not go to the right
-  bool new_style = false;
+  // auto wl = SplitSpaceTabEnter(left); // should not go to the right
 
   if (_port_decl_style == port_decl_style_t::AUTO) {
+
+    bool set_new_style;
+    bool contain_useful_info = containUsefulPortInfo(left, set_new_style);
+    if (contain_useful_info)
+      new_style = set_new_style;
+    /*
     new_style = false;
     if (std::find(wl.begin(), wl.end(), "output") != wl.end())
       new_style = true;
     if (std::find(wl.begin(), wl.end(), "input") != wl.end())
-      new_style = true;
+      new_style = true;*/
   } else {
     new_style = _port_decl_style == port_decl_style_t::NEW ? true : false;
   }
@@ -381,6 +463,9 @@ bool VerilogModifier::add_mod_inst_wire_to_this_line(const std::string& line_in,
         else if(c == ')') { left_para_layer --; }
       }
     }*/
+  // static bool with_name_index = true;
+  // this is definitely a bug, we cannot handle
+  // anonymous argument
 
   auto pos = line_in.find(';');
   if (pos == std::string::npos)

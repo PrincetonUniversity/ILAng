@@ -16,7 +16,6 @@
 
 namespace ilang {
 
-#ifdef VERILOG_IN_ENABLE
 
 TEST(TestVerilogMod, Modify) {
 
@@ -39,7 +38,7 @@ TEST(TestVerilogMod, Modify) {
   VerilogInfo va(VerilogInfo::path_vec_t(), VerilogInfo::path_vec_t({fn}),
                  "m1");
 
-  VerilogModifier vm(&va);
+  VerilogModifier vm(&va, VerilogModifier::port_decl_style_t::AUTO, true);
 
   vm.RecordKeepSignalName("m1.__COUNTER_start__n3");
   vm.RecordKeepSignalName("m1.__ILA_proc_decode_of_Add__");
@@ -65,5 +64,4 @@ TEST(TestVerilogMod, Modify) {
   vm.ReadModifyWrite(fn, fin, fout);
 }
 
-#endif // VERILOG_IN_ENABLE
 };     // namespace ilang
