@@ -242,11 +242,12 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
       continue;
     }
     // Connect memory here
-    _idr.SetMemNameAndWidth(i.value(), sname, _vtg_config.MemAbsReadAbstraction,
-      ila_mem_state_names[sname].first,
-      ila_mem_state_names[sname].second);
-    ila_mem_state_names.erase(sname);
-    
+    if (i.value().get<std::string>().find("**") == 0) {
+      _idr.SetMemNameAndWidth(i.value(), sname, _vtg_config.MemAbsReadAbstraction,
+        ila_mem_state_names[sname].first,
+        ila_mem_state_names[sname].second);
+      ila_mem_state_names.erase(sname);
+    }
   }
 
   // check for unmapped memory
