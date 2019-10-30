@@ -36,7 +36,7 @@ BvVal::~BvVal() {}
 
 std::string BvVal::str() const { return std::to_string(val_); }
 
-const int& BvVal::val() const { return val_; }
+const BvValType& BvVal::val() const { return val_; }
 
 std::ostream& BvVal::Print(std::ostream& out) const { return out << str(); }
 

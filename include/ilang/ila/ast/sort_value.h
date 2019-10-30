@@ -4,6 +4,7 @@
 #ifndef ILANG_ILA_AST_SORT_VALUE_H__
 #define ILANG_ILA_AST_SORT_VALUE_H__
 
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <ostream>
@@ -67,7 +68,7 @@ typedef BoolVal::BoolValPtr BoolValPtr;
 class BvVal : public Value {
 public:
   /// Data type for storing BvVal
-  typedef int BvValType;
+  typedef int64_t BvValType;
   /// Pointer type for all use of BvVal.
   typedef std::shared_ptr<BvVal> BvValPtr;
 
@@ -83,7 +84,7 @@ public:
   /// Return the string representation of the value.
   std::string str() const;
   /// Return the arithmetic representation of the value.
-  const int& val() const;
+  const BvValType& val() const;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Output to stream.
