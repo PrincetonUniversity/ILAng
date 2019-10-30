@@ -23,6 +23,17 @@ public:
     std::string range;
     ex_info_t(const std::string& r) : range(r) {}
   };
+  /// The reset configuration for CoSA : used for invariant target
+  /// FIXME: use this also for invariant synthesis
+  struct cosa_reset_config_t {
+    /// whether to enforce no reset constraint
+    bool no_reset_after_starting_state;
+    /// 
+    std::vector<std::pair<std::string,bool>> reset_sequence;
+    /// Future work: reset state
+    std::map<std::string,std::string>  reset_state;
+  };
+
   /// Type of the backend
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3 } backend_selector;
   /// Type of invariant synthesis backend
@@ -65,6 +76,12 @@ public:
     /// For CoSA backend: do we add (* keep *)? default true, however, it can be
     /// buggy, so you can disable it if you want
     bool CosaAddKeep;
+    /// whether to force dot reference check in the generation
+    /// if you expect to use cosa on the it, yes, you need to
+    /// use the default setting :  NOTIFY_PANIC
+    /// in some rare cases, you may want to use JasperGold after it
+    /// in that case, it is okay to just ignore it
+    enum CosaDotReferenceNotify_t { NOTIFY_PANIC = 0, NOTIFY_WARNING = 1, NOTIFY_IGNORE = 2 } CosaDotReferenceNotify;
     // The bound of BMC, default 127
     unsigned MaxBound;
     /// Only enforce var eq on updated vars, should not be used
@@ -208,7 +225,9 @@ public:
           OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
-          CosaGenJgTesterScript(false),  CosaFullTrace(false), CosaAddKeep(true), MaxBound(127),
+          CosaGenJgTesterScript(false),  CosaFullTrace(false), CosaAddKeep(true), 
+          CosaDotReferenceNotify(CosaDotReferenceNotify_t::NOTIFY_PANIC),
+          MaxBound(127),
           OnlyAssumeUpdatedVarsEq(false), CosaAssumptionOverlyConstrainedCheck(false), // we suggest you give true
           CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),

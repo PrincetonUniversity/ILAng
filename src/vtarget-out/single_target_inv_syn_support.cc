@@ -211,14 +211,14 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_inv_s
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
   ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY
-    or target_type == target_type_t::INVARIANTS);
+    || target_type == target_type_t::INVARIANTS);
   vlg_wrapper.add_input("__START__", 1);
   vlg_wrapper.add_input("__STARTED__", 1);
 }
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
   ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY
-    or target_type == target_type_t::INVARIANTS);
+    || target_type == target_type_t::INVARIANTS);
 
   std::map<std::string, std::pair<int,int>> ila_mem_state_names;
 
@@ -241,8 +241,9 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
       ILA_ERROR << "Ignore mapping memory: " << sname;
       continue;
     }
+    // ILA_INFO << i.key() << i.value();
     // Connect memory here
-    if (i.value().get<std::string>().find("**") == 0) {
+    if (i.value().is_string() && i.value().get<std::string>().find("**") == 0) {
       _idr.SetMemNameAndWidth(i.value(), sname, _vtg_config.MemAbsReadAbstraction,
         ila_mem_state_names[sname].first,
         ila_mem_state_names[sname].second);
