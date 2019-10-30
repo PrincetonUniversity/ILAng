@@ -68,7 +68,7 @@ typedef BoolVal::BoolValPtr BoolValPtr;
 class BvVal : public Value {
 public:
   /// Data type for storing BvVal
-  typedef int64_t BvValType;
+  typedef size_t BvValType;
   /// Pointer type for all use of BvVal.
   typedef std::shared_ptr<BvVal> BvValPtr;
 
@@ -110,13 +110,13 @@ public:
   /// Pointer type for all use of MemVal.
   typedef std::shared_ptr<MemVal> MemValPtr;
   /// Type for storing the address/data mapping.
-  typedef std::map<int, int> MemValMap;
+  typedef std::map<BvValType, BvValType> MemValMap;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with only the default value.
-  MemVal(const int& def_val);
+  MemVal(const BvValType& def_val);
   /// Constructor with an existed Memory value.
-  MemVal(const int& def_val, const MemValMap& vals);
+  MemVal(const BvValType& def_val, const MemValMap& vals);
   /// Default destructor.
   ~MemVal();
 
@@ -124,12 +124,12 @@ public:
   /// Return the map of addr/data
   const MemValMap& val_map() const;
   /// Return the default value
-  const int& def_val() const;
+  const BvValType& def_val() const;
 
   /// Return the value stored in the address.
-  const int& get_data(const int& addr) const;
+  const BvValType& get_data(const BvValType& addr) const;
   /// Set the value stored in the address.
-  void set_data(const int& addr, const int& data);
+  void set_data(const BvValType& addr, const BvValType& data);
 
   // ------------------------- METHODS ---------------------------------------//
   /// Output to stream.
@@ -142,7 +142,7 @@ private:
   /// Mapping of the address/data.
   MemValMap val_map_;
   /// Default value of non-specified data.
-  int default_;
+  BvValType default_;
 
 }; // class MemVal
 

@@ -35,8 +35,7 @@ TEST(TestApi, Construct) {
   // init
   auto flag_init = (flag == BoolConst(true));
   auto regs_init = (regs[0] != BvConst(0, REG_SIZE));
-  auto mem_init =
-      (mem == MemConst(0, std::map<int, int>(), REG_SIZE, REG_SIZE));
+  auto mem_init = (mem == MemConst(0, {}, REG_SIZE, REG_SIZE));
   ila.AddInit(flag_init);
   ila.AddInit(regs_init);
   ila.AddInit(mem_init);
@@ -316,7 +315,7 @@ TEST(TestApi, Unroll) {
   auto m0 = SimpleCpuRef("m0");
   auto m1 = SimpleCpuRef("m1");
 
-  std::map<int, int> init_mem_val;
+  std::map<NumericType, NumericType> init_mem_val;
   {
     init_mem_val[0] = GenLoad(0, 0);
     init_mem_val[1] = GenLoad(1, 1);

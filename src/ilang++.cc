@@ -72,12 +72,12 @@ ExprRef ExprRef::Store(const ExprRef& addr, const ExprRef& data) const {
   return ExprRef(v);
 }
 
-ExprRef ExprRef::Load(const int& addr) const {
+ExprRef ExprRef::Load(const NumericType& addr) const {
   auto v = ExprFuse::Load(get(), addr);
   return ExprRef(v);
 }
 
-ExprRef ExprRef::Store(const int& addr, const int& data) const {
+ExprRef ExprRef::Store(const NumericType& addr, const NumericType& data) const {
   auto v = ExprFuse::Store(get(), addr, data);
   return ExprRef(v);
 }
@@ -234,17 +234,17 @@ ExprRef Lshr(const ExprRef& a, const int& b) {
   return ExprRef(v);
 }
 
-ExprRef operator+(const ExprRef& a, const int& b) {
+ExprRef operator+(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Add(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef operator-(const ExprRef& a, const int& b) {
+ExprRef operator-(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Sub(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef operator*(const ExprRef& a, const int& b) {
+ExprRef operator*(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Mul(a.get(), b);
   return ExprRef(v);
 }
@@ -324,81 +324,83 @@ ExprRef Sge(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+#if 0
 ExprRef operator==(const ExprRef& a, const bool& b) {
   auto v = ExprFuse::Eq(a.get(), b);
   return ExprRef(v);
 }
+#endif
 
-ExprRef operator==(const ExprRef& a, const int& b) {
+ExprRef operator==(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Eq(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef operator!=(const ExprRef& a, const int& b) {
+ExprRef operator!=(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Ne(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef operator<(const ExprRef& a, const int& b) {
+ExprRef operator<(const ExprRef& a, const NumericType& b) {
   auto v =
       UnsignedComparison ? ExprFuse::Ult(a.get(), b) : ExprFuse::Lt(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef operator>(const ExprRef& a, const int& b) {
+ExprRef operator>(const ExprRef& a, const NumericType& b) {
   auto v =
       UnsignedComparison ? ExprFuse::Ugt(a.get(), b) : ExprFuse::Gt(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef operator<=(const ExprRef& a, const int& b) {
+ExprRef operator<=(const ExprRef& a, const NumericType& b) {
   auto v =
       UnsignedComparison ? ExprFuse::Ule(a.get(), b) : ExprFuse::Le(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef operator>=(const ExprRef& a, const int& b) {
+ExprRef operator>=(const ExprRef& a, const NumericType& b) {
   auto v =
       UnsignedComparison ? ExprFuse::Uge(a.get(), b) : ExprFuse::Ge(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Ult(const ExprRef& a, const int& b) {
+ExprRef Ult(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Ult(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Ugt(const ExprRef& a, const int& b) {
+ExprRef Ugt(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Ugt(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Ule(const ExprRef& a, const int& b) {
+ExprRef Ule(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Ule(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Uge(const ExprRef& a, const int& b) {
+ExprRef Uge(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Uge(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Slt(const ExprRef& a, const int& b) {
+ExprRef Slt(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Lt(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Sgt(const ExprRef& a, const int& b) {
+ExprRef Sgt(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Gt(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Sle(const ExprRef& a, const int& b) {
+ExprRef Sle(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Le(a.get(), b);
   return ExprRef(v);
 }
 
-ExprRef Sge(const ExprRef& a, const int& b) {
+ExprRef Sge(const ExprRef& a, const NumericType& b) {
   auto v = ExprFuse::Ge(a.get(), b);
   return ExprRef(v);
 }
@@ -413,12 +415,13 @@ ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data) {
   return ExprRef(v);
 }
 
-ExprRef Load(const ExprRef& mem, const int& addr) {
+ExprRef Load(const ExprRef& mem, const NumericType& addr) {
   auto v = ExprFuse::Load(mem.get(), addr);
   return ExprRef(v);
 }
 
-ExprRef Store(const ExprRef& mem, const int& addr, const int& data) {
+ExprRef Store(const ExprRef& mem, const NumericType& addr,
+              const NumericType& data) {
   auto v = ExprFuse::Store(mem.get(), addr, data);
   return ExprRef(v);
 }
@@ -473,12 +476,13 @@ ExprRef BoolConst(bool val) {
   return ExprRef(v);
 }
 
-ExprRef BvConst(const int& bv_val, const int& bit_width) {
+ExprRef BvConst(const NumericType& bv_val, const int& bit_width) {
   auto v = ExprFuse::BvConst(bv_val, bit_width);
   return ExprRef(v);
 }
 
-ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
+ExprRef MemConst(const NumericType& def_val,
+                 const std::map<NumericType, NumericType>& vals,
                  const int& addr_width, const int& data_width) {
   auto v = ExprFuse::MemConst(MemVal(def_val, vals), addr_width, data_width);
   return ExprRef(v);
