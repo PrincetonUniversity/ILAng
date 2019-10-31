@@ -168,6 +168,8 @@ TEST(TestExprConst, BvConstBitwidth) {
 }
 
 TEST(TestExprConst, BvConstNumeric) {
+  SetToStdErr(1);
+
   // 8-bit
   EXPECT_EQ(BVCONST(0, 8)->val_bv()->val(), 0);
   EXPECT_EQ(BVCONST(1, 8)->val_bv()->val(), 1);
