@@ -7,9 +7,20 @@
 #include <string>
 
 #include <ilang/config.h>
+#include <ilang/ila/ast/sort_value.h>
 #include <z3++.h>
 
 namespace ilang {
+
+#ifndef Z3_LEGACY_API
+/// \brief Interface z3 bit-vector constant numeric.
+inline BvValType Z3BvVal(const BvValType& bv_val) { return bv_val; }
+#else
+/// \brief Interface z3 bit-vector constant numeric.
+inline __int64 Z3BvVal(const BvValType& bv_val) {
+  return std::static_cast<__int64>(bv_val);
+}
+#endif
 
 /// \brief Interface z3 implies ast node construction.
 inline z3::expr Z3Implies(z3::context& ctx, const z3::expr& a,
