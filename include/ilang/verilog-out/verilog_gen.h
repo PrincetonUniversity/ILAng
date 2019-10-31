@@ -61,6 +61,8 @@ public:
   typedef std::string vlg_name_t;
   /// Type of Verilog statement
   typedef std::string vlg_stmt_t;
+  /// Type of Verilog constants
+  typedef std::string vlg_const_t;
   /// Type of Verilog address
   typedef std::string vlg_addr_t;
   /// Type of Verilog data
@@ -277,6 +279,9 @@ public:
   /// sanitize the name of an expr, so it will generate illegal verilog
   /// identifier
   static vlg_name_t sanitizeName(const ExprPtr& n);
+  /// will force to be hex
+  static vlg_const_t ToVlgNum(int value, unsigned width);
+
 
 protected:
   /// The id counter

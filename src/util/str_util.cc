@@ -5,14 +5,36 @@
 
 #include <regex>
 #include <sstream>
+#include <type_traits>
 
 #include <ilang/util/log.h>
 
 namespace ilang {
 
+// it is of course possible to update it with arbitrary base
+std::string IntToStrCustomBase(unsigned value, unsigned base, bool uppercase) {
+  ILA_ASSERT(base > 1 && base <= 36) << "unsupported base : " << base;
+  std::string ret;
+  while(value != 0){
+    unsigned digit_val = value%base ;
+    char digit = digit_val < 10 ? '0' + digit_val : ((uppercase ? 'A':'a') + digit_val-10);
+    ret = digit + ret;
+    value /= base;
+  }
+  return ret;
+}
+
+
 std::string StrToUpper(const std::string& str) {
   std::string res = str;
   std::transform(res.begin(), res.end(), res.begin(), toupper);
+  return res;
+}
+
+
+std::string StrToLower(const std::string& str) {
+  std::string res = str;
+  std::transform(res.begin(), res.end(), res.begin(), tolower);
   return res;
 }
 

@@ -12,6 +12,13 @@
 /// \namespace ilang
 namespace ilang {
 
+
+/// Transform int to string with different bases
+/// (itoa is not part of the standard actually,
+/// so I hesitated whether to use it actually)
+/// on the other hand, snprintf only supports 8/10/16
+std::string IntToStrCustomBase(unsigned value, unsigned base, bool uppercase);
+
 /// Transform basic string to upper case.
 std::string StrToUpper(const std::string& str);
 

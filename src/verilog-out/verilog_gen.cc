@@ -11,6 +11,7 @@
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -101,6 +102,49 @@ VerilogGeneratorBase::sanitizeName(const ExprPtr& n) {
   ILA_ASSERT(n->is_var()) << "Should not be used on node other than variables";
   return sanitizeName(n->name().str());
 }
+
+
+inline std::string OnesHexOfSuchWidth(unsigned width) {
+  // you should not create a int and then convert as width can be larger than 128
+  ILA_ASSERT(sizeof(unsigned int)>=4); // 4*2 = 16xF
+  std::string ret;
+  unsigned n_32bits = width/32;
+  unsigned residual = width%32;
+  for (unsigned i = 0; i< n_32bits; ++i)
+    ret += "ffffffffffffffff";
+  ret += IntToStrCustomBase(residual, 16, false);
+  return ret;  
+}
+
+/// will force to be hex
+VerilogGeneratorBase::vlg_const_t VerilogGeneratorBase::ToVlgNum(int value, unsigned width) {
+
+  { // range check assuming signed int
+    int minneg = 1 << (width - 1);
+    int maxpos = ((unsigned)minneg) - 1;
+    ILA_ASSERT(minneg <= value && maxpos >= value) << "value : " << value 
+      << " is out-of-range, min:" << minneg
+      << " max:" << maxpos;
+  }
+
+  std::string valstr;
+  if (value >= 0)
+    valstr = IntToStrCustomBase((unsigned int)value, 16 , false);
+  else {
+    ILA_WARN << "Convert BvConst:" << value << " to its 2's complement";
+    if (width < (sizeof(int)*8))
+      valstr = IntToStrCustomBase((1 << width) + value, 16, false);
+    else  { // width >= int_width
+      size_t width_diff = width - (sizeof(int)*8);
+      unsigned int num_within_int = unsigned (value);// (unsigned int)(-1) - (unsigned int)(-(value+1)); 
+      // (value + 1 should not overflow as value < 0)
+      // (value + 1 will move value from the the )
+      valstr = OnesHexOfSuchWidth(width_diff) + IntToStrCustomBase(num_within_int, 16, false);
+    }
+  }
+  return (toStr(width) + "'h" +valstr);
+}
+
 
 // Currently not used, can be added to enforce sanity check
 #define CHECK_NAME(s)                                                          \
@@ -812,9 +856,12 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
       nmap[e] = translateBvOp(expr_op_ptr);
     } else if (e->is_const()) {
       int width = get_width(e);
-      vlg_name_t bvcnst =
-          toStr(width) + "'d" +
-          (std::dynamic_pointer_cast<ExprConst>(e)->val_bv()->str());
+      int value = (std::dynamic_pointer_cast<ExprConst>(e)->val_bv()->val());
+      vlg_const_t bvcnst = ToVlgNum(value, width );
+
+      ILA_WARN_IF (value < 0) 
+        << "Converting negative value:" << value 
+        << " to 2's complement: " << bvcnst;
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVconst: " << bvcnst;
       nmap[e] = bvcnst;
     } else
