@@ -12,8 +12,10 @@
 namespace ilang {
 
 // it is of course possible to update it with arbitrary base
-std::string IntToStrCustomBase(unsigned value, unsigned base, bool uppercase) {
+std::string IntToStrCustomBase(uint64_t value, unsigned base, bool uppercase) {
   ILA_ASSERT(base > 1 && base <= 36) << "unsupported base : " << base;
+  if (value == 0)
+    return "0";
   std::string ret;
   while(value != 0){
     unsigned digit_val = value%base ;

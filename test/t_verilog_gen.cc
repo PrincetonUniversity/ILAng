@@ -73,6 +73,39 @@ void FlattenIla(const InstrLvlAbsPtr& ila) {
 
 TEST(TestVerilogGen, Init) { VerilogGenerator(); }
 
+TEST(TestVerilogGen, VlgCnst) {
+  EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(1,8) , "8'h1");
+  EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(255,8) , "8'hff");
+  EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(0,8), "8'h0");
+
+  EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(0,128), "128'h0");
+  EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(1,256), "256'h1");
+  {
+    std::string hex_not_last_byte;
+    for (int i = 0; i < sizeof(VerilogGeneratorBase::IlaBvValType) *2 - 2; i++)
+      hex_not_last_byte += 'f';
+    EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(-1,128), "128'h"+hex_not_last_byte + "ff");
+    EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(-2,128), "128'h"+hex_not_last_byte+"fe");
+    EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(-10,128), "128'h"+hex_not_last_byte+"f6");
+  }
+
+  {
+    std::string hex_not_last_byte;
+    for (int i = 0; i < sizeof(VerilogGeneratorBase::IlaBvValType) *2 - 2; i++)
+      hex_not_last_byte += 'f';
+    EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(-1,64), "64'h"+hex_not_last_byte + "ff");
+    EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(-2,64), "64'h"+hex_not_last_byte+"fe");
+    EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(-10,64), "64'h"+hex_not_last_byte+"f6");
+  }
+
+// #ifndef NDEBUG
+  EXPECT_DEATH(VerilogGeneratorBase::ToVlgNum(-256,8), ".*");
+  EXPECT_DEATH(VerilogGeneratorBase::ToVlgNum(-1,8), ".*");
+  EXPECT_DEATH(VerilogGeneratorBase::ToVlgNum(256,8), ".*");
+  EXPECT_DEATH(VerilogGeneratorBase::ToVlgNum(-257,8), ".*");
+// #endif
+}
+
 TEST(TestVerilogGen, ParseInst) {
   auto ila_ptr_ = SimpleCpu("proc");
   // test 1 gen Add : internal mem

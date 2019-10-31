@@ -17,7 +17,7 @@
 namespace ilang {
 
 /// Data type for numerics. NOTE: SHOULD BE SYNCED WITH BvValType!!
-typedef int64_t NumericType;
+typedef uint64_t NumericType;
 
 /******************************************************************************/
 // Logging system.

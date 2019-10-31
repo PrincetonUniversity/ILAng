@@ -89,6 +89,9 @@ TEST(TestUtil, LongWidth) {
 }
 
 TEST(TestUtil,Int2Str) {
+  EXPECT_EQ(IntToStrCustomBase(0,16,true),"0");
+  EXPECT_EQ(IntToStrCustomBase(0,10,true),"0");
+  EXPECT_EQ(IntToStrCustomBase(0,2,true),"0");
   EXPECT_EQ(IntToStrCustomBase(16,16,true),"10");
   EXPECT_EQ(IntToStrCustomBase(16,16,false),"10");
   EXPECT_EQ(IntToStrCustomBase(15,16,false),"f");
