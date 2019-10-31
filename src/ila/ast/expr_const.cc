@@ -15,6 +15,8 @@ ExprConst::ExprConst(const BoolVal& bool_val) {
 }
 
 ExprConst::ExprConst(const BvVal& bv_val, const int& bit_width) {
+  ILA_WARN_IF((size_t)bit_width > (8 * sizeof(BvValType)))
+      << "Define a " << bit_width << "-bit constant " << bv_val;
   set_sort(Sort::MakeBvSort(bit_width));
   val_ = std::make_shared<BvVal>(bv_val);
 }
