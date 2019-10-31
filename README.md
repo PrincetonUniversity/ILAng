@@ -11,7 +11,7 @@
 [![license](https://img.shields.io/github/license/bo-yuan-huang/ilang.svg?style=flat)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-manual-blue.svg)](https://bo-yuan-huang.gitbook.io/ilang/)
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://bo-yuan-huang.github.io/ILAng-Doc/doxygen-output-html/namespaceilang.html)
-[![docker](https://images.microbadger.com/badges/image/byhuang/ilang.svg)](https://hub.docker.com/r/byhuang/ilang)
+[![docker](https://images.microbadger.com/badges/image/byhuang/ilang:cosabase.svg)](https://hub.docker.com/r/byhuang/ilang)
 
 -   [Build](#build)
     -   [Prerequisites](#prerequisites)
@@ -47,7 +47,7 @@ brew install bison flex boost boost-python z3
 ```
 
 -   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
--   The [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
+-   The [Boost](https://www.boost.org) package is required only for building the synthesis engine.
 
 #### Regression Environments
 
@@ -70,6 +70,14 @@ To build ILAng with default configuration, create a build directory and execute:
 ```bash
 mkdir -p build && cd build
 cmake .. 
+make
+```
+
+If you are using git older than `1.8.4`, init the submodule before configuration:
+```bash
+git submodule update --init --recursive
+mkdir -p build && cd build
+cmake .. -DILANG_FETCH_DEPS=OFF
 make
 ```
 
