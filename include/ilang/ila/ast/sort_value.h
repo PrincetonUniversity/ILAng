@@ -67,14 +67,14 @@ typedef BoolVal::BoolValPtr BoolValPtr;
 /// \brief The container for representing Bitvector values.
 class BvVal : public Value {
 public:
-  /// Data type for storing BvVal
-  typedef size_t BvValType;
+  /// Data type for storing BvVal. NOTE: SHOULD BE SYNCED WITH NumericType!!
+  typedef int64_t BvValType;
   /// Pointer type for all use of BvVal.
   typedef std::shared_ptr<BvVal> BvValPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with boolean value.
-  BvVal(const int& val);
+  BvVal(const BvValType& val);
   /// Constructor with cpp string.
   BvVal(const std::string& str);
   /// Default destructor.

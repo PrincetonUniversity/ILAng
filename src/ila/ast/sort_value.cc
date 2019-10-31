@@ -28,9 +28,9 @@ std::ostream& operator<<(std::ostream& out, const BoolVal& val) {
 }
 
 // ------------------------- Class BvVal -------------------------------------//
-BvVal::BvVal(const int& val) : val_(val) {}
+BvVal::BvVal(const BvValType& val) : val_(val) {}
 
-BvVal::BvVal(const std::string& str) { val_ = StrToInt(str); }
+BvVal::BvVal(const std::string& str) { val_ = StrToLong(str); }
 
 BvVal::~BvVal() {}
 

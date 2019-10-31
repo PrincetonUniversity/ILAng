@@ -16,7 +16,8 @@
 /// Defines the core data structure and APIs for constructing and storing ILA.
 namespace ilang {
 
-typedef size_t NumericType;
+/// Data type for numerics. NOTE: SHOULD BE SYNCED WITH BvValType!!
+typedef int64_t NumericType;
 
 /******************************************************************************/
 // Logging system.

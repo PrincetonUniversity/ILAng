@@ -25,7 +25,7 @@ bool StrToBool(const std::string& str);
 int StrToInt(const std::string& str, int base = 10);
 
 /// Return the value represented in the string in long type, e.g. "10".
-long long StrToLong(const std::string& str, int base);
+long long StrToLong(const std::string& str, int base = 10);
 
 /// Python-style split , return a vector of splitted strings
 std::vector<std::string> Split(const std::string& str,
