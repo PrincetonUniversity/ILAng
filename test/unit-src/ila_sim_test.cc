@@ -78,7 +78,7 @@ IlaSimTest::IlaSimTest()
       auto child_instr = child_ila.NewInstr("ENC");
       child_instr.SetDecode(
           Imply(status == STATE_OPERATE, status == STATE_OPERATE));
-      std::map<int, int> const_map;
+      std::map<NumericType, NumericType> const_map;
       const_map[1] = 10;
       auto const_mem = MemConst(0, const_map, 4, 128);
       auto enc_ctr = counter + Load(const_mem, 1) + ZExt(blk_cnt, 128) +
@@ -97,10 +97,11 @@ IlaSimTest::IlaSimTest()
 
       child_instr.SetUpdate(byte_cnt, byte_cnt + 1);
 
-      child_instr.SetUpdate(
-          xram, Ite(flag, Store(xram, xram_write_addr,
-                                slice_read(enc_data, byte_cnt, 0, 16, 8)),
-                    xram));
+      child_instr.SetUpdate(xram,
+                            Ite(flag,
+                                Store(xram, xram_write_addr,
+                                      slice_read(enc_data, byte_cnt, 0, 16, 8)),
+                                xram));
 
       child_instr.SetUpdate(
           blk_cnt,
@@ -119,8 +120,8 @@ IlaSimTest::IlaSimTest()
   /// add child
 }
 
-ExprRef IlaSimTest::slice_update(const ExprRef &reg, const ExprRef &idx,
-                                 const ExprRef &input_slice,
+ExprRef IlaSimTest::slice_update(const ExprRef& reg, const ExprRef& idx,
+                                 const ExprRef& input_slice,
                                  unsigned long base_addr, unsigned num_slice,
                                  unsigned slice_width) {
   auto new_value =
@@ -133,7 +134,7 @@ ExprRef IlaSimTest::slice_update(const ExprRef &reg, const ExprRef &idx,
   return new_value;
 }
 
-ExprRef IlaSimTest::slice_read(const ExprRef &reg, const ExprRef &idx,
+ExprRef IlaSimTest::slice_read(const ExprRef& reg, const ExprRef& idx,
                                unsigned long base_addr, unsigned num_slice,
                                unsigned slice_width) {
   auto slice = reg(slice_width - 1, 0);

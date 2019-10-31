@@ -30,7 +30,7 @@ ExprPtr ExprFuse::BoolConst(const BoolVal& val) {
   return std::make_shared<ExprConst>(val);
 }
 
-ExprPtr ExprFuse::BvConst(const int& val, const int& bit_width) {
+ExprPtr ExprFuse::BvConst(const BvValType& val, const int& bit_width) {
   return std::make_shared<ExprConst>(BvVal(val), bit_width);
 }
 
@@ -38,7 +38,7 @@ ExprPtr ExprFuse::BvConst(const BvVal& val, const int& bit_width) {
   return std::make_shared<ExprConst>(val, bit_width);
 }
 
-ExprPtr ExprFuse::MemConst(const int& def_val, const int& addr_width,
+ExprPtr ExprFuse::MemConst(const BvValType& def_val, const int& addr_width,
                            const int& data_width) {
   return std::make_shared<ExprConst>(MemVal(def_val), addr_width, data_width);
 }
@@ -172,17 +172,17 @@ ExprPtr ExprFuse::Lshr(const ExprPtr l, const int& r) {
   return ExprFuse::Lshr(l, rc);
 }
 
-ExprPtr ExprFuse::Add(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Add(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Add(l, rc);
 }
 
-ExprPtr ExprFuse::Sub(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Sub(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Sub(l, rc);
 }
 
-ExprPtr ExprFuse::Mul(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Mul(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Mul(l, rc);
 }
@@ -235,59 +235,61 @@ ExprPtr ExprFuse::Uge(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpOr>(eq, ugt);
 }
 
+#if 0
 ExprPtr ExprFuse::Eq(const ExprPtr l, const bool& r) {
   auto rc = ExprFuse::BoolConst(r);
   return ExprFuse::Eq(l, rc);
 }
+#endif
 
-ExprPtr ExprFuse::Eq(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Eq(const ExprPtr l, const BvValType& r) {
   auto rc = (l->is_bool()) ? ExprFuse::BoolConst(r == 1)
                            : ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Eq(l, rc);
 }
 
-ExprPtr ExprFuse::Ne(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Ne(const ExprPtr l, const BvValType& r) {
   auto rc = (l->is_bool()) ? ExprFuse::BoolConst(r == 1)
                            : ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Ne(l, rc);
 }
 
-ExprPtr ExprFuse::Lt(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Lt(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Lt(l, rc);
 }
 
-ExprPtr ExprFuse::Gt(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Gt(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Gt(l, rc);
 }
 
-ExprPtr ExprFuse::Le(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Le(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Le(l, rc);
 }
 
-ExprPtr ExprFuse::Ge(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Ge(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Ge(l, rc);
 }
 
-ExprPtr ExprFuse::Ult(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Ult(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Ult(l, rc);
 }
 
-ExprPtr ExprFuse::Ugt(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Ugt(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Ugt(l, rc);
 }
 
-ExprPtr ExprFuse::Ule(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Ule(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Ule(l, rc);
 }
 
-ExprPtr ExprFuse::Uge(const ExprPtr l, const int& r) {
+ExprPtr ExprFuse::Uge(const ExprPtr l, const BvValType& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Uge(l, rc);
 }
@@ -301,12 +303,13 @@ ExprPtr ExprFuse::Store(const ExprPtr mem, const ExprPtr addr,
   return std::make_shared<ExprOpStore>(mem, addr, data);
 }
 
-ExprPtr ExprFuse::Load(const ExprPtr mem, const int& addr) {
+ExprPtr ExprFuse::Load(const ExprPtr mem, const BvValType& addr) {
   auto ac = ExprFuse::BvConst(addr, mem->sort()->addr_width());
   return ExprFuse::Load(mem, ac);
 }
 
-ExprPtr ExprFuse::Store(const ExprPtr mem, const int& addr, const int& data) {
+ExprPtr ExprFuse::Store(const ExprPtr mem, const BvValType& addr,
+                        const BvValType& data) {
   auto ac = ExprFuse::BvConst(addr, mem->sort()->addr_width());
   auto dc = ExprFuse::BvConst(data, mem->sort()->data_width());
   return ExprFuse::Store(mem, ac, dc);

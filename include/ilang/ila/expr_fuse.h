@@ -37,11 +37,11 @@ ExprPtr BoolConst(const bool& val);
 /// Create a Boolean constant from BoolVal.
 ExprPtr BoolConst(const BoolVal& val);
 /// Create a bitvector constant.
-ExprPtr BvConst(const int& val, const int& bit_width);
+ExprPtr BvConst(const BvValType& val, const int& bit_width);
 /// Create a bitvector constant from BvVal.
 ExprPtr BvConst(const BvVal& val, const int& bit_width);
 /// Create a memory constant with only the defauly value.
-ExprPtr MemConst(const int& def_val, const int& addr_width,
+ExprPtr MemConst(const BvValType& def_val, const int& addr_width,
                  const int& data_width);
 /// Create a memory constant from MemVal.
 ExprPtr MemConst(const MemVal& val, const int& addr_width,
@@ -102,12 +102,12 @@ ExprPtr Shl(const ExprPtr l, const int& r);
 ExprPtr Ashr(const ExprPtr l, const int& r);
 /// Logical right shift with int.
 ExprPtr Lshr(const ExprPtr l, const int& r);
-/// Arithmetic addition with int.
-ExprPtr Add(const ExprPtr l, const int& r);
-/// Arithmetic subtraction with int.
-ExprPtr Sub(const ExprPtr l, const int& r);
-/// Arithmetic unsigned multiply with int (bv only).
-ExprPtr Mul(const ExprPtr l, const int& r);
+/// Arithmetic addition with constant.
+ExprPtr Add(const ExprPtr l, const BvValType& r);
+/// Arithmetic subtraction with constant.
+ExprPtr Sub(const ExprPtr l, const BvValType& r);
+/// Arithmetic unsigned multiply with constant (bv only).
+ExprPtr Mul(const ExprPtr l, const BvValType& r);
 
 /******************************************************************************/
 // Comparison
@@ -134,28 +134,30 @@ ExprPtr Ule(const ExprPtr l, const ExprPtr r);
 ExprPtr Uge(const ExprPtr l, const ExprPtr r);
 
 // helper functions for constant arguments
+#if 0
 /// Equal to Boolean.
 ExprPtr Eq(const ExprPtr l, const bool& r);
-/// Equal to int.
-ExprPtr Eq(const ExprPtr l, const int& r);
-/// Not equal to int.
-ExprPtr Ne(const ExprPtr l, const int& r);
-/// Signed less than int.
-ExprPtr Lt(const ExprPtr l, const int& r);
-/// Signed greater than int.
-ExprPtr Gt(const ExprPtr l, const int& r);
-/// Signed less than or equal to int.
-ExprPtr Le(const ExprPtr l, const int& r);
-/// Signed greater than or equal to int.
-ExprPtr Ge(const ExprPtr l, const int& r);
-/// Unsgned less than int.
-ExprPtr Ult(const ExprPtr l, const int& r);
-/// Unsigned greater than int.
-ExprPtr Ugt(const ExprPtr l, const int& r);
-/// Unsigned less than or equal to int.
-ExprPtr Ule(const ExprPtr l, const int& r);
-/// Unsigned greater than or equal to int.
-ExprPtr Uge(const ExprPtr l, const int& r);
+#endif
+/// Equal to constant.
+ExprPtr Eq(const ExprPtr l, const BvValType& r);
+/// Not equal to constant.
+ExprPtr Ne(const ExprPtr l, const BvValType& r);
+/// Signed less than constant.
+ExprPtr Lt(const ExprPtr l, const BvValType& r);
+/// Signed greater than constant.
+ExprPtr Gt(const ExprPtr l, const BvValType& r);
+/// Signed less than or equal to constant.
+ExprPtr Le(const ExprPtr l, const BvValType& r);
+/// Signed greater than or equal to constant.
+ExprPtr Ge(const ExprPtr l, const BvValType& r);
+/// Unsgned less than constant.
+ExprPtr Ult(const ExprPtr l, const BvValType& r);
+/// Unsigned greater than constant.
+ExprPtr Ugt(const ExprPtr l, const BvValType& r);
+/// Unsigned less than or equal to constant.
+ExprPtr Ule(const ExprPtr l, const BvValType& r);
+/// Unsigned greater than or equal to constant.
+ExprPtr Uge(const ExprPtr l, const BvValType& r);
 
 /******************************************************************************/
 // Memory
@@ -166,9 +168,9 @@ ExprPtr Load(const ExprPtr mem, const ExprPtr addr);
 ExprPtr Store(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
 
 /// Memory load from constant address
-ExprPtr Load(const ExprPtr mem, const int& addr);
+ExprPtr Load(const ExprPtr mem, const BvValType& addr);
 /// Memory store to constant address and data
-ExprPtr Store(const ExprPtr mem, const int& addr, const int& data);
+ExprPtr Store(const ExprPtr mem, const BvValType& addr, const BvValType& data);
 
 /// Set memory size.
 bool SetMemSize(const ExprPtr mem, const int& size = 0);

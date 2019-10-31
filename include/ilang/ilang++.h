@@ -4,6 +4,7 @@
 #ifndef ILANG_ILANG_CPP_H__
 #define ILANG_ILANG_CPP_H__
 
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
@@ -14,6 +15,9 @@
 /// \namespace ilang
 /// Defines the core data structure and APIs for constructing and storing ILA.
 namespace ilang {
+
+/// Data type for numerics. NOTE: SHOULD BE SYNCED WITH BvValType!!
+typedef int64_t NumericType;
 
 /******************************************************************************/
 // Logging system.
@@ -112,9 +116,9 @@ public:
   /// Store to memory.
   ExprRef Store(const ExprRef& addr, const ExprRef& data) const;
   /// Load from memory with constant address.
-  ExprRef Load(const int& addr) const;
+  ExprRef Load(const NumericType& addr) const;
   /// Store to memory with constant address and data.
-  ExprRef Store(const int& addr, const int& data) const;
+  ExprRef Store(const NumericType& addr, const NumericType& data) const;
 
   /****************************************************************************/
   // Bit manipulation for bit-vectors.
@@ -191,12 +195,12 @@ ExprRef operator<<(const ExprRef& a, const int& b);
 ExprRef operator>>(const ExprRef& a, const int& b);
 /// Logical right shift with int constant.
 ExprRef Lshr(const ExprRef& a, const int& b);
-/// Unsigned addition with int constant.
-ExprRef operator+(const ExprRef& a, const int& b);
-/// Unsigned subtraction with int constant.
-ExprRef operator-(const ExprRef& a, const int& b);
-/// Unsigned multiply with int constant.
-ExprRef operator*(const ExprRef& a, const int& b);
+/// Unsigned addition with constant.
+ExprRef operator+(const ExprRef& a, const NumericType& b);
+/// Unsigned subtraction with constant.
+ExprRef operator-(const ExprRef& a, const NumericType& b);
+/// Unsigned multiply with constant.
+ExprRef operator*(const ExprRef& a, const NumericType& b);
 /// Arithmetic signed remainder.
 ExprRef SRem(const ExprRef& a, const ExprRef& b);
 /// Arithmetic unsigned remainder.
@@ -240,36 +244,38 @@ ExprRef Sle(const ExprRef& a, const ExprRef& b);
 ExprRef Sge(const ExprRef& a, const ExprRef& b);
 
 // helper functions with constants
+#if 0
 /// Equal to Boolean constant.
 ExprRef operator==(const ExprRef& a, const bool& b);
-/// Equal to int constant.
-ExprRef operator==(const ExprRef& a, const int& b);
-/// Not equal to int constant.
-ExprRef operator!=(const ExprRef& a, const int& b);
-/// Signed/Unsigned less than int constant (bit-vectors only).
-ExprRef operator<(const ExprRef& a, const int& b);
-/// Signed/Unsigned greater than int constant (bit-vectors only).
-ExprRef operator>(const ExprRef& a, const int& b);
-/// Signed/Unsigned less than or equal to int constant (bit-vectors only).
-ExprRef operator<=(const ExprRef& a, const int& b);
-/// Signed/Unsigned greater than or equal to int constant (bit-vectors only).
-ExprRef operator>=(const ExprRef& a, const int& b);
-/// Unsigned less than int constant (bit-vectors only).
-ExprRef Ult(const ExprRef& a, const int& b);
-/// Unsigned greater than int constant (bit-vectors only).
-ExprRef Ugt(const ExprRef& a, const int& b);
-/// Unsigned less than or equal to int constant (bit-vectors only).
-ExprRef Ule(const ExprRef& a, const int& b);
-/// Unsigned greater than or equal to int constant (bit-vectors only).
-ExprRef Uge(const ExprRef& a, const int& b);
-/// Signed less than int constant (bit-vectors only).
-ExprRef Slt(const ExprRef& a, const int& b);
-/// Signed greater than int constant (bit-vectors only).
-ExprRef Sgt(const ExprRef& a, const int& b);
-/// Signed less than or equal to int constant (bit-vectors only).
-ExprRef Sle(const ExprRef& a, const int& b);
-/// Signed greater than or equal to int constant (bit-vectors only).
-ExprRef Sge(const ExprRef& a, const int& b);
+#endif
+/// Equal to constant.
+ExprRef operator==(const ExprRef& a, const NumericType& b);
+/// Not equal to constant.
+ExprRef operator!=(const ExprRef& a, const NumericType& b);
+/// Signed/Unsigned less than constant (bit-vectors only).
+ExprRef operator<(const ExprRef& a, const NumericType& b);
+/// Signed/Unsigned greater than constant (bit-vectors only).
+ExprRef operator>(const ExprRef& a, const NumericType& b);
+/// Signed/Unsigned less than or equal to constant (bit-vectors only).
+ExprRef operator<=(const ExprRef& a, const NumericType& b);
+/// Signed/Unsigned greater than or equal to constant (bit-vectors only).
+ExprRef operator>=(const ExprRef& a, const NumericType& b);
+/// Unsigned less than constant (bit-vectors only).
+ExprRef Ult(const ExprRef& a, const NumericType& b);
+/// Unsigned greater than constant (bit-vectors only).
+ExprRef Ugt(const ExprRef& a, const NumericType& b);
+/// Unsigned less than or equal to constant (bit-vectors only).
+ExprRef Ule(const ExprRef& a, const NumericType& b);
+/// Unsigned greater than or equal to constant (bit-vectors only).
+ExprRef Uge(const ExprRef& a, const NumericType& b);
+/// Signed less than constant (bit-vectors only).
+ExprRef Slt(const ExprRef& a, const NumericType& b);
+/// Signed greater than constant (bit-vectors only).
+ExprRef Sgt(const ExprRef& a, const NumericType& b);
+/// Signed less than or equal to constant (bit-vectors only).
+ExprRef Sle(const ExprRef& a, const NumericType& b);
+/// Signed greater than or equal to constant (bit-vectors only).
+ExprRef Sge(const ExprRef& a, const NumericType& b);
 
 /******************************************************************************/
 // Memory-related operations
@@ -279,9 +285,10 @@ ExprRef Load(const ExprRef& mem, const ExprRef& addr);
 /// Store to memory.
 ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data);
 /// Load from memory with constant address.
-ExprRef Load(const ExprRef& mem, const int& addr);
+ExprRef Load(const ExprRef& mem, const NumericType& addr);
 /// Store to memory at constant address and data.
-ExprRef Store(const ExprRef& mem, const int& addr, const int& data);
+ExprRef Store(const ExprRef& mem, const NumericType& addr,
+              const NumericType& data);
 
 /******************************************************************************/
 // Bit manipulation for bit-vectors.
@@ -307,11 +314,11 @@ ExprRef ZExt(const ExprRef& bv, const int& length);
 /// \param[in] bv source bit-vector.
 /// \param[in] length bit-width of the extended (result) bit-vector.
 ExprRef SExt(const ExprRef& bv, const int& length);
-/// \brief Left-rotate the bit-vector with immediate number of times. 
+/// \brief Left-rotate the bit-vector with immediate number of times.
 /// \param[in] bv source bit-vector
 /// \param[in] immediate number of times to rotate the bv
 ExprRef LRotate(const ExprRef& bv, const int& immediate);
-/// \brief Right-rotate the bit-vector with immediate number of times. 
+/// \brief Right-rotate the bit-vector with immediate number of times.
 /// \param[in] bv source bit-vector
 /// \param[in] immediate number of times to rotate the bv
 ExprRef RRotate(const ExprRef& bv, const int& immediate);
@@ -340,14 +347,15 @@ ExprRef BoolConst(bool bool_val);
 /// \brief Return a bit-vector constant.
 /// \param[in] bv_val value of the bit-vector constant.
 /// \param[in] bit_width data bit-width.
-ExprRef BvConst(const int& bv_val, const int& bit_width);
+ExprRef BvConst(const NumericType& bv_val, const int& bit_width);
 
 /// \brief Return a memory constant.
 /// \param[in] def_val default value.
 /// \param[in] vals non-default address-data mapping.
 /// \param[in] addr_width address bit-width.
 /// \param[in] data_width data bit-width.
-ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
+ExprRef MemConst(const NumericType& def_val,
+                 const std::map<NumericType, NumericType>& vals,
                  const int& addr_width, const int& data_width);
 
 /******************************************************************************/
