@@ -140,7 +140,6 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
   for (auto&& np : ila_wports) {
     auto n = np.first;
     auto& p = np.second;
-
     auto base_name = "__IMEM_" +
                      VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
                      std::to_string(n);
@@ -151,6 +150,10 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
         << ")";
     ret << ",\n    .ila_wen  (" << base_name + "_wen"
         << ")";
+
+    ILA_DLOG("VtargetGen.AbsMem") << ".ila_waddr(" << p.waddr << " or " << base_name + "_waddr" << ")";
+    ILA_DLOG("VtargetGen.AbsMem") << ".ila_wdata(" << p.wdata << " or " << base_name + "_wdata" << ")";
+    ILA_DLOG("VtargetGen.AbsMem") << ".ila_wen  (" << p.wen << " or " << base_name + "_wen" << ")";
   }
   if (ila_wports.size() == 0)
     ret << ",\n    .ila_wen  ( 1'b0 )"; // make sure we don't do any writes if
