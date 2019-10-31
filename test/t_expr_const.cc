@@ -160,4 +160,68 @@ TEST(TestExprConst, MemVal) {
   EXPECT_EQ(ref_str, msg);
 }
 
+#define BVCONST(v, w) std::make_shared<ExprConst>(BvVal(v), w)
+
+TEST(TestExprConst, BvConstBitwidth) {
+  EXPECT_DEATH(BVCONST(1, 0), ".*");
+  EXPECT_DEATH(BVCONST(1, -1), ".*");
+}
+
+TEST(TestExprConst, BvConstNumeric) {
+  // 8-bit
+  EXPECT_EQ(BVCONST(0, 8)->val_bv()->val(), 0);
+  EXPECT_EQ(BVCONST(1, 8)->val_bv()->val(), 1);
+  EXPECT_DEATH(BVCONST(UINT32_MAX, 8), ".*");
+  EXPECT_DEATH(BVCONST(UINT64_MAX, 8), ".*");
+  EXPECT_DEATH(BVCONST(-1, 8), ".*");
+
+  // 32-bit
+  EXPECT_EQ(BVCONST(0, 32)->val_bv()->val(), 0);
+  EXPECT_EQ(BVCONST(1, 32)->val_bv()->val(), 1);
+  EXPECT_EQ(BVCONST(UINT32_MAX, 32)->val_bv()->val(), UINT32_MAX);
+  EXPECT_DEATH(BVCONST(UINT64_MAX, 32), ".*");
+  EXPECT_DEATH(BVCONST(-1, 32), ".*");
+
+  // 64-bit
+  EXPECT_EQ(BVCONST(0, 64)->val_bv()->val(), 0);
+  EXPECT_EQ(BVCONST(1, 64)->val_bv()->val(), 1);
+  EXPECT_EQ(BVCONST(UINT32_MAX, 64)->val_bv()->val(), UINT32_MAX);
+  EXPECT_EQ(BVCONST(UINT64_MAX, 64)->val_bv()->val(), UINT64_MAX);
+  EXPECT_EQ(BVCONST(-1, 64)->val_bv()->val(), UINT64_MAX);
+
+  // 128-bit
+  std::string msg;
+  decltype(std::make_shared<ExprConst>(BoolVal(true))) bv_const = NULL;
+
+  GET_STDERR_MSG(bv_const = BVCONST(0, 128), msg);
+  EXPECT_EQ(bv_const->val_bv()->val(), 0);
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#endif
+
+  GET_STDERR_MSG(bv_const = BVCONST(1, 128), msg);
+  EXPECT_EQ(bv_const->val_bv()->val(), 1);
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#endif
+
+  GET_STDERR_MSG(bv_const = BVCONST(UINT32_MAX, 128), msg);
+  EXPECT_EQ(bv_const->val_bv()->val(), UINT32_MAX);
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#endif
+
+  GET_STDERR_MSG(bv_const = BVCONST(UINT64_MAX, 128), msg);
+  EXPECT_EQ(bv_const->val_bv()->val(), UINT64_MAX);
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#endif
+
+  GET_STDERR_MSG(bv_const = BVCONST(-1, 128), msg);
+  EXPECT_EQ(bv_const->val_bv()->val(), UINT64_MAX);
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#endif
+}
+
 } // namespace ilang

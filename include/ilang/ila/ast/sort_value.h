@@ -104,6 +104,9 @@ typedef BvVal::BvValType BvValType;
 /// Pointer type for all use of BvVal.
 typedef BvVal::BvValPtr BvValPtr;
 
+/// Macro for getting max bit-width of numeric type.
+#define BvValTypeBitWidth (8 * sizeof(BvValType))
+
 /// \brief The container for representing memory (array) values.
 class MemVal : public Value {
 public:
