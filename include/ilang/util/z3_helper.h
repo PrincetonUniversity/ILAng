@@ -18,7 +18,7 @@ inline BvValType Z3BvVal(const BvValType& bv_val) { return bv_val; }
 #else
 /// \brief Interface z3 bit-vector constant numeric.
 inline __int64 Z3BvVal(const BvValType& bv_val) {
-  return std::static_cast<__int64>(bv_val);
+  return static_cast<__int64>(bv_val);
 }
 #endif
 
