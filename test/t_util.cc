@@ -73,8 +73,8 @@ TEST(TestUtil, RegularExpr) {
   }
 }
 TEST(TestUtil, LongWidth) {
-  std::string bit1_times63;
-  unsigned long long v;
+  std::string bit1_times63 = "";
+  unsigned long long v = 0;
   for (int i = 0; i < 63; ++i) {
     bit1_times63 += "1";
     v = v << 1;
@@ -93,8 +93,8 @@ TEST(TestUtil, LongWidth_unsigned) {
   SetToStdErr(1);
   unsigned long long v_processed;
 
-  std::string bit1_times63;
-  unsigned long long v;
+  std::string bit1_times63 = "";
+  unsigned long long v = 0;
   for (int i = 0; i < 63; ++i) {
     bit1_times63 += "1";
     v = v << 1;
