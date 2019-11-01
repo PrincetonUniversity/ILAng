@@ -73,25 +73,9 @@ TEST(TestUtil, RegularExpr) {
   }
 }
 TEST(TestUtil, LongWidth) {
-  std::string bit1_times63 = "";
-  unsigned long long v = 0;
-  for (int i = 0; i < 63; ++i) {
-    bit1_times63 += "1";
-    v = v << 1;
-    v = v | 1;
-  }
-  auto ret = StrToLong(bit1_times63, 2);
-  EXPECT_EQ(ret, v); // 63-bit does work
-
-  std::string bit1_times64 = bit1_times63 + "1";
-  auto bad = StrToLong(bit1_times64, 2);
-  EXPECT_EQ(bad, 0); // 64-bit does not work
-}
-
-TEST(TestUtil, LongWidth_unsigned) {
   std::string msg;
   SetToStdErr(1);
-  unsigned long long v_processed;
+  long long ret;
 
   std::string bit1_times63 = "";
   unsigned long long v = 0;
@@ -101,8 +85,8 @@ TEST(TestUtil, LongWidth_unsigned) {
     v = v | 1;
   }
 
-  GET_STDERR_MSG(v_processed = StrToULongLong(bit1_times63, 2), msg);
-  EXPECT_EQ(v_processed, v); // 63-bit does work
+  GET_STDERR_MSG(ret = StrToLong(bit1_times63, 2), msg);
+  EXPECT_EQ(ret, v); // 63-bit should work
 
 #ifndef NDEBUG
   EXPECT_TRUE(msg.empty());
@@ -110,11 +94,50 @@ TEST(TestUtil, LongWidth_unsigned) {
 
   std::string bit1_times64 = bit1_times63 + "1";
 
-  GET_STDERR_MSG(v_processed = StrToULongLong(bit1_times64, 2), msg);
-  EXPECT_EQ(v_processed, v * 2 + 1); // 64-bit does work
+  GET_STDERR_MSG(ret = StrToLong(bit1_times64, 2), msg);
+  EXPECT_EQ(ret, 0); // 64-bit should not work
+
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
+#endif
+}
+
+TEST(TestUtil, LongWidth_unsigned) {
+  std::string msg;
+  SetToStdErr(1);
+  unsigned long long ret;
+
+  std::string bit1_times63 = "";
+  unsigned long long v = 0;
+  for (int i = 0; i < 63; ++i) {
+    bit1_times63 += "1";
+    v = v << 1;
+    v = v | 1;
+  }
+
+  GET_STDERR_MSG(ret = StrToULongLong(bit1_times63, 2), msg);
+  EXPECT_EQ(ret, v); // 63-bit should work
 
 #ifndef NDEBUG
   EXPECT_TRUE(msg.empty());
+#endif
+
+  std::string bit1_times64 = bit1_times63 + "1";
+
+  GET_STDERR_MSG(ret = StrToULongLong(bit1_times64, 2), msg);
+  EXPECT_EQ(ret, v * 2 + 1); // 64-bit should work
+
+#ifndef NDEBUG
+  EXPECT_TRUE(msg.empty());
+#endif
+
+  std::string bit1_times65 = bit1_times64 + "1";
+
+  GET_STDERR_MSG(ret = StrToULongLong(bit1_times65, 2), msg);
+  EXPECT_EQ(ret, 0); // 65-bit should not work
+
+#ifndef NDEBUG
+  EXPECT_FALSE(msg.empty());
 #endif
 }
 
