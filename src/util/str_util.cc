@@ -5,14 +5,37 @@
 
 #include <regex>
 #include <sstream>
+#include <type_traits>
 
 #include <ilang/util/log.h>
 
 namespace ilang {
 
+// it is of course possible to update it with arbitrary base
+std::string IntToStrCustomBase(uint64_t value, unsigned base, bool uppercase) {
+  ILA_ASSERT(base > 1 && base <= 36) << "unsupported base : " << base;
+  if (value == 0)
+    return "0";
+  std::string ret;
+  while (value != 0) {
+    unsigned digit_val = value % base;
+    char digit = (digit_val < 10) ? ('0' + digit_val)
+                                  : ((uppercase ? 'A' : 'a') + digit_val - 10);
+    ret = digit + ret;
+    value /= base;
+  }
+  return ret;
+}
+
 std::string StrToUpper(const std::string& str) {
   std::string res = str;
   std::transform(res.begin(), res.end(), res.begin(), toupper);
+  return res;
+}
+
+std::string StrToLower(const std::string& str) {
+  std::string res = str;
+  std::transform(res.begin(), res.end(), res.begin(), tolower);
   return res;
 }
 
@@ -27,7 +50,7 @@ int StrToInt(const std::string& str, int base) {
   try {
     return std::stoi(str, NULL, base);
   } catch (const std::exception& e) {
-    ILA_ERROR << "Converting non-numeric value " << str << " to int.\n";
+    ILA_ERROR << "Converting non-numeric value " << str << " to int.";
     return 0;
   }
 }
@@ -36,7 +59,17 @@ long long StrToLong(const std::string& str, int base) {
   try {
     return std::stoll(str, NULL, base);
   } catch (const std::exception& e) {
-    ILA_ERROR << "Converting non-numeric value " << str << " to long int.\n";
+    ILA_ERROR << "Converting non-numeric value " << str << " to long int.";
+    return 0;
+  }
+}
+
+unsigned long long StrToULongLong(const std::string& str, int base) {
+  try {
+    return std::stoull(str, NULL, base);
+  } catch (const std::exception& e) {
+    ILA_ERROR << "Converting non-numeric value " << str
+              << " to unsigned long long";
     return 0;
   }
 }

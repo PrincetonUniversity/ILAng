@@ -12,6 +12,12 @@
 /// \namespace ilang
 namespace ilang {
 
+// (itoa is not part of the standard actually,
+// so I hesitated whether to use it actually)
+// on the other hand, snprintf only supports 8/10/16
+/// Transform int to string with different bases
+std::string IntToStrCustomBase(uint64_t value, unsigned base, bool uppercase);
+
 /// Transform basic string to upper case.
 std::string StrToUpper(const std::string& str);
 
@@ -25,7 +31,10 @@ bool StrToBool(const std::string& str);
 int StrToInt(const std::string& str, int base = 10);
 
 /// Return the value represented in the string in long type, e.g. "10".
-long long StrToLong(const std::string& str, int base);
+long long StrToLong(const std::string& str, int base = 10);
+
+/// Return the value represented in the string in unsigned long long, e.g. "10".
+unsigned long long StrToULongLong(const std::string& str, int base = 10);
 
 /// Python-style split , return a vector of splitted strings
 std::vector<std::string> Split(const std::string& str,

@@ -7,10 +7,12 @@
 #include <cmath>
 #include <iomanip>
 #include <string>
+#include <type_traits>
 
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -101,6 +103,80 @@ VerilogGeneratorBase::sanitizeName(const ExprPtr& n) {
   ILA_ASSERT(n->is_var()) << "Should not be used on node other than variables";
   return sanitizeName(n->name().str());
 }
+
+
+/// will force to be hex
+VerilogGeneratorBase::vlg_const_t VerilogGeneratorBase::ToVlgNum(IlaBvValType value, unsigned width) {
+  // get right of the types
+
+  { // range check assuming signed int
+    static_assert(IlaBvValType(-1) > IlaBvValType(0) , 
+      "expecting BvValType to be unsigned value, o.w. this part of code must be updated!");
+    static_assert(sizeof(IlaBvValUnsignedType) == sizeof(IlaBvValType), 
+      "IlaBvValUnsignedType in the header needs update to be sync with IlaBvValType!");
+    IlaBvValType maxpos = (width >= sizeof(IlaBvValType)*8) ? IlaBvValType(-1) : ((1 << width) -1);
+    IlaBvValType minneg = 0;
+    ILA_ASSERT((minneg <= value && maxpos >= value)) << "value : " << value 
+      << " is out-of-range, min:" << minneg
+      << " max:" << maxpos;
+    ILA_DLOG("VerilogGen.ToVlgNum") << "width:" << width << ", min:" << minneg << ", max:" << maxpos << std::endl;
+  }
+
+  std::string valstr = IntToStrCustomBase(value, 16 , false);
+  return (toStr(width) + "'h" +valstr);
+}
+
+#if 0 
+// the signed version
+
+inline std::string OnesHexOfSuchWidth(unsigned width) {
+  // you should not create a int and then convert as width can be larger than 128
+  ILA_ASSERT(sizeof(unsigned int)>=4); // 4*2 = 16xF
+  std::string ret;
+  unsigned n_32bits = width/32;
+  unsigned residual = width%32;
+  for (unsigned i = 0; i< n_32bits; ++i)
+    ret += "ffffffff";
+  uint32_t remaining_ones = (1 << residual) - 1;
+  ret += IntToStrCustomBase(remaining_ones, 16, false);
+  return ret;  
+}
+
+/// will force to be hex
+VerilogGeneratorBase::vlg_const_t VerilogGeneratorBase::ToVlgNum(IlaBvValType value, unsigned width) {
+  // get right of the types
+
+  { // range check assuming signed int
+    static_assert(IlaBvValType(-1) < IlaBvValType(0) , 
+      "expecting BvValType to be unsigned value, o.w. this part of code must be updated!");
+    
+    static_assert(sizeof(IlaBvValUnsignedType) == sizeof(IlaBvValType), 
+      "you need to update IlaBvValUnsignedType in the header!");
+    IlaBvValType maxpos = (1 << (width-1)) -1;
+    IlaBvValType minneg = IlaBvValUnsignedType(-1) ^ ((1 << (width-1)) -1);
+    ILA_WARN_IF(!(minneg <= value && maxpos >= value)) << "value : " << value 
+      << " is out-of-range, min:" << minneg
+      << " max:" << maxpos;
+    std::cout << "width:" << width << ", min:" << minneg << ", max:" << maxpos << std::endl;
+  }
+
+  std::string valstr;
+  if (value >= 0)
+    valstr = IntToStrCustomBase((IlaBvValUnsignedType)value, 16 , false);
+  else {
+    IlaBvValUnsignedType unum_within_int = IlaBvValUnsignedType (value);
+    if (width < (sizeof(IlaBvValType)*8))
+      valstr = IntToStrCustomBase(unum_within_int, 16, false);
+    else  { // width >= int_width
+      size_t width_diff = width - (sizeof(IlaBvValType)*8);
+      valstr = OnesHexOfSuchWidth(width_diff) + IntToStrCustomBase(unum_within_int, 16, false);
+    }
+    ILA_WARN << "Convert BvConst:" << value << " to its 2's complement:" << valstr;
+  }
+  return (toStr(width) + "'h" +valstr);
+}
+#endif 
+
 
 // Currently not used, can be added to enforce sanity check
 #define CHECK_NAME(s)                                                          \
@@ -812,11 +888,16 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
       nmap[e] = translateBvOp(expr_op_ptr);
     } else if (e->is_const()) {
       int width = get_width(e);
-      vlg_name_t bvcnst =
-          toStr(width) + "'d" +
-          (std::dynamic_pointer_cast<ExprConst>(e)->val_bv()->str());
-      ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVconst: " << bvcnst;
-      nmap[e] = bvcnst;
+      ILA_ASSERT(width > 0);
+      IlaBvValType value = (std::dynamic_pointer_cast<ExprConst>(e)->val_bv()->val());
+      vlg_const_t bvcnst = ToVlgNum(value, (unsigned)width );
+
+      vlg_name_t result_var = "bv_"+toStr(width)+"_"+ toStr(IlaBvValUnsignedType(value)) + new_id(e);
+      add_wire(result_var, get_width(e));
+      add_assign_stmt(result_var, bvcnst);
+
+      ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVconst: " << bvcnst << " as " << result_var;
+      nmap[e] = result_var;
     } else
       ILA_ASSERT(false) << "Expr sort: " << (e->sort()) << " is not supported.";
 

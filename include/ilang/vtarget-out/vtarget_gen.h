@@ -19,56 +19,56 @@ public:
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2 } backend_selector;
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
-    /// Set the targets: instructions/invariants/both
-    enum { INST, INV, BOTH } target_select;
-    /// If not an empty string, then only check for that instruction
-    std::string CheckThisInstructionOnly;
-    /// Ensure the instruction will not be reseted while
-    /// in the whole execution of checking instruction
-    /// from reseted --> to forever
-    bool InstructionNoReset; // true
-    /// Does not insert assertions of variable mapping
-    /// if an instruction does not update that var
-    bool OnlyCheckInstUpdatedVars; // true
-    /// Do we set separate problems for different var map (CoSA only)
-    bool PerVariableProblemCosa; // true
-    /// Whether to abstract the memory read
-    bool MemAbsReadAbstraction; // false
-    /// Whether to force the instruction check to start from reset state
-    bool ForceInstCheckReset;
-    /// For COSA target generator : whether to force NEW/OLD port declaration
-    enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
-    /// Generate a jg script to help validate cosa?
-    bool CosaGenJgTesterScript;
-    /// For CoSA backend: do we add (* keep *)? default true, however, it can be
-    /// buggy, so you can disable it if you want
-    bool CosaAddKeep;
-    // The bound of BMC, default 127
-    unsigned MaxBound;
-    /// Only enforce var eq on updated vars, should not be used
-    bool OnlyAssumeUpdatedVarsEq; // should be false
-    // ----------- Options for CoSA script -------------- //
-    /// If not empty, the generated script will include the path of Cosa
-    std::string CosaPath;
-    /// If not empty, the generated script will include sourcing a script
-    std::string CosaPyEnvironment;
-    /// A choice of solver (in the script)
-    std::string CosaSolver;
-    /// Whether the Solver should generate vcd trace
-    bool CosaGenTraceVcd;
-    /// other CoSA options
-    std::string CosaOtherSolverOptions;
-    /// The default constructor for default values
-    _vtg_config()
-        : target_select(BOTH), CheckThisInstructionOnly(""),
-          InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
-          PerVariableProblemCosa(false),
-          MemAbsReadAbstraction(false),
-          ForceInstCheckReset(false), PortDeclStyle(AUTO),
-          CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
-          OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
-          CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions("") {}
-  } vtg_config_t;
+  /// Set the targets: instructions/invariants/both
+  enum { INST, INV, BOTH } target_select;
+  /// If not an empty string, then only check for that instruction
+  std::string CheckThisInstructionOnly;
+  /// Ensure the instruction will not be reseted while
+  /// in the whole execution of checking instruction
+  /// from reseted --> to forever
+  bool InstructionNoReset; // true
+  /// Does not insert assertions of variable mapping
+  /// if an instruction does not update that var
+  bool OnlyCheckInstUpdatedVars; // true
+  /// Do we set separate problems for different var map (CoSA only)
+  bool PerVariableProblemCosa; // true
+  /// Whether to abstract the memory read
+  bool MemAbsReadAbstraction; // false
+  /// Whether to force the instruction check to start from reset state
+  bool ForceInstCheckReset;
+  /// For COSA target generator : whether to force NEW/OLD port declaration
+  enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
+  /// Generate a jg script to help validate cosa?
+  bool CosaGenJgTesterScript;
+  /// For CoSA backend: do we add (* keep *)? default true, however, it can be
+  /// buggy, so you can disable it if you want
+  bool CosaAddKeep;
+  // The bound of BMC, default 127
+  unsigned MaxBound;
+  /// Only enforce var eq on updated vars, should not be used
+  bool OnlyAssumeUpdatedVarsEq; // should be false
+  // ----------- Options for CoSA script -------------- //
+  /// If not empty, the generated script will include the path of Cosa
+  std::string CosaPath;
+  /// If not empty, the generated script will include sourcing a script
+  std::string CosaPyEnvironment;
+  /// A choice of solver (in the script)
+  std::string CosaSolver;
+  /// Whether the Solver should generate vcd trace
+  bool CosaGenTraceVcd;
+  /// other CoSA options
+  std::string CosaOtherSolverOptions;
+  /// The default constructor for default values
+  _vtg_config()
+      : target_select(BOTH), CheckThisInstructionOnly(""),
+        InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
+        PerVariableProblemCosa(false),
+        MemAbsReadAbstraction(false),
+        ForceInstCheckReset(false), PortDeclStyle(AUTO),
+        CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
+        OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
+        CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions("") {}
+} vtg_config_t;
 
 public:
   // ----------------------- Constructor/Destructor ----------------------- //

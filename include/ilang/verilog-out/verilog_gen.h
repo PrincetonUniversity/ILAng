@@ -31,6 +31,12 @@ class TestVerilogExport;
 class VerilogGeneratorBase {
 public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
+  /// The type of bool value in ila
+  using IlaBoolValType = bool;
+  /// The type of bitvector value in ila
+  using IlaBvValType = BvVal::BvValType;
+  /// The unsigned type of bitvector value in ila
+  using IlaBvValUnsignedType = BvVal::BvValType;
   /// let the test class use this module
   friend class TestVerilogExport;
   /// let VlgVerifTgtGen use this module to generate the wrapper module
@@ -61,6 +67,8 @@ public:
   typedef std::string vlg_name_t;
   /// Type of Verilog statement
   typedef std::string vlg_stmt_t;
+  /// Type of Verilog constants
+  typedef std::string vlg_const_t;
   /// Type of Verilog address
   typedef std::string vlg_addr_t;
   /// Type of Verilog data
@@ -121,7 +129,9 @@ public:
 
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
-
+  /// Type for cacheing the constant 
+  // (this is needed because our hash is not fully working)
+  // typedef std::unordered_map<std::pair<IlaBvValType, unsigned>,vlg_name_t> CnstMap;
   /// Type for memory annotation
   typedef std::map<std::string, bool> memory_export_annotation_t;
 
@@ -277,6 +287,9 @@ public:
   /// sanitize the name of an expr, so it will generate illegal verilog
   /// identifier
   static vlg_name_t sanitizeName(const ExprPtr& n);
+  /// will force to be hex
+  static vlg_const_t ToVlgNum(IlaBvValType value, unsigned width);
+
 
 protected:
   /// The id counter

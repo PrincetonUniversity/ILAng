@@ -11,7 +11,7 @@
 [![license](https://img.shields.io/github/license/bo-yuan-huang/ilang.svg?style=flat)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-manual-blue.svg)](https://bo-yuan-huang.gitbook.io/ilang/)
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://bo-yuan-huang.github.io/ILAng-Doc/doxygen-output-html/namespaceilang.html)
-[![docker](https://images.microbadger.com/badges/image/byhuang/ilang.svg)](https://hub.docker.com/r/byhuang/ilang)
+[![docker](https://images.microbadger.com/badges/image/byhuang/ilang:cosabase.svg)](https://hub.docker.com/r/byhuang/ilang)
 
 -   [Build](#build)
     -   [Prerequisites](#prerequisites)
@@ -47,21 +47,21 @@ brew install bison flex boost boost-python z3
 ```
 
 -   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
--   The [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
+-   The [Boost](https://www.boost.org) package is required only for building the synthesis engine.
 
 #### Regression Environments
 
 | OS                        | Compiler     | CMake  | z3    | Boost | Bison | Flex   | Build   |
 | ------------------------- | ------------ | ------ | ----- | ----- | ----- | ------ | ------- |
-| Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.8.5 | 1.54  | 3.0.4 | 2.5.25 | Release |
+| Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.8.6 | 1.54  | 3.0.4 | 2.5.25 | Release |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Release |
 | Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.15.2 | 4.8.6 | 1.65  | 3.0.4 | 2.6.4  | Release |
-| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Debug   |
-| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Release |
-| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5 | 1.71  | 3.4.2 | 2.5.35 | Release |
-| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5 | -     | 3.3.2 | 2.6.4  | Release |
+| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.6 | 1.71  | 3.4.2 | 2.5.35 | Debug   |
+| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.6 | 1.71  | 3.4.2 | 2.5.35 | Release |
+| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.6 | 1.71  | 3.4.2 | 2.5.35 | Release |
+| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.6 | -     | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
 
@@ -70,6 +70,14 @@ To build ILAng with default configuration, create a build directory and execute:
 ```bash
 mkdir -p build && cd build
 cmake .. 
+make
+```
+
+If you are using git older than `1.8.4`, init the submodule before configuration:
+```bash
+git submodule update --init --recursive
+mkdir -p build && cd build
+cmake .. -DILANG_FETCH_DEPS=OFF
 make
 ```
 

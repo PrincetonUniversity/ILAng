@@ -28,15 +28,15 @@ std::ostream& operator<<(std::ostream& out, const BoolVal& val) {
 }
 
 // ------------------------- Class BvVal -------------------------------------//
-BvVal::BvVal(const int& val) : val_(val) {}
+BvVal::BvVal(const BvValType& val) : val_(val) {}
 
-BvVal::BvVal(const std::string& str) { val_ = StrToInt(str); }
+BvVal::BvVal(const std::string& str) { val_ = StrToULongLong(str); }
 
 BvVal::~BvVal() {}
 
 std::string BvVal::str() const { return std::to_string(val_); }
 
-const int& BvVal::val() const { return val_; }
+const BvValType& BvVal::val() const { return val_; }
 
 std::ostream& BvVal::Print(std::ostream& out) const { return out << str(); }
 
@@ -45,9 +45,11 @@ std::ostream& operator<<(std::ostream& out, const BvVal& val) {
 }
 
 // ------------------------- Class MemVal ------------------------------------//
-MemVal::MemVal(const int& def_val) : default_(def_val) { val_map_.clear(); }
+MemVal::MemVal(const BvValType& def_val) : default_(def_val) {
+  val_map_.clear();
+}
 
-MemVal::MemVal(const int& def_val, const MemValMap& val_map)
+MemVal::MemVal(const BvValType& def_val, const MemValMap& val_map)
     : default_(def_val) {
   val_map_ = val_map;
 }
@@ -56,9 +58,9 @@ MemVal::~MemVal() {}
 
 const MemValMap& MemVal::val_map() const { return val_map_; }
 
-const int& MemVal::def_val() const { return default_; }
+const BvValType& MemVal::def_val() const { return default_; }
 
-const int& MemVal::get_data(const int& addr) const {
+const BvValType& MemVal::get_data(const BvValType& addr) const {
   auto pos = val_map_.find(addr);
   if (pos == val_map_.end()) {
     return default_;
@@ -67,7 +69,7 @@ const int& MemVal::get_data(const int& addr) const {
   }
 }
 
-void MemVal::set_data(const int& addr, const int& data) {
+void MemVal::set_data(const BvValType& addr, const BvValType& data) {
   val_map_.emplace(addr, data);
 }
 
