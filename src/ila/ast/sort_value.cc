@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& out, const BoolVal& val) {
 // ------------------------- Class BvVal -------------------------------------//
 BvVal::BvVal(const BvValType& val) : val_(val) {}
 
-BvVal::BvVal(const std::string& str) { val_ = StrToLong(str); }
+BvVal::BvVal(const std::string& str) { val_ = StrToULongLong(str); }
 
 BvVal::~BvVal() {}
 

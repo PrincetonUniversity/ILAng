@@ -50,7 +50,7 @@ int StrToInt(const std::string& str, int base) {
   try {
     return std::stoi(str, NULL, base);
   } catch (const std::exception& e) {
-    ILA_ERROR << "Converting non-numeric value " << str << " to int.\n";
+    ILA_ERROR << "Converting non-numeric value " << str << " to int.";
     return 0;
   }
 }
@@ -59,7 +59,17 @@ long long StrToLong(const std::string& str, int base) {
   try {
     return std::stoll(str, NULL, base);
   } catch (const std::exception& e) {
-    ILA_ERROR << "Converting non-numeric value " << str << " to long int.\n";
+    ILA_ERROR << "Converting non-numeric value " << str << " to long int.";
+    return 0;
+  }
+}
+
+unsigned long long StrToULongLong(const std::string& str, int base) {
+  try {
+    return std::stoull(str, NULL, base);
+  } catch (const std::exception& e) {
+    ILA_ERROR << "Converting non-numeric value " << str
+              << " to unsigned long long";
     return 0;
   }
 }
