@@ -129,9 +129,9 @@ public:
 
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
-  /// Type for cacheing the constant 
+  /// Type for cacheing the constant
   // (this is needed because our hash is not fully working)
-  typedef std::map<std::pair<IlaBvValType, unsigned>,vlg_name_t> CnstMap;
+  typedef std::map<std::pair<IlaBvValType, unsigned>, vlg_name_t> CnstMap;
   /// Type for memory annotation
   typedef std::map<std::string, bool> memory_export_annotation_t;
 
@@ -161,7 +161,8 @@ public:
         bool gen_start = false, bool pass_name = false, bool rand_init = false,
         bool ExpandMem = false)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(pass_name), reg_random_init(rand_init), expand_mem(ExpandMem) {}
+          pass_node_name(pass_name), reg_random_init(rand_init),
+          expand_mem(ExpandMem) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
                  bool gen_start, bool rand_init, bool ExpandMem)
@@ -293,7 +294,6 @@ public:
   /// will force to be hex
   static vlg_const_t ToVlgNum(IlaBvValType value, unsigned width);
 
-
 protected:
   /// The id counter
   unsigned idCounter;
@@ -354,7 +354,7 @@ public:
 
   // --------------------- ANNOTATION INTERFACE ---------------------------- //
   /// add memory annotation, please invoke right after constructor
-  void AnnotateMemory(const memory_export_annotation_t & annotation);
+  void AnnotateMemory(const memory_export_annotation_t& annotation);
 }; // class VerilogGeneratorBase
 
 /// \brief Class of Verilog Generator
