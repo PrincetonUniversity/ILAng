@@ -131,7 +131,7 @@ public:
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
   /// Type for cacheing the constant 
   // (this is needed because our hash is not fully working)
-  // typedef std::unordered_map<std::pair<IlaBvValType, unsigned>,vlg_name_t> CnstMap;
+  typedef std::map<std::pair<IlaBvValType, unsigned>,vlg_name_t> CnstMap;
   /// Type for memory annotation
   typedef std::map<std::string, bool> memory_export_annotation_t;
 
@@ -248,6 +248,9 @@ protected:
   vlg_stmt_t preheader;
   /// The map to cache the expression (we only need to store the name)
   ExprMap nmap;
+  /// The map to cache the constants (o.w. there will be overhead, as each
+  /// constant may appear multiple times)
+  CnstMap cmap;
 
   /// For traverse a mem expression
   mem_write_list_t current_writes;

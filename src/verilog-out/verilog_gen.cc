@@ -890,13 +890,20 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
       int width = get_width(e);
       ILA_ASSERT(width > 0);
       IlaBvValType value = (std::dynamic_pointer_cast<ExprConst>(e)->val_bv()->val());
-      vlg_const_t bvcnst = ToVlgNum(value, (unsigned)width );
+      vlg_name_t result_var; 
 
-      vlg_name_t result_var = "bv_"+toStr(width)+"_"+ toStr(IlaBvValUnsignedType(value)) + new_id(e);
-      add_wire(result_var, get_width(e));
-      add_assign_stmt(result_var, bvcnst);
+      auto pos = cmap.find(std::make_pair(value, (unsigned)width));
+      if(pos == cmap.end()) { // not found
+        vlg_const_t bvcnst = ToVlgNum(value, (unsigned)width );
+        result_var = "bv_"+toStr(width)+"_"+ toStr(IlaBvValUnsignedType(value)) + "_" + new_id(e);
+        add_wire(result_var, get_width(e));
+        add_assign_stmt(result_var, bvcnst);
 
-      ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVconst: " << bvcnst << " as " << result_var;
+        ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVconst: " << bvcnst << " as " << result_var;
+        cmap.insert(std::make_pair(std::make_pair(value, (unsigned)width),result_var));
+      } else { // found
+        result_var = pos->second;
+      }
       nmap[e] = result_var;
     } else
       ILA_ASSERT(false) << "Expr sort: " << (e->sort()) << " is not supported.";
