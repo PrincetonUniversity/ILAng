@@ -26,6 +26,8 @@ struct VlgTgtSupplementaryInfo {
   #define memory_export_type_external true
   /// the map of memory
   std::map<std::string, memory_export_type> memory_export;
+  /// the port to keep : memory_name -> (port and its connector)
+  std::map<std::string,std::map<std::string,std::string>> memory_ports;
   
   //  ----------------------- METHODS  ------------------------ //
   /// Constructor - default

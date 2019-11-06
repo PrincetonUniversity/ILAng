@@ -49,6 +49,23 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
   auto endCond =
       has_flush ? "__ENDFLUSH__ || __FLUSHENDED__" : "__IEND__ || __ENDED__";
 
+  // here we insert the memory ports
+  for (auto && memname_ports_pair : supplementary_info.memory_ports) {
+    // add wire
+    for (auto && port_expr_port : memname_ports_pair.second) {
+      if ( RemoveWhiteSpace(port_expr_port.second).empty() )
+        _idr.KeepMemoryPorts(memname_ports_pair.first, port_expr_port.first, false );
+        // does not need to create extra wires
+      else {
+        // create wire as abs_mem_will not
+        auto wn = _idr.KeepMemoryPorts(memname_ports_pair.first, port_expr_port.first, true );
+        vlg_wrapper.add_wire(wn.first, wn.second, true);
+        vlg_wrapper.add_assign_stmt(wn.first,
+          ReplExpr(port_expr_port.second));
+      }
+    }
+  }
+
   auto stmt = _idr.GetAbsMemInstString(vlg_wrapper, endCond);
   vlg_wrapper.add_stmt(stmt);
 

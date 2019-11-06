@@ -46,6 +46,9 @@ std::vector<std::string> SplitSpaceTabEnter(const std::string& str);
 /// Python-style join, return a string that joins the list by the delim
 std::string Join(const std::vector<std::string>& in, const std::string& delim);
 
+/// Remove whitespace " \n\t\r\f\v" from the input string
+std::string RemoveWhiteSpace(const std::string & in);
+
 /// Replace all occurrance of substring a by substring b
 std::string ReplaceAll(const std::string& str, const std::string& a,
                        const std::string& b);
