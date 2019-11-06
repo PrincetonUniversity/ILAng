@@ -12,14 +12,14 @@ namespace ilang {
 VlgTgtSupplementaryInfo::VlgTgtSupplementaryInfo() {}
 
 void VlgTgtSupplementaryInfo::FromJson(nlohmann::json & vmap) {
-  if (not IN("annotation", vmap ) ) 
+  if (! IN("annotation", vmap ) ) 
     return;
   const auto & supplementary_info = vmap["annotation"];
-  if (not supplementary_info.is_object()) {
+  if (! supplementary_info.is_object()) {
     ILA_ERROR << "Unable to parse `annotation` field, expect a map.";
     return;
   }
-  if ( IN("width", supplementary_info) and supplementary_info["width"].is_object() ) {
+  if ( IN("width", supplementary_info) && supplementary_info["width"].is_object() ) {
     for (auto && nw : supplementary_info["width"].items()) {
       width_info.insert(std::make_pair(nw.key(),nw.value().get<int>()));
     }
@@ -51,7 +51,7 @@ void VlgTgtSupplementaryInfo::FromJson(nlohmann::json & vmap) {
     }
   }
 
-  if ( IN("memory", supplementary_info) and supplementary_info["memory"].is_object() ) {
+  if ( IN("memory", supplementary_info) && supplementary_info["memory"].is_object() ) {
     for (auto && nw : supplementary_info["memory"].items()) {
       std::string memory_export_directive = nw.value().get<std::string>();
       memory_export_type directive = memory_export_type_external;
