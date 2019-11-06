@@ -302,4 +302,7 @@ void VerilogConstantExprEval::PopulateParameterDefByHierarchy(
                                current_module_param_defs);
 }
 
+
+bool VerilogConstantExprEval::error() const { return eval_error; }
+
 }; // namespace ilang

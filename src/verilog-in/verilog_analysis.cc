@@ -630,7 +630,8 @@ VerilogAnalyzer::name2loc(const std::string& net_name) const {
 }
 
 /// Find a signal
-SignalInfoBase VerilogAnalyzer::get_signal(const std::string& net_name) const {
+SignalInfoBase VerilogAnalyzer::get_signal(const std::string& net_name,
+    const std::map<std::string,int> * const width_info) const {
   SignalInfoBase bad_signal("", "", 0, hierarchical_name_type::NONE,
                             vlg_loc_t());
 
@@ -651,19 +652,19 @@ SignalInfoBase VerilogAnalyzer::get_signal(const std::string& net_name) const {
   case I_WIRE_wo_INTERNAL_DEF:
   case O_WIRE_wo_INTERNAL_DEF:
   case IO_WIRE_wo_INTERNAL_DEF:
-    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, this);
+    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, width_info, this);
 
   case I_WIRE_w_INTERNAL_DEF:
   case O_WIRE_w_INTERNAL_DEF:
   case IO_WIRE_w_INTERNAL_DEF:
   case WIRE:
-    return SignalInfoWire((ast_net_declaration*)ast_ptr, net_name, tp_, this);
+    return SignalInfoWire((ast_net_declaration*)ast_ptr, net_name, tp_, width_info, this);
 
   case O_REG_wo_INTERNAL_DEF:
-    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, this);
+    return SignalInfoPort((ast_port_declaration*)ast_ptr, net_name, tp_, width_info, this);
   case O_REG_w_INTERNAL_DEF:
   case REG:
-    return SignalInfoReg((ast_reg_declaration*)ast_ptr, net_name, tp_, this);
+    return SignalInfoReg((ast_reg_declaration*)ast_ptr, net_name, tp_, width_info, this);
   case MODULE:
     ILA_ERROR << "Module instance:" << net_name << " is not a signal.";
     return bad_signal;
@@ -677,7 +678,8 @@ SignalInfoBase VerilogAnalyzer::get_signal(const std::string& net_name) const {
 }
 
 /// Return top module signal
-VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
+VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io(
+  const std::map<std::string,int> * const width_info) const {
 
   module_io_vec_t retIoVec;
   if (_bad_state_return())
@@ -729,7 +731,7 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
       case IO_WIRE_wo_INTERNAL_DEF:
         retIoVec.insert(
             {short_name, SignalInfoPort((ast_port_declaration*)ast_ptr,
-                                        port_name, tp_, this)});
+                                        port_name, tp_, width_info, this)});
         break;
 
       case I_WIRE_w_INTERNAL_DEF:
@@ -737,18 +739,18 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
       case IO_WIRE_w_INTERNAL_DEF:
         retIoVec.insert(
             {short_name, SignalInfoWire((ast_net_declaration*)ast_ptr,
-                                        port_name, tp_, this)});
+                                        port_name, tp_, width_info, this)});
         break;
 
       case O_REG_wo_INTERNAL_DEF:
         retIoVec.insert(
             {short_name, SignalInfoPort((ast_port_declaration*)ast_ptr,
-                                        port_name, tp_, this)});
+                                        port_name, tp_, width_info, this)});
         break;
       case O_REG_w_INTERNAL_DEF:
         retIoVec.insert(
             {short_name, SignalInfoReg((ast_reg_declaration*)ast_ptr, port_name,
-                                       tp_, this)});
+                                       tp_, width_info, this)});
         break;
       default:
         ILA_ASSERT(false) << "Implementation bug.";
@@ -827,7 +829,7 @@ bool VerilogAnalyzer::get_hierarchy_from_full_name(
 // ------------------- signal info base ----------------------------------
 
 unsigned range_to_width(ast_range* range, const std::string& full_name,
-                        const VerilogAnalyzer* _ana) {
+                        const VerilogAnalyzer* _ana, int width = -1) {
   if (range == NULL)
     return 1;
   ast_expression* left = range->upper;
@@ -844,16 +846,29 @@ unsigned range_to_width(ast_range* range, const std::string& full_name,
 
   unsigned lr = (unsigned)eval.Eval(left);
   unsigned rr = (unsigned)eval.Eval(right);
+  unsigned analyzed_width = std::max(lr, rr) - std::min(lr, rr) + 1;
 
-  return std::max(lr, rr) - std::min(lr, rr) + 1;
+  // this will provide width when we cannot get width
+  // or there is error, o.w. we will trust the width from 
+  if (width > 0) {
+    ILA_WARN_IF(!eval.error()) << "Overwriting width of signal: "
+      << full_name << " to " << width << "(w="<<analyzed_width<<" by analysis)";
+    return width;
+  }
+
+  return analyzed_width;
 }
 
 SignalInfoPort::SignalInfoPort(ast_port_declaration* def,
                                const std::string& full_name,
                                VerilogAnalyzerBase::hierarchical_name_type tp,
+                               const std::map<std::string,int> * const width_info,
                                const VerilogAnalyzer* _ana)
     : SignalInfoBase(Split(full_name, ".").back(), full_name,
-                     range_to_width(def->range, full_name, _ana), tp,
+                     range_to_width(def->range,  full_name, _ana,
+                        width_info == NULL ? -1 : 
+                        (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ), 
+                     tp,
                      VerilogAnalyzer::Meta2Loc(def->meta)),
       _def(def) { // ILA_WARN_IF( def->range == NULL ) << "Verilog Analyzer:
                   // signal "<< full_name <<" has no range.";
@@ -865,9 +880,13 @@ SignalInfoPort::SignalInfoPort(ast_port_declaration* def,
 SignalInfoReg::SignalInfoReg(ast_reg_declaration* def,
                              const std::string& full_name,
                              VerilogAnalyzerBase::hierarchical_name_type tp,
+                             const std::map<std::string,int> * const width_info,
                              const VerilogAnalyzer* _ana)
     : SignalInfoBase(Split(full_name, ".").back(), full_name,
-                     range_to_width(def->range, full_name, _ana), tp,
+                     range_to_width(def->range,  full_name, _ana,
+                        width_info == NULL ? -1 : 
+                        (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ), 
+                     tp,
                      VerilogAnalyzer::Meta2Loc(def->meta)),
       _def(def) {
   ILA_WARN_IF(_width == 0)
@@ -878,9 +897,13 @@ SignalInfoReg::SignalInfoReg(ast_reg_declaration* def,
 SignalInfoWire::SignalInfoWire(ast_net_declaration* def,
                                const std::string& full_name,
                                VerilogAnalyzerBase::hierarchical_name_type tp,
+                               const std::map<std::string,int> * const width_info,
                                const VerilogAnalyzer* _ana)
     : SignalInfoBase(Split(full_name, ".").back(), full_name,
-                     range_to_width(def->range, full_name, _ana), tp,
+                     range_to_width(def->range,  full_name, _ana,
+                        width_info == NULL ? -1 : 
+                        (IN_p(full_name, width_info) ? width_info->at(full_name) :-1 )  ), 
+                     tp,
                      VerilogAnalyzer::Meta2Loc(def->meta)),
       _def(def) {
   ILA_WARN_IF(_width == 0)

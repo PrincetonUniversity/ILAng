@@ -414,7 +414,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
     
     if (vlg_info_ptr->check_hierarchical_name_type(vlg_state_name_wo_idx) != VerilogInfo::hierarchical_name_type::NONE) {
       // if this is truly a state name
-      auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name_wo_idx);
+      auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name_wo_idx, supplementary_info.width_info);
       ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
           << "ila state:" << ila_state_name
           << " has mismatched type w. verilog signal:" << vlg_state_name_wo_idx;

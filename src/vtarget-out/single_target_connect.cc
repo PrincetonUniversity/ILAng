@@ -260,7 +260,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
 void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
-  auto vlg_inputs = vlg_info_ptr->get_top_module_io();
+  auto vlg_inputs = vlg_info_ptr->get_top_module_io(supplementary_info.width_info);
   auto& io_map = rf_vmap["interface mapping"];
   for (auto&& name_siginfo_pair : vlg_inputs) {
     std::string refstr =
