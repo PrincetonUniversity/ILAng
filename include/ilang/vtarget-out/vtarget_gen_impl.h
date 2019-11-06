@@ -36,7 +36,7 @@ class VlgSglTgtGen {
 public:
   // --------------------- TYPE DEFINITION ------------------------ //
   /// Type of the target
-  typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
+  typedef enum { INVARIANTS, INSTRUCTIONS, INV_SYN_DESIGN_ONLY } target_type_t;
   /// Type of the ready condition
   typedef enum {
     NA = 0,

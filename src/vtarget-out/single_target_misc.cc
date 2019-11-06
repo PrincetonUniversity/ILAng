@@ -67,7 +67,12 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
   }
 
   auto stmt = _idr.GetAbsMemInstString(vlg_wrapper, endCond);
-  vlg_wrapper.add_stmt(stmt);
+  
+  if ( !(
+    (target_type == target_type_t::INV_SYN_DESIGN_ONLY && ! _vtg_config.InvariantSynthesisKeepMemory)
+  ||(target_type == target_type_t::INVARIANTS && ! _vtg_config.InvariantSynthesisKeepMemory)
+    ))
+    vlg_wrapper.add_stmt(stmt);
 
   // check if we need to insert any assumptions
   auto inserter = [this](const std::string& p) -> void {
