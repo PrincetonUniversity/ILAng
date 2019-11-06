@@ -14,9 +14,10 @@ namespace ilang {
 /// Constructor: do nothing
 VerilogModifier::VerilogModifier(VerilogInfo* _vlg_info_ptr,
                                  port_decl_style_t port_decl_style,
-                                 bool add_keep_or_not)
+                                 bool add_keep_or_not,
+                                 const std::map<std::string, int> & _sup_width_info)
     : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style),
-      _add_keep_or_not(add_keep_or_not) {}
+      _add_keep_or_not(add_keep_or_not), sup_width_info(_sup_width_info) {}
 /// Destructor: do nothing
 VerilogModifier::~VerilogModifier() {}
 
@@ -253,9 +254,15 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   auto vlg_sig_info =
       vlg_info_ptr->get_signal(vlg_sig_name); // will check it exists
   auto width = vlg_sig_info.get_width();
-  ILA_ERROR_IF(width == 0) << "Unable to determine the width of signal:" << vlg_sig_name;
-
-
+  if (width == 0) { // will use the supplementary info if cannot find it find verilog
+    auto pos = sup_width_info.find(vlg_sig_name);
+    ILA_ERROR_IF(pos == sup_width_info.end() ||  
+      pos->second == 0) << "Unable to determine the width of signal:" << vlg_sig_name;
+    if (pos != sup_width_info.end()) {
+      width = pos->second;
+    }
+  }
+  
   auto short_name = vlg_sig_info.get_signal_name();
 
   auto vname =
