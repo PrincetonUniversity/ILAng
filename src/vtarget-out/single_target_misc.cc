@@ -179,20 +179,24 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::js
 }
 
 void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
-  if(not IN("post-value-holder",rf_vmap))
+  if(! IN("post-value-holder",rf_vmap) && ! IN("value-holder", rf_vmap))
     return; // no need for it
-  auto & post_val_rec = rf_vmap["post-value-holder"];
-  if (not post_val_rec.is_object()) {
-    ILA_ERROR << "Expect post-value-holder to be map-type";
+  ILA_WARN_IF(IN("post-value-holder",rf_vmap)) 
+    << "The name `post-value-holder` will be deprecated in the future, "
+    << "please use `value-holder` instead";
+  auto & post_val_rec = IN("value-holder", rf_vmap) ?
+    rf_vmap["value-holder"]: rf_vmap["post-value-holder"];
+  if (! post_val_rec.is_object()) {
+    ILA_ERROR << "Expect (post-)value-holder to be map-type";
     return;
   }
   for (auto && item : post_val_rec.items()) {
     const auto & pv_name = item.key();
     auto & pv_cond_val = item.value();
-    ILA_ERROR_IF(not ( pv_cond_val.is_array()  or pv_cond_val.is_object() ))
-      << "Expecting post_value_holder's content to be list or map type";
-    if(pv_cond_val.is_array() and
-        (not pv_cond_val.empty() and 
+    ILA_ERROR_IF(! ( pv_cond_val.is_array()  or pv_cond_val.is_object() ))
+      << "Expecting (post-)value-holder's content to be list or map type";
+    if(pv_cond_val.is_array() &&
+        (! pv_cond_val.empty() && 
           ( pv_cond_val.begin()->is_array() or pv_cond_val.begin()->is_object() )) )
     { // multiple condition
       int w = 0;
