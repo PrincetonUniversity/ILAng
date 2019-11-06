@@ -236,8 +236,10 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   // handle state-output
   std::string sep;
   for (auto&& r : vlg_ila.regs) {
-    if (not IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
-      ILA_WARN << "__ILA_SO_" + r.first << " will be ignored";
+    if (! IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
+      ILA_WARN_IF(
+        r.first.find("__COUNTER_start__n") != 0
+      ) << "__ILA_SO_" + r.first << " will be ignored";
 
       retStr += sep + "   ." + r.first + "()"; // __ILA_SO_" + r.first + "
       port_connected.insert(r.first);
