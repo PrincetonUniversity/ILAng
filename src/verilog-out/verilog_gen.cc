@@ -116,6 +116,8 @@ VerilogGeneratorBase::ToVlgNum(IlaBvValType value, unsigned width) {
     static_assert(sizeof(IlaBvValUnsignedType) == sizeof(IlaBvValType),
                   "IlaBvValUnsignedType in the header needs update to be sync "
                   "with IlaBvValType!");
+    // if width >= sizeof(IlaBvValType) * 8, then this check is actually no use
+    // because any value representable is within the range.
     IlaBvValType maxpos = (width >= sizeof(IlaBvValType) * 8)
                               ? IlaBvValType(-1)
                               : (( (IlaBvValType)(1) << width) - 1);
