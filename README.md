@@ -73,7 +73,7 @@ cmake ..
 make
 ```
 
-If you are using git older than `1.8.4`, init the submodule before configuration:
+If you are using git older than `1.8.4`, init the submodule from root and disable config-time submodule update:
 ```bash
 git submodule update --init --recursive
 mkdir -p build && cd build
@@ -111,6 +111,8 @@ void foo () {
   auto m = ilang::Ila("new_ila_model");
 }
 ```
+
+An example can be found in the template repo [PrincetonUniversity/template-ila](https://github.com/PrincetonUniversity/template-ila).
 
 ### External
 
