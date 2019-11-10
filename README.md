@@ -34,10 +34,16 @@
 ### Prerequisites
 
 ILAng requires CMake (3.9.6 or above) and compilers with CXX11 support.
-To install dependencies on Debian-based UNIX:
+To install dependencies on Debian-based Linux:
 
 ```bash
 apt-get install bison flex libboost-all-dev z3 libz3-dev
+```
+
+To install dependencies (except z3) on Fedora-based Linux:
+
+```bash
+yum install bison flex boost boost-python boost-devel
 ```
 
 To install dependencies on OSX:
@@ -47,7 +53,7 @@ brew install bison flex boost boost-python z3
 ```
 
 -   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
--   The [Boost](https://www.boost.org) package is required only for building the synthesis engine.
+-   The [Boost](https://www.boost.org) package is required only if you want to build the synthesis engine.
 
 #### Regression Environments
 
@@ -73,7 +79,7 @@ cmake ..
 make
 ```
 
-If you are using git older than `1.8.4`, init the submodule before configuration:
+If you are using git older than `1.8.4`, init the submodule from root and disable config-time submodule update:
 ```bash
 git submodule update --init --recursive
 mkdir -p build && cd build
@@ -111,6 +117,8 @@ void foo () {
   auto m = ilang::Ila("new_ila_model");
 }
 ```
+
+An example can be found in the template repo [PrincetonUniversity/template-ila](https://github.com/PrincetonUniversity/template-ila).
 
 ### External
 
@@ -190,7 +198,7 @@ source init.sh
 ```
 
 to initialize the environment settings. 
-This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3) and [Boolector](https://github.com/Boolector/boolector).
+This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3).
 
 ## License
 
@@ -198,7 +206,7 @@ This docker image also contains the model checker [CoSA](https://github.com/cris
 
 ILAng is licensed under the [MIT license](https://opensource.org/licenses/MIT):
 
-Copyright © 2018-2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
+Copyright © 2018 Princeton University
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -233,7 +241,7 @@ ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser),
 Copyright (c) 2016 Ben Marshall.
 
 ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
-Copyright (c) 2016 Princeton University ILA Team.
+Copyright (c) 2016 Princeton University.
 
 ## Contributing
 

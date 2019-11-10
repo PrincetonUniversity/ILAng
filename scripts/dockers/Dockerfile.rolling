@@ -105,6 +105,15 @@ RUN cmake .. -DCMAKE_INSTALL_PREFIX="$BUILD_PREF" -DILANG_INSTALL_DEV=ON && \
     make -j"$(nproc)" && \
     make install 
 
+# template-ila (example)
+ENV EXAMPLE_DIR $BUILD_ROOT/example
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/PrincetonUniversity/template-ila/git/refs/heads/master template_version.json
+RUN git clone --depth=1 https://github.com/PrincetonUniversity/template-ila.git $EXAMPLE_DIR
+WORKDIR $EXAMPLE_DIR
+RUN $BUILD_PREF/bin/python3 script/init.py example
+RUN rm -rf template
+
 #
 # Deployment
 #
@@ -142,7 +151,7 @@ RUN echo "cd $(pwd)" >> init.sh
 # configure files
 COPY --from=builder $BUILD_PREF $BUILD_PREF
 COPY --from=builder $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
-COPY --from=builder $BUILD_ROOT/ILAng/starter/ ./simple/
+COPY --from=builder $BUILD_ROOT/example/ ./example/
 
 # done
 CMD echo "run 'source init.sh' to start" && /bin/bash
