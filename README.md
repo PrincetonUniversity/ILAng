@@ -198,7 +198,7 @@ source init.sh
 ```
 
 to initialize the environment settings. 
-This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3) and [Boolector](https://github.com/Boolector/boolector).
+This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3).
 
 ## License
 
@@ -206,7 +206,7 @@ This docker image also contains the model checker [CoSA](https://github.com/cris
 
 ILAng is licensed under the [MIT license](https://opensource.org/licenses/MIT):
 
-Copyright © 2018-2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
+Copyright © 2018 Princeton University
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -241,7 +241,7 @@ ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser),
 Copyright (c) 2016 Ben Marshall.
 
 ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
-Copyright (c) 2016 Princeton University ILA Team.
+Copyright (c) 2016 Princeton University.
 
 ## Contributing
 
