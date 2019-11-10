@@ -34,10 +34,16 @@
 ### Prerequisites
 
 ILAng requires CMake (3.9.6 or above) and compilers with CXX11 support.
-To install dependencies on Debian-based UNIX:
+To install dependencies on Debian-based Linux:
 
 ```bash
 apt-get install bison flex libboost-all-dev z3 libz3-dev
+```
+
+To install dependencies (except z3) on Fedora-based Linux:
+
+```bash
+yum install bison flex boost boost-python boost-devel
 ```
 
 To install dependencies on OSX:
