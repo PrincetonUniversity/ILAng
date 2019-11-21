@@ -14,6 +14,8 @@ namespace ilang {
 class VlgSglTgtGen_Jasper : public VlgSglTgtGen {
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
+  /// Type of advanced parameter
+  using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -43,7 +45,9 @@ public:
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
-      const vtg_config_t& vtg_config, backend_selector backend);
+      const vtg_config_t& vtg_config, backend_selector backend,
+      const target_type_t& target_tp,
+      advanced_parameters_t * adv_ptr);
 
   /// if you have signals that are controled by assumptions to be equal as
   /// the outer clock, you need to put them here,
@@ -96,6 +100,8 @@ protected:
                                           const std::string& cond,
                                           const std::string& dspt) override;
 
+  /// Pre export work : nothing for cosa
+  void virtual PreExportProcess() override {}
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
   /// export extra things (problem)

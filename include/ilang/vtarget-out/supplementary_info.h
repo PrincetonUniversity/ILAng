@@ -32,7 +32,7 @@ struct VlgTgtSupplementaryInfo {
   //  ----------------------- METHODS  ------------------------ //
   /// Constructor - default
   VlgTgtSupplementaryInfo();
-  /// from Json 
+  /// Parse annotations from Json 
   void FromJson(nlohmann::json & vmap);
 }; // struct VlgTgtSupplementaryInfo
 

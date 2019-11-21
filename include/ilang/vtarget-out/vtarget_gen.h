@@ -8,6 +8,8 @@
 #include <ilang/config.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/inv-syn/inv_obj.h>
+#include <ilang/vtarget-out/inv-syn/cex_extract.h>
 
 namespace ilang {
 
@@ -15,12 +17,31 @@ namespace ilang {
 class VlgVerifTgtGenBase {
   // ----------------------- Type Definition ----------------------- //
 public:
+  /// Type of record of extra info of a signal
+  /// Typically this should not be used (expert only feature)
+  struct ex_info_t {
+    std::string range;
+    ex_info_t(const std::string& r) : range(r) {}
+  };
+
+  struct cosa_reset_config_t {
+      /// whether to enforce no reset constraint
+      bool no_reset_after_starting_state;
+      /// the reset sequence: list of (signal name -> value) map
+      // we anticipate in the reset sequence, you don't need a wide signal
+      std::vector<std::map<std::string, unsigned>> reset_sequence;
+      /// Future work: reset state: signame -> signal value (valid vlog expr)
+      std::map<std::string,std::string>  reset_state;
+  };
 
   // ----------- Verification Settings -------------- //
-  /// Type of the backend
-  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2 } backend_selector;
+  /// Type of the backend:
+  /// CoSA, JasperGold, CHC for chc solver, AIGER for abc
+  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, CHC = 3, AIGERABC = 4 } backend_selector;
   /// Type of invariant synthesis backend
   typedef enum {Z3, GRAIN, ABC, ELDERICA } synthesis_backend_selector;
+  /// Type of the chc target
+  enum _chc_target_t {CEX, INVCANDIDATE, GENERAL_PROPERTY};
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
   /// Set the targets: instructions/invariants/both
@@ -105,6 +126,22 @@ public:
   std::vector<std::string> GrainOptions;
   /// The path to ABC, if "abc" is not in the PATH, default empty
   std::string AbcPath;
+  
+  // ----------- Options for ABC Solver -------------- //
+  /// ABC option : whether to use gate-level abstraction
+  bool AbcUseGla;
+  /// ABC option : whether to use correlation analysis
+  bool AbcUseCorr;  
+  /// ABC option : whether to pass aiger to ABC
+  bool AbcUseAiger;  
+  /// ABC option : whether to minimize invariant
+  bool AbcMinimizeInv;
+    /// ABC option : the way to handle assumptions
+    typedef enum _abc_assumption_style_t {
+      AigMiterExtraOutput = 0, // Use AIG's extra output to represent, cannot use with GLA
+      AssumptionRegister = 1   // Use extra register, may have issues in interpreting the invariant
+    } AbcAssumptionStyle_t;
+    AbcAssumptionStyle_t AbcAssumptionStyle;
 
   /// The default constructor for default values
   _vtg_config()
@@ -132,10 +169,37 @@ public:
         YosysSmtFlattenDatatype(false),
         InvariantSynthesisKeepMemory(true),
         InvariantCheckKeepMemory(true),
-        InvariantSynthesisReachableCheckKeepOldInvariant(false)
+        InvariantSynthesisReachableCheckKeepOldInvariant(false),
+
+        // ----------- Options for ABC -------------- //
+        AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false),
+        AbcMinimizeInv(false),
+        AbcAssumptionStyle(_abc_assumption_style_t::AssumptionRegister)
 
         {}
-} vtg_config_t;
+  } vtg_config_t;
+
+  /// Advanced parameters used for invariant synthesizer
+  /// should not be used by generat
+  /// NOTE: this function can be inherited
+  /// and only expose a visible interface to the outside
+  typedef struct _adv_parameters {
+    /// invariant object
+    InvariantObject * _inv_obj_ptr;
+    /// candidate invariants object
+    InvariantObject * _candidate_inv_ptr;
+    /// counterexample object
+    CexExtractor * _cex_obj_ptr;
+    /// The default constructor for default values
+    _adv_parameters() : 
+      _inv_obj_ptr(NULL),
+      _candidate_inv_ptr(NULL),
+      _cex_obj_ptr(NULL) {}
+    /// virtual destructor
+    virtual ~_adv_parameters() {};
+  } advanced_parameters_t;
+
+
 
 public:
   // ----------------------- Constructor/Destructor ----------------------- //
@@ -153,6 +217,8 @@ class VerilogVerificationTargetGenerator {
 public:
   /// Type of the backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of the synthesis backend
+  using synthesis_backend_selector = VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
 
@@ -185,6 +251,8 @@ public:
   void GenerateTargets(void);
   /// return true if the generator's in a bad state and cannot proceed.
   bool in_bad_state(void) const;
+  /// get vlg-module instance name
+  std::string GetVlgModuleInstanceName(void) const;
 
 private:
   /// will be casted to different generator inside the implementation

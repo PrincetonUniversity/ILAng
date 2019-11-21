@@ -1,27 +1,43 @@
-/// \file Verilog Verification Target Generator -- for CoSA
-/// This file should not be included, as it requires the impl.
+/// \file Verilog Verification Target Generator -- for Yosys 
+/// We use yosys to convert Verilog to smt-lib2
+/// This can be used for 
+/// (1) generating SMT-LIB2 (smt-lib2 gen) (inv-syn-design-only)
+///     -- just for the design !!!
+///     -- different configurations (flatten etc.)
+/// (2) proving invariants (invariant target)
+///         (--- Not here: should be inv_chc.h)
+/// (3) proving properties (instruction)
+///     --- just for proving no cex for now
+///     --- at least we don't have a cex parser
+///
+/// It should be used to target different Solvers?
+/// For example, CHC (Forall/Rule), ABC (maybe)
+/// the simularity is that it has property inside
+/// properties are not cex...
+/// (will not port RelChc, no use...?)
 // ---Hongce Zhang
+/// 
+/// FIXME: need to change this file here
 
-#ifndef ILANG_VTARGET_OUT_VTARGET_GEN_COSA_H__
-#define ILANG_VTARGET_OUT_VTARGET_GEN_COSA_H__
+#ifndef VTARGET_GEN_YOSYS_H__
+#define VTARGET_GEN_YOSYS_H__
 
+#include <ilang/config.h>
+
+#include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vlg_mod.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
-
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include <ilang/config.h>
-#include <ilang/ila/instr_lvl_abs.h>
-
 namespace ilang {
 
-class VlgSglTgtGen_Cosa;
+class VlgSglTgtGen_Yosys;
 
-/// \brief a class to store (and generate) the problem for cosa
-class Cosa_problem {
-  friend class VlgSglTgtGen_Cosa;
+/// \brief a class to store (and generate) the problem for Yosys
+class Yosys_problem {
+  friend class VlgSglTgtGen_Yosys;
   /// Type of assertions and assumptions
   typedef std::vector<std::string> prop_t;
   /// Type of a problem --- we  can handle multiple several problems (may not
@@ -30,21 +46,32 @@ class Cosa_problem {
     // the name in [??]
     // std::string  problem_name;
     /// will be conjuncted and put in the question
-    prop_t assertions;
+    prop_t exprs;
   } problem_t;
   /// set of problems
   typedef std::map<std::string, problem_t> problemset_t;
 
 protected:
-  /// assumptions are shared
-  prop_t assumptions;
+  /// assumptions are not shared (unlike CoSA)
+  problemset_t assumptions;
   /// problems are splitted into items
-  problemset_t probitem;
+  problemset_t assertions;
 
-}; // Cosa_problem
+}; // Yosys_problem
 
-/// \brief a class to interface w.  COSA
-class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
+/// \brief the information that the design target
+/// can get for the instruction target
+struct YosysDesignSmtInfo {
+  /// the full content of the generated smt file
+  std::stringstream full_smt;
+  /// the default constructor
+  YosysDesignSmtInfo();
+  /// The move constructor
+  YosysDesignSmtInfo(YosysDesignSmtInfo && );
+}; // YosysDesignSmtInfo
+
+/// \brief a class to interface w.  Yosys
+class VlgSglTgtGen_Yosys : public VlgSglTgtGen {
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
   /// a tuple to store all related info for modification
@@ -69,15 +96,14 @@ public:
   /// \param[in] all include paths
   /// \param[in] which backend to use, it needs this info to gen proper
   /// properties
-  VlgSglTgtGen_Cosa(
+  VlgSglTgtGen_Yosys(
       const std::string& output_path, // will be a sub directory of the
                                       // output_path of its parent
       const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _supplementary_info,
-      VerilogInfo* _vlg_info_ptr,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _sup_info, VerilogInfo* _vlg_info_ptr,
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
@@ -87,47 +113,54 @@ public:
       advanced_parameters_t * adv_ptr);
 
 protected:
-  /// Cosa problem generate
-  Cosa_problem _problems;
-  /// Cosa problem file name
-  std::string cosa_prob_fname;
+  /// Yosys problem generate
+  Yosys_problem _problems;
+  /// Yosys problem file name
+  std::string yosys_prob_fname;
+  /// Yosys script 'run.sh' name
+  std::string yosys_run_script_name;
+  /// the invariants on the design
+  std::vector<std::string> vlg_mod_inv_vec;
 
 protected:
-  /// Add an assumption
+  /// template for generating yosys script wo arrays
+  std::string yosysGenerateSmtScript_wo_Array;
+  /// template for generating yosys script
+  std::string yosysGenerateSmtScript_w_Array;
+
+protected:
+  /// Add an assumption -- needed by base class
   virtual void add_an_assumption(const std::string& aspt,
                                  const std::string& dspt) override;
-  /// Add an assertion
+  /// Add an assertion -- needed by base class
   virtual void add_an_assertion(const std::string& asst,
                                 const std::string& dspt) override;
-  /// Add a direct assumption
+  /// Add a direct assumption -- needed by base class
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) override;
-  /// Add a direct assertion
+  /// Add a direct assertion -- needed by base class
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
-  /// Add an assignment which in JasperGold could be an assignment, but in CoSA
-  /// has to be an assumption
+  /// Add an assignment which in JasperGold could be an assignment, but in Yosys
+  /// has to be an assumption -- needed by base class
   virtual void add_wire_assign_assumption(const std::string& varname,
                                           const std::string& expression,
                                           const std::string& dspt) override;
   /// Add an assignment to a register which in JasperGold could be an
-  /// assignment, but in CoSA has to be an assumption
+  /// assignment, but in Yosys has to be an assumption -- needed by base class
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
                                           int width,
                                           const std::string& cond,
                                           const std::string& dspt) override;
 
-  /// Pre export work : nothing for cosa
-  void virtual PreExportProcess() override {}
+  /// Pre export work : add assume and asssert to the top level
+  void virtual PreExportProcess() override;
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
-  /// export extra things (problem)
+  /// export extra things: the yosys script, the smt template
   virtual void
-  Export_problem(const std::string& extra_name) override; // only for cosa
-  /// generate along-side a jg script that you can use in JasperGold
-  virtual void Export_jg_tester_script(const std::string& extra_name);
-
+  Export_problem(const std::string& extra_name) override;
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
@@ -135,12 +168,48 @@ protected:
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
+private:
+  // Here begins the specific functions
+  // single_inv_problem()  : gensmt.ys
+  // dual_inv_problem()    : gensmt.ys
+  // single_inv_script()   : same run.sh
+  // dual_inv_script() 
+  // single_inv_tpl() :
+  // dual_inv_tpl() :
+
+
+  /// generate the Yosys script for single invariant, please provide the tmplate name for reference
+  void single_inv_problem(const std::string& ys_script_name, const std::string & tpl_name);
+  /// generate the Yosys script for dual invariant
+  void dual_inv_problem(const std::string& ys_script_name);
+
+  /// generate the template file
+  void single_inv_tpl(const std::string & tpl_name);
+  /// generate the template file
+  void dual_inv_tpl(const std::string & tpl_name, YosysDesignSmtInfo & smt_info);
+
+  /// generate the wrapper's smt first
+  YosysDesignSmtInfo dual_inv_gen_smt(
+    const std::string & smt_name,
+    const std::string & ys_script_name);
+  
+
 public:
+                         
+  /// Deprecation of the one without smt info
+  void virtual ExportAll(const std::string& wrapper_name,
+                         const std::string& ila_vlg_name,
+                         const std::string& script_name,
+                         const std::string& extra_name,
+                         const std::string& mem_name) override;
+  
+
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 
-}; // class VlgVerifTgtGenCosa
+}; // class VlgVerifTgtGenYosys
+
 
 }; // namespace ilang
 
-#endif // ILANG_VTARGET_OUT_VTARGET_GEN_COSA_H__
+#endif // VTARGET_GEN_YOSYS_H__

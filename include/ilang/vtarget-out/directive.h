@@ -40,7 +40,8 @@ public:
     MEM_R_EN,
     MEM_W_A,
     MEM_W_D,
-    MEM_W_EN
+    MEM_W_EN,
+    START
   } inf_dir_t;
   /// Type of interface connector
   typedef std::pair<inf_dir_t, std::string> inf_connector_t;
@@ -108,7 +109,7 @@ public:
   void SetMemName(const std::string& directive,
                   const std::string& ila_state_name,
                   bool abs_read);
-  
+
   /// Setting the memory abstraction name, and width...
   /// but does not enforce any equality
   /// there
@@ -118,8 +119,7 @@ public:
 
   /// Return the memory instantiation string
   std::string GetAbsMemInstString(VerilogGeneratorBase& gen,
-                                  const std::string& endCond);  
-  
+                                  const std::string& endCond);
   /// Check if some port has been connected,
   /// if not, connect it to the wire_name (will not create wire!)
   /// if connected, will warn and refuse to connect
