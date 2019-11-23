@@ -182,8 +182,6 @@ endif()
 ## Docker Image
 
 [![docker-io](http://dockeri.co/image/byhuang/ilang)](https://hub.docker.com/r/byhuang/ilang)
-[![docker-image](https://images.microbadger.com/badges/image/byhuang/ilang.svg)](https://microbadger.com/images/byhuang/ilang "Get your own image badge on microbadger.com")
-[![docker-version](https://images.microbadger.com/badges/version/byhuang/ilang.svg)](https://microbadger.com/images/byhuang/ilang "Get your own version badge on microbadger.com")
 
 An docker image with the ILAng platform and all dependencies can be fetched from [Docker Hub](https://hub.docker.com/r/byhuang/ilang).
 
