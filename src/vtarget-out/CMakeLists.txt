@@ -1,6 +1,9 @@
 # ---------------------------------------------------------------------------- #
 # source 
 # ---------------------------------------------------------------------------- #
+
+add_subdirectory(inv-syn)
+
 target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/directive.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/gen_util.cc
@@ -13,9 +16,11 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/single_target_inv_syn_support.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_cosa.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_jasper.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_yosys.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vlg_mod.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/absmem.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/design_stat.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/supplementary_info.cc
 )
 

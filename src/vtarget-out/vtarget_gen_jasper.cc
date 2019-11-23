@@ -26,12 +26,15 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector backend)
+    const vtg_config_t& vtg_config, backend_selector backend,
+    const target_type_t& target_tp,
+    advanced_parameters_t * adv_ptr)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _supplementary_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend) {}
+                   implementation_include_path, vtg_config, backend,
+                   target_tp, adv_ptr) {}
 
 void VlgSglTgtGen_Jasper::add_wire_assign_assumption(
     const std::string& varname, const std::string& expression,
@@ -160,7 +163,7 @@ void VlgSglTgtGen_Jasper::Export_mem(const std::string& mem_name) {
   auto outfn = os_portable_append_dir(_output_path, mem_name);
   std::ofstream fout(outfn); // will not append
 
-  VlgAbsMem::OutputMemFile(fout);
+  VlgAbsMem::OutputMemFile(fout, _vtg_config.VerificationSettingAvoidIssueStage);
 }
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Jasper::Export_modify_verilog() {

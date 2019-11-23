@@ -41,10 +41,12 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
   auto& mod_decl_info = mod_decl_map[fn];
   auto& mod_inst_info = mod_inst_map[fn];
   auto& assign_info = assign_map[fn];
+  auto& add_stmt_info = add_stmt_map[fn];
 
   auto mod_decl_vec_it = mod_decl_info.begin();
   auto mod_inst_vec_it = mod_inst_info.begin();
   auto assign_vec_it = assign_info.begin();
+  auto add_stmt_vec_it = add_stmt_info.begin();
 
   while (std::getline(fin, line)) {
 
@@ -65,19 +67,27 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
       keep_vec_it++;
     }
     // todo: check other issues
+
+    while (add_stmt_vec_it != add_stmt_info.end() 
+           && lineno == std::get<0>(*add_stmt_vec_it)) {
+      const auto & stmt = std::get<1>(*add_stmt_vec_it);
+      line =  stmt + "\n" + line;
+      add_stmt_vec_it++;
+    }
+
     while (assign_vec_it != assign_info.end() &&
            lineno == std::get<0>(*assign_vec_it)) {
-      auto vname = std::get<1>(*assign_vec_it);
-      auto width = std::get<2>(*assign_vec_it);
-      auto signame = std::get<3>(*assign_vec_it);
+      const auto & vname = std::get<1>(*assign_vec_it);
+      const auto & width = std::get<2>(*assign_vec_it);
+      const auto & signame = std::get<3>(*assign_vec_it);
       line = add_assign_wire_to_this_line(line, vname, width, signame);
       assign_vec_it++;
     }
 
     while (mod_decl_vec_it != mod_decl_info.end() &&
            lineno >= std::get<0>(*mod_decl_vec_it)) {
-      auto vname = std::get<1>(*mod_decl_vec_it);
-      auto width = std::get<2>(*mod_decl_vec_it);
+      const auto & vname = std::get<1>(*mod_decl_vec_it);
+      const auto & width = std::get<2>(*mod_decl_vec_it);
       std::string new_line;
       if (add_mod_decl_wire_to_this_line(line, new_line, vname, width)) {
         line = new_line;
@@ -89,8 +99,8 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
 
     while (mod_inst_vec_it != mod_inst_info.end() &&
            lineno >= std::get<0>(*mod_inst_vec_it)) {
-      auto vname = std::get<1>(*mod_inst_vec_it);
-      auto width = std::get<2>(*mod_inst_vec_it);
+      const auto & vname = std::get<1>(*mod_inst_vec_it);
+      const auto & width = std::get<2>(*mod_inst_vec_it);
       std::string new_line;
       if (add_mod_inst_wire_to_this_line(line, new_line, vname, width)) {
         line = new_line;
@@ -131,6 +141,10 @@ void VerilogModifier::FinishRecording() {
   for (auto&& fn_tp_pair : assign_map) {
     auto& vec = fn_tp_pair.second;
     std::sort(begin(vec), end(vec), compare_tuple<assign_item_t>);
+  }
+  for (auto&& fn_tp_pair : add_stmt_map) {
+    auto& vec = fn_tp_pair.second;
+    std::sort(begin(vec), end(vec), compare_tuple<add_stmt_t>);
   }
 
 } // FinishRecording
@@ -220,8 +234,8 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 
   auto midSplit = Split(middle, ",");
 
-  unsigned foundIdx = -1;
-  unsigned idx = 0;
+  int foundIdx = -1;
+  int idx = 0;
   for (auto&& port_decl : midSplit) {
     auto wordList = SplitSpaceTabEnter(port_decl);
     if (std::find(wordList.begin(), wordList.end(), vname) != wordList.end()) {
@@ -230,12 +244,12 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
     }
     idx++;
   }
-#if 0 // BYH: foundIdx is unsigned, which would never be -1
+
   if (foundIdx == -1) {
     ILA_ERROR << "not able to modify line: '" << line_in << "' for :" << vname;
     return line_in;
   }
-#endif
+
 
   midSplit[foundIdx] = "(* keep *)" + midSplit[foundIdx];
 
@@ -246,6 +260,15 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 
   return left_cut + midMod + right_cut;
 } // add_keep_to_port
+
+/// record the statement to be added to the end of Verilog topmodule
+void VerilogModifier::RecordAdditionalVlgModuleStmt(const std::string& stmt,
+                                                    const std::string& mod_instance_name) {
+  auto loc =
+    vlg_info_ptr->get_endmodule_loc(mod_instance_name); // this the endmodule location
+  
+  add_stmt_map[loc.first].push_back(add_stmt_t(loc.second,stmt));
+}
 
 /// record the name to add a keep there
 VerilogModifier::vlg_sig_t
@@ -262,7 +285,7 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
       width = pos->second;
     }
   }
-  
+
   auto short_name = vlg_sig_info.get_signal_name();
 
   auto vname =
@@ -420,6 +443,8 @@ bool VerilogModifier::add_mod_decl_wire_to_this_line(const std::string& line_in,
   if (pos_rp == std::string::npos) {
     ILA_ERROR
         << "unable to find the right ) to insert port decl, will continue.";
+    ILA_ERROR
+        << "Line-in : " << line_in << " vname:" << vname;
     line_out = line_in;
     return true;
   }

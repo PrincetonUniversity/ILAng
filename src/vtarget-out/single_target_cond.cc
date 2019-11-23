@@ -25,63 +25,7 @@ namespace ilang {
 
 // ------------- END of CONFIGURAIONS -------------------- //
 
-void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
-  // find in rf_cond, how many cycles will be needed
-  max_bound = 0;
-
-  auto& instr = get_current_instruction_rf();
-
-  if (!instr.is_null() && IN("ready bound", instr) &&
-      instr["ready bound"].is_number_integer())
-    max_bound = instr["ready bound"].get<int>();
-  else
-    max_bound = _vtg_config.MaxBound;
-
-  cnt_width = (int)std::ceil(std::log2(max_bound + 10));
-  vlg_wrapper.add_reg("__CYCLE_CNT__",
-                      cnt_width); // by default it will be an output reg
-  vlg_wrapper.add_stmt("always @(posedge clk) begin");
-  vlg_wrapper.add_stmt("if (rst) __CYCLE_CNT__ <= 0;");
-  vlg_wrapper.add_stmt(
-      "else if ( ( __START__ || __STARTED__ ) &&  __CYCLE_CNT__ < " +
-      IntToStr(max_bound + 5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
-  vlg_wrapper.add_stmt("end");
-
-  vlg_wrapper.add_reg("__START__", 1);
-  vlg_wrapper.add_stmt("always @(posedge clk) begin");
-  vlg_wrapper.add_stmt("if (rst) __START__ <= 0;");
-  vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
-  vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
-  vlg_wrapper.add_stmt("end");
-
-  vlg_wrapper.add_reg("__STARTED__", 1);
-  vlg_wrapper.add_stmt("always @(posedge clk) begin");
-  vlg_wrapper.add_stmt("if (rst) __STARTED__ <= 0;");
-  vlg_wrapper.add_stmt(
-      "else if (__START__) __STARTED__ <= 1;"); // will never return to zero
-  vlg_wrapper.add_stmt("end");
-
-  vlg_wrapper.add_reg("__ENDED__", 1);
-  vlg_wrapper.add_stmt("always @(posedge clk) begin");
-  vlg_wrapper.add_stmt("if (rst) __ENDED__ <= 0;");
-  vlg_wrapper.add_stmt(
-      "else if (__IEND__) __ENDED__ <= 1;"); // will never return to zero
-  vlg_wrapper.add_stmt("end");
-
-  vlg_wrapper.add_reg("__RESETED__", 1);
-  vlg_wrapper.add_stmt("always @(posedge clk) begin");
-  vlg_wrapper.add_stmt("if (rst) __RESETED__ <= 1;");
-  vlg_wrapper.add_stmt("end");
-
-  // remember to generate
-  // __RESETED__
-  // __ISSUE__ == start condition (if no flush, issue == true?)
-  // __IEND__ == ( end condition ) &&  STARTED
-  // __ENDFLUSH__ == (end flush condition ) && ENDED
-  // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
-} // ConstructWrapper_add_cycle_count_moniter
-
-
+  
 
 //  NON-FLUSH case
 //  1 RESET
@@ -109,6 +53,79 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
 //  & postflush cond
 //
 
+void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
+  // find in rf_cond, how many cycles will be needed
+  max_bound = 0;
+
+  auto& instr = get_current_instruction_rf();
+
+  if (!instr.is_null() && IN("ready bound", instr) &&
+      instr["ready bound"].is_number_integer())
+    max_bound = instr["ready bound"].get<int>();
+  else
+    max_bound = _vtg_config.MaxBound;
+
+  cnt_width = (int)std::ceil(std::log2(max_bound + 10));
+  vlg_wrapper.add_reg("__CYCLE_CNT__",
+                      cnt_width); // by default it will be an output reg
+  vlg_wrapper.add_stmt("always @(posedge clk) begin");
+  vlg_wrapper.add_stmt("if (rst) __CYCLE_CNT__ <= 0;");
+  vlg_wrapper.add_stmt(
+      "else if ( ( __START__ || __STARTED__ ) &&  __CYCLE_CNT__ < " +
+      IntToStr(max_bound + 5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
+  vlg_wrapper.add_stmt("end");
+
+  vlg_wrapper.add_reg("__START__", 1);
+  vlg_wrapper.add_stmt("always @(posedge clk) begin");
+  // how start is triggered
+  if (_vtg_config.VerificationSettingAvoidIssueStage) {
+    vlg_wrapper.add_stmt("if (rst) __START__ <= 1;");
+    vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
+  }
+  else {
+    vlg_wrapper.add_stmt("if (rst) __START__ <= 0;");
+    vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
+    vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
+  }
+  vlg_wrapper.add_stmt("end");
+
+  vlg_wrapper.add_reg("__STARTED__", 1);
+  vlg_wrapper.add_stmt("always @(posedge clk) begin");
+  vlg_wrapper.add_stmt("if (rst) __STARTED__ <= 0;");
+  vlg_wrapper.add_stmt(
+      "else if (__START__) __STARTED__ <= 1;"); // will never return to zero
+  vlg_wrapper.add_stmt("end");
+
+  vlg_wrapper.add_reg("__ENDED__", 1);
+  vlg_wrapper.add_stmt("always @(posedge clk) begin");
+  vlg_wrapper.add_stmt("if (rst) __ENDED__ <= 0;");
+  vlg_wrapper.add_stmt(
+      "else if (__IEND__) __ENDED__ <= 1;"); // will never return to zero
+  vlg_wrapper.add_stmt("end");
+
+  vlg_wrapper.add_reg ("__2ndENDED__", 1);
+  vlg_wrapper.add_stmt("always @(posedge clk) begin");
+  vlg_wrapper.add_stmt("if (rst) __2ndENDED__ <= 1'b0;");
+  vlg_wrapper.add_stmt("else if (__ENDED__ && __EDCOND__ && ~__2ndENDED__)  __2ndENDED__ <= 1'b1; end");
+
+  vlg_wrapper.add_wire("__2ndIEND__", 1);
+  vlg_wrapper.add_assign_stmt("__2ndIEND__", "__ENDED__ && __EDCOND__ && ~__2ndENDED__");
+
+  vlg_wrapper.add_reg("__RESETED__", 1);
+  vlg_wrapper.add_stmt("always @(posedge clk) begin");
+  vlg_wrapper.add_stmt("if (rst) __RESETED__ <= 1;");
+  vlg_wrapper.add_stmt("end");
+
+  // remember to generate
+  // __RESETED__
+  // __ISSUE__ == start condition (if no flush, issue == true?)
+  // __IEND__ == ( end condition ) &&  STARTED
+  // __ENDFLUSH__ == (end flush condition ) && ENDED
+  // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
+} // ConstructWrapper_add_cycle_count_moniter
+
+
+
 void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // TODO
   // remember to generate
@@ -117,8 +134,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // __ENDFLUSH__ == (end flush condition ) && ENDED
   // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
 
-  if (target_type == target_type_t::INVARIANTS)
-    return;
+  ILA_ASSERT (target_type == target_type_t::INSTRUCTIONS );
   // we don't need additional signals, just make reset drives the design
 
   // find the instruction
@@ -179,14 +195,19 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   }
 
   vlg_wrapper.add_wire("__IEND__", 1, true);
+  vlg_wrapper.add_wire("__EDCOND__", 1, true);
   // if(no_started_signal)
   //  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ")",
   //                            "IEND");
   // else
   auto end_no_recur = has_flush ? "(~ __FLUSHENDED__ )" : "(~ __ENDED__)";
+  
+  add_wire_assign_assumption("__EDCOND__",
+                             "(" + iend_cond + ") && __STARTED__ " ,
+                             "EDCOND");
 
   add_wire_assign_assumption("__IEND__",
-                             "(" + iend_cond + ") && __STARTED__ && " +
+                             "(" + iend_cond + ") && __STARTED__ && __RESETED__ && " +
                                  end_no_recur + max_bound_constr,
                              "IEND");
   // handle start decode
@@ -272,7 +293,6 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
     // start decode -- issue enforce (e.g. valid, input)
   } // end of no flush
 } // ConstructWrapper_add_condition_signals
-  
 
 } // namespace ilang
 

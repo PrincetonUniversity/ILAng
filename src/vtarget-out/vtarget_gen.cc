@@ -22,7 +22,7 @@ VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
           implementation_include_path, implementation_srcs,
           implementation_top_module, refinement_variable_mapping,
           refinement_conditions, output_path, ila_ptr, backend, vtg_config,
-          config)) {}
+          config, NULL)) {}
 
 VerilogVerificationTargetGenerator::~VerilogVerificationTargetGenerator() {
   if (_generator)
@@ -39,6 +39,12 @@ bool VerilogVerificationTargetGenerator::in_bad_state(void) const {
   VlgVerifTgtGen* ptr_ = dynamic_cast<VlgVerifTgtGen*>(_generator);
   ILA_NOT_NULL(ptr_);
   return ptr_->in_bad_state();
+}
+
+std::string VerilogVerificationTargetGenerator::GetVlgModuleInstanceName(void) const {
+  VlgVerifTgtGen* ptr_ = dynamic_cast<VlgVerifTgtGen*>(_generator);
+  ILA_NOT_NULL(ptr_);
+  return ptr_->GetVlgModuleInstanceName();
 }
 
 }; // namespace ilang

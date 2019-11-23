@@ -34,7 +34,8 @@ bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
     return true;
   if (c == "**SO**")
     return vlg_sig.is_output();
-  if (c == "**RESET**" || c == "**NRESET**" || c == "**CLOCK**")
+  if (c == "**RESET**" || c == "**NRESET**" || c == "**CLOCK**"
+      || c == "**START**")
     return (vlg_sig.is_input() && vlg_sig.get_width() == 1);
   if (beginsWith(c, "**MEM**")) {
     auto first_dot_loc = c.find(".");
@@ -138,6 +139,9 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
     const auto& the_wire_connected_to_the_port = signal_conn_pair.second.second;
     if (conn_tp == inf_dir_t::NC)
       continue; // no need to check them, will be declared
+    
+    if (conn_tp == inf_dir_t::START)
+      continue; // this is connected to __START__ | __STARTED__ // hope it will be fine
 
     if (IN(the_wire_connected_to_the_port, gen.wires))
       continue; // if found okay
@@ -236,6 +240,11 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       }
     } else if (refstr == "**NC**") {
       mod_inst_rec.insert({short_name, inf_connector_t({inf_dir_t::NC, ""})});
+    } else if (refstr == "**START**") {
+      mod_inst_rec.insert(
+        {short_name,
+          inf_connector_t({inf_dir_t::START, "__START__ | __STARTED__"})}
+      );
     } else if (refstr == "**SO**") {
       ILA_ERROR_IF(!is_output)
           << "Forcing a non-output signal to be connected as output:"
@@ -373,6 +382,7 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
   _reset_vlg = reset_vlg;
 }
 
+
 void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
                                            const std::string& ila_state_name,
                                            bool abs_read) {
@@ -489,7 +499,6 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
 } // ConnectMemory
 
 
-
 /// Check if some verilog port has been connected,
 /// if not, connect it to the wire_name (will not create wire!)
 /// if connected, will warn and refuse to connect
@@ -564,45 +573,5 @@ bool StateMappingDirectiveRecorder::isSpecialStateDirMem(const std::string& c) {
   return IntefaceDirectiveRecorder::beginsWith(c, "**MEM**");
 }
 
-
 } // namespace ilang
 
-/*        ILA_ERROR_IF ( width != data_w )
-            << "Data width does not match: vlg:"
-            << short_name << "(" << width << ") "
-            << " ila: "
-            << ila_mem_name << ".data (" << data_w << ")";
-          ILA_ERROR_IF ( ! is_input ) << "rdata should be an input to the
-   verilog module.";
-
-          abs_mems[ila_mem_name].vlg_rports[port_no].rdata = new_wire_name;
-          mod_inst_rec.insert( {short_name, {inf_dir_t::MEM_R_D, new_wire_name }
-   } ); internal_wires.push_back( {new_wire_name, data_w} ); */
-/*
-
-          ILA_ERROR_IF ( width != addr_w )
-            << "Addr width does not match: vlg:"
-            << short_name << "(" << width << ") "
-            << " ila: "
-            << ila_mem_name << ".addr (" << addr_w << ")";
-          ILA_ERROR_IF ( ! is_output ) << "raddr should be an output of the
-   verilog module.";
-
-          abs_mems[ila_mem_name].vlg_rports[port_no].raddr = new_wire_name;
-          mod_inst_rec.insert( {short_name, {inf_dir_t::MEM_R_A, new_wire_name }
-   } ); internal_wires.push_back( {new_wire_name, addr_w} );
-
-
-          ILA_ERROR_IF ( width != 1 )
-            << "Enable signal width does not match: vlg:"
-            << short_name << "(" << width << ") "
-            << " ila: "
-            << ila_mem_name << ".ren (" << 1 << ")";
-          ILA_ERROR_IF ( ! is_output ) << "ren should be an output of the
-   verilog module.";
-
-          abs_mems[ila_mem_name].vlg_rports[port_no].ren = new_wire_name;
-          mod_inst_rec.insert( {short_name, {inf_dir_t::MEM_R_EN, new_wire_name
-   } } ); internal_wires.push_back( {new_wire_name, 1} );
-
-*/

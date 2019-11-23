@@ -30,12 +30,15 @@ VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector backend)
+    const vtg_config_t& vtg_config, backend_selector backend,
+    const target_type_t& target_tp,
+    advanced_parameters_t * adv_ptr)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _supplementary_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend) {}
+                   implementation_include_path, vtg_config, backend,
+                   target_tp, adv_ptr) {}
 
 std::string convert_expr_to_cosa(const std::string& in) {
   return ReplaceAll(
@@ -52,8 +55,12 @@ void VlgSglTgtGen_Cosa::add_wire_assign_assumption(
   //_problems.assumptions.push_back(varname + " = " +
   //                                convert_expr_to_cosa(expression));
   vlg_wrapper.add_assign_stmt(varname, expression);
-  ILA_ERROR_IF(expression.find(".") != std::string::npos)
+  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify != vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC
+    || expression.find(".") == std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
+  ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify == vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_WARNING
+    && expression.find(".") != std::string::npos) << "expression:" << expression << " contains unfriendly dot.";
+  
 }
 
 void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
@@ -63,8 +70,14 @@ void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
   // _problems.assumptions.push_back("(!( " + convert_expr_to_cosa(cond) +
   //                                 " ) | (" + varname + " = " +
   //                                convert_expr_to_cosa(expression) + "))");
-  ILA_ERROR_IF(expression.find(".") != std::string::npos)
+
+  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify != vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC
+    || expression.find(".") == std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
+
+  ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify == vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_WARNING
+    && expression.find(".") != std::string::npos) << "expression:" << expression << " contains unfriendly dot.";
+  
   // vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
   //                            " <= " + expression + "; //" + dspt);
   // we prefer the following way, as we get the value instantaneously
@@ -85,12 +98,21 @@ void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_wire(assumption_wire_name, 1, true);
   vlg_wrapper.add_output(assumption_wire_name,
                          1); // I find it is necessary to connect to the output
-  vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
-  ILA_ERROR_IF(aspt.find(".") != std::string::npos)
+  
+  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify != vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC
+    || aspt.find(".") == std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
+  
+  ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify == vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_WARNING
+    && aspt.find(".") != std::string::npos) << "aspt:" << aspt << " contains unfriendly dot.";
+  
+
+  vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   _problems.assumptions.push_back(assumption_wire_name + " = 1_1");
   //_problems.assumptions.push_back(convert_expr_to_cosa(aspt));
-}
+} // add_an_assumption
+
+
 /// Add an assertion
 void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
                                          const std::string& dspt) {
@@ -100,8 +122,12 @@ void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " = 1_1");
-  ILA_ERROR_IF(asst.find(".") != std::string::npos)
+  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify != vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC
+    || asst.find(".") == std::string::npos)
       << "asst:" << asst << " contains unfriendly dot.";
+   ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify == vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_WARNING
+    && asst.find(".") != std::string::npos) << "asst:" << asst << " contains unfriendly dot.";
+  
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
 }
 
@@ -135,6 +161,8 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     options += " --solver-name=" + _vtg_config.CosaSolver;
   if (_vtg_config.CosaGenTraceVcd)
     options += " --vcd";
+  if (_vtg_config.CosaFullTrace)
+    options += " --full-trace";
   options += " " + _vtg_config.CosaOtherSolverOptions;
 
   // no need, copy is good enough
@@ -207,16 +235,13 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
               << os_portable_append_dir(_output_path, "rst.ets");
     return;
   }
-  rstf << "I: rst = 0_1" << std::endl;
-  rstf << "I: reset_done = False" << std::endl;
-  rstf << "S1: rst = 1_1" << std::endl;
-  rstf << "S1: reset_done = False" << std::endl;
-  rstf << "S2: rst = 0_1" << std::endl;
-  rstf << "S2: reset_done = True" << std::endl;
+  rstf << "I: rst = 1_1" << std::endl;
+  rstf << "I: reset_done = 0_1" << std::endl;
+  rstf << "S1: rst = 0_1" << std::endl;
+  rstf << "S1: reset_done = 1_1" << std::endl;
   rstf << "# TRANS" << std::endl;
   rstf << "I -> S1" << std::endl;
-  rstf << "S1 -> S2" << std::endl;
-  rstf << "S2 -> S2" << std::endl;
+  rstf << "S1 -> S1" << std::endl;
 
   std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
   if (!fout.is_open()) {
@@ -239,7 +264,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   fout << "abstract_clock: True" << std::endl;
   fout << "[DEFAULT]" << std::endl;
   fout << "bmc_length: " << std::to_string(max_bound + 5) << std::endl;
-  fout << "precondition: reset_done" << std::endl;
+  fout << "precondition: reset_done = 1_1" << std::endl;
   fout << std::endl;
 
   std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
@@ -275,7 +300,7 @@ void VlgSglTgtGen_Cosa::Export_mem(const std::string& mem_name) {
   auto outfn = os_portable_append_dir(_output_path, top_file_name);
   std::ofstream fout(outfn, std::ios_base::app); // append
 
-  VlgAbsMem::OutputMemFile(fout);
+  VlgAbsMem::OutputMemFile(fout, _vtg_config.VerificationSettingAvoidIssueStage);
 }
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)

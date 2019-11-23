@@ -132,8 +132,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
         << "In refinement relations: unknown reference to name:" << sname
         << " keep unchanged.";
     return sname;
-  } else if (token_tp == VarExtractor::token_type::KEEP ||
-             token_tp == VarExtractor::token_type::UNKN_S)
+  } else if (token_tp == VarExtractor::token_type::KEEP )
     return sname; // NC
   else if (token_tp == VarExtractor::token_type::NUM) {
     /*
@@ -399,7 +398,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       return VLG_TRUE;
     }
   }
-  // check for state match
+  // check for state match -- (no '=' inside at this step)
   std::string vlg_state_name = vlg_st_name;
   if (vlg_state_name.find(".") == std::string::npos && 
       vlg_state_name.find("#") == std::string::npos) {
@@ -425,7 +424,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
 
 
   // add signal -- account for jg's bug
-  if (_backend == backend_selector::JASPERGOLD and
+  if (_backend == backend_selector::JASPERGOLD &&
       vlg_state_name.find('[') != vlg_state_name.npos)
     return ReplExpr(vlg_state_name, true) + " == __ILA_SO_" +
            ila_state->name().str();
@@ -494,7 +493,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
       return mem_eq_assert;
     } else {
       // return the mapping variable
-      return PerStateMap(ila_state_name, m.get<std::string>());
+      return PerStateMap(ila_state_name, rfm);
     }
   }                   /* else */
   if (m.is_array()) { // array of string or array of object/array
@@ -582,6 +581,8 @@ void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
 
 // use instruction pointer and the rf_cond to get it (no need to provide)
 nlohmann::json& VlgSglTgtGen::get_current_instruction_rf() {
+  if (_instr_ptr == nullptr)
+    return empty_json;
   auto& instrs = rf_cond["instructions"];
   for (auto&& instr : instrs) {
     if (instr["instruction"] == _instr_ptr->name().str())

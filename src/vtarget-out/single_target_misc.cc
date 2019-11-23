@@ -67,7 +67,7 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
   }
 
   auto stmt = _idr.GetAbsMemInstString(vlg_wrapper, endCond);
-  
+
   if ( !(
     (target_type == target_type_t::INV_SYN_DESIGN_ONLY && ! _vtg_config.InvariantSynthesisKeepMemory)
   ||(target_type == target_type_t::INVARIANTS && ! _vtg_config.InvariantSynthesisKeepMemory)
@@ -76,7 +76,8 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
 
   // check if we need to insert any assumptions
   auto inserter = [this](const std::string& p) -> void {
-    add_an_assumption(p, "absmem");
+    if(target_type == target_type_t::INSTRUCTIONS)
+      add_an_assumption(p, "absmem");
   };
   _idr.InsertAbsMemAssmpt(inserter);
 } // ConstructWrapper_add_helper_memory
@@ -107,7 +108,7 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
                    "pair of (cond,val).";
       continue;
     }
-    if (not IN(funcName, name_to_fnapp_vec)) {
+    if (! IN(funcName, name_to_fnapp_vec)) {
       // ILA_WARN << "uninterpreted function mapping:" << funcName
       //         << " does not exist. Skipped.";
       continue;
@@ -170,7 +171,6 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
   for (auto&& nf : name_to_fnapp_vec)
     ILA_ERROR << "lacking function map for func:" << nf.first;
 } // ConstructWrapper_add_uf_constraints
-
 
 int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::json & pv_cond_val,
   const std::string & pv_name, int width, bool create_reg) {

@@ -26,7 +26,6 @@ namespace ilang {
 // ------------- END of CONFIGURAIONS -------------------- //
 
 // ------------------------ ILA ----------------------------- //
-  
 void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
   // add ila input
   size_t ila_input_num = _host->input_num();
@@ -53,9 +52,9 @@ void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
   }
 } // ConstructWrapper_add_ila_input
 
-
 std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
-  if (target_type == target_type_t::INVARIANTS)
+  if (target_type == target_type_t::INVARIANTS ||
+      target_type == target_type_t::INV_SYN_DESIGN_ONLY )
     return "";
 
   ILA_ASSERT(vlg_ila.decodeNames.size() == 1)
@@ -78,7 +77,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     func_port_skip_set.insert(func_app.result.first);
     port_connected.insert(func_app.result.first);
     /// new reg : put in when __START__
-    if (not IN(func_app.func_name, func_cnt))
+    if (! IN(func_app.func_name, func_cnt))
       func_cnt.insert({func_app.func_name, 0});
     unsigned func_no = func_cnt[func_app.func_name]++;
 
@@ -134,13 +133,13 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     else if (w.first == vlg_ila.startName) { // .__START__(__START__)
       retStr += "   ." + vlg_ila.startName + "(" + "__START__" + "),\n";
     } else {
-      ILA_ERROR_IF(not IN("__ILA_I_" + w.first, vlg_wrapper.wires))
+      ILA_ERROR_IF(! IN("__ILA_I_" + w.first, vlg_wrapper.wires))
           << "__ILA_I_" + w.first << " has not been defined yet";
       retStr += "   ." + w.first + "(__ILA_I_" + w.first + "),\n";
     }
   } // end of inputs
 
-  // TODO:: FUnction here !
+  // TODO:: Function here !
   // handle output
   for (auto&& w : vlg_ila.outputs) {
     if (IN(w.first, func_port_skip_set))
@@ -257,7 +256,6 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   return retStr;
 } // ConstructWrapper_get_ila_module_inst()
 
-
 // ------------------------ VERILOG ----------------------------- //
 
 void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
@@ -313,7 +311,7 @@ void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
 
     auto idx = refered_vlg_item.first.find("[");
     auto removed_range_name = refered_vlg_item.first.substr(0, idx);
-    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name);
+    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name, supplementary_info.width_info);
 
     auto vname = ReplaceAll(
         ReplaceAll(ReplaceAll(refered_vlg_item.first, ".", "__DOT__"), "[",
