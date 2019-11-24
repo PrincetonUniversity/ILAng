@@ -5,7 +5,7 @@
 /// and use that information, it will create horn clauses
 /// This file should not be included by the user code, as it requires the impl.
 
-/// This is for FreqHorn only invariant enhancements/strengthening by syntax
+/// This is for Grain only invariant enhancements/strengthening by syntax
 // ---Hongce Zhang
 
 #ifndef VTARGET_GEN_INV_ENHANCE_H__
@@ -165,9 +165,9 @@ protected:
   virtual void Export_mem(const std::string& mem_name) override;
   /// For jasper, this means do nothing, for chc, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
-  /// Export the cnf for FreqHorn's reference
+  /// Export the cnf for Grain's reference
   void Export_cnf(const InvariantInCnf & cnf, const std::string& cnf_fn) const;
-  /// Export the cnf for wky's FreqHorn's reference
+  /// Export the cnf for wky's Grain's reference
   void Export_coci(const InvariantInCnf & cnf, const std::string& cnf_fn) const;
 private:
  

@@ -158,7 +158,7 @@ public:
   virtual SmtTermInfoVlgPtr push_quantifier_scope();
   /// call back function to handle ) of forall
   virtual SmtTermInfoVlgPtr pop_quantifier_scope();
-  /// declare function (useful for FreqHorn)
+  /// declare function (useful for Grain)
   virtual void declare_function(const std::string &name, var_type * sort);
   /// call back function to create a sort
   virtual var_type * make_sort(const std::string &name, const std::vector<int> &);

@@ -87,10 +87,10 @@ VlgSglTgtGen::VlgSglTgtGen(
       rf_vmap(_rf_vmap), rf_cond(_rf_cond), empty_json(nullptr),
       supplementary_info(_supplementary_info),
       target_type(target_tp), // whether it is
-      max_bound(127),
-      cnt_width(1),
                                                       // invariant/instructions
       has_flush(false), ready_type(ready_type_t::NA),
+      max_bound(127),
+      cnt_width(1),
       _advanced_param_ptr(adv_ptr),
       has_confirmed_synthesized_invariant(
         adv_ptr && 

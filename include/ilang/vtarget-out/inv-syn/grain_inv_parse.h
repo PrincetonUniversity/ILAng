@@ -1,5 +1,5 @@
-/// \file Invariant Synthesis -- CHC FreqHorn
-/// to work with FreqHorn (bv branch)
+/// \file Invariant Synthesis -- CHC Grain
+/// to work with Grain (bv branch)
 /// to parse the sythesize result -- need to do the similar thing
 ///
 // Hongce Zhang
@@ -12,16 +12,16 @@
 (check-sat)
 */
 
-#ifndef FREQHORN_INV_PARSE_H__
-#define FREQHORN_INV_PARSE_H__
+#ifndef ILANG_VTARGET_OUT_GRAIN_INV_PARSE_H__
+#define ILANG_VTARGET_OUT_GRAIN_INV_PARSE_H__
 
 #include <ilang/smt-inout/chc_inv_in.h>
 
 namespace ilang {
 namespace smt {
 
-/// \brief this class is used to parse the result from FreqHorn 
-class FreqHornInvariantParser : public SmtlibInvariantParser {
+/// \brief this class is used to parse the result from Grain 
+class GrainInvariantParser : public SmtlibInvariantParser {
 
 public:
   // -------------- CONSTRUCTOR ------------------- //
@@ -30,17 +30,17 @@ public:
   /// 2. _flatten_datatype/hierarchy : does not really affect the behavior
   /// 4. if you give dut_verilog_instance_name, you can  
   ///    disable the sanity check and safely set yosys_smt_info to NULL
-  FreqHornInvariantParser(YosysSmtParser * yosys_smt_info, 
+  GrainInvariantParser(YosysSmtParser * yosys_smt_info, 
     const std::string & dut_instance_name,
     bool discourage_outside_var = true,
     bool outside_var_to_freevar = true);
   /// no copy constructor
-  FreqHornInvariantParser(const FreqHornInvariantParser &) = delete;
+  GrainInvariantParser(const GrainInvariantParser &) = delete;
   /// no assignment
-  FreqHornInvariantParser & operator=(const FreqHornInvariantParser &) = delete;
+  GrainInvariantParser & operator=(const GrainInvariantParser &) = delete;
 
   // -------------- DESTRUCTOR ------------------- //
-  virtual ~FreqHornInvariantParser();
+  virtual ~GrainInvariantParser();
 
 protected:
   // -------------- MEMBER ------------------- //
@@ -89,9 +89,9 @@ public:
 
 
 
-}; // class FreqHornInvariantParser
+}; // class GrainInvariantParser
 
 }; // namespace smt
 }; // namespace ilang
 
-#endif // FREQHORN_INV_PARSE_H__
+#endif // ILANG_VTARGET_OUT_GRAIN_INV_PARSE_H__

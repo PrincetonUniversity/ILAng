@@ -177,7 +177,7 @@ void SmtlibInvariantParser::assert_formula(SmtTermInfoVlgPtr result) {
   final_translate_result = result->_translate;
 }
 
-/// declare function (useful for FreqHorn)
+/// declare function (useful for Grain)
 void SmtlibInvariantParser::declare_function(const std::string &name, var_type * sort) {
   ILA_ASSERT(false)<<"Bug: CHC solver should not generate output containing declare-fun!";
 }
@@ -469,6 +469,8 @@ DEFINE_OPERATOR(ite) {
     MAKE_BV_RESULT_TYPE_AS_ARGN(vlg_expr,args,1);
   } // diff on type
   // should not be executed...
+  ILA_ASSERT(false) << "Ite with unhandled type as arg 1";
+  return nullptr;
 }
 
 DEFINE_OPERATOR(xor) {
@@ -729,9 +731,10 @@ DEFINE_OPERATOR(extract) {
   ILA_ASSERT(idx.size() == 2);
   ILA_ASSERT(args.size() == 1);
   ILA_ASSERT(args[0]->_type._type == var_type::tp::BV);
-  
-  auto left = idx[0]; auto right = idx[1];
-  auto new_width = std::max(left,right) - std::min(left,right) + 1;
+  ILA_ASSERT(idx[0] >= 0 && idx[1] >= 0);
+
+  unsigned left = idx[0]; unsigned right = idx[1];
+  unsigned new_width = std::max(left,right) - std::min(left,right) + 1;
   ILA_ASSERT(new_width <= args[0]->_type._width);
   ILA_ASSERT(left >=0 and left < args[0]->_type._width);
   ILA_ASSERT(right >=0 and right < args[0]->_type._width);
@@ -783,8 +786,9 @@ DEFINE_OPERATOR(bit2bool) {
   ILA_ASSERT(idx.size() == 1);
   ILA_ASSERT(args.size() == 1);
   ILA_ASSERT(args[0]->_type._type == var_type::tp::BV);
+  ILA_ASSERT(idx[0] >= 0);
 
-  auto bitidx = idx[0];
+  unsigned bitidx = idx[0];
   ILA_ASSERT(bitidx >=0 and bitidx < args[0]->_type._width);
   //auto bitslice = "[" + std::to_string(bitidx)  + "]";
   auto bitslice = "[" + std::to_string(bitidx) + ":" + std::to_string(bitidx) + "]";
@@ -836,12 +840,16 @@ DEFINE_OPERATOR(zero_extend) {
   ILA_ASSERT(idx.size() == 1);
   ILA_ASSERT(args.size() == 1);
   ILA_ASSERT(args[0]->_type._type == var_type::tp::BV);
+  ILA_ASSERT(false) << "Unimplemented";
+  return nullptr;
   
 }
 DEFINE_OPERATOR(sign_extend) {
   ILA_ASSERT(idx.size() == 1);
   ILA_ASSERT(args.size() == 1);
   ILA_ASSERT(args[0]->_type._type == var_type::tp::BV);
+  ILA_ASSERT(false) << "Unimplemented";
+  return nullptr;
   
 }
 DEFINE_OPERATOR(rotate_left) {
@@ -863,13 +871,13 @@ DEFINE_OPERATOR(rotate_right) {
 // if unsat --> add the (assert ...)
 bool SmtlibInvariantParser::ParseInvResultFromFile(const std::string & fname) {
   std::ifstream fin(fname);
-  if (not fin.is_open()) {
+  if (! fin.is_open()) {
     ILA_ERROR << "Unable to read from : " << fname;
     return false;
   }
 
   std::string result;
-  if (not std::getline(fin,result) || result != std::string("unsat") ) {
+  if (! std::getline(fin,result) || result != std::string("unsat") ) {
     ILA_ERROR << "The cex is not unreachable, get result:" << result;
     return false; // unknown result, possibly failed
   }

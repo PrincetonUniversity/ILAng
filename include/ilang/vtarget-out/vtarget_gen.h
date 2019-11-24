@@ -37,7 +37,8 @@ public:
   // ----------- Verification Settings -------------- //
   /// Type of the backend:
   /// CoSA, JasperGold, CHC for chc solver, AIGER for abc
-  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, CHC = 3, AIGERABC = 4 } backend_selector;
+  // YOSYS is for invariant synthesis use
+  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3, CHC = 4, AIGERABC = 5 } backend_selector;
   /// Type of invariant synthesis backend
   typedef enum {Z3, GRAIN, ABC, ELDERICA } synthesis_backend_selector;
   /// Type of the chc target
@@ -56,8 +57,12 @@ public:
   /// if an instruction does not update that var
   bool OnlyCheckInstUpdatedVars; // true
   /// whether to remove the extra issue cycle and starts from reset
-  bool VerificationSettingAvoidIssueStage;
-
+  bool VerificationSettingAvoidIssueStage; 
+  /// Configure the behavior of INV target, if false,
+  /// will not check synthesized invariants by default (unless call generateInvariantVerificationTarget)
+  /// if true, will check by default
+  enum _validate_synthesized_inv { NOINV, CANDIDATE, CONFIRMED, ALL } ValidateSynthesizedInvariant;
+   
   // ----------- Options for CoSA settings -------------- //
   /// Do we set separate problems for different var map (CoSA only)
   bool PerVariableProblemCosa; // true
@@ -103,6 +108,10 @@ public:
   // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
   /// The path to yosys, if yosys is not in the PATH, default empty
   std::string YosysPath;
+  /// whether to explicitly turn the undriven net to input
+  /// for smt-backend, the top level undriven net seems always turned into
+  /// inputs, but the lower level may not 
+  bool YosysUndrivenNetAsInput;
   /// Whether to flatten the module hierarchy
   bool YosysSmtFlattenHierarchy;
   /// Whether to flatten the datatypes
@@ -114,20 +123,22 @@ public:
   bool InvariantCheckKeepMemory;
   /// Whether to assume the old invariants when check for reachability
   /// It seems for Z3, setting this to be false is faster (I don't know why)
-  /// For freqhorn-enhance, this will be (internally) overwritten to be true
+  /// For grain-enhance, this will be (internally) overwritten to be true
   bool InvariantSynthesisReachableCheckKeepOldInvariant;
 
-  // ----------- Options for Z3/FreqHorn/ABC Solver -------------- //
+  // ----------- Options for Z3/Grain/ABC Solver -------------- //
   /// The path to Z3, if "z3" is not in the PATH, default empty
   std::string Z3Path;
-  /// The path to FreqHorn, if "freqhorn" is not in the PATH, default empty
+  /// The path to Grain, if "grain" is not in the PATH, default empty
   std::string GrainPath;
-  /// FreqHorn Configuration Options
+  /// Grain Configuration Options
   std::vector<std::string> GrainOptions;
+  /// FreqHorn style (cocistyple, cnfstyle)
+  bool GrainHintsUseCnfStyle;
   /// The path to ABC, if "abc" is not in the PATH, default empty
   std::string AbcPath;
   
-  // ----------- Options for ABC Solver -------------- //
+  // ----------- Extended Options for ABC Solver -------------- //
   /// ABC option : whether to use gate-level abstraction
   bool AbcUseGla;
   /// ABC option : whether to use correlation analysis
@@ -142,6 +153,9 @@ public:
       AssumptionRegister = 1   // Use extra register, may have issues in interpreting the invariant
     } AbcAssumptionStyle_t;
     AbcAssumptionStyle_t AbcAssumptionStyle;
+
+  // ----------- Extended Options for Grain -------------- //
+
 
   /// The default constructor for default values
   _vtg_config()
@@ -165,11 +179,15 @@ public:
         CosaOtherSolverOptions(""),
 
         // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
+        YosysUndrivenNetAsInput(true),
         YosysSmtFlattenHierarchy(false),
         YosysSmtFlattenDatatype(false),
         InvariantSynthesisKeepMemory(true),
         InvariantCheckKeepMemory(true),
         InvariantSynthesisReachableCheckKeepOldInvariant(false),
+
+        // ----------- Options for Z3/Grain/ABC Solver -------------- //
+        GrainHintsUseCnfStyle(true),
 
         // ----------- Options for ABC -------------- //
         AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false),

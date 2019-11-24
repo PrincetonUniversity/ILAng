@@ -1,8 +1,8 @@
 /// \file The module to wrap vcd-parser (CounterExample Extractor)
 // ---Hongce Zhang
 
-#ifndef CEX_EXTRACT_H__
-#define CEX_EXTRACT_H__
+#ifndef ILANG_VTARGET_OUT_CEX_EXTRACT_H__
+#define ILANG_VTARGET_OUT_CEX_EXTRACT_H__
 
 #include <string>
 #include <map>
@@ -65,4 +65,4 @@ public:
 
 }; // namespace ilang
 
-#endif // CEX_EXTRACT_H__
+#endif // ILANG_VTARGET_OUT_CEX_EXTRACT_H__

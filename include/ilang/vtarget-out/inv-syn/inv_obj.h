@@ -2,8 +2,8 @@
 /// a smt-like-output
 // Hongce Zhang
 
-#ifndef INV_OBJ_H__
-#define INV_OBJ_H__
+#ifndef ILANG_VTARGET_OUT_INV_OBJ_H__
+#define ILANG_VTARGET_OUT_INV_OBJ_H__
 
 #include <ilang/vtarget-out/inv-syn/inv_cnf.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
@@ -29,8 +29,6 @@ public:
   typedef std::map <std::string, int> extra_free_var_def_vec_t;
   /// the vector of original smt-formula for datapoint attempt
   typedef std::vector <std::string>  smt_formula_vec_t;
-  /// the correction you may need or sygus output
-  typedef std::map<std::string, std::string> correction_t;
   // ----------- CONSTRUCTOR ---------- //
   /// empty invariants
   InvariantObject();
@@ -45,19 +43,12 @@ public:
 
   
   /// add invariants from smt-like output
-  void AddInvariantFromFreqHornResultFile(
+  void AddInvariantFromGrainResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
     bool discourage_outside_var_referral = true,
     bool change_outside_var = true );
 
-  /// add invariants from sygus output
-  bool AddInvariantFromSygusResultFile(
-    smt::YosysSmtParser & design_info, 
-    const std::string & tag, const std::string & chc_result_fn,
-    bool flatten_datatype, bool flatten_hierarchy,
-    bool discourage_outside_var_referral = true,
-    const correction_t & corrections = correction_t() );
 
   /// add invariants from abc result
   bool AddInvariantFromAbcResultFile(
@@ -111,4 +102,4 @@ protected:
 
 }; // namespace ilang
 
-#endif // INV_OBJ_H__
+#endif // ILANG_VTARGET_OUT_INV_OBJ_H__

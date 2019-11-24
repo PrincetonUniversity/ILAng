@@ -205,9 +205,6 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
-
-    ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
-      << "Future work to support array in synthesis";
     
     if(chctarget == _chc_target_t::CEX) {
       ILA_ASSERT(
@@ -226,13 +223,13 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
       ILA_ASSERT(false) << "Unknown chc target:" << chctarget ;
 
     ILA_ASSERT (
-      sbackend == synthesis_backend_selector::FreqHorn or
+      sbackend == synthesis_backend_selector::GRAIN or
       sbackend == synthesis_backend_selector::Z3
       ) << "Unknown synthesis backend:" << sbackend;
     
-    if (sbackend == synthesis_backend_selector::FreqHorn)
+    if (sbackend == synthesis_backend_selector::GRAIN)
       ILA_ASSERT (vtg_config.YosysSmtFlattenDatatype)
-        << "For FreqHorn, datatype must be flattened!";
+        << "For Grain, datatype must be flattened!";
  }
 
 
@@ -388,25 +385,25 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
     if (not _vtg_config.Z3Path.empty())
       runable = os_portable_append_dir(_vtg_config.Z3Path, runable);
   }
-  else if(s_backend == synthesis_backend_selector::FreqHorn) {
+  else if(s_backend == synthesis_backend_selector::GRAIN) {
     runable = "bv";
-    if (not _vtg_config.FreqHornPath.empty())
-      runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
-    for (auto && op : _vtg_config.FreqHornOptions)
+    if (not _vtg_config.GrainPath.empty())
+      runable = os_portable_append_dir(_vtg_config.GrainPath, runable);
+    for (auto && op : _vtg_config.GrainOptions)
       options += " " + op;
 
-    if (_vtg_config.FreqHornHintsUseCnfStyle) {
-      ILA_ERROR_IF(! S_IN(" --cnf ", options) && ! S_IN(" --grammar ", options)) << "You must provide grammar in FreqHorn options!";
+    if (_vtg_config.GrainHintsUseCnfStyle) {
+      ILA_ERROR_IF(! S_IN(" --cnf ", options) && ! S_IN(" --grammar ", options)) << "You must provide grammar in Grain options!";
     } else {
-      ILA_ERROR_IF(! S_IN(" --grammar-file=", options)) << "You must provide grammar in FreqHorn options!";
+      ILA_ERROR_IF(! S_IN(" --grammar-file=", options)) << "You must provide grammar in Grain options!";
       options += " --chc-file=\""+chc_prob_fname+"\"";
     }
 
-    redirect = " 2> ../freqhorn.result";
+    redirect = " 2> ../grain.result";
   }
 
   if (chc_prob_fname != "") {
-    if (_vtg_config.FreqHornHintsUseCnfStyle || s_backend == synthesis_backend_selector::Z3)
+    if (_vtg_config.GrainHintsUseCnfStyle || s_backend == synthesis_backend_selector::Z3)
       fout << runable << options << " " << chc_prob_fname << redirect << std::endl;
     else
       fout << runable << options << redirect << std::endl;
@@ -424,7 +421,7 @@ void VlgSglTgtGen_Chc::Export_modify_verilog() {
   // signal name
   VerilogModifier vlg_mod(vlg_info_ptr,
     static_cast<VerilogModifier::port_decl_style_t>(_vtg_config.PortDeclStyle),
-    _vtg_config.CosaAddKeep, sup_info.width_info);
+    _vtg_config.CosaAddKeep, supplementary_info.width_info);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
@@ -492,24 +489,19 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
   design_only_gen_smt(
     os_portable_append_dir(_output_path, "__design_smt.smt2"),
     os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
-  if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-    convert_smt_to_chc_datatype (
-      os_portable_append_dir(_output_path, "__design_smt.smt2"),
-      os_portable_append_dir(_output_path, 
-        s_backend == synthesis_backend_selector::FreqHorn ?
-         "freqhorn_prep.txt"  : extra_name));
-  else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
-    convert_smt_to_chc_bitvec(
-      os_portable_append_dir(_output_path, "__design_smt.smt2"),
-      os_portable_append_dir(_output_path, extra_name), "wrapper");
-  else
-    ILA_ASSERT(false) << "I don't know how to generate CHC encoding";
+  //if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
+  convert_smt_to_chc_datatype (
+    os_portable_append_dir(_output_path, "__design_smt.smt2"),
+    os_portable_append_dir(_output_path, 
+      s_backend == synthesis_backend_selector::GRAIN ?
+        "grain_prep.txt"  : extra_name));
+  
 
-  // for freqhorn : convert wrapper# --> w wrapper_ --> w
-  if (s_backend == synthesis_backend_selector::FreqHorn) {
-    std::ifstream fin( os_portable_append_dir(_output_path, "freqhorn_prep.txt"));
+  // for grain : convert wrapper# --> w wrapper_ --> w
+  if (s_backend == synthesis_backend_selector::GRAIN) {
+    std::ifstream fin( os_portable_append_dir(_output_path, "grain_prep.txt"));
     std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
-    if (!fin.is_open())  { ILA_ERROR << "Cannot read from : " << os_portable_append_dir(_output_path, "freqhorn_prep.txt"); return; }
+    if (!fin.is_open())  { ILA_ERROR << "Cannot read from : " << os_portable_append_dir(_output_path, "grain_prep.txt"); return; }
     if (!fout.is_open()) { ILA_ERROR << "Cannot write to : " << os_portable_append_dir(_output_path, extra_name); return; }
     std::string line;
     while(std::getline(fin,line)) {
@@ -562,12 +554,12 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
     std::ofstream ys_script_fout( ys_script_name );
     
     std::string write_smt2_options = " -mem -bv "; // future work : -stbv, or nothing
-    if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-      write_smt2_options += "-stdt ";
-    else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
-      write_smt2_options += "-stbv ";
-    else
-      ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
+    //if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
+    write_smt2_options += "-stdt ";
+    //else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
+    //  write_smt2_options += "-stbv ";
+    //else
+    //  ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
 
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
@@ -597,6 +589,9 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
       << "Yosys returns error code:" << res.ret;
 } // design_only_gen_smt
 
+
+// currently we don't support prepresenting state using a bit vector
+#if 0
 void VlgSglTgtGen_Chc::convert_smt_to_chc_bitvec(
     const std::string & smt_fname, const std::string & chc_fname, 
     const std::string & wrapper_mod_name) {
@@ -618,7 +613,7 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_bitvec(
 
   chc = ReplaceAll(inv_syn_tmpl_datatypes, 
     "%(set-option :fp.engine spacer)%" ,
-    s_backend == synthesis_backend_selector::FreqHorn ? "" : "(set-option :fp.engine spacer)");
+    s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
   chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
@@ -642,6 +637,7 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_bitvec(
     chc_fout << chc;
   } // end write file
 }
+#endif
   
 
 void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname, const std::string & chc_fname) {
@@ -668,15 +664,13 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
 
   std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
   // construct the template
-  ILA_ASSERT(not (_vtg_config.YosysSmtFlattenDatatype && _vtg_config.YosysSmtStateSort != _vtg_config.DataSort ))
-    << "FlattenDatatype can only be used if choosing datatype state encoding";
 
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {
     const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
     auto tmpl = ReplaceAll(inv_syn_tmpl_wo_datatypes, 
       "%(set-option :fp.engine spacer)%" ,
-      s_backend == synthesis_backend_selector::FreqHorn ? "" : "(set-option :fp.engine spacer)");
+      s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %BIs%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %BIs%)" );
@@ -688,7 +682,7 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
   } else {
     chc = ReplaceAll(inv_syn_tmpl_datatypes, 
       "%(set-option :fp.engine spacer)%" ,
-      s_backend == synthesis_backend_selector::FreqHorn ? "" : "(set-option :fp.engine spacer)");
+      s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");

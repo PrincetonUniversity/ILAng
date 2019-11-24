@@ -1,5 +1,5 @@
-/// \file Invariant Synthesis -- CHC FreqHorn
-/// to work with FreqHorn (bv branch)
+/// \file Invariant Synthesis -- CHC Grain
+/// to work with Grain (bv branch)
 /// to parse the sythesize result -- need to do the similar thing
 ///
 // Hongce Zhang
@@ -7,7 +7,7 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/util/container_shortcut.h>
-#include <ilang/vtarget-out/inv-syn/freqhorn_inv_parse.h>
+#include <ilang/vtarget-out/inv-syn/grain_inv_parse.h>
 
 #include <sstream>
 #include <fstream>
@@ -16,7 +16,7 @@ namespace ilang{
 namespace smt {
 
 
-FreqHornInvariantParser::FreqHornInvariantParser(YosysSmtParser * yosys_smt_info, 
+GrainInvariantParser::GrainInvariantParser(YosysSmtParser * yosys_smt_info, 
   const std::string & dut_instance_name,
   bool discourage_outside_var,
   bool outside_var_to_freevar) : // dt hier flattened , INV name should not be used
@@ -27,7 +27,7 @@ FreqHornInvariantParser::FreqHornInvariantParser(YosysSmtParser * yosys_smt_info
 
 }
 
-FreqHornInvariantParser::~FreqHornInvariantParser() {
+GrainInvariantParser::~GrainInvariantParser() {
   // quantifier_def_stack.pop_back(); no neede
 }
 
@@ -36,7 +36,7 @@ FreqHornInvariantParser::~FreqHornInvariantParser() {
 // parse from a file, we will add something there to make
 // if sat --> failed (return false)
 // if unsat --> add the (assert ...)
-bool FreqHornInvariantParser::ParseInvResultFromFile(const std::string & fname) {
+bool GrainInvariantParser::ParseInvResultFromFile(const std::string & fname) {
   std::ifstream fin(fname);
   if (not fin.is_open()) {
     ILA_ERROR << "Unable to read from : " << fname;
@@ -68,7 +68,7 @@ bool FreqHornInvariantParser::ParseInvResultFromFile(const std::string & fname) 
 // -------------------------CALL BACK FUNS--------------------------------------------------------------------
 
 /// call back function to create a sort
-var_type * FreqHornInvariantParser::make_sort(const std::string &name, const std::vector<int> & idx) {
+var_type * GrainInvariantParser::make_sort(const std::string &name, const std::vector<int> & idx) {
   //ILA_ASSERT(not quantifier_def_stack.empty());
   //ILA_ASSERT(not quantifier_var_def_idx_stack.empty());
   
@@ -94,7 +94,7 @@ var_type * FreqHornInvariantParser::make_sort(const std::string &name, const std
 
 
 /// this is actually declare variables
-void FreqHornInvariantParser::declare_function(const std::string &name, var_type * sort) {
+void GrainInvariantParser::declare_function(const std::string &name, var_type * sort) {
   ILA_ASSERT(quantifier_def_stack.size() == 1) << "There should only be a global quantified var list";
   // we need to extract the name from verilog
   auto top_module = design_smt_info_ptr->get_module_def_orders().back();
@@ -132,32 +132,32 @@ void FreqHornInvariantParser::declare_function(const std::string &name, var_type
 
 // --------------------- DISABLE THESE FUNCTIONS ------------------------ //
 /// call back function to handle (forall
-SmtTermInfoVlgPtr FreqHornInvariantParser::push_quantifier_scope() {
-  ILA_ASSERT(false) << "push_quantifier_scope should not appear in FreqHorn CHC result";
+SmtTermInfoVlgPtr GrainInvariantParser::push_quantifier_scope() {
+  ILA_ASSERT(false) << "push_quantifier_scope should not appear in Grain CHC result";
   return nullptr;
 }
 /// call back function to handle ) of forall
-SmtTermInfoVlgPtr FreqHornInvariantParser::pop_quantifier_scope() {
-  ILA_ASSERT(false) << "pop_quantifier_scope should not appear in FreqHorn CHC result";
+SmtTermInfoVlgPtr GrainInvariantParser::pop_quantifier_scope() {
+  ILA_ASSERT(false) << "pop_quantifier_scope should not appear in Grain CHC result";
   return nullptr;
 }
 
-SmtTermInfoVlgPtr FreqHornInvariantParser::search_quantified_var_stack(const std::string & name) {
-  ILA_DLOG("FreqHornInvariantParser.search_var") << "Begin search var:"<<name<<std::endl;
+SmtTermInfoVlgPtr GrainInvariantParser::search_quantified_var_stack(const std::string & name) {
+  ILA_DLOG("GrainInvariantParser.search_var") << "Begin search var:"<<name<<std::endl;
   for (auto mp_pos = quantifier_def_stack.rbegin(); \
     mp_pos != quantifier_def_stack.rend(); ++ mp_pos) { // search from the closest binding
     if (IN(name,(*mp_pos) ))
       return & ( (*mp_pos) [name] );
   }
-  ILA_DLOG("FreqHornInvariantParser.search_var") << "Not found var:"<<name<<std::endl;
+  ILA_DLOG("GrainInvariantParser.search_var") << "Not found var:"<<name<<std::endl;
   return nullptr;
 } // search_quantified_var_stack
 
 
 /// call back function to create a temporary (quantified variable)
 // for the flattened-datatype, this should be the same as the datatype order
-void FreqHornInvariantParser::declare_quantified_variable(const std::string &name, var_type * sort ) {
-  ILA_ASSERT(false) << "declare_quantified_variable should not appear in FreqHorn CHC result";
+void GrainInvariantParser::declare_quantified_variable(const std::string &name, var_type * sort ) {
+  ILA_ASSERT(false) << "declare_quantified_variable should not appear in Grain CHC result";
 } // declare_quantified_variable
 
 /// call back function to apply an uninterpreted function
@@ -165,11 +165,11 @@ void FreqHornInvariantParser::declare_quantified_variable(const std::string &nam
 /// for unflattened-hierarchy: this should be the place where things are called
 /// it could be directly the (pred state)
 /// or (pred (pred state)) ... you need to pass the right instance name allow side
-SmtTermInfoVlgPtr FreqHornInvariantParser::mk_function(
+SmtTermInfoVlgPtr GrainInvariantParser::mk_function(
   const std::string &name, var_type * sort, 
   const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args) {
   // we don't really rely on the sort here: actually it should be NULL
-  ILA_DLOG("FreqHornInvariantParser.mk_function") << "make func:" << name << ", #arg" << args.size() << std::endl;
+  ILA_DLOG("GrainInvariantParser.mk_function") << "make func:" << name << ", #arg" << args.size() << std::endl;
   if (args.empty() and idx.empty()) {
     // first let's check if it is referring to a quantifier-bound variable
     auto term_ptr = search_quantified_var_stack(name);
@@ -183,10 +183,10 @@ SmtTermInfoVlgPtr FreqHornInvariantParser::mk_function(
   return nullptr; // should not be reachable
 } // mk_function
 
-void FreqHornInvariantParser::define_function(const std::string &func_name, 
+void GrainInvariantParser::define_function(const std::string &func_name, 
     const std::vector<SmtTermInfoVlgPtr> & args, var_type * ret_type,
     SmtTermInfoVlgPtr func_body) {
-  ILA_ASSERT(false) << "define_function should not appear in FreqHorn CHC result, func:"<<func_name;
+  ILA_ASSERT(false) << "define_function should not appear in Grain CHC result, func:"<<func_name;
 }
 
 

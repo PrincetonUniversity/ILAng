@@ -3,8 +3,8 @@
 /// dut name and whether to discourage use of outside variable
 // ---Hongce Zhang
 
-#ifndef INV_ABC_PARSE_H__
-#define INV_ABC_PARSE_H__
+#ifndef ILANG_VTARGET_OUT_INV_ABC_PARSE_H__
+#define ILANG_VTARGET_OUT_INV_ABC_PARSE_H__
 
 #include <ilang/vtarget-out/inv-syn/inv_cnf.h>
 
@@ -82,4 +82,4 @@ public:
 
 }; // namespace ilang
 
-#endif // INV_ABC_PARSE_H__
+#endif // ILANG_VTARGET_OUT_INV_ABC_PARSE_H__

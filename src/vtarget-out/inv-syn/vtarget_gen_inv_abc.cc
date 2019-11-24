@@ -157,9 +157,6 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
-
-    ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
-      << "Future work to support array in synthesis";
     
     if(chctarget == _chc_target_t::CEX) {
       ILA_ASSERT(
@@ -278,7 +275,7 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
   bool first = true;
   // this is to check given invariants
   for (auto&& pbname_prob_pair : _problems.assertions) {
-    const auto& prbname = pbname_prob_pair.first;
+    //const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
     
     // ILA_ASSERT(prbname == "cex_nonreachable_assert")
@@ -402,7 +399,7 @@ void VlgSglTgtGen_Abc::Export_modify_verilog() {
   // signal name
   VerilogModifier vlg_mod(vlg_info_ptr,
     static_cast<VerilogModifier::port_decl_style_t>(_vtg_config.PortDeclStyle),
-    _vtg_config.CosaAddKeep, sup_info.width_info);
+    _vtg_config.CosaAddKeep, supplementary_info.width_info);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");

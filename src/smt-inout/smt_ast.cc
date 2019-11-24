@@ -359,6 +359,7 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
     }
     // todo : read a line
     auto pos = state_name.find("\n");
+    ILA_ASSERT(pos == std::string::npos);
     ret.verilog_name = state_name;
   }
   return ret;
@@ -501,7 +502,7 @@ std::string smt_file::toString() const {
 
 std::string convert_to_binary(unsigned v, unsigned w) {
   std::string ret;
-  for (int i = 0; i < w; ++i) {
+  for (unsigned i = 0; i < w; ++i) {
     ret = std::to_string(v&1) + ret;
     v = v >> 1;
   }
@@ -517,7 +518,7 @@ std::string convert_to_binary(const std::string v, unsigned radix, unsigned w) {
   if (v.length() == w)
     return "#b" + ret;
   if (v.length() < w ) {
-    for (int i = 0; i < w-v.length(); i++)
+    for (unsigned i = 0; i < w-v.length(); i++)
       ret = "0" + ret;
     return "#b" + ret;
   }

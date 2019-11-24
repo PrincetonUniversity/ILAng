@@ -19,7 +19,6 @@
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_enhance.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_abc.h>
-#include <ilang/vtarget-out/inv-syn/sygus/vtarget_gen_inv_sygus.h>
 
 #include <cmath>
 #include <iostream>
@@ -270,7 +269,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Yosys(
             sub_output_path,
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info , vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS,

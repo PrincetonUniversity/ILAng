@@ -1,14 +1,12 @@
 /// \file The header for invariant synthesis --- using CEGAR loop
 // ---Hongce Zhang
 
-#ifndef INV_SYN_CEGAR_H__
-#define INV_SYN_CEGAR_H__
+#ifndef ILANG_VTARGET_OUT_INV_SYN_CEGAR_H__
+#define ILANG_VTARGET_OUT_INV_SYN_CEGAR_H__
 
 #include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
-#include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
 #include <ilang/vtarget-out/design_stat.h>
-#include <ilang/vtarget-out/inv-syn/sygus/sygus_base.h>
 
 #include <string>
 #include <memory>
@@ -20,7 +18,6 @@ class InvariantSynthesizerCegar {
 
 public:
   // -------------------- TYPES ------------------ //
-  using _state_sort_t = VlgVerifTgtGenBase::_vtg_config::_state_sort_t;
   /// Type of the verification backend
   using verify_backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of configuration
@@ -96,24 +93,7 @@ public:
   bool virtual RunVerifAuto(const std::string & script_selection, const std::string & pid_fname = "");
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto();
-  void VerifGenCex(const std::string & path);
   
-  /// to generate synthesis target (for using the whole transfer function)
-  void GenerateSynthesisTargetSygusTransFunc(const Cvc4Syntax &, bool enumerate = false );
-
-  /// to generate synthesis target (for using the whole transfer function)
-  void GenerateSynthesisTargetSygusDatapoints(const Cvc4Syntax &, bool enumerate = false);
-  /// to extract the synthesis attempt
-  bool ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
-  /// to validate if the previous attempt is good (inductive or not)
-  /// return true if the invariants are good/o.w. will auto load to datapoint's pos ex
-  _inv_check_res_t ValidateSygusDatapointCandidateInvariant(unsigned timeout = 0);
-  /// Try proving candidate invariants
-  _inv_check_res_t ProofCandidateInvariants(unsigned timeout = 0, 
-    _state_sort_t state_encoding = _state_sort_t::BitVec, bool flatten_dp = false);
-
-  /// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
-  void SetInitialDatapoint(const TraceDataPoints &dp);
   /// set the sygus name lists (cannot be empty)
   void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
   /// set the sygus name lists (but also auto-add width info)
@@ -130,10 +110,10 @@ public:
   /// Clear all the candidate invariants
   void ClearAllCandidateInvariants();
 
-  // -------------------- FreqHornChc ------------------ //
-  void ChangeFreqHornSyntax(const std::vector <std::string> & syn);
+  // -------------------- GrainChc ------------------ //
+  void ChangeGrainSyntax(const std::vector <std::string> & syn);
   /// generate enhancement target and run it
-  /// return false, if freqhorn fails
+  /// return false, if grain fails
   bool WordLevelEnhancement(const InvariantInCnf& incremental_cnf);
   /// get the current inv in cnf
   const InvariantInCnf & GetCurrentCnfEnhance() const;
@@ -163,12 +143,10 @@ public:
   void RemoveInvariantsByIdx(size_t idx);
   /// Here you can extract the invariants and export them if needed
   const InvariantObject & GetCandidateInvariants() const;
-  /// here you can acess the internal datapoint object
-  const TraceDataPoints & GetDatapoints() const;
-  /// load states -- confirmed invariants
+  /// load confirmed invariants from file
   void LoadInvariantsFromFile(const std::string &fn);
+  /// load invariants as candidates from file
   void LoadCandidateInvariantsFromFile(const std::string &fn);
-  void LoadDatapointFromFile(const std::string &fn);
   
 protected:
   // -------------------- MEMBERS ------------------ //
@@ -203,15 +181,12 @@ protected:
   /// the synthesis result file
   std::string synthesis_result_fn;
   /// the invariant type
-  enum cur_inv_tp { NONE, SYGUS_CEX, SYGUS_CHC, FREQHORN_CHC, CHC, CEGAR_ABC } current_inv_type;
-  /// the datapoint
-  TraceDataPoints datapoints;
+  enum cur_inv_tp { NONE,  GRAIN_CHC, CHC, CEGAR_ABC } current_inv_type;
+
   /// the sygus varname
   std::vector<std::string> sygus_vars;
   /// will also convert the above to a set (easier to index)
   std::set<std::string> sygus_vars_set;
-  /// for parsing inv syn corrections
-  Cvc4SygusBase::correction_t  sygus_corrections;
 
   // --------------------------------------------------
   // for book-keeping purpose
@@ -258,11 +233,11 @@ protected:
   
 public:
   /// total cands there are
-  long long total_freqhorn_cand;
+  long long total_grain_cand;
 
 
 }; // class InvariantSynthesizerCegar 
 
 };
 
-#endif // INV_SYN_CEGAR_H__
+#endif // ILANG_VTARGET_OUT_INV_SYN_CEGAR_H__

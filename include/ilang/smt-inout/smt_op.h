@@ -48,7 +48,7 @@
 
 #define MAKE_BOOL_RESULT(vlg_expr) \
 std::string search_name = "##bool_"  + (vlg_expr); \
-  if (not IN(search_name, term_container)) { \
+  if (! IN(search_name, term_container)) { \
     term_container.insert( std::make_pair( search_name, \
       SmtTermInfoVerilog( \
         (vlg_expr) , \
@@ -72,7 +72,7 @@ std::string search_name = "##bool_"  + (vlg_expr); \
 
 #define MAKE_BV_RESULT_TYPE_AS_ARGN(vlg_expr, args, n) \
   std::string search_name = "##bv"+std::to_string(args[(n)]->_type._width) + "_"  + (vlg_expr); \
-  if (not IN(search_name, term_container)) { \
+  if (! IN(search_name, term_container)) { \
     term_container.insert( std::make_pair( search_name,  \
       SmtTermInfoVerilog( \
         vlg_expr ,  \

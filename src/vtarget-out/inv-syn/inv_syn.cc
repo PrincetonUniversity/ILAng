@@ -328,7 +328,6 @@ bool extractSigDefFromLine(
   bool found_match_state = false;
   std::string search_target_wire_num = "(define-fun |" + mod_name + "#";
   std::string search_target_n = "(define-fun |" + mod_name + "_n ";
-  bool returnBool;
   if (line.find(search_target_wire_num) == 0) { // begins with it
     auto mark = line.find("; \\");
     if (mark != line.npos) {
@@ -369,14 +368,12 @@ bool extractSigDefFromLine(
 
 /// generate the Yosys script for single invariant
 void VlgSglTgtGen_Yosys::single_inv_problem(const std::string& ys_script_name, const std::string & pdr_template_name) {
-  ILA_ASSERT ( not _vtg_config.YosysSmtArrayForRegFile)
-    << "Future work: unable to handle arrays";
 
   auto ys_fn_full = os_portable_append_dir( _output_path, ys_script_name );
   std::ofstream ys_fout(ys_fn_full);
 
   std::string options;
-  if ( not vlg_include_files_path.empty() )
+  if ( ! vlg_include_files_path.empty() )
     options += " -I./";
   ys_fout << "read_verilog"<< options << " -sv "
     << os_portable_append_dir( _output_path , top_file_name)<< std::endl;

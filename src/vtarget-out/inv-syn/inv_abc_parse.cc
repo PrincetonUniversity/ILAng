@@ -26,7 +26,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
   std::vector<std::string> aig_state_order;
   std::vector<std::pair<std::string, unsigned>> aig_literal;
   std::set<std::string> blif_valid_state_names;
-  std::set<int> invlatches;
+  std::set<unsigned long long> invlatches;
 
   { // read blif for valid state names
     std::ifstream fin(blif_fn_name);
@@ -55,7 +55,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
       // only focus on the registers
       if (line.find("latch ") == 0 || line.find("invlatch ") == 0) {
         auto vec = SplitSpaceTabEnter(line); // latch/invlatch latchNo bitNo name
-        int latch_no = StrToInt(vec.at(1));
+        auto latch_no = StrToULongLong(vec.at(1));
         if (line.find("invlatch ") == 0)
           invlatches.insert(latch_no);
         const auto & bit_no = vec.at(2);
@@ -85,15 +85,15 @@ void AbcInvariantParser::parseAigerResultWoGLA(
 
     while(std::getline(fin,line)) {
       std::stringstream ss(line);
-      int flop;
+      unsigned long long flop;
       std::string cube;
-      bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
+      // bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
       bool remove_this_cube = false;
       InvariantInCnf::clause cl;
 
       while(ss>>flop) { // for each cube (line)
         int neg = flop & 0x1;
-        int flopno = flop >> 1;
+        unsigned long long flopno = flop >> 1;
         std::string literal;
         ILA_ASSERT(aig_state_order.size() >= flopno) // remeber : the last one should be one
           << "Referring #" << flopno << " flop, while size of blifstates:" << aig_state_order.size() ;
@@ -205,7 +205,7 @@ void AbcInvariantParser::parseAigerResultWithGLA(
       // only focus on the registers
       if (line.find("latch ") == 0 || line.find("invlatch ") == 0) {
         auto vec = SplitSpaceTabEnter(line);
-        int latch_no = StrToInt(vec.at(1));
+        unsigned long long latch_no = StrToULongLong(vec.at(1));
         if (line.find("invlatch ") == 0)
           invlatches.insert(latch_no);
         const auto & bit_no = vec.at(2);
@@ -256,15 +256,15 @@ void AbcInvariantParser::parseAigerResultWithGLA(
 
     while(std::getline(fin,line)) {
       std::stringstream ss(line);
-      int flop;
+      unsigned long long flop;
       std::string cube;
-      bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
+      // bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
       bool remove_this_cube = false;
       InvariantInCnf::clause cl;
 
       while(ss>>flop) { // for each cube (line)
         int neg = flop & 0x1;
-        int flopno = flop >> 1;
+        unsigned long long flopno = flop >> 1;
 
         ILA_ASSERT(new_id_to_old_id.size() > flopno)
           << "Referring #" << flopno << " flop, while size of abstract states:" << new_id_to_old_id.size() ;
@@ -388,13 +388,13 @@ void AbcInvariantParser::parse(
 
     while(std::getline(fin,line)) {
       std::stringstream ss(line);
-      int flop;
+      unsigned long long flop;
       std::string cube;
       bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
       bool remove_this_cube = false;
       while(ss>>flop) { // for each cube (line)
         int neg = flop & 0x1;
-        int flopno = flop >> 1;
+        unsigned long long flopno = flop >> 1;
         std::string literal;
         ILA_ASSERT(blif_state_order.size() > flopno)
           << "Referring #" << flopno << " flop, while size of blifstates:" << blif_state_order.size() ;
@@ -523,13 +523,13 @@ void AbcInvariantParser::parse(
     bool has_a_normal_cube = false;
     while(std::getline(fin,line)) {
       std::stringstream ss(line);
-      int flop;
+      unsigned long long flop;
       std::string cube;
       bool cube_has_abnormal_var = false;
       bool remove_this_cube = false;
       while(ss>>flop) {
         int neg = flop & 0x1;
-        int flopno = flop >> 1;
+        unsigned long long flopno = flop >> 1;
         ILA_ASSERT(new_id_to_old_id.size() > flopno)
           << "Referring #" << flopno << " flop, while size of abstract states:" << new_id_to_old_id.size() ;
 

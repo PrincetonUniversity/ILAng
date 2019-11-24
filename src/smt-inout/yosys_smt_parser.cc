@@ -151,7 +151,7 @@ std::string YosysSmtParser::replace_a_body(
   std::map<std::string,std::string> cached_body_replace;
   std::set<std::string> cached_no_replace;
   auto len = body_text.length();
-  const auto & datatype = smt_ast.datatypes[current_module];
+  //const auto & datatype = smt_ast.datatypes[current_module];
 
   for (decltype(len) idx = 0; idx < len; ++ idx) {
     if(body_text.at(idx) == '(') {

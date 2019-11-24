@@ -5,7 +5,7 @@
 /// and use that information, it will create horn clauses
 /// This file should not be included by the user code, as it requires the impl.
 
-/// This is for FreqHorn only invariant enhancements/strengthening by syntax
+/// This is for Grain only invariant enhancements/strengthening by syntax
 // ---Hongce Zhang
 
 /// the monolithic CHC generation is located in inv_syn.cc
@@ -186,9 +186,6 @@ VlgSglTgtGen_Chc_wCNF::VlgSglTgtGen_Chc_wCNF(
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
-
-    ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
-      << "Future work to support array in synthesis";
     
     if(chctarget == _chc_target_t::CEX) {
       ILA_ASSERT(
@@ -202,12 +199,12 @@ VlgSglTgtGen_Chc_wCNF::VlgSglTgtGen_Chc_wCNF(
 
 
     ILA_ASSERT (
-      sbackend == synthesis_backend_selector::FreqHorn
-      ) << "Only support freqhorn backend" << sbackend;
+      sbackend == synthesis_backend_selector::GRAIN
+      ) << "Only support grain backend" << sbackend;
     
-    if (sbackend == synthesis_backend_selector::FreqHorn)
+    if (sbackend == synthesis_backend_selector::GRAIN)
       ILA_ASSERT (vtg_config.YosysSmtFlattenDatatype)
-        << "For FreqHorn, datatype must be flattened!";
+        << "For Grain, datatype must be flattened!";
  }
 
 
@@ -358,23 +355,23 @@ void VlgSglTgtGen_Chc_wCNF::Export_script(const std::string& script_name, const 
   std::string options;
   std::string redirect;
 
-  ILA_ASSERT(s_backend == synthesis_backend_selector::FreqHorn);
+  ILA_ASSERT(s_backend == synthesis_backend_selector::GRAIN);
   runnable = "bv";
-  if (not _vtg_config.FreqHornPath.empty())
-    runnable = os_portable_append_dir(_vtg_config.FreqHornPath, runnable);
-  for (auto && op : _vtg_config.FreqHornOptions)
+  if (not _vtg_config.GrainPath.empty())
+    runnable = os_portable_append_dir(_vtg_config.GrainPath, runnable);
+  for (auto && op : _vtg_config.GrainOptions)
     options += " " + op;
-  if (_vtg_config.FreqHornHintsUseCnfStyle) {
+  if (_vtg_config.GrainHintsUseCnfStyle) {
     options += " --mod " + _vlg_mod_inst_name;
     options += " --cnf " + cnf_name;
   } else {
     options += " --grammar-file=\""+cnf_name+"\"";
     options += " --chc-file=\""+chc_prob_fname+"\"";
   }
-  redirect = " 2> ../freqhorn.result";
+  redirect = " 2> ../grain.result";
 
   if (chc_prob_fname != "") {
-    if (_vtg_config.FreqHornHintsUseCnfStyle)
+    if (_vtg_config.GrainHintsUseCnfStyle)
       fout << runnable << options << " " << chc_prob_fname << redirect << std::endl;
     else
       fout << runnable << options << redirect << std::endl;
@@ -392,7 +389,7 @@ void VlgSglTgtGen_Chc_wCNF::Export_modify_verilog() {
   // signal name
   VerilogModifier vlg_mod(vlg_info_ptr,
     static_cast<VerilogModifier::port_decl_style_t>(_vtg_config.PortDeclStyle),
-    _vtg_config.CosaAddKeep, sup_info.width_info);
+    _vtg_config.CosaAddKeep, supplementary_info.width_info);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
@@ -460,24 +457,18 @@ void VlgSglTgtGen_Chc_wCNF::Export_problem(const std::string& extra_name) {
   design_only_gen_smt(
     os_portable_append_dir(_output_path, "__design_smt.smt2"),
     os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
-  if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-    convert_smt_to_chc_datatype (
-      os_portable_append_dir(_output_path, "__design_smt.smt2"),
-      os_portable_append_dir(_output_path, 
-        s_backend == synthesis_backend_selector::FreqHorn ?
-         "freqhorn_prep.txt"  : extra_name));
-  else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
-    convert_smt_to_chc_bitvec(
-      os_portable_append_dir(_output_path, "__design_smt.smt2"),
-      os_portable_append_dir(_output_path, extra_name), "wrapper");
-  else
-    ILA_ASSERT(false) << "I don't know how to generate CHC encoding";
 
-  // for freqhorn : convert wrapper# --> w wrapper_ --> w
-  if (s_backend == synthesis_backend_selector::FreqHorn) {
-    std::ifstream fin( os_portable_append_dir(_output_path, "freqhorn_prep.txt"));
+  convert_smt_to_chc_datatype (
+    os_portable_append_dir(_output_path, "__design_smt.smt2"),
+    os_portable_append_dir(_output_path, 
+      s_backend == synthesis_backend_selector::GRAIN ?
+        "grain_prep.txt"  : extra_name));
+
+  // for grain : convert wrapper# --> w wrapper_ --> w
+  if (s_backend == synthesis_backend_selector::GRAIN) {
+    std::ifstream fin( os_portable_append_dir(_output_path, "grain_prep.txt"));
     std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
-    if (!fin.is_open())  { ILA_ERROR << "Cannot read from : " << os_portable_append_dir(_output_path, "freqhorn_prep.txt"); return; }
+    if (!fin.is_open())  { ILA_ERROR << "Cannot read from : " << os_portable_append_dir(_output_path, "grain_prep.txt"); return; }
     if (!fout.is_open()) { ILA_ERROR << "Cannot write to : " << os_portable_append_dir(_output_path, extra_name); return; }
     std::string line;
     while(std::getline(fin,line)) {
@@ -517,7 +508,7 @@ void VlgSglTgtGen_Chc_wCNF::ExportAll(const std::string& wrapper_name, // wrappe
 
   // you need to create the map function -- 
   Export_problem(extra_name); // the gensmt.ys 
-  if (_vtg_config.FreqHornHintsUseCnfStyle)
+  if (_vtg_config.GrainHintsUseCnfStyle)
     Export_cnf(cnf, cnf_name);
   else
     Export_coci(cnf, cnf_name);
@@ -567,12 +558,7 @@ void VlgSglTgtGen_Chc_wCNF::design_only_gen_smt(
     std::ofstream ys_script_fout( ys_script_name );
     
     std::string write_smt2_options = " -mem -bv "; // future work : -stbv, or nothing
-    if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-      write_smt2_options += "-stdt ";
-    else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
-      write_smt2_options += "-stbv ";
-    else
-      ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
+    write_smt2_options += "-stdt ";
 
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
@@ -668,8 +654,6 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_
 
   std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
   // construct the template
-  ILA_ASSERT(not (_vtg_config.YosysSmtFlattenDatatype && _vtg_config.YosysSmtStateSort != _vtg_config.DataSort ))
-    << "FlattenDatatype can only be used if choosing datatype state encoding";
 
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {

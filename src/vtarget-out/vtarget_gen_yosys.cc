@@ -44,9 +44,6 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
                    implementation_include_path, vtg_config, backend,
                    target_tp, adv_ptr) { 
     
-    ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
-      << "Future work to support array in synthesis";
-    
     ILA_ASSERT(
       target_tp == target_type_t::INVARIANTS or
       target_tp == target_type_t::INSTRUCTIONS )
@@ -285,7 +282,7 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
                           static_cast<VerilogModifier::port_decl_style_t>(
                               _vtg_config.PortDeclStyle),
                           _vtg_config.CosaAddKeep,
-                          sup_info.width_info);
+                          supplementary_info.width_info);
 
   // add mod stmt (wire something ... like that)
   for (auto && stmt : vlg_mod_inv_vec)
