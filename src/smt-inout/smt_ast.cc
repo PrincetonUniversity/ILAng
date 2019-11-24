@@ -14,7 +14,7 @@ namespace ilang {
 namespace smt{
 // remember datatype could be defining other datatype ...
 
-str_iterator::str_iterator(const std::string &_buf, unsigned _pnt) :
+str_iterator::str_iterator(const std::string &_buf, size_t _pnt) :
   buf(_buf), pnt(_pnt) { }
 
 str_iterator::str_iterator(const str_iterator &_) :
@@ -34,7 +34,7 @@ void str_iterator::accept(const std::string &s) {
 
 bool str_iterator::is_end() const { return is_end(pnt); }
 
-bool str_iterator::is_end(unsigned pos) const {
+bool str_iterator::is_end(size_t pos) const {
   return pos >= buf.length() || pos == std::string::npos;
 }
 
@@ -47,7 +47,7 @@ void str_iterator::expect(const std::string &c) const {
 
 
 /// returns the next non space pos
-unsigned str_iterator::next_non_space_pos(const std::string &s, unsigned pos) const {
+size_t str_iterator::next_non_space_pos(const std::string &s, size_t pos) const {
   if (is_end(pos)) return pos;
   while (!is_end(pos)) {
     if( S_IN( buf.at(pos) , s ) )
@@ -61,7 +61,7 @@ unsigned str_iterator::next_non_space_pos(const std::string &s, unsigned pos) co
 std::string str_iterator::readline_no_eol() {
   if (is_end()) return "";
   auto start = pnt;
-  unsigned end;
+  auto end = buf.length();
   while (!is_end()) {
     if( head() != '\n' && head() != '\r' )
       pnt ++;
@@ -77,16 +77,16 @@ std::string str_iterator::readline_no_eol() {
   return buf.substr(start,end-start);
 }
 
-unsigned str_iterator::next_non_space_pos(const std::string &s) const {
+size_t str_iterator::next_non_space_pos(const std::string &s) const {
   return next_non_space_pos(s, pnt); 
 }
 
-unsigned str_iterator::next(const std::string & s, unsigned pos) const {
+size_t str_iterator::next(const std::string & s, size_t pos) const {
   return buf.find(s,pos);
 }
 
 /// get the closest occurance of s from current point
-unsigned str_iterator::next(const std::string & s) const {
+size_t str_iterator::next(const std::string & s) const {
   return next(s, pnt);
 }
 
@@ -146,7 +146,7 @@ std::string str_iterator::accept_current_and_read_untill(const std::string & del
   return buf.substr( start, pos - start );
 }
 
-std::string str_iterator::read_till_pos(unsigned pos) {
+std::string str_iterator::read_till_pos(size_t pos) {
   std::string ret ;
   if (pos >= buf.length())
     ret = buf.substr(pnt,std::string::npos);
@@ -279,6 +279,7 @@ arg_t::arg_t(const std::string & name, const var_type & type) :
 
 arg_t arg_t::ParseFromString(str_iterator &) {
   ILA_ASSERT(false) << "not implemented.";
+  return arg_t("",var_type());
 }
 
 std::string arg_t::toString() const {
@@ -322,8 +323,8 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
     // use the backup modulename (won't determine from inside)
     ret.module_name = default_module_name;
   } else {
-    unsigned pos_end = raw_name.find("#");
-    unsigned end_2   = raw_name.find("_is|");
+    size_t pos_end = raw_name.find("#");
+    size_t end_2   = raw_name.find("_is|");
     pos_end = pos_end < end_2 ? pos_end : end_2;
     ILA_ASSERT(pos_end != raw_name.npos);
 
@@ -511,7 +512,7 @@ std::string convert_to_binary(unsigned v, unsigned w) {
   return "#b" + ret;
 }
 
-std::string convert_to_binary(const std::string v, unsigned radix, unsigned w) {
+std::string convert_to_binary(const std::string& v, unsigned radix, unsigned w) {
   ILA_ASSERT(radix == 2) << "Please fix this, future work!";
 
   std::string ret = v;

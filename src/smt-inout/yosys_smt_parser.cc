@@ -30,8 +30,9 @@ std::string get_mod_inst_name(const std::string & in) {
 void YosysSmtParser::construct_flatten_dataype() {
   for (auto && module_name : smt_ast.data_type_order) {
     ILA_ASSERT(IN(module_name, smt_ast.datatypes));
-    auto & state_var_vec = smt_ast.datatypes[module_name];
-    { // create the same module there
+    { 
+      auto & state_var_vec = smt_ast.datatypes[module_name];
+      // create the same module there
       // one by one insert the elements
       // check if it is Datatype
       // find in the flatten_one, it must exist
@@ -146,7 +147,7 @@ std::string YosysSmtParser::replace_a_body(
     const std::string & body_text ) {
   
   std::string ret(body_text);
-  std::vector<unsigned> left_pos_stack;
+  std::vector<size_t> left_pos_stack;
   std::vector<bool> leaf_level_flag_stack;
   std::map<std::string,std::string> cached_body_replace;
   std::set<std::string> cached_no_replace;

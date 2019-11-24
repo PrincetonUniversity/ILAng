@@ -18,9 +18,9 @@ namespace smt{
     /// the buffer
     const std::string buf;
     /// the pointer
-    unsigned pnt;
+    size_t pnt;
     /// constructor 1
-    str_iterator(const std::string &, unsigned p = 0);
+    str_iterator(const std::string &, size_t p = 0);
     /// constructor 2
     str_iterator(const str_iterator &);
     
@@ -28,9 +28,9 @@ namespace smt{
     /// jump to the start of symbol c
     void jump_to_next(const std::string &c);
     /// returns the next non space pos
-    unsigned next_non_space_pos(const std::string &s = " \t\n\r") const;
+    size_t next_non_space_pos(const std::string &s = " \t\n\r") const;
     /// returns the next non space pos
-    unsigned next_non_space_pos(const std::string &s, unsigned pos) const;
+    size_t next_non_space_pos(const std::string &s, size_t pos) const;
     /// skip some single charactor symbol
     void skip(const std::string &s = " \t\n\r");
     /// skip a symbol (w. blank also)
@@ -38,7 +38,7 @@ namespace smt{
     // return true if it is the end
     bool is_end() const;
     // return true if it is the end
-    bool is_end(unsigned pos) const;
+    bool is_end(size_t pos) const;
     /// return the first 
     char head() const;
     /// return the head_word (if it the end, then empty string)
@@ -46,16 +46,16 @@ namespace smt{
     /// expect the head token to be 'c'
     void expect(const std::string &c) const;
     /// get the closest occurance of s from current point
-    unsigned next(const std::string & s) const ;
+    size_t next(const std::string & s) const ;
     /// get the closest occurance of s from pos
-    unsigned next(const std::string & s, unsigned pos) const ;
+    size_t next(const std::string & s, size_t pos) const ;
     /// accept a token (expect and skip)
     void accept(const std::string &s);
     /// extract from the current location, untill reaching
     /// one of the delimiter, (not checking the current delimiter)
     std::string accept_current_and_read_untill(const std::string & delimiter);
     /// read untill a  pos
-    std::string read_till_pos(unsigned pos);
+    std::string read_till_pos(size_t pos);
     /// read until the stack is empty
     std::string extract_untill_stack_empty(char push_symbol, char pop_symbol);
     /// read a line, consume all the \n\r but will not include them in the returned string
@@ -111,6 +111,8 @@ namespace smt{
     var_type(tp vtype, unsigned width, const std::string mod_name );
     // copy constructor
     var_type(const var_type & vp);
+    // assignment operator
+    var_type& operator=(const var_type &) = default;
 
   }; // struct var_type
 
@@ -197,7 +199,7 @@ namespace smt{
   /// helper function
   std::string convert_to_binary(unsigned v, unsigned w); // if we have value here
   /// if we have a string here
-  std::string convert_to_binary(const std::string v, unsigned radix, unsigned w);
+  std::string convert_to_binary(const std::string& v, unsigned radix, unsigned w);
 }; // namespace smt
 }; // namespace ilang
   

@@ -13,7 +13,7 @@
 
 namespace ilang {
 
-static std::string select_script_to_run(const std::vector<std::string> & scripts, const std::string sel) {
+static std::string select_script_to_run(const std::vector<std::string> & scripts, const std::string & sel) {
   ILA_ASSERT(! sel.empty()) << "no selection is provided in RunVerifAuto";
   std::vector<std::string>  sels;
   for(auto && sc : scripts)
@@ -474,15 +474,12 @@ void InvariantSynthesizerCegar::CexGeneralizeRemoveStates(const std::vector<std:
   cex_extract->DropStates(n);
 }
 
-void InvariantSynthesizerCegar::ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet, bool reachable, 
-    const std::string & given_smt_chc_result_txt) {
+void InvariantSynthesizerCegar::ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet, bool reachable) {
   
   if(check_in_bad_state()) return;
 
-  std::string res_file = given_smt_chc_result_txt;
   if (autodet) {
     reachable = cex_reachable;
-    res_file = synthesis_result_fn;
   }
   
   ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
@@ -849,7 +846,6 @@ DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
     ILA_ERROR << "Design information not available!";
     return ret;
   }
-  std::string query_mod_name = implementation_top_module_name;
   
   ILA_ERROR_IF(vlg_mod_inst_name.empty()) << "vlg_mod_inst_name is empty, will not distinguish in/out module state";
 

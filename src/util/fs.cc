@@ -149,7 +149,7 @@ std::string os_portable_path_from_path(const std::string& path) {
 }
 
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
-std::string os_portable_remove_file_name_extension(const std::string fname) {
+std::string os_portable_remove_file_name_extension(const std::string& fname) {
   std::string sep;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -277,7 +277,7 @@ execute_result os_portable_execute_shell(
       setpgid(0,0); // creates a new proces group 
     
     close(pipefd[0]); // close the read end
-    int report_to_parent;
+    unsigned report_to_parent;
 
     // The child
     // will replace the image and execute the bash
@@ -334,7 +334,7 @@ execute_result os_portable_execute_shell(
   } else {
     // The parent will wait for its end
     int infop;
-    int child_report;
+    unsigned child_report;
     struct sigaction new_act;
     struct sigaction old_act;
 

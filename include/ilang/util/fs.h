@@ -28,14 +28,14 @@ std::string os_portable_append_dir(const std::string& dir1,
                                    const std::string& dir2);
 
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
-std::string os_portable_remove_file_name_extension(const std::string fname);
+std::string os_portable_remove_file_name_extension(const std::string& fname);
 
 /// the result from executing
 struct execute_result {
   /// has timeout
   bool timeout;
   /// failed execution
-  enum _failure {FORK, PREIO, ALARM, ARG, EXEC, WAIT, NONE } failure;
+  enum _failure {FORK = 0, PREIO, ALARM, ARG, EXEC, WAIT, NONE } failure;
   /// return value
   unsigned ret;
   /// true if it exits with _exit() call

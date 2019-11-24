@@ -736,8 +736,8 @@ DEFINE_OPERATOR(extract) {
   unsigned left = idx[0]; unsigned right = idx[1];
   unsigned new_width = std::max(left,right) - std::min(left,right) + 1;
   ILA_ASSERT(new_width <= args[0]->_type._width);
-  ILA_ASSERT(left >=0 and left < args[0]->_type._width);
-  ILA_ASSERT(right >=0 and right < args[0]->_type._width);
+  ILA_ASSERT(idx[0] >= 0 && left < args[0]->_type._width); // left >= 0
+  ILA_ASSERT(idx[1] >= 0 && right < args[0]->_type._width); // right >= 0
 
   std::string bitslice = "[" + std::to_string(left) + ":" + std::to_string(right) + "]";
   // this creates extra problem!
@@ -789,7 +789,7 @@ DEFINE_OPERATOR(bit2bool) {
   ILA_ASSERT(idx[0] >= 0);
 
   unsigned bitidx = idx[0];
-  ILA_ASSERT(bitidx >=0 and bitidx < args[0]->_type._width);
+  ILA_ASSERT(idx[0] >= 0 && bitidx < args[0]->_type._width);
   //auto bitslice = "[" + std::to_string(bitidx)  + "]";
   auto bitslice = "[" + std::to_string(bitidx) + ":" + std::to_string(bitidx) + "]";
 

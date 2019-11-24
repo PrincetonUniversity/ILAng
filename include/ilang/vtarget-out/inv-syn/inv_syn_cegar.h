@@ -86,8 +86,7 @@ public:
   void PrepareCexForGrain(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
   /// to extract reachability test result, this will extract to candidate invariant
-  void ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet = true, bool reachable = true, 
-    const std::string & res_file = "");
+  void ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet = true, bool reachable = true);
 
   /// run Verification : returns eq true/false
   bool virtual RunVerifAuto(const std::string & script_selection, const std::string & pid_fname = "");
