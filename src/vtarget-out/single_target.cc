@@ -92,14 +92,14 @@ VlgSglTgtGen::VlgSglTgtGen(
       max_bound(127),
       cnt_width(1),
       _advanced_param_ptr(adv_ptr),
-      has_confirmed_synthesized_invariant(
-        adv_ptr && 
-        adv_ptr->_inv_obj_ptr && 
-        ! adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
       has_gussed_synthesized_invariant(
         adv_ptr && 
         adv_ptr->_candidate_inv_ptr && 
         ! adv_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()),
+      has_confirmed_synthesized_invariant(
+        adv_ptr && 
+        adv_ptr->_inv_obj_ptr && 
+        ! adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
       has_rf_invariant(
         IN("global invariants", _rf_cond) &&
         rf_cond["global invariants"].size() != 0),

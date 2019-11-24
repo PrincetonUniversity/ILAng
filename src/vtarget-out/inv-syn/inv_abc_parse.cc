@@ -390,7 +390,8 @@ void AbcInvariantParser::parse(
       std::stringstream ss(line);
       unsigned long long flop;
       std::string cube;
-      bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
+      // if the condition whether to remove this cube "| 1'b0 " means do not add it
+      // bool cube_has_abnormal_var = false;
       bool remove_this_cube = false;
       while(ss>>flop) { // for each cube (line)
         int neg = flop & 0x1;
@@ -412,7 +413,7 @@ void AbcInvariantParser::parse(
               remove_this_cube = remove_this_cube ||  !neg; // if it is "& 1'b0" this cube is 0
             }
             else if (ref_val_name.find("committed_inst") == 0) {
-              cube_has_abnormal_var = true; 
+              //cube_has_abnormal_var = true; 
               literal = (neg ? "~" : "") +  std::string("1'b1");
               remove_this_cube = remove_this_cube ||  neg; // if it is "& ~1'b1" this cube is 0
               // literal = "1'b1"; // void the literal if abnormal
@@ -525,7 +526,7 @@ void AbcInvariantParser::parse(
       std::stringstream ss(line);
       unsigned long long flop;
       std::string cube;
-      bool cube_has_abnormal_var = false;
+      // bool cube_has_abnormal_var = false;
       bool remove_this_cube = false;
       while(ss>>flop) {
         int neg = flop & 0x1;
@@ -548,7 +549,7 @@ void AbcInvariantParser::parse(
               remove_this_cube = remove_this_cube || !neg; // if it is "& 1'b0" this cube is 0
             }
             else if (ref_val_name.find("committed_inst") == 0) {
-              cube_has_abnormal_var = true; 
+              // cube_has_abnormal_var = true; 
               literal = (neg ? "~" : "") +  std::string("1'b1");
               remove_this_cube = remove_this_cube || neg; // if it is "& ~1'b1" this cube is 0
               // literal = "1'b1"; // void the literal if abnormal

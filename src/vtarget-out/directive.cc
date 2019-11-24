@@ -105,7 +105,7 @@ std::string IntefaceDirectiveRecorder::GetVlgModInstString(
   std::string sep;
   for (auto&& signal_conn_pair : mod_inst_rec) {
     const auto& signal_name = signal_conn_pair.first;
-    const auto& conn_tp = signal_conn_pair.second.first;
+    // const auto& conn_tp = signal_conn_pair.second.first;
     const auto& the_wire_connected_to_the_port = signal_conn_pair.second.second;
 
     retStr += sep + "    ." + signal_name + "(" +

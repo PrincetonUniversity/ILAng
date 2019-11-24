@@ -128,7 +128,7 @@ bool os_portable_copy_file_to_dir(const std::string& src,
 }
 
 /// Extract path from path
-/// C:\a\b\c.txt -> C:\a\b\ 
+/// C:\a\b\c.txt -> "C:\a\b\" 
 /// C:\a\b\c -> C:\a\b
 /// d/e/ghi  -> d/e/
 std::string os_portable_path_from_path(const std::string& path) {
