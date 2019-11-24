@@ -49,10 +49,10 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
       target_tp == target_type_t::INSTRUCTIONS )
       << "Unknown target type: " << target_tp;
     
-    ILA_ASSERT(not vtg_config.YosysSmtFlattenHierarchy) 
+    ILA_ASSERT(! vtg_config.YosysSmtFlattenHierarchy) 
       << "Monolithic synthesis requires not to flatten hierarchy";
 
-    ILA_ASSERT(not vtg_config.YosysSmtFlattenDatatype)
+    ILA_ASSERT(! vtg_config.YosysSmtFlattenDatatype)
       << "BUG: not implemented, future work.";
 
 // initialize templates
@@ -262,7 +262,7 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
 
   std::string yosys = "yosys";
 
-  if (not _vtg_config.YosysPath.empty())
+  if (! _vtg_config.YosysPath.empty())
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
   if (yosys_prob_fname != "")
@@ -416,7 +416,7 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
 
   std::string yosys = "yosys";
 
-  if (not _vtg_config.YosysPath.empty())
+  if (! _vtg_config.YosysPath.empty())
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
   // execute it
@@ -434,7 +434,7 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
     auto smt_in_fn = os_portable_append_dir(_output_path, smt_name);
     std::ifstream smtfin( smt_in_fn );
 
-    if (not smtfin.is_open()) {
+    if (! smtfin.is_open()) {
       ILA_ERROR << "Cannot read from: " << smt_in_fn;
       return YosysDesignSmtInfo();
     }

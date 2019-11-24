@@ -151,13 +151,13 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
-  if (not _vtg_config.CosaPyEnvironment.empty())
+  if (! _vtg_config.CosaPyEnvironment.empty())
     fout << "source " << _vtg_config.CosaPyEnvironment << std::endl;
 
   std::string cosa = "CoSA";
   std::string options;
 
-  if (not _vtg_config.CosaSolver.empty())
+  if (! _vtg_config.CosaSolver.empty())
     options += " --solver-name=" + _vtg_config.CosaSolver;
   if (_vtg_config.CosaGenTraceVcd)
     options += " --vcd";
@@ -169,7 +169,7 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
   // if(vlg_include_files_path.size() != 0)
   //  options += " -I./";
 
-  if (not _vtg_config.CosaPath.empty()) {
+  if (! _vtg_config.CosaPath.empty()) {
     cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
   }
 

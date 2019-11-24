@@ -14,12 +14,12 @@
 namespace ilang {
 
 static std::string select_script_to_run(const std::vector<std::string> & scripts, const std::string sel) {
-  ILA_ASSERT(not sel.empty()) << "no selection is provided in RunVerifAuto";
+  ILA_ASSERT(! sel.empty()) << "no selection is provided in RunVerifAuto";
   std::vector<std::string>  sels;
   for(auto && sc : scripts)
     if (S_IN(sel,sc))
       sels.push_back(sc);
-  ILA_ASSERT(not sels.empty()) << "Auto run: no selection!";
+  ILA_ASSERT(! sels.empty()) << "Auto run: no selection!";
   if (sels.size() > 1) {
     ILA_ERROR << "Multi scripts selected!";
     for(auto && sc : sels)
@@ -342,7 +342,7 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incre
 
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(runnable_scripts[0]);
-  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+  ILA_ERROR_IF(! os_portable_chdir(new_wd)) 
     << "WordLevelEnhancement: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing script:" <<  runnable_scripts[0] ;
   execute_result res;
@@ -361,7 +361,7 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incre
   { // run grain
     std::stringstream sbuf;
     std::ifstream fin(synthesis_result_fn);
-    if (not fin.is_open()) {
+    if (! fin.is_open()) {
         ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
         freq_enhance_okay = false;
     } else {
@@ -450,7 +450,7 @@ void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pas
 /// to extract vcd file name from the output
 std::string extract_vcd_name_from_cex(const std::string & fn) {
   std::ifstream fin(fn);
-  if (not fin.is_open()) {
+  if (! fin.is_open()) {
     ILA_ERROR<<"Unable to read from:"<<fn;
     return "";
   }
@@ -465,7 +465,7 @@ std::string extract_vcd_name_from_cex(const std::string & fn) {
   }
   std::string fname;
   fin >> fname; fin >> fname; // the first is garbage;
-  ILA_ERROR_IF (not S_IN(".vcd", fname)) << "Expecting vcd file name, get " << fname;
+  ILA_ERROR_IF (! S_IN(".vcd", fname)) << "Expecting vcd file name, get " << fname;
   return fname;
 } // extract_vcd_name_from_cex
 
@@ -653,7 +653,7 @@ void InvariantSynthesizerCegar::PrepareCexForGrain(bool autodet, bool reachable,
 /// to detect tool error (e.g., verilog parsing error)
 bool static has_verify_tool_error_cosa(const std::string & fn) {
   std::ifstream fin(fn);
-  if (not fin.is_open()) {
+  if (! fin.is_open()) {
     ILA_ERROR<<"Unable to read from:"<<fn;
     return true;
   }
@@ -670,7 +670,7 @@ bool static has_verify_tool_error_cosa(const std::string & fn) {
 /// to detect tool error (e.g., verilog parsing error)
 bool static has_verify_tool_unknown_cosa(const std::string & fn) {
   std::ifstream fin(fn);
-  if (not fin.is_open()) {
+  if (! fin.is_open()) {
     ILA_ERROR<<"Unable to read from:"<<fn;
     return true;
   }
@@ -692,7 +692,7 @@ bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selectio
   auto redirect_fn = os_portable_append_dir("../", "__verification_result.txt");
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(script_sel);
-  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+  ILA_ERROR_IF(! os_portable_chdir(new_wd)) 
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing verify script:" << script_sel;
   auto res = os_portable_execute_shell({"bash", 
@@ -737,7 +737,7 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
 
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(runnable_script_name[0]);
-  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+  ILA_ERROR_IF(! os_portable_chdir(new_wd)) 
     << "RunSynAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
 
@@ -756,18 +756,18 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   if (current_inv_type == CEGAR_ABC) {
     std::stringstream sbuf;
     std::ifstream fin(synthesis_result_fn);
-    if (not fin.is_open()) {
+    if (! fin.is_open()) {
         ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
         status = cegar_status::FAILED;
         bad_state = true;
         return true; // reachable
       } 
     sbuf << fin.rdbuf();
-    cex_reachable = ! ( S_IN( "Property proved." , sbuf.str()) and S_IN( "Invariant contains " , sbuf.str()) );
+    cex_reachable = ! ( S_IN( "Property proved." , sbuf.str()) && S_IN( "Invariant contains " , sbuf.str()) );
   } else if (current_inv_type == GRAIN_CHC) {
     std::stringstream sbuf;
     std::ifstream fin(synthesis_result_fn);
-    if (not fin.is_open()) {
+    if (! fin.is_open()) {
         ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
         status = cegar_status::FAILED;
         bad_state = true;

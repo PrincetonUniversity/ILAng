@@ -58,39 +58,39 @@ VlgVerifTgtGen::VlgVerifTgtGen(
     _bad_state = true;
   }
   // check for json file -- global invariants
-  if (not IN("global invariants", rf_cond)) {
+  if (! IN("global invariants", rf_cond)) {
     ILA_ERROR << "'global invariants' must exist, can be an empty array";
     _bad_state = true;
-  } else if (not rf_cond["global invariants"].is_array()) {
+  } else if (! rf_cond["global invariants"].is_array()) {
     ILA_ERROR << "'global invariants' must be an array of string";
     _bad_state = true;
   } else if (rf_cond["global invariants"].size() != 0) {
-    if (not rf_cond["global invariants"][0].is_string()) {
+    if (! rf_cond["global invariants"][0].is_string()) {
       ILA_ERROR << "'global invariants' must be an array of string";
       _bad_state = true;
     }
   }
   // check for json file -- instructions
-  if (not IN("instructions", rf_cond)) {
+  if (! IN("instructions", rf_cond)) {
     ILA_ERROR << "'instructions' must exist.";
     _bad_state = true;
-  } else if (not rf_cond["instructions"].is_array()) {
+  } else if (! rf_cond["instructions"].is_array()) {
     ILA_ERROR << "'instructions' must be an array of objects.";
     _bad_state = true;
   } else if (rf_cond["instructions"].size() == 0) {
     ILA_WARN << "No instruction in the rf specification";
   } else {
     for (auto&& it : rf_cond["instructions"].items()) {
-      if (not it.value().is_object()) {
+      if (! it.value().is_object()) {
         ILA_ERROR << "'instructions' must be an array of objects.";
         _bad_state = true;
         break;
       } else {
-        if (not IN("instruction", it.value())) {
+        if (! IN("instruction", it.value())) {
           ILA_ERROR << "'instruction' field must exist in the rf object.";
           _bad_state = true;
           break;
-        } else if (not it.value()["instruction"].is_string()) {
+        } else if (! it.value()["instruction"].is_string()) {
           ILA_ERROR
               << "'instruction' field must be a string of instruction name.";
           _bad_state = true;
@@ -138,7 +138,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
   vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
                                  _vlg_mod_inst_name, _vlg_impl_top_name);
 
-  if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
+  if (vlg_info_ptr == NULL || vlg_info_ptr->in_bad_state()) {
     ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
     return; //
   }
@@ -164,14 +164,14 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         ( _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL ||
           _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CONFIRMED
         ) &&
-        (_advanced_param_ptr and _advanced_param_ptr->_inv_obj_ptr != NULL && 
+        (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr != NULL && 
           ! _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty()))
         invariantExists = true;
       else if (
         ( _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL ||
           _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CANDIDATE
         ) &&
-        (_advanced_param_ptr &&  _advanced_param_ptr->_candidate_inv_ptr != NULL and 
+        (_advanced_param_ptr &&  _advanced_param_ptr->_candidate_inv_ptr != NULL && 
           ! _advanced_param_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()))
         invariantExists = true;
     }
@@ -197,7 +197,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           _advanced_param_ptr);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
-    } else if (_backend == backend_selector::YOSYS and invariantExists) {
+    } else if (_backend == backend_selector::YOSYS && invariantExists) {
       /*
       auto target = VlgSglTgtGen_Yosys(
           sub_output_path,

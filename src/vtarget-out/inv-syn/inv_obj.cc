@@ -38,7 +38,7 @@ bool InvariantObject::AddInvariantFromAbcResultFile(
   InvariantInCnf & inv_cnf,
   const InvariantInCnf & ref_cnf) {
   
-  ILA_ASSERT(not dut_inst_name.empty()) 
+  ILA_ASSERT(! dut_inst_name.empty()) 
     << "BUG: duv instance name unknown. "
     << "set_dut_inst_name should be called first!";
 
@@ -79,7 +79,7 @@ void InvariantObject::AddInvariantFromChcResultFile(
     bool flatten_datatype, bool flatten_hierarchy,
     bool discourage_outside_var_referral ) {
 
-  ILA_ASSERT(not dut_inst_name.empty()) 
+  ILA_ASSERT(! dut_inst_name.empty()) 
     << "BUG: duv instance name unknown. "
     << "set_dut_inst_name should be called first!";
     
@@ -88,11 +88,11 @@ void InvariantObject::AddInvariantFromChcResultFile(
     flatten_datatype, flatten_hierarchy,
     {"INV"}, dut_inst_name, discourage_outside_var_referral);
 
-  if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
+  if (! parser.ParseInvResultFromFile(chc_result_fn) ) {
     ILA_ERROR << "No new invariant has been extracted!";
     return;
   }
-  ILA_ASSERT(not parser.in_bad_state());
+  ILA_ASSERT(! parser.in_bad_state());
   inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
 
 
@@ -121,7 +121,7 @@ void InvariantObject::AddInvariantFromGrainResultFile(
   bool discourage_outside_var_referral,
   bool change_outside_var) {
 
-  ILA_ASSERT(not dut_inst_name.empty()) 
+  ILA_ASSERT(! dut_inst_name.empty()) 
     << "BUG: duv instance name unknown. "
     << "set_dut_inst_name should be called first!";
     
@@ -129,11 +129,11 @@ void InvariantObject::AddInvariantFromGrainResultFile(
     &design_info, dut_inst_name, 
     discourage_outside_var_referral, change_outside_var);
 
-  if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
+  if (! parser.ParseInvResultFromFile(chc_result_fn) ) {
     ILA_ERROR << "No new invariant has been extracted!";
     return;
   }
-  ILA_ASSERT(not parser.in_bad_state());
+  ILA_ASSERT(! parser.in_bad_state());
   inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
 
 
@@ -186,11 +186,11 @@ const InvariantObject::extra_free_var_def_vec_t & InvariantObject::GetExtraFreeV
 /// this is to support making candidate invariant as confirmed
 void InvariantObject::InsertFromAnotherInvObj(const InvariantObject & r) {
   auto error_msg = "Potentially strange behavior in invariant object, unaccounted situation: ";
-  ILA_WARN_IF (not r.inv_extra_vlg_vars.empty()) << error_msg << "inv_extra_vlg_vars"; // should be okay I think
-  ILA_WARN_IF (not r.inv_extra_free_vars.empty()) << error_msg << "inv_extra_free_vars";
+  ILA_WARN_IF (! r.inv_extra_vlg_vars.empty()) << error_msg << "inv_extra_vlg_vars"; // should be okay I think
+  ILA_WARN_IF (! r.inv_extra_free_vars.empty()) << error_msg << "inv_extra_free_vars";
   inv_extra_vlg_vars.insert(inv_extra_vlg_vars.end(), r.inv_extra_vlg_vars.begin(), r.inv_extra_vlg_vars.end());
   for(auto && p : r.inv_extra_free_vars) {
-    ILA_ERROR_IF (IN(p.first,inv_extra_free_vars) and inv_extra_free_vars[p.first] != p.second )
+    ILA_ERROR_IF (IN(p.first,inv_extra_free_vars) && inv_extra_free_vars[p.first] != p.second )
       << "Conflict for free var:" << p.first;
     inv_extra_free_vars.insert(p);
   }
@@ -216,7 +216,7 @@ void InvariantObject::ExportToFile(const std::string &fn, bool export_smt_encodi
     << "# of smt formulae =/= # of vlg exprs ";
   std::ofstream fout(fn);
   ILA_WARN << "Will not preserve the original smt formula";
-  if (not fout.is_open()) {
+  if (! fout.is_open()) {
     ILA_ERROR << "Failed to open:" << fn << " for write.";
     return;
   }
@@ -256,7 +256,7 @@ void InvariantObject::ExportToFile(const std::string &fn, bool export_smt_encodi
 /// import invariants that has been previous exported
 void InvariantObject::ImportFromFile(const std::string &fn) {
   std::ifstream fin(fn);
-  if(not fin.is_open()) {
+  if(! fin.is_open()) {
     ILA_ERROR << "Failed to open:" << fn << " for read.";
     return;
   }

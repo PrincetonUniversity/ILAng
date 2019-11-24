@@ -349,7 +349,7 @@ static std::string handle_range_ref(const std::string & in) {
   auto rpos = in.rfind(']');
   ILA_ASSERT(pos < rpos) << "Unknown how to handle:" << in;
   auto idx = in.substr(pos+1,rpos-(pos+1));
-  ILA_ASSERT(not S_IN(":", idx));
+  ILA_ASSERT(! S_IN(":", idx));
   return in.substr(0,pos) + "[" + idx + ":" + idx +"]";
 }
 
@@ -619,9 +619,9 @@ AbcInvariantParser::AbcInvariantParser(
     replace_outside_var_ref(replace_outside_variable_reference),
     parse_succeed(true) {
 
-  ILA_ASSERT(not blif_name.empty());
+  ILA_ASSERT(! blif_name.empty());
   if (useAiger) {
-    ILA_ASSERT(not aiger_map_name.empty()) << "You must provide aiger name for `useAiger` flag.";
+    ILA_ASSERT(! aiger_map_name.empty()) << "You must provide aiger name for `useAiger` flag.";
     if (gla_abs_fn.empty())
       parseAigerResultWoGLA(aiger_map_name, abc_result_fn, inv_cnf,ref_cnf, blif_name);
     else

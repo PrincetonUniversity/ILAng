@@ -38,13 +38,13 @@ GrainInvariantParser::~GrainInvariantParser() {
 // if unsat --> add the (assert ...)
 bool GrainInvariantParser::ParseInvResultFromFile(const std::string & fname) {
   std::ifstream fin(fname);
-  if (not fin.is_open()) {
+  if (! fin.is_open()) {
     ILA_ERROR << "Unable to read from : " << fname;
     return false;
   }
 /*
   std::string result;
-  if (not std::getline(fin,result) ) {
+  if (! std::getline(fin,result) ) {
     ILA_ASSERT(false) << "No output from the synthesizer!" << result;
     return false; // unknown result, possibly failed
   }
@@ -69,12 +69,12 @@ bool GrainInvariantParser::ParseInvResultFromFile(const std::string & fname) {
 
 /// call back function to create a sort
 var_type * GrainInvariantParser::make_sort(const std::string &name, const std::vector<int> & idx) {
-  //ILA_ASSERT(not quantifier_def_stack.empty());
-  //ILA_ASSERT(not quantifier_var_def_idx_stack.empty());
+  //ILA_ASSERT(! quantifier_def_stack.empty());
+  //ILA_ASSERT(! quantifier_var_def_idx_stack.empty());
   
   // should should only be BitVec or Bool
   if (name == "Bool") {
-    if (not IN("Bool", sort_container))
+    if (! IN("Bool", sort_container))
       sort_container.insert(std::make_pair(std::string("Bool"),
         var_type(var_type::tp::Bool, 1, "")));
     return & (sort_container["Bool"]);
@@ -83,7 +83,7 @@ var_type * GrainInvariantParser::make_sort(const std::string &name, const std::v
     ILA_ASSERT(idx.size() == 1);
     ILA_ASSERT(idx[0] > 0);
     std::string sortIdxName = "BV"+std::to_string(idx[0]);
-    if (not IN(sortIdxName, sort_container))
+    if (! IN(sortIdxName, sort_container))
       sort_container.insert(std::make_pair(sortIdxName,
         var_type(var_type::tp::BV, idx[0], "")));
     return & (sort_container[sortIdxName]);
@@ -100,7 +100,7 @@ void GrainInvariantParser::declare_function(const std::string &name, var_type * 
   auto top_module = design_smt_info_ptr->get_module_def_orders().back();
   /// we need to check the format
   std::string vlg_name = name;
-  if (name.front() == '|' and name.back() == '|') {
+  if (name.front() == '|' && name.back() == '|') {
     ILA_ASSERT(name.size() > 2) << "Unexpected empty name: " << name;
     vlg_name = name.substr(1,name.length()-2) ; // verilog-name should be extracted from the name part
   }
@@ -170,7 +170,7 @@ SmtTermInfoVlgPtr GrainInvariantParser::mk_function(
   const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args) {
   // we don't really rely on the sort here: actually it should be NULL
   ILA_DLOG("GrainInvariantParser.mk_function") << "make func:" << name << ", #arg" << args.size() << std::endl;
-  if (args.empty() and idx.empty()) {
+  if (args.empty() && idx.empty()) {
     // first let's check if it is referring to a quantifier-bound variable
     auto term_ptr = search_quantified_var_stack(name);
     if (term_ptr)

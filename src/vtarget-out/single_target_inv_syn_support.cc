@@ -174,7 +174,7 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_instr
 void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only () {
   ILA_ASSERT (target_type == target_type_t::INV_SYN_DESIGN_ONLY);
 
-  if (_advanced_param_ptr and _advanced_param_ptr->_cex_obj_ptr) {
+  if (_advanced_param_ptr && _advanced_param_ptr->_cex_obj_ptr) {
     // this is cex reachability checking
     // -- assertions -- //
     auto new_cond = ReplExpr(
@@ -235,7 +235,7 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
 
   for (auto& i : (rf_vmap["state mapping"]).items()) {
     auto sname = i.key(); // ila state name
-    if (not IN(sname, ila_mem_state_names))
+    if (! IN(sname, ila_mem_state_names))
       continue; // we only care about the mem states
     if (i.value().is_null()) {
       ILA_ERROR << "Ignore mapping memory: " << sname;

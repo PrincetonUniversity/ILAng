@@ -95,7 +95,7 @@ void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {
   auto fn = os_portable_append_dir(_output_path, script_name);
 
   std::ofstream fout(fn);
-  if (not fout.is_open()) {
+  if (! fout.is_open()) {
     ILA_ERROR << "Unable to open " << fn << " for write.";
     return;
   }
@@ -107,7 +107,7 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
 
   auto fn = os_portable_append_dir(_output_path, extra_name);
   std::ofstream fout(fn);
-  if (not fout.is_open()) {
+  if (! fout.is_open()) {
     ILA_ERROR << "Unable to open " << fn << " for write.";
     return;
   }
@@ -155,7 +155,7 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
 /// Yes, this is also implementation specific, (jasper may use a different one)
 void VlgSglTgtGen_Jasper::Export_mem(const std::string& mem_name) {
   // TODO;
-  if (not VlgAbsMem::hasAbsMem())
+  if (! VlgAbsMem::hasAbsMem())
     return;
 
   abs_mem_name = mem_name;

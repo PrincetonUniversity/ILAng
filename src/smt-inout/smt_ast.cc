@@ -35,7 +35,7 @@ void str_iterator::accept(const std::string &s) {
 bool str_iterator::is_end() const { return is_end(pnt); }
 
 bool str_iterator::is_end(unsigned pos) const {
-  return pos >= buf.length() or pos == std::string::npos;
+  return pos >= buf.length() || pos == std::string::npos;
 }
 
 
@@ -63,12 +63,12 @@ std::string str_iterator::readline_no_eol() {
   auto start = pnt;
   unsigned end;
   while (!is_end()) {
-    if( head() != '\n' and head() != '\r' )
+    if( head() != '\n' && head() != '\r' )
       pnt ++;
     else {
       end = pnt;
-      while(not is_end() and 
-        (head() == '\n' or 
+      while(! is_end() && 
+        (head() == '\n' || 
          head() == '\r' ) )
         ++ pnt;
       break;
@@ -104,7 +104,7 @@ void str_iterator::skip_m(const std::string &s) {
 
 /// return the first 
 char str_iterator::head() const {
-  ILA_ASSERT(not is_end()) << "string index out of range";
+  ILA_ASSERT(! is_end()) << "string index out of range";
   return buf.at(pnt);
 }
 /// return the head_word (if it the end, then empty string)
@@ -423,7 +423,7 @@ std::string func_def_t::toString() const {
   ret += " " + func_body;
   ret += ")";
 
-  if (not extra_comment.empty())
+  if (! extra_comment.empty())
     ret += " ; " + extra_comment;
 
   return ret;
@@ -457,7 +457,7 @@ std::string ParseFromString(str_iterator & it, datatypes_t & dtype) {
 
 void ParseFromString(str_iterator & it, smt_file & smt) {
   it.skip();
-  while(not it.is_end()) {
+  while(! it.is_end()) {
     auto h = it.head_word();
     if (h.find(";") == 0) {
       std::shared_ptr<line_comment> ptr =

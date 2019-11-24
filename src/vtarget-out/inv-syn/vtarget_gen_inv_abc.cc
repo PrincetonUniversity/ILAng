@@ -152,7 +152,7 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
                    implementation_include_path, vtg_config, vbackend,
                    target_tp, adv_ptr),
       s_backend(sbackend), generate_proof(GenerateProof), 
-      has_cex(adv_ptr and adv_ptr->_cex_obj_ptr), chc_target(chctarget),
+      has_cex(adv_ptr && adv_ptr->_cex_obj_ptr), chc_target(chctarget),
       useGla(useGLA), useCorr(useCORR), useAiger(useAIGER), disallowGla(false) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
@@ -294,7 +294,7 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
     } // for expr
   } // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(not all_assert_wire_content.empty())
+  ILA_ASSERT(! all_assert_wire_content.empty())
     << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
@@ -303,7 +303,7 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
 
   std::string precond;
   disallowGla = false;
-  if (not all_assume_wire_content.empty()) {
+  if (! all_assume_wire_content.empty()) {
     ILA_ASSERT(! (_vtg_config.AbcUseAiger == false && _vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput))
     << "If you don't use aiger, and has assumptions, there is no way to pass the extra output. (Will have an additional latch, but currently we cannot interprete.)";
     if (_vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput) {
@@ -346,7 +346,7 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
   //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
   std::string runnable = "abc";
-  if (not _vtg_config.AbcPath.empty())
+  if (! _vtg_config.AbcPath.empty())
     runnable = os_portable_append_dir(_vtg_config.AbcPath, runnable);
 
 
@@ -558,7 +558,7 @@ void VlgSglTgtGen_Abc::generate_blif(
 
   std::string yosys = "yosys";
 
-  if (not _vtg_config.YosysPath.empty())
+  if (! _vtg_config.YosysPath.empty())
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
   // execute it
@@ -601,7 +601,7 @@ void VlgSglTgtGen_Abc::generate_aiger(
 
   std::string yosys = "yosys";
 
-  if (not _vtg_config.YosysPath.empty())
+  if (! _vtg_config.YosysPath.empty())
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
   // execute it

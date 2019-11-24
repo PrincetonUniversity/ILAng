@@ -18,7 +18,7 @@ namespace smt {
 template <class T> 
 std::vector<T> make_vector(smtlib2_vector *iv) {
   std::vector<T> ret;
-  if (not iv) return ret;
+  if (! iv) return ret;
 
   auto l = SMTLIB2_VECTOR_SIZE(iv);
   intptr_t * ptr = SMTLIB2_VECTOR_ARRAY(iv);

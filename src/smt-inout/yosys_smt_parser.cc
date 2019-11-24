@@ -36,7 +36,7 @@ void YosysSmtParser::construct_flatten_dataype() {
       // check if it is Datatype
       // find in the flatten_one, it must exist
       // copy all its var here
-      ILA_ASSERT(not IN(module_name, flatten_datatype));
+      ILA_ASSERT(! IN(module_name, flatten_datatype));
       for (const auto & state_var : state_var_vec) {
         if(state_var._type._type == var_type::tp::Datatype) {
           const auto & mod_tp_name = state_var._type.module_name;
@@ -114,24 +114,24 @@ std::vector<std::string> YosysSmtParser::str_to_list(const std::string & in) {
   std::string cur;
   bool in_sep = false;
   for (auto c : in) {
-    if(c == '|' and in_sep == false) {
+    if(c == '|' && in_sep == false) {
       ILA_ASSERT(cur.empty());
       in_sep = true;
       cur += c;
-    } else if (c == '|' and in_sep == true) {
+    } else if (c == '|' && in_sep == true) {
       cur += c;
       in_sep = false;
-    } else if ( sep(c) and in_sep) {
+    } else if ( sep(c) && in_sep) {
       cur += c;
-    } else if (  sep(c) and not in_sep ) {
-      if(not cur.empty()) {
+    } else if (  sep(c) && ! in_sep ) {
+      if(! cur.empty()) {
         ret_l.push_back(cur);
         cur = "";
       }
     } else
       cur += c;
   }
-  if (not cur.empty())
+  if (! cur.empty())
     ret_l.push_back(cur);
   return ret_l;
 }
@@ -155,7 +155,7 @@ std::string YosysSmtParser::replace_a_body(
 
   for (decltype(len) idx = 0; idx < len; ++ idx) {
     if(body_text.at(idx) == '(') {
-      if(not leaf_level_flag_stack.empty())
+      if(! leaf_level_flag_stack.empty())
         leaf_level_flag_stack.back() = false;
       leaf_level_flag_stack.push_back(true);
       left_pos_stack.push_back(idx);
@@ -166,8 +166,8 @@ std::string YosysSmtParser::replace_a_body(
         auto leaf_text = body_text.substr(start_pos , idx - start_pos );
         auto leaf_text_w_para = "(" + leaf_text + ")";
         // then ?
-        if (not IN(leaf_text_w_para, cached_no_replace) and
-            not IN(leaf_text_w_para, cached_body_replace)) {
+        if (! IN(leaf_text_w_para, cached_no_replace) &&
+            ! IN(leaf_text_w_para, cached_body_replace)) {
           // if it is first time encounter
           auto leaf_vec = str_to_list(leaf_text);//SplitSpaceTabEnter(leaf_text);
           if( leaf_vec.size() == 2 ) {
@@ -217,7 +217,7 @@ std::string YosysSmtParser::replace_a_body(
                     }
                   } // end special case
 
-                  if (not special_case) {
+                  if (! special_case) {
                   // if not found to be the special case, we will do the normal 
                     for (auto && arg : dt)
                       arg_name_vec.push_back( st_name_add_prefix( arg.internal_name, mod_inst_name + "."));
@@ -235,10 +235,10 @@ std::string YosysSmtParser::replace_a_body(
                 ILA_ERROR << pred << " is unknown, will not replace";
                 cached_no_replace.insert(leaf_text_w_para);
               } // func or datatype element
-            } else if (arg_def.size() == 2 and leaf_vec[1] == arg_def[1] ) {
+            } else if (arg_def.size() == 2 && leaf_vec[1] == arg_def[1] ) {
               // next_state
               const auto & pred = leaf_vec[0];
-              ILA_ASSERT(not IN(pred, defined_func));
+              ILA_ASSERT(! IN(pred, defined_func));
               ILA_ASSERT(IN(pred, current_mod_state_var_idx));
               const auto & st = current_mod_state_var_idx.at(pred);
               if(st._type._type == var_type::tp::Datatype) {
@@ -273,7 +273,7 @@ std::string YosysSmtParser::replace_a_body(
     } // else if( right paranthesis)
   } // for (idx)
   for (const auto & orig_new_pair : cached_body_replace) {
-    ILA_ASSERT(not IN(orig_new_pair.first, cached_no_replace));
+    ILA_ASSERT(! IN(orig_new_pair.first, cached_no_replace));
     ret = ReplaceAll(ret, orig_new_pair.first, orig_new_pair.second);
   }
   return ret;
@@ -322,15 +322,15 @@ void YosysSmtParser::replace_all_function_arg_body() {
   for (auto && one_smt_item_ptr : smt_ast.items) {
     std::shared_ptr<func_def_t> fn = 
       std::dynamic_pointer_cast<func_def_t>(one_smt_item_ptr);
-    if (not fn) // only handle functions
+    if (! fn) // only handle functions
       continue; 
-    ILA_ASSERT(not fn->func_module.empty());
+    ILA_ASSERT(! fn->func_module.empty());
     if (fn->func_module != module_cached) { // re-cache  
       module_cached = fn->func_module;
       current_mod_state_var_cached.clear();
 
       for (const auto & st : smt_ast.datatypes[module_cached]) {
-        ILA_ASSERT(not st.internal_name.empty());
+        ILA_ASSERT(! st.internal_name.empty());
         current_mod_state_var_cached.insert(
           std::make_pair( st.internal_name , st ));
       }
@@ -401,7 +401,7 @@ void YosysSmtParser::create_variable_idx() {
   ILA_ASSERT(IN(smt_ast.data_type_order.back(), flatten_datatype));
   for(auto && v : flatten_datatype[smt_ast.data_type_order.back()]) {
     const auto & vname = v.verilog_name.empty() ? v.internal_name : v.verilog_name;
-    ILA_ASSERT(not IN(vname, variable_idx));
+    ILA_ASSERT(! IN(vname, variable_idx));
     variable_idx.insert(std::make_pair(vname, &v ));
     // we will try to avoid copying
   }
@@ -444,7 +444,7 @@ const std::vector<std::string> & YosysSmtParser::get_module_def_orders() const {
 }
 /// return a module's flatten datatypes
 const std::vector<state_var_t> & YosysSmtParser::get_module_flatten_dt(const std::string & mod_name) const {
-  ILA_ASSERT(not flatten_datatype.empty() ) << "BUG: use before flatten datatypes";
+  ILA_ASSERT(! flatten_datatype.empty() ) << "BUG: use before flatten datatypes";
   auto pos = flatten_datatype.find(mod_name);
   ILA_ASSERT( pos != flatten_datatype.end() );
   return pos->second;

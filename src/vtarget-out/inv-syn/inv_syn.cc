@@ -544,9 +544,9 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
         // sanity check -- if all sigs are found
 
         ILA_ASSERT (
-          wn_amc_design_item.empty() and
-          wn_amc_wrapper_item.empty() and 
-          wn_asst_item.empty() and
+          wn_amc_design_item.empty() &&
+          wn_amc_wrapper_item.empty() && 
+          wn_asst_item.empty() &&
           wn_aspt_item.empty()
           ) << "Missing signals in SMT parsing, HC gen will be incorrect";
       } //  find number name --- smt name

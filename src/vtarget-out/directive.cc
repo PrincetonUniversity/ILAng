@@ -428,7 +428,7 @@ void IntefaceDirectiveRecorder::SetMemNameAndWidth(const std::string& directive,
                                            int ila_data_width) {
 
   ILA_ASSERT(beginsWith(directive, "**"));
-  if (not beginsWith(directive, "**MEM**")) {
+  if (! beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
     return;
   }
@@ -507,7 +507,7 @@ std::pair<std::string,unsigned int> IntefaceDirectiveRecorder::KeepMemoryPorts(
   const std::string & mem_name, const std::string & port_name, bool caller_build_wire) {
 
 #define check_connect_port(p) \
-  if (not (p).empty()) ILA_ERROR << port_name << " has been connected"; \
+  if (! (p).empty()) ILA_ERROR << port_name << " has been connected"; \
   else (p) = caller_build_wire ? wire_name : ""; 
   // set to empty here will cause absmem:CONNECT macro to add wire for it
 

@@ -26,7 +26,7 @@ VerilogModifier::~VerilogModifier() {}
 void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
                                       std::ostream& fout) {
   /*
-  if (not IN(fn, fn_l_map)) {
+  if (! IN(fn, fn_l_map)) {
     // no need to modify, just copy
     fout << fin.rdbuf();
     return;

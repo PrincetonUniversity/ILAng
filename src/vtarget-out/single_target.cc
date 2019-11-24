@@ -235,7 +235,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
 
   for (auto& i : (rf_vmap["state mapping"]).items()) {
     auto sname = i.key();
-    if (not IN(sname, ila_state_names)) {
+    if (! IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
@@ -273,7 +273,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   ILA_DLOG("VtargetGen") << "STEP:"
                          << "5.2.2";
   // check for unmapped states
-  if (not ila_state_names.empty()) {
+  if (! ila_state_names.empty()) {
     ILA_ERROR << "Refinement relation: missing state mapping for the following "
                  "state variables:";
     for (auto&& sn : ila_state_names)
@@ -296,7 +296,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 
   for (auto& i : (rf_vmap["state mapping"]).items()) {
     auto sname = i.key();
-    if (not IN(sname, ila_state_names)) {
+    if (! IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;

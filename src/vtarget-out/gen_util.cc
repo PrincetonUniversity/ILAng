@@ -477,7 +477,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
         ILA_ERROR << ila_state_name << " does not exist in ILA.";
         return VLG_TRUE;
       }
-      if (not ila_state->sort()->is_mem()) {
+      if (! ila_state->sort()->is_mem()) {
         ILA_ERROR << ila_state_name << " is not memory, not compatible w. "
                   << rfm;
         return VLG_TRUE;
@@ -561,12 +561,12 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
 } // GetStateVarMapExpr
 
 void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
-  if (not dc.is_array()) {
+  if (! dc.is_array()) {
     ILA_ERROR << " not enforcing start condition: expect an array of strings.";
     return;
   }
   for (auto&& pr : dc.items()) {
-    if (not pr.value().is_string()) {
+    if (! pr.value().is_string()) {
       ILA_ERROR
           << " not enforcing start condition: expect an array of strings.";
       continue;

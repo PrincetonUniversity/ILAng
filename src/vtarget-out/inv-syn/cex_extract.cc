@@ -76,7 +76,7 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
   VCDFileParser parser;
   VCDFile * trace = parser.parse_file(vcd_file_name);
 
-  if (not trace) {
+  if (! trace) {
     ILA_ERROR << "Error while reading waveform from: "<< vcd_file_name;
     return;
   }
@@ -127,13 +127,13 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
       continue;
 
     // check scope
-    // if (not in_scope(sig->scope, scope))
+    // if (! in_scope(sig->scope, scope))
     //  continue;
 
     auto scopes = collect_scope(sig->scope);
 
     // check scope -- only the top level
-    if ( not ( scopes.find("$root.top." +  scope + ".") == 0 ||
+    if ( ! ( scopes.find("$root.top." +  scope + ".") == 0 ||
                scopes.find( scope + ".") == 0 ))
       continue;
 
@@ -168,7 +168,7 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
     
   } // for sig
 
-  ILA_ASSERT(not cex.empty()) << "No counterexample is extracted!";
+  ILA_ASSERT(! cex.empty()) << "No counterexample is extracted!";
 
 } // parse_from
 
@@ -181,7 +181,7 @@ CexExtractor::CexExtractor(const std::string & vcd_file_name,
 /// create from a existing file
 CexExtractor::CexExtractor(const std::string & fn) {
   std::ifstream fin(fn);
-  if (not fin.is_open()) {
+  if (! fin.is_open()) {
     ILA_ERROR << "Failed to read : " << fn;
     return;
   }
@@ -231,7 +231,7 @@ const CexExtractor::cex_t & CexExtractor::GetCex() const {
 void CexExtractor::StoreCexToFile(const std::string & fn, const cex_t & c) {
   std::ofstream fout(fn);
   
-  if (not fout.is_open()) {
+  if (! fout.is_open()) {
     ILA_ERROR << "Failed to read : " << fn;
     return;
   }

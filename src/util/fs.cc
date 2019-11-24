@@ -204,12 +204,12 @@ execute_result os_portable_execute_shell(
   _ret.timeout = false;
   
   auto cmdline = Join(cmdargs, ",");
-  ILA_ASSERT(not cmdargs.empty()) << "API misuse!";
+  ILA_ASSERT(! cmdargs.empty()) << "API misuse!";
 
 #if defined(_WIN32) || defined(_WIN64)
   ILA_ERROR_IF(timeout != 0) << "Timeout feature is not supported on WIN.";
   HANDLE h;
-  if (not redirect_output_file.empty() and rdt != redirect_t::NONE) {
+  if (! redirect_output_file.empty() and rdt != redirect_t::NONE) {
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(sa);
     sa.lpSecurityDescriptor = NULL;
@@ -282,7 +282,7 @@ execute_result os_portable_execute_shell(
     // The child
     // will replace the image and execute the bash
     ILA_INFO<<"Execute subprocess: [" << cmdline << "]";
-    if (not redirect_output_file.empty()) {
+    if (! redirect_output_file.empty()) {
       ILA_INFO<<"Redirect to:" << redirect_output_file;
       int fd;
       fd = open(redirect_output_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC , S_IRUSR | S_IWUSR );
@@ -415,7 +415,7 @@ execute_result os_portable_execute_shell(
 /// read the last meaningful line from a file
 std::string os_portable_read_last_line(const std::string  & filename) {
   std::ifstream fin(filename);
-  if(not fin.is_open()) {
+  if(! fin.is_open()) {
     ILA_ERROR << "Error open for read:"<<filename;
     return "";
   }

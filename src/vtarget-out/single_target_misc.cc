@@ -32,10 +32,10 @@ bool VlgSglTgtGen::bad_state_return(void) {
 
 void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
   if (IN("mapping control", rf_vmap)) {
-    if (not rf_vmap["mapping control"].is_array())
+    if (! rf_vmap["mapping control"].is_array())
       ILA_ERROR << "mapping control field must be an array of string";
     for (auto&& c : rf_vmap["mapping control"]) {
-      if (not c.is_string()) {
+      if (! c.is_string()) {
         ILA_ERROR << "mapping control field must be an array of string";
         continue;
       }
@@ -84,10 +84,10 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
 
 
 void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
-  if (not IN("functions", rf_vmap))
+  if (! IN("functions", rf_vmap))
     return; // do nothing
   auto& fm = rf_vmap["functions"];
-  if (not fm.is_object()) {
+  if (! fm.is_object()) {
     ILA_ERROR << "expect functions field to be funcName -> list of list of "
                  "pair of (cond,val).";
     return;
@@ -102,7 +102,7 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
   for (auto&& it : fm.items()) {
     const auto& funcName = it.key();
     const auto& list_of_time_of_apply = it.value();
-    if (not list_of_time_of_apply.is_array()) {
+    if (! list_of_time_of_apply.is_array()) {
       ILA_ERROR << funcName
                 << ": expect functions field to be funcName -> list of list of "
                    "pair of (cond,val).";
@@ -125,7 +125,7 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
 
     size_t idx = 0;
     for (auto&& each_apply : list_of_time_of_apply.items()) {
-      if (not each_apply.value().is_array()) {
+      if (! each_apply.value().is_array()) {
         ILA_ERROR << funcName
                   << ": expecting mapping to be list of pair of (cond,val).";
         idx++;
@@ -215,11 +215,11 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
   for (auto && item : post_val_rec.items()) {
     const auto & pv_name = item.key();
     auto & pv_cond_val = item.value();
-    ILA_ERROR_IF(! ( pv_cond_val.is_array()  or pv_cond_val.is_object() ))
+    ILA_ERROR_IF(! ( pv_cond_val.is_array()  || pv_cond_val.is_object() ))
       << "Expecting (post-)value-holder's content to be list or map type";
     if(pv_cond_val.is_array() &&
         (! pv_cond_val.empty() && 
-          ( pv_cond_val.begin()->is_array() or pv_cond_val.begin()->is_object() )) )
+          ( pv_cond_val.begin()->is_array() || pv_cond_val.begin()->is_object() )) )
     { // multiple condition
       int w = 0;
       bool first = true;
@@ -302,7 +302,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
                 ILA_ERROR << "Expecting key in [0,2] or [name,width,type]";
             }
 
-            if ( defname.empty() or width == 0 or (type != "reg" and type != "wire") )
+            if ( defname.empty() || width == 0 || (type != "reg" && type != "wire") )
               ILA_ERROR << "Cannot create monitor for " << mname;
             else {
               if (type == "reg")

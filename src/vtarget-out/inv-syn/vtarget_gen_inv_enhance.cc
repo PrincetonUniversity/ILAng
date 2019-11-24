@@ -182,7 +182,7 @@ VlgSglTgtGen_Chc_wCNF::VlgSglTgtGen_Chc_wCNF(
                    implementation_include_path, vtg_config, vbackend,
                    target_tp, adv_ptr),
       s_backend(sbackend), generate_proof(GenerateProof), 
-      has_cex(adv_ptr and adv_ptr->_cex_obj_ptr), chc_target(chctarget) { 
+      has_cex(adv_ptr && adv_ptr->_cex_obj_ptr), chc_target(chctarget) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
@@ -322,14 +322,14 @@ void VlgSglTgtGen_Chc_wCNF::PreExportProcess() {
     } // for expr
   } // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(not all_assert_wire_content.empty())
+  ILA_ASSERT(! all_assert_wire_content.empty())
     << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
 
-  if (not all_assume_wire_content.empty()) {
+  if (! all_assume_wire_content.empty()) {
     vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
     vlg_wrapper.add_output("__all_assume_wire__",1);
     vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
@@ -357,7 +357,7 @@ void VlgSglTgtGen_Chc_wCNF::Export_script(const std::string& script_name, const 
 
   ILA_ASSERT(s_backend == synthesis_backend_selector::GRAIN);
   runnable = "bv";
-  if (not _vtg_config.GrainPath.empty())
+  if (! _vtg_config.GrainPath.empty())
     runnable = os_portable_append_dir(_vtg_config.GrainPath, runnable);
   for (auto && op : _vtg_config.GrainOptions)
     options += " " + op;
@@ -573,7 +573,7 @@ void VlgSglTgtGen_Chc_wCNF::design_only_gen_smt(
 
   std::string yosys = "yosys";
 
-  if (not _vtg_config.YosysPath.empty())
+  if (! _vtg_config.YosysPath.empty())
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
   // execute it
@@ -593,7 +593,7 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_bitvec(
   std::stringstream ibuf;
   { // read file
     std::ifstream smt_fin( smt_fname );
-    if(not smt_fin.is_open()) {
+    if(! smt_fin.is_open()) {
       ILA_ERROR << "Cannot read from " << smt_fname;
       return;
     }
@@ -621,7 +621,7 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_bitvec(
 
   { // write file
     std::ofstream chc_fout(chc_fname);
-    if (not chc_fout.is_open()) {
+    if (! chc_fout.is_open()) {
       ILA_ERROR << "Error writing to : "<< chc_fname;
       return;
     }
@@ -635,7 +635,7 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_
   std::stringstream ibuf;
   { // read file
     std::ifstream smt_fin( smt_fname );
-    if(not smt_fin.is_open()) {
+    if(! smt_fin.is_open()) {
       ILA_ERROR << "Cannot read from " << smt_fname;
       return;
     }
@@ -686,7 +686,7 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_
 
   { // write file
     std::ofstream chc_fout(chc_fname);
-    if (not chc_fout.is_open()) {
+    if (! chc_fout.is_open()) {
       ILA_ERROR << "Error writing to : "<< chc_fname;
       return;
     }
@@ -730,7 +730,7 @@ static std::string RewriteDatatypeChc(
     auto st_name = st.verilog_name.back() == '.' || st.verilog_name.empty() ? st.internal_name : st.verilog_name;
     st_name = ReplaceAll(st_name, "|", ""); // remove its ||
     // check no repetition is very important!
-    ILA_ASSERT(not IN(st_name, name_set)) << "Bug: name repetition!";
+    ILA_ASSERT(! IN(st_name, name_set)) << "Bug: name repetition!";
     ILA_ASSERT(st._type._type != smt::var_type::tp::Datatype);
     name_set.insert(st_name);
     auto type_string = st._type.toString();
@@ -738,7 +738,7 @@ static std::string RewriteDatatypeChc(
     State         += "(declare-var |S_"  + st_name + "| " + type_string + ")\n";
     StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
 
-    if(not first) {
+    if(! first) {
       Is  += " "; Ss  += " "; Sps += " ";
     }
     first = false;

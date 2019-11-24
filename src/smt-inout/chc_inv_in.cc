@@ -39,7 +39,7 @@ SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   // the first element's address should be the outer structure's address
   ILA_ASSERT(((void *) parser_wrapper) ==  ((void *) &(parser_wrapper->parser) )  );
 
-  if (not parser_wrapper) {
+  if (! parser_wrapper) {
     _bad_state = true;
     ILA_ERROR << "SMT-LIB2 parser construct allocation failed!";
     return;
@@ -205,13 +205,13 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::pop_quantifier_scope() {
 
 /// call back function to create a sort
 var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::vector<int> & idx) {
-  //ILA_ASSERT(not quantifier_def_stack.empty());
-  //ILA_ASSERT(not quantifier_var_def_idx_stack.empty());
+  //ILA_ASSERT(! quantifier_def_stack.empty());
+  //ILA_ASSERT(! quantifier_var_def_idx_stack.empty());
   ILA_ASSERT(mask == 0xdeadbeaf);
   if (datatype_flattened) {
     // should should only be BitVec or Bool
     if (name == "Bool") {
-      if (not IN("Bool", sort_container))
+      if (! IN("Bool", sort_container))
         sort_container.insert(std::make_pair(std::string("Bool"),
           var_type(var_type::tp::Bool, 1, "")));
       return & (sort_container["Bool"]);
@@ -220,7 +220,7 @@ var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::
       ILA_ASSERT(idx.size() == 1);
       ILA_ASSERT(idx[0] > 0);
       std::string sortIdxName = "BV"+std::to_string(idx[0]);
-      if (not IN(sortIdxName, sort_container))
+      if (! IN(sortIdxName, sort_container))
         sort_container.insert(std::make_pair(sortIdxName,
           var_type(var_type::tp::BV, idx[0], "")));
       return & (sort_container[sortIdxName]);
@@ -241,7 +241,7 @@ var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::
       << "Unknown sort:" << name << " in unflattened smt."
       << " Expecting:" << top_module_sort;
     
-    if (not IN(top_module_sort, sort_container))
+    if (! IN(top_module_sort, sort_container))
       sort_container.insert(std::make_pair(top_module_sort,
         var_type(var_type::tp::Datatype, 0, top_module)));
     return & (sort_container[top_module_sort]);
@@ -254,8 +254,8 @@ var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::
 void SmtlibInvariantParser::declare_quantified_variable(const std::string &name, var_type * sort ) {
   // check on the name part
   ILA_ASSERT(mask == 0xdeadbeaf);
-  ILA_ASSERT(not quantifier_def_stack.empty());
-  ILA_ASSERT(not quantifier_var_def_idx_stack.empty());
+  ILA_ASSERT(! quantifier_def_stack.empty());
+  ILA_ASSERT(! quantifier_var_def_idx_stack.empty());
   // I assume it has nothing to do with hierarchy flattening
   auto & top = quantifier_def_stack.back();
   if (datatype_flattened) {
@@ -360,7 +360,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
           }
         } // check out-of-scope name
 
-        if(not IN(search_name, term_container)) {
+        if(! IN(search_name, term_container)) {
           term_container.insert(std::make_pair(search_name,
             SmtTermInfoVerilog(repl_name, dt._type ,this)));
         }
@@ -385,7 +385,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_number(const std::string & rep, int 
   }
   std::string vlg_expr = std::to_string(width)+"'"+radix+rep;
   std::string name = "##bv" + vlg_expr;
-  if (not IN(name, term_container)) {
+  if (! IN(name, term_container)) {
     term_container.insert( std::make_pair( name, 
       SmtTermInfoVerilog(
         vlg_expr , 
@@ -512,7 +512,7 @@ DEFINE_OPERATOR(concat) {
   vlg_expr += "}";
 
   std::string search_name = "##bv"+std::to_string(total_width) + "_"  + (vlg_expr);
-  if (not IN(search_name, term_container)) {
+  if (! IN(search_name, term_container)) {
     term_container.insert( std::make_pair( search_name,
       SmtTermInfoVerilog(
         vlg_expr ,
@@ -749,7 +749,7 @@ DEFINE_OPERATOR(extract) {
     std::string vlg_expr = 
     "(" + args[0]->_translate + ")" + bitslice;
     std::string search_name = "##bv"+std::to_string(new_width) + "_"  + vlg_expr;
-    if (not IN(search_name, term_container)) {
+    if (! IN(search_name, term_container)) {
       auto local_var = get_a_new_local_var_name();
       // here we need to put the variable
       term_container.insert( std::make_pair( search_name, 
@@ -767,11 +767,11 @@ DEFINE_OPERATOR(extract) {
     }
     return & ( term_container[search_name] );
   } // else 
-  ILA_ASSERT(not S_IN(')', args[0]->_translate));
+  ILA_ASSERT(! S_IN(')', args[0]->_translate));
 
   std::string vlg_expr = args[0]->_translate + bitslice;
   std::string search_name = "##bv"+std::to_string(new_width) + "_"  + vlg_expr;
-  if (not IN(search_name, term_container)) {
+  if (! IN(search_name, term_container)) {
     // here we need to put the variable
     term_container.insert( std::make_pair( search_name, 
       SmtTermInfoVerilog(
@@ -798,7 +798,7 @@ DEFINE_OPERATOR(bit2bool) {
     std::string vlg_expr = 
     "(" + args[0]->_translate + ")" + bitslice;
     std::string search_name = "##bool_"  + vlg_expr;
-    if (not IN(search_name, term_container)) {
+    if (! IN(search_name, term_container)) {
       auto local_var = get_a_new_local_var_name();
       // here we need to put the variable
       term_container.insert( std::make_pair( search_name, 
@@ -816,11 +816,11 @@ DEFINE_OPERATOR(bit2bool) {
     }
     return & ( term_container[search_name] );
   } // else 
-  ILA_ASSERT(not S_IN(')', args[0]->_translate));
+  ILA_ASSERT(! S_IN(')', args[0]->_translate));
 
   std::string vlg_expr = args[0]->_translate + bitslice;
   std::string search_name = "##bool_"  + vlg_expr;
-  if (not IN(search_name, term_container)) {
+  if (! IN(search_name, term_container)) {
     // here we need to put the variable
     term_container.insert( std::make_pair( search_name, 
       SmtTermInfoVerilog(
