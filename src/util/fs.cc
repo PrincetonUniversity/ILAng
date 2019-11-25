@@ -411,7 +411,7 @@ execute_result os_portable_execute_shell(
     int ret = execvp(cmdargs[0].c_str(), argv);
     // if not successful
     if (ret == -1) {
-      report_to_parent = execute_result::NONE;
+      report_to_parent = execute_result::EXEC;
       write(pipefd[1], (void *) & report_to_parent, sizeof(report_to_parent));
     }
     close(pipefd[1]);

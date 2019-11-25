@@ -40,7 +40,7 @@ static std::string val2str(const VCDValue & v) {
   return ret.str();
 }
 
-std::string prepend(const std::string & prefix, const std::string sig_name ) {
+std::string prepend(const std::string & prefix, const std::string& sig_name ) {
   if (prefix.empty())
     return sig_name;
   return prefix + "." + sig_name;
