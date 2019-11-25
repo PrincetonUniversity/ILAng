@@ -17,10 +17,12 @@
 #include <direct.h>
 #include <winbase.h>
 #include <windows.h>
+#include <time.h>
 #else
 // on *nix
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -189,6 +191,56 @@ void parent_alarm_handler(int signum) {
 }
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+  #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+    #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+  #else
+    #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+  #endif
+
+  struct timezone 
+  {
+    int  tz_minuteswest; /* minutes W of Greenwich */
+    int  tz_dsttime;     /* type of dst correction */
+  };
+
+  int gettimeofday(struct timeval *tv, struct timezone *tz)
+  {
+    FILETIME ft;
+    unsigned __int64 tmpres = 0;
+    static int tzflag;
+  
+    if (NULL != tv)
+    {
+      GetSystemTimeAsFileTime(&ft);
+  
+      tmpres |= ft.dwHighDateTime;
+      tmpres <<= 32;
+      tmpres |= ft.dwLowDateTime;
+  
+      /*converting file time to unix epoch*/
+      tmpres -= DELTA_EPOCH_IN_MICROSECS; 
+      tmpres /= 10;  /*convert into microseconds*/
+      tv->tv_sec = (long)(tmpres / 1000000UL);
+      tv->tv_usec = (long)(tmpres % 1000000UL);
+    }
+  
+    if (NULL != tz)
+    {
+      if (!tzflag)
+      {
+        _tzset();
+        tzflag++;
+      }
+      tz->tz_minuteswest = _timezone / 60;
+      tz->tz_dsttime = _daylight;
+    }
+  
+    return 0;
+  }
+
+#endif
+
 execute_result os_portable_execute_shell(
   const std::vector<std::string> & cmdargs,
   const std::string & redirect_output_file,
@@ -207,7 +259,7 @@ execute_result os_portable_execute_shell(
   ILA_ASSERT(! cmdargs.empty()) << "API misuse!";
 
 #if defined(_WIN32) || defined(_WIN64)
-  ILA_ERROR_IF(timeout != 0) << "Timeout feature is not supported on WIN.";
+  ILA_ERROR_IF(timeout != 0) << "Timeout feature is not supported on WINDOWS.";
   HANDLE h;
   if (! redirect_output_file.empty() and rdt != redirect_t::NONE) {
     SECURITY_ATTRIBUTES sa;
@@ -236,6 +288,9 @@ execute_result os_portable_execute_shell(
     si.hStdOutput = h;
 
   ZeroMemory( &pi, sizeof(pi) );
+
+  gettimeofday(&Time1, NULL);
+
   // Start the child process. 
   if( !CreateProcess( NULL,   // No module name (use command line)
       cmdline.c_str(),      // Command line
@@ -251,8 +306,28 @@ execute_result os_portable_execute_shell(
       _ret.failure = execute_result::EXEC;
       return _ret;
     }
+  // wait for its exit
+  WaitForSingleObject(pi.hProcess, INFINITE );
+  DWORD exitCode;
+  BOOL result = GetExitCodeProcess(pi.hProcess, &exitCode);
+  
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
+
+  gettimeofday(&Time2, NULL);
+  _ret.seconds = 
+    ( 
+      (Time2.tv_usec + Time2.tv_sec*1000000.0) -  
+      (Time1.tv_usec + Time1.tv_sec*1000000.0) ) / 1000000.0;
+
+  if (!result) {
+    _ret.failure = execute_result::WAIT;
+    return _ret;
+  }
+
+  _ret.ret = exitCode;
+  _ret.subexit_normal = true;
+  _ret.timeout = false;
   _ret.failure = execute_result::NONE;
   return _ret; 
 #else
@@ -260,7 +335,12 @@ execute_result os_portable_execute_shell(
   // so close on exec
   gettimeofday(&Time1, NULL);
 
-  pipe2(pipefd, O_CLOEXEC); // 
+#if defined(__linux__)
+  pipe2(pipefd, O_CLOEXEC); // pipe2 is linux only feature!
+#elif defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) ||  defined(__FreeBSD__)
+  pipe(pipefd); 
+#endif 
+
   // on *nix, spawn a child process to do this
   pid_t pid = fork();
   
@@ -277,6 +357,10 @@ execute_result os_portable_execute_shell(
       setpgid(0,0); // creates a new proces group 
     
     close(pipefd[0]); // close the read end
+    #if !defined(__linux__)
+    fcntl(pipefd[1], F_SETFD, FD_CLOEXEC);
+    #endif
+
     unsigned report_to_parent;
 
     // The child
@@ -330,6 +414,7 @@ execute_result os_portable_execute_shell(
       report_to_parent = execute_result::NONE;
       write(pipefd[1], (void *) & report_to_parent, sizeof(report_to_parent));
     }
+    close(pipefd[1]);
     exit(ret);
   } else {
     // The parent will wait for its end
