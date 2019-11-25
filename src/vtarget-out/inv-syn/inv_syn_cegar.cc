@@ -293,7 +293,7 @@ void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(
       if (pos != vname.npos)
         vn = vname.substr(0,pos);
       if (!IN(vn,v_in_this_cl) && !(IN(vn,vars_to_remove))) {
-        cl.push_back({false, vn,0});
+        cl.push_back(std::make_tuple(false, vn,0U));
         v_in_this_cl.insert(vn);
       }
       return t.second;

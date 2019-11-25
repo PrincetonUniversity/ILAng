@@ -14,7 +14,7 @@ namespace ilang {
 
 void InvariantInCnf::VarsToClause(const std::set<std::string> & vars, clause & out) {
   for (auto && v : vars)
-    out.push_back({false, v ,0});
+    out.push_back(std::make_tuple(false, v ,0U));
 }
 
 /// literal to string
@@ -83,7 +83,7 @@ void InvariantInCnf::ImportFromFile(std::istream & ins) {
       bool complemented;
       ins >> s_name >> bitslice >> complemented;
       cl.push_back(
-        {complemented, s_name, bitslice});
+        std::make_tuple(complemented, s_name, bitslice));
     } // for each literal
     InsertClause(cl); // put a clause
   } // for each clause
