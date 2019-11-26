@@ -181,17 +181,41 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::js
   for (auto && cond_val_pair : pv_cond_val.items()) {
     if (cond_val_pair.key() == "0" || cond_val_pair.key() == "cond")
       cond = ReplExpr(cond_val_pair.value(), true);
-    else if (cond_val_pair.key() == "1" || cond_val_pair.key() == "val")
+    else if (cond_val_pair.key() == "1" || cond_val_pair.key() == "val") {
       val = ReplExpr(cond_val_pair.value(), true);
-    else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width")
-      width = cond_val_pair.value().get<int>();
-    else
+      StrTrim(val);
+    } else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width") {
+      if (cond_val_pair.value().is_string()) {
+        ILA_ASSERT(cond_val_pair.value().get<std::string>() == "auto")
+          <<"Expecting width to be unsigned int / auto";
+        ILA_ASSERT(!val.empty()) << "You must first provide `val` field before auto";
+        if (S_IN("=", val)) {
+          ILA_WARN << "Creating value-holder for conditions";
+          width = 1;
+        }
+        else if (vlg_info_ptr->check_hierarchical_name_type(val) !=
+          VerilogInfo::hierarchical_name_type::NONE) {
+            auto vlg_sig_info = vlg_info_ptr->get_signal(val, 
+              sup_info.width_info );
+            width = vlg_sig_info.get_width();
+          } else if (vlg_info_ptr->check_hierarchical_name_type(
+            _vlg_mod_inst_name + "." + val) !=
+            VerilogInfo::hierarchical_name_type::NONE) {
+            auto vlg_sig_info = vlg_info_ptr->get_signal(
+              _vlg_mod_inst_name + "." + val, 
+              sup_info.width_info );
+            width = vlg_sig_info.get_width();
+          } else
+            width = 0;
+      } else
+        width = cond_val_pair.value().get<int>();
+    } else
       ILA_ERROR<<"Unexpected key: " << cond_val_pair.key() << " in post-value-holder, expecting 0-2 or cond/val/width";
   }
   ILA_WARN_IF (val == "'hx") << "val field is not provided for " << pv_name;
   ILA_WARN_IF (cond == VLG_TRUE) << "cond field is not provided for " << pv_name;
-  ILA_ERROR_IF( width == 0 && create_reg) << "Cannot create signal for " << pv_name << " : unknown width!";
-  if (width != 0 && create_reg) { // error
+  ILA_ERROR_IF( width <= 0 && create_reg) << "Cannot create signal for " << pv_name << " : unknown width!";
+  if (width >= 0 && create_reg) { // error
     //ILA_ERROR << "width of post-value-holder `" << pv_name << "` is unknown!";
     vlg_wrapper.add_reg(pv_name,width);
   }

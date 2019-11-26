@@ -36,6 +36,18 @@ long long StrToLong(const std::string& str, int base = 10);
 /// Return the value represented in the string in unsigned long long, e.g. "10".
 unsigned long long StrToULongLong(const std::string& str, int base = 10);
 
+
+
+/// Trim a string from start (in place)
+void StrLeftTrim(std::string& s);
+
+/// Trim a string from end (in place)
+void StrRightTrim(std::string& s);
+
+/// Trim a string from both ends (in place)
+void StrTrim(std::string &s);
+
+
 /// Python-style split , return a vector of splitted strings
 std::vector<std::string> Split(const std::string& str,
                                const std::string& delim);

@@ -74,6 +74,27 @@ unsigned long long StrToULongLong(const std::string& str, int base) {
   }
 }
 
+
+/// Trim a string from start (in place)
+void StrLeftTrim(std::string& s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+/// Trim a string from end (in place)
+void StrRightTrim(std::string& s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+/// Trim a string from both ends (in place)
+void StrTrim(std::string &s) {
+    StrLeftTrim(s);
+    StrRightTrim(s);
+}
+
 std::vector<std::string> Split(const std::string& str,
                                const std::string& delim) {
   std::vector<std::string> tokens;
