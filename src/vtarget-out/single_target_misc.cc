@@ -196,14 +196,14 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::js
         else if (vlg_info_ptr->check_hierarchical_name_type(val) !=
           VerilogInfo::hierarchical_name_type::NONE) {
             auto vlg_sig_info = vlg_info_ptr->get_signal(val, 
-              sup_info.width_info );
+              supplementary_info.width_info );
             width = vlg_sig_info.get_width();
           } else if (vlg_info_ptr->check_hierarchical_name_type(
             _vlg_mod_inst_name + "." + val) !=
             VerilogInfo::hierarchical_name_type::NONE) {
             auto vlg_sig_info = vlg_info_ptr->get_signal(
               _vlg_mod_inst_name + "." + val, 
-              sup_info.width_info );
+              supplementary_info.width_info );
             width = vlg_sig_info.get_width();
           } else
             width = 0;
