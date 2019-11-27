@@ -177,36 +177,40 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::js
 
   std::string cond = VLG_TRUE;
   std::string val = "'hx";
+  std::string original_val_field;
 
   for (auto && cond_val_pair : pv_cond_val.items()) {
     if (cond_val_pair.key() == "0" || cond_val_pair.key() == "cond")
       cond = ReplExpr(cond_val_pair.value(), true);
     else if (cond_val_pair.key() == "1" || cond_val_pair.key() == "val") {
-      val = ReplExpr(cond_val_pair.value(), true);
-      StrTrim(val);
+      original_val_field = cond_val_pair.value();
+      StrTrim(original_val_field);
+      val = ReplExpr(original_val_field, true);
     } else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width") {
       if (cond_val_pair.value().is_string()) {
         ILA_ASSERT(cond_val_pair.value().get<std::string>() == "auto")
           <<"Expecting width to be unsigned int / auto";
-        ILA_ASSERT(!val.empty()) << "You must first provide `val` field before auto";
-        if (S_IN("=", val)) {
+        ILA_ASSERT(!original_val_field.empty()) << "You must first provide `val` field before auto";
+        if (S_IN("=", original_val_field)) {
           ILA_WARN << "Creating value-holder for conditions";
           width = 1;
         }
-        else if (vlg_info_ptr->check_hierarchical_name_type(val) !=
+        else if (vlg_info_ptr->check_hierarchical_name_type(original_val_field) !=
           VerilogInfo::hierarchical_name_type::NONE) {
-            auto vlg_sig_info = vlg_info_ptr->get_signal(val, 
+            auto vlg_sig_info = vlg_info_ptr->get_signal(original_val_field, 
               supplementary_info.width_info );
             width = vlg_sig_info.get_width();
           } else if (vlg_info_ptr->check_hierarchical_name_type(
-            _vlg_mod_inst_name + "." + val) !=
+            _vlg_mod_inst_name + "." + original_val_field) !=
             VerilogInfo::hierarchical_name_type::NONE) {
             auto vlg_sig_info = vlg_info_ptr->get_signal(
-              _vlg_mod_inst_name + "." + val, 
+              _vlg_mod_inst_name + "." + original_val_field, 
               supplementary_info.width_info );
             width = vlg_sig_info.get_width();
-          } else
+          } else {
+            ILA_ERROR << "Cannot auto-determine value-holder width for val:" << original_val_field;
             width = 0;
+          }
       } else
         width = cond_val_pair.value().get<int>();
     } else
@@ -348,6 +352,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
     vlg_wrapper.add_stmt(vlg_expr);
   } // for monitor_rec.items()
 } // ConstructWrapper_add_vlg_monitor
+
 
 
 } // namespace ilang
