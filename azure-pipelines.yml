@@ -98,6 +98,24 @@ jobs:
 
   - script: |
       cd extern 
+      cd smt-parser
+      md build 
+      cd build
+      cmake .. 
+      cmake --build . --target install
+    displayName: 'smt-parser'
+
+  - script: |
+      cd extern 
+      cd vcd-parser
+      md build 
+      cd build
+      cmake .. 
+      cmake --build . --target install
+    displayName: 'vcd-parser'
+    
+  - script: |
+      cd extern 
       cd glog
       md build 
       cd build
