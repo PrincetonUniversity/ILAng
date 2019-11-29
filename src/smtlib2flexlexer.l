@@ -55,6 +55,7 @@
 %option noyywrap
 %option prefix="smtlib2_parser_"
 %option stack
+%option nounistd
 
 %x START_STRING
 %x START_QUOTEDSYMBOL
