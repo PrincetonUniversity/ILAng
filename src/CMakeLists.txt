@@ -1,8 +1,5 @@
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 
-#set(LIBRARY_NAME    vcdparser)
-set(EXECUTABLE_NAME vcdparserexec)
-
 FIND_PACKAGE(BISON 3.0.4 REQUIRED)
 FIND_PACKAGE(FLEX 2.5.35 REQUIRED)
 
@@ -31,8 +28,8 @@ SET(COV_FLAGS_LINK  "-fprofile-arcs -ftest-coverage")
 if(${WITH_COVERAGE})
 
   message(STATUS "Building with coverage flags set.")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${COV_FLAGS_C} -DVERILOG_PARSER_COVERAGE_ON")
-  SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_C_FLAGS_RELEASE} ${COV_FLAGS_LINK}")
+  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COV_FLAGS_C} -DVCD_PARSER_COVERAGE_ON")
+  SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE} ${COV_FLAGS_LINK}")
 
 else()
 
@@ -81,10 +78,14 @@ set(PARSER_LIB_SRC ${BINARY_DIR}/${FLEX_OUTPUT}
 add_library(${LIBRARY_NAME} ${PARSER_LIB_SRC})
 add_library(${LIBRARY_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 
-target_compile_options(${LIBRARY_NAME} PRIVATE -Wall)
-target_compile_options(${LIBRARY_NAME} PRIVATE -W)
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+  if(${CMAKE_COMPILER_IS_GNUCXX})
+    target_compile_options(${LIBRARY_NAME} PRIVATE -Wall)
+    target_compile_options(${LIBRARY_NAME} PRIVATE -W)
+  endif()
+endif()
 
-set_target_properties(${LIBRARY_NAME} PROPERTIES C_EXTENSIONS OFF)
+#set_target_properties(${LIBRARY_NAME} PROPERTIES C_EXTENSIONS OFF)
 
 target_include_directories(${LIBRARY_NAME}
   PUBLIC
@@ -97,8 +98,13 @@ target_include_directories(${LIBRARY_NAME}
 
 add_executable(${EXECUTABLE_NAME} main.cpp)
 
-target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall)
-target_compile_options(${EXECUTABLE_NAME} PRIVATE -W)
+
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+  if(${CMAKE_COMPILER_IS_GNUCXX})
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall)
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE -W)
+  endif()
+endif()
 
 target_link_libraries(${EXECUTABLE_NAME} ${LIBRARY_NAME})
 
