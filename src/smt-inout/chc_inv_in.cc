@@ -302,7 +302,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
   const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args) {
   // we don't really rely on the sort here: actually it should be NULL
   ILA_DLOG("SmtlibInvariantParser.mk_function") << "make func:" << name << ", #arg" << args.size() << std::endl;
-  if (args.empty() and idx.empty()) {
+  if (args.empty() && idx.empty()) {
     // first let's check if it is referring to a quantifier-bound variable
     auto term_ptr = search_quantified_var_stack(name);
     if (term_ptr)
@@ -343,7 +343,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
         // here we need to make sure it is a good name
         if (! dut_verilog_instance_name.empty() && no_outside_var_refer) {
           auto dot_pos = dt.verilog_name.find('.');
-          if(dot_pos != std::string::npos and 
+          if(dot_pos != std::string::npos && 
              dt.verilog_name.substr(0,dot_pos) != dut_verilog_instance_name) {
             
             repl_name = ReplaceAll(dt.verilog_name, ".", "_dot_");

@@ -116,7 +116,7 @@ std::string str_iterator::head_word(const std::string &s ) const {
   auto start = pos;
 
   while (!is_end(pos)) {
-    if( not S_IN( buf.at(pos) , s ) )
+    if( ! S_IN( buf.at(pos) , s ) )
       pos ++;
     else
       break;
@@ -134,7 +134,7 @@ std::string str_iterator::accept_current_and_read_untill(const std::string & del
   auto pos = pnt + 1;
 
   while (!is_end(pos)) {
-    if( not S_IN( buf.at(pos) , delimiter ) )
+    if( ! S_IN( buf.at(pos) , delimiter ) )
       pos ++;
     else {
       pos ++; // will include the delimiter

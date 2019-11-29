@@ -78,14 +78,14 @@ unsigned long long StrToULongLong(const std::string& str, int base) {
 /// Trim a string from start (in place)
 void StrLeftTrim(std::string& s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-        return !std::isspace(ch);
+        return !std::isspace(static_cast<unsigned char>(ch));
     }));
 }
 
 /// Trim a string from end (in place)
 void StrRightTrim(std::string& s) {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
-        return !std::isspace(ch);
+        return !std::isspace(static_cast<unsigned char>(ch));
     }).base(), s.end());
 }
 

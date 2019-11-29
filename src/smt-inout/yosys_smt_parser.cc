@@ -90,7 +90,7 @@ std::string YosysSmtParser::st_name_add_suffix(
 ) {
   if (suffix.empty())
     return stname;
-  if(stname.front() == '|' and stname.back() == '|' )
+  if(stname.front() == '|' && stname.back() == '|' )
     return stname.substr(0,stname.length()-1) + suffix + "|";
   // else
   return stname + suffix;
@@ -102,7 +102,7 @@ std::string YosysSmtParser::st_name_add_prefix(
 ) {
   if (prefix.empty())
     return stname;
-  if(stname.front() == '|' and stname.back() == '|' )
+  if(stname.front() == '|' && stname.back() == '|' )
     return "|" + prefix + stname.substr(1);
   // else
   return prefix + stname;
