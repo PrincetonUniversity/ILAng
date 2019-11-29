@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(vcdparser VERSION 1.0 LANGUAGES CXX)
+set (CMAKE_CXX_STANDARD 11)
 
 option(VCD_PARSER_BUILD_DOCS "Build documents." OFF)
 option(VCD_PARSER_EXPORT_PACAKGE "Export package if enabled." OFF)
