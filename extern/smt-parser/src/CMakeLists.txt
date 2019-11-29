@@ -28,7 +28,7 @@ SET(COV_FLAGS_LINK  "-fprofile-arcs -ftest-coverage")
 if(${WITH_COVERAGE})
 
   message(STATUS "Building with coverage flags set.")
-  SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${COV_FLAGS_C} -DVERILOG_PARSER_COVERAGE_ON")
+  SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${COV_FLAGS_C} -DSMT_PARSER_COVERAGE_ON")
   SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_C_FLAGS_RELEASE} ${COV_FLAGS_LINK}")
 
 else()
@@ -83,8 +83,12 @@ set(PARSER_LIB_SRC ${BINARY_DIR}/${FLEX_OUTPUT}
 add_library(${LIBRARY_NAME} ${PARSER_LIB_SRC})
 add_library(${LIBRARY_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 
-target_compile_options(${LIBRARY_NAME} PRIVATE -Wall)
-target_compile_options(${LIBRARY_NAME} PRIVATE -W)
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+  if(${CMAKE_COMPILER_IS_GNUCXX})
+    target_compile_options(${LIBRARY_NAME} PRIVATE -Wall)
+    target_compile_options(${LIBRARY_NAME} PRIVATE -W)
+  endif()
+endif()
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES C_EXTENSIONS OFF)
 
@@ -122,8 +126,12 @@ if (SMT_PARSER_BUILD_YICES)
 
   target_include_directories(${EXECUTABLE_NAME} PRIVATE ${GMP_C_INCLUDES})
 
-  target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall)
-  target_compile_options(${EXECUTABLE_NAME} PRIVATE -W)
+  if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    if(${CMAKE_COMPILER_IS_GNUCXX})
+      target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall)
+      target_compile_options(${EXECUTABLE_NAME} PRIVATE -W)
+    endif()
+  endif()
 
   target_link_libraries(${EXECUTABLE_NAME} ${LIBRARY_NAME})
   target_link_libraries(${EXECUTABLE_NAME} ${GMP_C_LIBRARIES})
