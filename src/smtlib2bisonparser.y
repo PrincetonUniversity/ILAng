@@ -28,7 +28,14 @@
 %{
 #include "smtparser/smtlib2parserinterface.h"
 #include "smtlib2bisonparser.h"
+
+/* This is a flex bug.
+"%option nounistd only affects the generated c code
+not the header*/
+#define YY_NO_UNISTD_H
 #include "smtlib2flexlexer.h"
+#undef YY_NO_UNISTD_H
+
 #include <limits.h>
 #include <assert.h>
 
