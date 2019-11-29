@@ -24,7 +24,7 @@ static VCDParser::location loc;
     
 %}
 
-%option noyywrap nounput batch debug noinput
+%option noyywrap nounput batch debug noinput nounistd
 
 BRACKET_O           \[
 BRACKET_C           \]
