@@ -23,7 +23,6 @@ jobs:
       cd build
       cmake ..
       cmake --build .
-      cmake --build . --target test
     displayName: 'build'
 
 - job: Linux
@@ -40,7 +39,6 @@ jobs:
       cd build
       cmake .. 
       cmake --build .
-      cmake --build . --target test
     displayName: 'build'
 
 - job: Windows
@@ -55,5 +53,4 @@ jobs:
       cd build
       cmake .. 
       cmake --build .
-      cmake --build . --target RUN_TESTS
     displayName: 'build'
