@@ -35,6 +35,15 @@ public:
   static Ila BuildModel();
 };
 
+/// \brief Counter -- just a counter
+/// with a single instruction:
+/// INC c <= c + 1
+class CntTest {
+public:
+  static Ila BuildModel();
+};
+
 }; // namespace ilang
+
 
 #endif // PIPE_ILA_H__

@@ -27,6 +27,7 @@ option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
 option(ILANG_COVERITY    "Build for Coverity static analysis."              OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries."                           ON)
+option(BUILD_INVSYN_TEST "Build invariant synthesis tests."                 OFF)
 
 include(CMakeDependentOption)
 
