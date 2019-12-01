@@ -133,8 +133,8 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
     auto scopes = collect_scope(sig->scope);
 
     // check scope -- only the top level
-    if ( ! ( scopes.find("$root.top." +  scope + ".") == 0 ||
-               scopes.find( scope + ".") == 0 ))
+    if ( ! ( StrStartsWith(scopes,"$root.top." +  scope + ".") ||
+               StrStartsWith(scopes, scope + ".") ))
       continue;
 
     auto vlg_name = ReplaceAll(

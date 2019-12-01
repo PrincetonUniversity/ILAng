@@ -104,12 +104,12 @@ void GrainInvariantParser::declare_function(const std::string &name, var_type * 
     ILA_ASSERT(name.size() > 2) << "Unexpected empty name: " << name;
     vlg_name = name.substr(1,name.length()-2) ; // verilog-name should be extracted from the name part
   }
-  if (vlg_name.find("S_") == 0) {
+  if (StrStartsWith(vlg_name,"S_")) {
     ILA_ASSERT(vlg_name.size() > 2) << "Unexpected empty name: " << name;
     vlg_name = vlg_name.substr(2,name.length()-2);
   }
   std::string converted_name;
-  if (vlg_name.find(dut_verilog_instance_name+".") == 0) {  
+  if (StrStartsWith(vlg_name,dut_verilog_instance_name+".")) {  
     converted_name = vlg_name;
   } else {
     // it is an outside name

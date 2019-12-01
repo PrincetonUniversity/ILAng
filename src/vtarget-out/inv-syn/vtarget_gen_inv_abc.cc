@@ -460,7 +460,7 @@ static void correct_blif_remove_non_init(const std::string & fn, const std::stri
   if (!fout.is_open()) { ILA_ERROR << "Unable to write " << fo; return;}
   std::string line;
   while(std::getline(fin,line)) {
-    if (line.find(".latch ") == 0) {
+    if (StrStartsWith(line,".latch ")) {
       auto st_def = SplitSpaceTabEnter(line);
       if ( st_def.back() == "2") {
         st_def.back() = "0";

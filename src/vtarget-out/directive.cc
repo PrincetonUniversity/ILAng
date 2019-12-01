@@ -16,7 +16,7 @@ namespace ilang {
 // ------------------------------- // static function
 bool IntefaceDirectiveRecorder::beginsWith(const std::string& c,
                                            const std::string& s) {
-  return c.find(s) == 0;
+  return StrStartsWith(c,s);
 }
 
 // static function

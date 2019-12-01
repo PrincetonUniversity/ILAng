@@ -243,7 +243,8 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
     }
     // ILA_INFO << i.key() << i.value();
     // Connect memory here
-    if (i.value().is_string() && i.value().get<std::string>().find("**") == 0) {
+    if (i.value().is_string() &&
+      StrStartsWith( i.value().get<std::string>(),"**")) {
       _idr.SetMemNameAndWidth(i.value(), sname, _vtg_config.MemAbsReadAbstraction,
         ila_mem_state_names[sname].first,
         ila_mem_state_names[sname].second);

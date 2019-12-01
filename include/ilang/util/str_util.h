@@ -77,6 +77,13 @@ std::vector<std::string> ReFindAndDo(const std::string& s,
 
 bool IsRExprUsable();
 
+/// Finds out if str ends with suffix
+bool StrEndsWith(const std::string& str, const std::string& suffix);
+
+/// Finds out if str starts with prefix
+bool StrStartsWith(const std::string& str, const std::string& prefix);
+
+
 } // namespace ilang
 
 #endif // ILANG_UTIL_STR_UTIL_H__

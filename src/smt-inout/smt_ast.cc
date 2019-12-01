@@ -343,16 +343,16 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
     it.jump_to_next(";");
     std::string state_name;
     auto w = it.head_word("\n\r");
-    if (w.find("; $") == 0) {
+    if (StrStartsWith(w,"; $")) {
       it.accept("; $");
       state_name = it.readline_no_eol();
-    } else if (w.find("; {") == 0) {
+    } else if (StrStartsWith(w,"; {")) {
       it.accept("; ");
       state_name = it.readline_no_eol();
       state_name = ReplaceAll(state_name,"{ \\", "{");
       state_name = ReplaceAll(state_name," \\", ",");
     } 
-    else if (w.find("; \\") == 0) {
+    else if (StrStartsWith(w,"; \\")) {
       it.accept("; \\");
       state_name = it.readline_no_eol();
     } else {
@@ -460,7 +460,7 @@ void ParseFromString(str_iterator & it, smt_file & smt) {
   it.skip();
   while(! it.is_end()) {
     auto h = it.head_word();
-    if (h.find(";") == 0) {
+    if (StrStartsWith(h,";")) {
       std::shared_ptr<line_comment> ptr =
         std::make_shared<line_comment>();
       ptr->comment = it.readline_no_eol();

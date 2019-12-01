@@ -305,7 +305,7 @@ size_t skipArgs(const std::string & stmt, size_t start) {
 // a local helper function to return the type of a smt (define-fun ) stmt 
 bool is_returntype_bool(const std::string & stmt) {
   std::string beginning("(define-fun |");
-  ILA_ASSERT (stmt.find(beginning) == 0) << "Not a `(define-fun |` stmt";
+  ILA_ASSERT (StrStartsWith(stmt,beginning)) << "Not a `(define-fun |` stmt";
   auto pos =  beginning.length()+1;
   auto end_func_name_pos = stmt.find('|',pos);
   auto start_arg_list = stmt.find('(', end_func_name_pos);
@@ -328,7 +328,7 @@ bool extractSigDefFromLine(
   bool found_match_state = false;
   std::string search_target_wire_num = "(define-fun |" + mod_name + "#";
   std::string search_target_n = "(define-fun |" + mod_name + "_n ";
-  if (line.find(search_target_wire_num) == 0) { // begins with it
+  if (StrStartsWith(line,search_target_wire_num)) { // begins with it
     auto mark = line.find("; \\");
     if (mark != line.npos) {
       auto signame = line.substr(mark+strlen("; \\"));
@@ -348,7 +348,7 @@ bool extractSigDefFromLine(
       }
     } // found "; \\"
   } // end of exists signal definition type 1
-  else if (line.find(search_target_n) == 0) { // begins with it
+  else if (StrStartsWith(line,search_target_n)) { // begins with it
     auto len  = search_target_n.size();
     auto mark = line.find('|',len);
     auto signame = line.substr(len, mark-len);
@@ -510,8 +510,8 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
         // algo : go line by line, check in "wn_" or not, if so, add ow ignored
         enum {BEFORE, SUBMODULE, TOPMODULE} state = BEFORE;
         for (std::string line;  std::getline(smt_info.full_smt, line);) {
-          if ( state == BEFORE and
-              line.find("; yosys-smt2-module ") == 0) { // starts with it
+          if ( state == BEFORE &&
+              StrStartsWith(line,"; yosys-smt2-module ")) { // starts with it
             // new module
             auto modname = line.substr(strlen("; yosys-smt2-module "));
             if (modname == vlg_top_module_name) 
@@ -521,7 +521,7 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
             if ( extractSigDefFromLine(
                   vlg_top_module_name, line, wn_amc_design_item,
                   amc_design_item) ) { /* do nothing */ }
-            else if(line.find("; yosys-smt2-module ") == 0) {
+            else if(StrStartsWith(line,"; yosys-smt2-module ")) {
               auto modname = line.substr(strlen("; yosys-smt2-module "));
               if (modname == top_mod_name)
                 state = TOPMODULE; // go to next state

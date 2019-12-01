@@ -851,7 +851,7 @@ DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
 
   for (auto && st : design_smt_info->get_module_flatten_dt("wrapper")) {
     
-    if ( st.verilog_name.find(vlg_mod_inst_name + ".") == 0 ) {
+    if ( StrStartsWith(st.verilog_name,vlg_mod_inst_name + ".") ) {
       ret.NumOfDesignStateBits += st._type.GetBoolBvWidth();
       ret.NumOfDesignStateVars ++;
     } else {

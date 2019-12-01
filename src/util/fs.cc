@@ -34,15 +34,6 @@
 
 namespace ilang {
 
-static bool endsWith(const std::string& str, const std::string& suffix) {
-  return str.size() >= suffix.size() &&
-         0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
-}
-
-static bool startsWith(const std::string& str, const std::string& prefix) {
-  return str.size() >= prefix.size() &&
-         0 == str.compare(0, prefix.size(), prefix);
-}
 
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir) {
@@ -81,6 +72,16 @@ std::string os_portable_append_dir(const std::string& dir1,
     str2 = dir2.substr(1);
   }
   return str1 + str2;
+}
+
+/// Append two path (you have to decide whether it is / or \)
+std::string os_portable_append_dir(const std::string& dir1,
+                                   const std::vector<std::string>& dirs) {
+  std::string ret = dir1;
+  for (auto && d : dirs) {
+    ret = os_portable_append_dir(ret, d);
+  }
+  return ret;
 }
 
 /// C:\a\b\c.txt -> c.txt

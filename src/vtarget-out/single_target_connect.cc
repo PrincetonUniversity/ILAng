@@ -237,7 +237,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   for (auto&& r : vlg_ila.regs) {
     if (! IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
       ILA_WARN_IF(
-        r.first.find("__COUNTER_start__n") != 0
+        ! StrStartsWith(r.first,"__COUNTER_start__n")
       ) << "__ILA_SO_" + r.first << " will be ignored";
 
       retStr += sep + "   ." + r.first + "()"; // __ILA_SO_" + r.first + "

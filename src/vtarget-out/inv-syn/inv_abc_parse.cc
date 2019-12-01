@@ -36,7 +36,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
     }
     std::string line;
     while(std::getline(fin,line)) {
-      if (line.find(".latch ") == 0) {
+      if (StrStartsWith(line, ".latch ")) {
         auto vec = SplitSpaceTabEnter(line);
         blif_valid_state_names.insert(vec.at(2));
       }
@@ -53,10 +53,10 @@ void AbcInvariantParser::parseAigerResultWoGLA(
     while(std::getline(fin,line)) {
       auto vec = SplitSpaceTabEnter(line);
       // only focus on the registers
-      if (line.find("latch ") == 0 || line.find("invlatch ") == 0) {
+      if (StrStartsWith(line,"latch ") || StrStartsWith(line,"invlatch ") ) {
         auto vec = SplitSpaceTabEnter(line); // latch/invlatch latchNo bitNo name
         auto latch_no = StrToULongLong(vec.at(1));
-        if (line.find("invlatch ") == 0)
+        if (StrStartsWith(line, "invlatch "))
           invlatches.insert(latch_no);
         const auto & bit_no = vec.at(2);
         const auto new_name  = vec.at(3) + "[" + bit_no + ":" + bit_no +"]";
@@ -186,7 +186,7 @@ void AbcInvariantParser::parseAigerResultWithGLA(
     }
     std::string line;
     while(std::getline(fin,line)) {
-      if (line.find(".latch ") == 0) {
+      if (StrStartsWith(line, ".latch ")) {
         auto vec = SplitSpaceTabEnter(line);
         blif_valid_state_names.insert(vec.at(2));
       }
@@ -203,10 +203,10 @@ void AbcInvariantParser::parseAigerResultWithGLA(
     while(std::getline(fin,line)) {
       auto vec = SplitSpaceTabEnter(line);
       // only focus on the registers
-      if (line.find("latch ") == 0 || line.find("invlatch ") == 0) {
+      if (StrStartsWith(line,"latch ") || StrStartsWith(line,"invlatch ")) {
         auto vec = SplitSpaceTabEnter(line);
         unsigned long long latch_no = StrToULongLong(vec.at(1));
-        if (line.find("invlatch ") == 0)
+        if (StrStartsWith(line, "invlatch "))
           invlatches.insert(latch_no);
         const auto & bit_no = vec.at(2);
         const auto new_name  = vec.at(3) + "[" + bit_no + ":" + bit_no +"]";
@@ -367,7 +367,7 @@ void AbcInvariantParser::parse(
     }
     std::string line;
     while(std::getline(fin,line)) {
-      if (line.find(".latch ") == 0) {
+      if (StrStartsWith(line, ".latch ")) {
         auto vec = SplitSpaceTabEnter(line);
         blif_state_order.push_back(vec.at(2));
         blif_state_init.push_back(StrToInt(vec.at(5)));
@@ -412,7 +412,7 @@ void AbcInvariantParser::parse(
               literal = (neg ? "~" : "") + std::string("1'b0");
               remove_this_cube = remove_this_cube ||  !neg; // if it is "& 1'b0" this cube is 0
             }
-            else if (ref_val_name.find("committed_inst") == 0) {
+            else if (StrStartsWith(ref_val_name,"committed_inst")) {
               //cube_has_abnormal_var = true; 
               literal = (neg ? "~" : "") +  std::string("1'b1");
               remove_this_cube = remove_this_cube ||  neg; // if it is "& ~1'b1" this cube is 0
@@ -484,7 +484,7 @@ void AbcInvariantParser::parse(
     }
     std::string line;
     while(std::getline(fin,line)) {
-      if (line.find(".latch ") == 0) {
+      if (StrStartsWith(line, ".latch ")) {
         auto vec = SplitSpaceTabEnter(line);
         blif_state_order.push_back(vec.at(2));
         blif_state_init.push_back(StrToInt(vec.at(5)));
@@ -548,7 +548,7 @@ void AbcInvariantParser::parse(
               literal = (neg ? "~" : "") + std::string("1'b0");
               remove_this_cube = remove_this_cube || !neg; // if it is "& 1'b0" this cube is 0
             }
-            else if (ref_val_name.find("committed_inst") == 0) {
+            else if (StrStartsWith(ref_val_name,"committed_inst")) {
               // cube_has_abnormal_var = true; 
               literal = (neg ? "~" : "") +  std::string("1'b1");
               remove_this_cube = remove_this_cube || neg; // if it is "& ~1'b1" this cube is 0
