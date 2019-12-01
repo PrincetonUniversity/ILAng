@@ -49,6 +49,9 @@ TEST(TestUtil, DirAppend) {
   EXPECT_ERROR(os_portable_append_dir("a", "\\b"));
   EXPECT_ERROR(os_portable_append_dir("\\a\\", "\\b"));
   EXPECT_ERROR(os_portable_append_dir("\\a", "\\b"));
+
+
+  EXPECT_EQ(os_portable_append_dir("a", {"b","c"}), "a\\b\\c");
 }
 #else
 TEST(TestUtil, DirAppend) {
@@ -63,6 +66,8 @@ TEST(TestUtil, DirAppend) {
   EXPECT_ERROR(os_portable_append_dir("a", "/b"));
   EXPECT_ERROR(os_portable_append_dir("/a/", "/b"));
   EXPECT_ERROR(os_portable_append_dir("/a", "/b"));
+
+  EXPECT_EQ(os_portable_append_dir("/a", {"b","c"}), "/a/b/c");
 }
 #endif
 
