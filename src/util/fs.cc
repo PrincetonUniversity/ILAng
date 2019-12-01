@@ -262,7 +262,7 @@ execute_result os_portable_execute_shell(
 #if defined(_WIN32) || defined(_WIN64)
   ILA_ERROR_IF(timeout != 0) << "Timeout feature is not supported on WINDOWS.";
   HANDLE h;
-  if (! redirect_output_file.empty() and rdt != redirect_t::NONE) {
+  if (! redirect_output_file.empty() && rdt != redirect_t::NONE) {
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(sa);
     sa.lpSecurityDescriptor = NULL;
