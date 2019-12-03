@@ -70,7 +70,17 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
   ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
   ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
-  design_stat.LoadFromFile(outDir+"design_stat.txt");
+  design_stat.LoadFromFile(os_portable_append_dir(outDir, "design_stat.txt"));
+
+  vg.LoadPrevStatisticsState(os_portable_append_dir(outDir, "design_stat.txt"));
+  // test save invariants / load invariants
+  vg.GetInvariants().ExportToFile(os_portable_append_dir(outDir, "inv.txt"));
+  vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+  EXPECT_EQ(vg.GetCandidateInvariants().NumInvariant(), vg.GetInvariants().NumInvariant());
+  vg.RemoveInvariantsByIdx(0);
+  EXPECT_EQ(vg.GetInvariants().NumInvariant(),0);
+  vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+  EXPECT_EQ(vg.GetInvariants().NumInvariant(),1);
 } // CegarPipelineExample
 
 
