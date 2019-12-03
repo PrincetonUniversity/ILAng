@@ -198,18 +198,29 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } else if (_backend == backend_selector::YOSYS && invariantExists) {
-      /*
-      auto target = VlgSglTgtGen_Yosys(
-          sub_output_path,
-          NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info , vlg_info_ptr, _vlg_mod_inst_name,
-          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend, target_type_t::INVARIANTS,
-          _advanced_param_ptr);
-      target.ConstructWrapper();
-      target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
-      */
-     ILA_WARN << "CHC w. Provided Inv in RFmap, checking Inv skipped.";
+        auto target = VlgSglTgtGen_Yosys(
+            sub_output_path,
+            NULL, // instruction
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info , vlg_info_ptr, 
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INVARIANTS,
+            _advanced_param_ptr, _chc_target_t::GENERAL_PROPERTY
+            );
+        target.ConstructWrapper();
+        std::string design_file;
+        if (_backend == backend_selector::AIGERABC)
+          design_file = "wrapper.aig";
+        else if(_backend == backend_selector::CHC)
+          design_file = "wrapper.smt2";
+        else if(_backend == backend_selector::BTOR_GENERIC)
+          design_file = "wrapper.btor2";
+        else
+          design_file = "wrapper.unknfmt";
+
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", 
+          design_file, "absmem.v");
+      
     }
     if(invariantExists)
       runnable_script_name.push_back(
@@ -260,7 +271,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _advanced_param_ptr);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
-      } else if (_backend == backend_selector::YOSYS) {
+      } else if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
         // in this case we will have two targets to generate
         // one is the target with only the design and
         // and the second one should use the smt file it generates
@@ -273,9 +284,22 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS,
-            _advanced_param_ptr);
+            _advanced_param_ptr,
+            _chc_target_t::GENERAL_PROPERTY
+            );
         target.ConstructWrapper();
-        target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
+        std::string design_file;
+        if (_backend == backend_selector::AIGERABC)
+          design_file = "wrapper.aig";
+        else if(_backend == backend_selector::CHC)
+          design_file = "wrapper.smt2";
+        else if(_backend == backend_selector::BTOR_GENERIC)
+          design_file = "wrapper.btor2";
+        else
+          design_file = "wrapper.unknfmt";
+
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", 
+          design_file, "absmem.v");
       } // end case backend
       runnable_script_name.push_back(
         os_portable_append_dir(sub_output_path, "run.sh"));

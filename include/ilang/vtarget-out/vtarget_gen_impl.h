@@ -224,8 +224,10 @@ protected:
   /// Add invariants as assumption/assertion when target is instruction
   void ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
 
-  /// Add more assumptions/assertions
+  /// Add more assumptions for mapping (only use for instruction target)
   void ConstructWrapper_add_additional_mapping_control();
+  /// Add more assumptions for I/O for example (both instruction/invariant)
+  void ConstructWrapper_add_rf_assumptions();  
   /// Generate __ISSUE__, __IEND__, ... signals
   void ConstructWrapper_add_condition_signals();
   /// Register the extra wires to the idr

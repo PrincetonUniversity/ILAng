@@ -31,7 +31,7 @@ write_blif %blifname%
 )***";
 
 // yosys template
-std::string abcGenerateAigerWInit_wo_Array = R"***(
+static std::string abcGenerateAigerWInit_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
 miter -assert %module%
@@ -47,7 +47,7 @@ write_blif %blifname%
 )***";
 
 
-std::string abcAigCmdNoGLA = R"***(
+static std::string abcAigCmdNoGLA = R"***(
   &read %aigname%
   &put
   fold
@@ -56,7 +56,7 @@ std::string abcAigCmdNoGLA = R"***(
   inv_print -v
 )***";
 
-std::string abcAigCmdGLA = R"***(
+static std::string abcAigCmdGLA = R"***(
   &read %aigname%
   &gla -T 500 -F 200 -v
   &gla_derive

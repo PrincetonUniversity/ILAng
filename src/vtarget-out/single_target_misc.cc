@@ -45,6 +45,21 @@ void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
   }
 } // ConstructWrapper_add_additional_mapping_control
 
+void VlgSglTgtGen::ConstructWrapper_add_rf_assumptions() {
+  if (IN("assumptions", rf_vmap)) {
+    if (! rf_vmap["assumptions"].is_array())
+      ILA_ERROR << "`assumptions` field must be an array of string";
+    for (auto&& c : rf_vmap["assumptions"]) {
+      if (! c.is_string()) {
+        ILA_ERROR << "`assumptions` field must be an array of string";
+        continue;
+      }
+      add_an_assumption(ReplExpr(c.get<std::string>()),
+                        "rfassumptions");
+    }
+  }
+} // ConstructWrapper_add_rf_assumptions
+
 void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
   auto endCond =
       has_flush ? "__ENDFLUSH__ || __FLUSHENDED__" : "__IEND__ || __ENDED__";
@@ -70,7 +85,7 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
 
   if ( !(
     (target_type == target_type_t::INV_SYN_DESIGN_ONLY && ! _vtg_config.InvariantSynthesisKeepMemory)
-  ||(target_type == target_type_t::INVARIANTS && ! _vtg_config.InvariantSynthesisKeepMemory)
+  ||(target_type == target_type_t::INVARIANTS && ! _vtg_config.InvariantCheckKeepMemory)
     ))
     vlg_wrapper.add_stmt(stmt);
 

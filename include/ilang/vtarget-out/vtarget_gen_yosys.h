@@ -1,23 +1,10 @@
-/// \file Verilog Verification Target Generator -- for Yosys 
-/// We use yosys to convert Verilog to smt-lib2
-/// This can be used for 
-/// (1) generating SMT-LIB2 (smt-lib2 gen) (inv-syn-design-only)
-///     -- just for the design !!!
-///     -- different configurations (flatten etc.)
-/// (2) proving invariants (invariant target)
-///         (--- Not here: should be inv_chc.h)
-/// (3) proving properties (instruction)
-///     --- just for proving no cex for now
-///     --- at least we don't have a cex parser
-///
-/// It should be used to target different Solvers?
-/// For example, CHC (Forall/Rule), ABC (maybe)
-/// the simularity is that it has property inside
-/// properties are not cex...
-/// (will not port RelChc, no use...?)
+/// \file Verilog Verification Target Generator -- generating CHC target
+/// (design-only, same as the invariant target)
+/// We use chc to convert Verilog to smt-lib2, and then
+/// it will be parsed and re-format by smt-io
+/// and use that information, it will create horn clauses
+/// This file should not be included, as it requires the impl.
 // ---Hongce Zhang
-/// 
-/// FIXME: need to change this file here
 
 #ifndef VTARGET_GEN_YOSYS_H__
 #define VTARGET_GEN_YOSYS_H__
@@ -27,9 +14,11 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vlg_mod.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace ilang {
 
@@ -59,19 +48,11 @@ protected:
 
 }; // Yosys_problem
 
-/// \brief the information that the design target
-/// can get for the instruction target
-struct YosysDesignSmtInfo {
-  /// the full content of the generated smt file
-  std::stringstream full_smt;
-  /// the default constructor
-  YosysDesignSmtInfo();
-  /// The move constructor
-  YosysDesignSmtInfo(YosysDesignSmtInfo && );
-}; // YosysDesignSmtInfo
 
 /// \brief a class to interface w.  Yosys
 class VlgSglTgtGen_Yosys : public VlgSglTgtGen {
+
+public:
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
   /// a tuple to store all related info for modification
@@ -80,7 +61,9 @@ class VlgSglTgtGen_Yosys : public VlgSglTgtGen {
   using fn_l_map_t = VerilogModifier::fn_l_map_t;
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
-
+  /// Type of yosys target
+  using _chc_target_t = VlgVerifTgtGenBase::_chc_target_t;
+  
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -103,30 +86,35 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _sup_info, VerilogInfo* _vlg_info_ptr,
+      nlohmann::json& _rf_cond,  VlgTgtSupplementaryInfo & _sup_info , VerilogInfo* _vlg_info_ptr,
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
-      const vtg_config_t& vtg_config, backend_selector backend,
+      const vtg_config_t& vtg_config, backend_selector vbackend,
       const target_type_t& target_tp,
-      advanced_parameters_t * adv_ptr);
+      advanced_parameters_t * adv_ptr,
+      _chc_target_t chc_target);
+
+  // --------------------- Destructor ---------------------------- //
+  /// do nothing
+  virtual ~VlgSglTgtGen_Yosys();
 
 protected:
   /// Yosys problem generate
   Yosys_problem _problems;
   /// Yosys problem file name
-  std::string yosys_prob_fname;
+  std::string prob_fname;
   /// Yosys script 'run.sh' name
-  std::string yosys_run_script_name;
-  /// the invariants on the design
-  std::vector<std::string> vlg_mod_inv_vec;
-
-protected:
-  /// template for generating yosys script wo arrays
-  std::string yosysGenerateSmtScript_wo_Array;
-  /// template for generating yosys script
-  std::string yosysGenerateSmtScript_w_Array;
+  std::string run_script_name;
+  /// the synthesis backend
+  synthesis_backend_selector s_backend;
+  /// the smt info of the design
+  std::shared_ptr<smt::YosysSmtParser> design_smt_info;
+  /// whether to require a proof
+  bool generate_proof;
+  /// what are the targets
+  _chc_target_t chc_target;
 
 protected:
   /// Add an assumption -- needed by base class
@@ -158,52 +146,44 @@ protected:
   void virtual PreExportProcess() override;
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
-  /// export extra things: the yosys script, the smt template
+  /// export extra things: the chc script, the smt template
   virtual void
   Export_problem(const std::string& extra_name) override;
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
   virtual void Export_mem(const std::string& mem_name) override;
-  /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
+  /// For jasper, this means do nothing, for chc, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
 private:
-  // Here begins the specific functions
-  // single_inv_problem()  : gensmt.ys
-  // dual_inv_problem()    : gensmt.ys
-  // single_inv_script()   : same run.sh
-  // dual_inv_script() 
-  // single_inv_tpl() :
-  // dual_inv_tpl() :
-
-
-  /// generate the Yosys script for single invariant, please provide the tmplate name for reference
-  void single_inv_problem(const std::string& ys_script_name, const std::string & tpl_name);
-  /// generate the Yosys script for dual invariant
-  void dual_inv_problem(const std::string& ys_script_name);
-
-  /// generate the template file
-  void single_inv_tpl(const std::string & tpl_name);
-  /// generate the template file
-  void dual_inv_tpl(const std::string & tpl_name, YosysDesignSmtInfo & smt_info);
-
+ 
+  /// Convert the smt file to CHC -- datatype encoding
+  void convert_smt_to_chc_datatype(
+    const std::string & smt_fname, const std::string & chc_fname);
+  /// Convert the smt file to CHC -- bitvector encoding
+  void convert_smt_to_chc_bitvec(
+    const std::string & smt_fname, const std::string & chc_fname, const std::string & wrapper_mod_name);
   /// generate the wrapper's smt first
-  YosysDesignSmtInfo dual_inv_gen_smt(
+  void design_only_gen_smt(
     const std::string & smt_name,
+    const std::string & ys_script_name);  
+  /// generate the aiger file
+  void generate_aiger(
+    const std::string & blif_name,
+    const std::string & aiger_name,
+    const std::string & map_name,
     const std::string & ys_script_name);
-  
 
 public:
-                         
-  /// Deprecation of the one without smt info
+  /// overwrite the Export
   void virtual ExportAll(const std::string& wrapper_name,
                          const std::string& ila_vlg_name,
                          const std::string& script_name,
                          const std::string& extra_name,
                          const std::string& mem_name) override;
-  
-
+  /// accessor of the design info 
+  std::shared_ptr<smt::YosysSmtParser> GetDesignSmtInfo() const;
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 

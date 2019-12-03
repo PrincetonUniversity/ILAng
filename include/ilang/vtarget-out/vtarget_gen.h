@@ -38,9 +38,22 @@ public:
   /// Type of the backend:
   /// CoSA, JasperGold, CHC for chc solver, AIGER for abc
   // YOSYS is for invariant synthesis use
-  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3, CHC = 4, AIGERABC = 5 } backend_selector;
+  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, 
+    YOSYS = 64,               // 1000000
+    CHC  = YOSYS + 8,         // 1001000
+    Z3PDR = CHC + 1,          // 1001001
+    ELD_CEGAR = CHC + 2,      // 1001010
+    GRAIN_SYGUS = CHC + 4,    // 1001100
+    AIGERABC = YOSYS + 16,    // 1010000
+    BTOR_GENERIC = YOSYS + 32 // 1100000
+    } backend_selector;
   /// Type of invariant synthesis backend
-  typedef enum {Z3, GRAIN, ABC, ELDERICA } synthesis_backend_selector;
+  typedef enum { 
+    Z3 = Z3PDR^YOSYS, 
+    GRAIN = GRAIN_SYGUS^YOSYS, 
+    ABC = AIGERABC^YOSYS, 
+    ELDERICA = ELD_CEGAR^YOSYS,
+    NOSYN = BTOR_GENERIC^YOSYS  } synthesis_backend_selector;
   /// Type of the chc target
   enum _chc_target_t {CEX, INVCANDIDATE, GENERAL_PROPERTY};
   /// Verilog Target Generation Configuration
@@ -116,6 +129,16 @@ public:
   bool YosysSmtFlattenHierarchy;
   /// Whether to flatten the datatypes
   bool YosysSmtFlattenDatatype;
+  /// when used in property verification, show prove?
+  bool YosysPropertyCheckShowProof;
+  /// How to encode Verilog state
+  /// DataSort seems to use PDR engine
+  typedef enum  { 
+    UnintepretedFunc /*not supported*/ , 
+    Datatypes, /*by default*/
+    BitVec /*optional for property check, not inv-syn*/
+    } _state_sort_t;
+  _state_sort_t YosysSmtStateSort;
   /// for invariant synthesis do we keep memory abstraction in Verilog
   /// you can keep it true, untill the invariant refers to some memory there
   bool InvariantSynthesisKeepMemory;
@@ -125,6 +148,16 @@ public:
   /// It seems for Z3, setting this to be false is faster (I don't know why)
   /// For grain-enhance, this will be (internally) overwritten to be true
   bool InvariantSynthesisReachableCheckKeepOldInvariant;
+
+  // ----------- Options for CHC Solver -------------- //
+  /// CHC, whether to turn array into individual registers
+  bool ChcWordBlastArray;
+  /// CHC, whether to force assumption on the init
+  bool ChcAssumptionsReset;
+  /// CHC, whether to force assumption on the next T
+  bool ChcAssumptionNextState;
+  /// CHC, whether to force assumption on the end T
+  bool ChcAssumptionEnd;
 
   // ----------- Options for Z3/Grain/ABC Solver -------------- //
   /// The path to Z3, if "z3" is not in the PATH, default empty
@@ -141,6 +174,10 @@ public:
   // ----------- Extended Options for ABC Solver -------------- //
   /// ABC option : whether to use gate-level abstraction
   bool AbcUseGla;
+  /// ABC option : gate-level abstraction time limit
+  unsigned AbcGlaTimeLimit;
+  /// ABC option : gate-level abstraction frame limit
+  unsigned AbcGlaFrameLimit;
   /// ABC option : whether to use correlation analysis
   bool AbcUseCorr;  
   /// ABC option : whether to pass aiger to ABC
@@ -182,17 +219,24 @@ public:
         YosysUndrivenNetAsInput(true),
         YosysSmtFlattenHierarchy(false),
         YosysSmtFlattenDatatype(false),
+        YosysPropertyCheckShowProof(false),
+        YosysSmtStateSort(Datatypes),
         InvariantSynthesisKeepMemory(true),
         InvariantCheckKeepMemory(true),
         InvariantSynthesisReachableCheckKeepOldInvariant(false),
 
+        // ----------- Options for CHCs -------------- //
+        ChcWordBlastArray(true),
+        ChcAssumptionsReset(false),  ChcAssumptionNextState(false),
+        ChcAssumptionEnd(false),
         // ----------- Options for Z3/Grain/ABC Solver -------------- //
         GrainHintsUseCnfStyle(true),
 
         // ----------- Options for ABC -------------- //
-        AbcUseGla(true), AbcUseCorr(false), AbcUseAiger(false),
+        AbcUseGla(false), AbcGlaTimeLimit(500), AbcGlaFrameLimit(200),
+        AbcUseCorr(false), AbcUseAiger(false),
         AbcMinimizeInv(false),
-        AbcAssumptionStyle(_abc_assumption_style_t::AssumptionRegister)
+        AbcAssumptionStyle(_abc_assumption_style_t::AigMiterExtraOutput)
 
         {}
   } vtg_config_t;

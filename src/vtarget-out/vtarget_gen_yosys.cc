@@ -14,14 +14,213 @@
 
 namespace ilang {
 
+
 #define VLG_TRUE "`true"
 #define VLG_FALSE "`false"
 
-/// default constructor
-YosysDesignSmtInfo::YosysDesignSmtInfo() {}
-/// The move constructor
-YosysDesignSmtInfo::YosysDesignSmtInfo(YosysDesignSmtInfo && r) :
-  full_smt(std::move(r.full_smt)) {
+// initialize templates
+static std::string chcGenerateSmtScript_wo_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+%flatten%
+%setundef -undriven -expose%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
+memory -nordff
+proc
+opt;;
+)***";
+
+// should not be used
+static std::string chcGenerateSmtScript_w_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+%flatten%
+%setundef -undriven -expose%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
+memory_dff -wr_only
+memory_collect;
+memory_unpack
+splitnets -driver
+opt;;
+memory_collect;
+pmuxtree
+proc
+opt;;
+)***";
+
+static std::string chc_tmpl_datatypes = R"***(
+;----------------------------------------
+;  Single Inductive Invariant Synthesis
+;  Generated from ILAng
+;----------------------------------------
+%(set-option :fp.engine spacer)%
+
+%%
+
+(declare-rel INV (|%1%_s|))
+(declare-rel fail ())
+
+(declare-var |__S__| |%1%_s|)
+(declare-var |__S'__| |%1%_s|)
+
+; --------------------------------
+; note if you want it a bit faster
+; if can try removing wrapper-u in rule 1
+; or remove the assume previous invariants
+; --------------------------------
+
+; init => inv
+(rule (=> 
+  <!>(and<!>
+  (|%1%_i| |__S__|)
+  <!ui>(|%1%_u| |__S__|)<!>
+  <!>(|%1%_h| |__S__|)<!>
+  <!>)<!>
+  (INV |__S__|)))
+
+; inv /\ T => inv
+(rule (=> (and 
+  (INV |__S__|) 
+  (|%1%_u| |__S__|)
+  <!us>(|%1%_u| |__S'__|)<!>
+  <!>(|%1%_h| |__S__|)<!>
+  <!>(|%1%_h| |__S'__|)<!>
+  (|%1%_t| |__S__| |__S'__|)) 
+  (INV |__S'__|)))
+
+; inv /\ ~p => \bot
+(rule (=> (and 
+  (INV |__S__|) 
+  <!ue>(|%1%_u| |__S__|)<!>
+  <!>(|%1%_h| |__S__|)<!>
+  (not (|%1%_a| |__S__|)))
+  fail))
+
+; (query fail :print-certificate true)
+
+)***";
+
+
+
+static std::string chc_tmpl_wo_datatypes = R"***(
+;----------------------------------------
+;  Single Inductive Invariant Synthesis
+;  Generated from ILAng
+;----------------------------------------
+%(set-option :fp.engine spacer)%
+
+%%
+
+(declare-rel INV %WrapperDataType%)
+(declare-rel fail ())
+
+
+%State%
+%StatePrime%
+;(declare-var |__S__state| Type)
+;(declare-var |__S'__state| Type)
+
+; same for flattened
+
+; init => inv
+(rule (=> 
+  <!>(and<!>
+  (|%WrapperName%_i| %Ss%) 
+  <!ui>(|%WrapperName%_u| %Ss%)<!>
+  <!>(|%WrapperName%_h| %Ss%)<!> 
+  <!>)<!>
+  (INV %Ss%)))
+
+; inv /\ T => inv
+(rule (=> (and 
+  (INV %Ss%) 
+  (|%WrapperName%_u| %Ss%) 
+  <!us>(|%WrapperName%_u| %Sps%)<!> 
+  <!>(|%WrapperName%_h| %Ss%)<!>
+  <!>(|%WrapperName%_h| %Sps%)<!>
+  (|%WrapperName%_t| %Ss% %Sps%)) 
+  (INV %Sps%)))
+
+; inv /\ ~p => \bot
+(rule (=> (and 
+  (INV %Ss%)
+  <!ue>(|%WrapperName%_u| %Ss%)<!> 
+  <!>(|%WrapperName%_h| %Ss%)<!>
+  (not (|%WrapperName%_a| %Ss%))) 
+  fail))
+
+; (query fail :print-certificate true)
+
+)***";
+
+
+// yosys template
+static std::string abcGenerateAigerWInit_wo_Array = R"***(
+read_verilog -formal %topfile%
+prep -top %module%
+miter -assert %module%
+flatten
+%setundef -undriven -expose%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
+memory -nordff
+opt_clean
+techmap
+abc -fast -g AND
+write_aiger -zinit -map %mapname% %aigname%
+write_blif %blifname%
+)***";
+
+static std::string abcAigCmdNoGLA = R"***(
+  &read %aigname%
+  &put
+  fold
+  pdr {-v -d}
+  {inv_min}
+  {inv_print -v}
+)***";
+
+static std::string abcAigCmdGLA = R"***(
+  &read %aigname%
+  &gla -T %glatime% -F %glaframe% -v
+  &gla_derive
+  &put
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  {scorr}
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  {lcorr}
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  pdr {-v -d}
+  {inv_min}
+  {inv_print -v}
+)***";
+
+
+#define IMPLY(a,b) (~(a) || (b))
+
+
+VlgSglTgtGen_Yosys::~VlgSglTgtGen_Yosys() {
+  
 }
 
 VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
@@ -35,85 +234,98 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector backend,
+    const vtg_config_t& vtg_config, backend_selector vbackend,
     const target_type_t& target_tp,
-    advanced_parameters_t* adv_ptr )
+    advanced_parameters_t* adv_ptr,
+    _chc_target_t _chc_target )
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond, _sup_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend,
-                   target_tp, adv_ptr) { 
+                   implementation_include_path, vtg_config, vbackend,
+                   target_tp, adv_ptr),
+                   
+    s_backend(synthesis_backend_selector(vbackend ^ backend_selector::YOSYS)), 
+    chc_target(_chc_target) { 
     
+    ILA_ASSERT(chc_target == _chc_target_t::GENERAL_PROPERTY);
+
     ILA_ASSERT(
-      target_tp == target_type_t::INVARIANTS or
+      target_tp == target_type_t::INVARIANTS ||
       target_tp == target_type_t::INSTRUCTIONS )
       << "Unknown target type: " << target_tp;
     
-    ILA_ASSERT(! vtg_config.YosysSmtFlattenHierarchy) 
-      << "Monolithic synthesis requires not to flatten hierarchy";
+    ILA_ASSERT(
+      IMPLY(
+       s_backend == synthesis_backend_selector::GRAIN,
+       vtg_config.YosysSmtFlattenDatatype && vtg_config.YosysSmtFlattenHierarchy)
+    )  << "Grain requires not to flatten hierarchy/datatype";
 
-    ILA_ASSERT(! vtg_config.YosysSmtFlattenDatatype)
-      << "BUG: not implemented, future work.";
+    ILA_ASSERT(
+      IMPLY(
+       s_backend == synthesis_backend_selector::ABC,
+       vtg_config.YosysSmtFlattenHierarchy)
+    )  << "ABCS requires not to flatten hierarchy";
 
-// initialize templates
-yosysGenerateSmtScript_wo_Array = R"***(
-hierarchy -check
-proc
-%setundef -undriven -expose%
-opt
-opt_expr -mux_undef
-opt
-opt
-memory -nordff
-proc
-opt;;
-)***";
+    ILA_ASSERT(
+      (vbackend & backend_selector::YOSYS) == backend_selector::YOSYS ) 
+      << "Must use Yosys as vbackend";
+    
+    ILA_ASSERT(
+      IMPLY(
+       s_backend == synthesis_backend_selector::GRAIN,
+       vbackend == backend_selector::CHC)
+    );
 
-yosysGenerateSmtScript_w_Array = R"***(
-hierarchy -check
-proc
-%setundef -undriven -expose%
-opt
-opt_expr -mux_undef
-opt
-opt
-memory_dff -wr_only
-memory_collect;
+    ILA_ASSERT(
+      IMPLY(
+       s_backend == synthesis_backend_selector::Z3,
+       vbackend == backend_selector::CHC)
+    );
 
-memory_unpack
-splitnets -driver
-opt;;
-memory_collect;
-pmuxtree
-proc
-opt;;
-)***";
-                    }
+    ILA_ASSERT(
+      IMPLY(
+       s_backend == synthesis_backend_selector::ABC,
+       vbackend == backend_selector::AIGERABC)
+    );
+
+    ILA_ASSERT(
+      IMPLY(
+       vbackend == backend_selector::BTOR_GENERIC,
+       s_backend == synthesis_backend_selector::NOSYN
+       ));
+    
+    ILA_ASSERT(
+      IMPLY(s_backend == synthesis_backend_selector::ABC,
+      _vtg_config.AbcUseAiger)
+    ) << "Currently only support using AIGER";
+
+    ILA_ASSERT(
+      s_backend != synthesis_backend_selector::ELDERICA
+    ) << "Bug : not implemented yet!";
+
+    ILA_ASSERT(
+      !(_vtg_config.YosysSmtFlattenDatatype &&
+        _vtg_config.YosysSmtStateSort != _vtg_config.Datatypes)
+    ) << "Must use Datatypes to encode state in order to flatten";
+} // VlgSglTgtGen_Yosys
 
 
 void VlgSglTgtGen_Yosys::add_wire_assign_assumption(
     const std::string& varname, const std::string& expression,
     const std::string& dspt) {
-  //_problems.assumptions.push_back(varname + " = " +
-  //                                convert_expr_to_yosys(expression));
+
   vlg_wrapper.add_assign_stmt(varname, expression);
-  ILA_ERROR_IF(expression.find(".") != std::string::npos)
+  ILA_ERROR_IF(expression.find(".") == std::string::npos)
       << "-------- expression:" << expression << " contains unfriendly dot.";
 }
 
 void VlgSglTgtGen_Yosys::add_reg_cassign_assumption(
     const std::string& varname, const std::string& expression, int width,
     const std::string& cond, const std::string& dspt) {
-  // vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
-  // _problems.assumptions.push_back("(!( " + convert_expr_to_yosys(cond) +
-  //                                 " ) | (" + varname + " = " +
-  //                                convert_expr_to_yosys(expression) + "))");
+
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
       << "-------- expression:" << expression << " contains unfriendly dot.";
-  // vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
-  //                            " <= " + expression + "; //" + dspt);
-  // we prefer the following way, as we get the value instantaneously  
-  
+
   std::string rand_in_name = "__" + varname + "_init__";
   vlg_wrapper.add_input(rand_in_name, width);
   vlg_wrapper.add_wire (rand_in_name, width);
@@ -128,18 +340,16 @@ void VlgSglTgtGen_Yosys::add_reg_cassign_assumption(
 void VlgSglTgtGen_Yosys::add_an_assumption(const std::string& aspt,
                                           const std::string& dspt) {
   auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
+  
   vlg_wrapper.add_wire(assumption_wire_name, 1, true);
-  vlg_wrapper.add_output(assumption_wire_name,
-                         1); // I find it is necessary to connect to the output
+  // I find it is necessary to connect to the output
+  vlg_wrapper.add_output(assumption_wire_name, 1);
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
+
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
       << "-------- aspt:" << aspt << " contains unfriendly dot.";
-  if (dspt == "invariant_assume") {
-    ILA_WARN << "Ignore invariant assume : " << assumption_wire_name;
-    return;
-  }
   _problems.assumptions[dspt].exprs.push_back(assumption_wire_name);
-  //_problems.assumptions.push_back(convert_expr_to_yosys(aspt));
+
 }
 /// Add an assertion
 void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
@@ -152,16 +362,11 @@ void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
   _problems.assertions[dspt].exprs.push_back(assrt_wire_name);
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
       << "-------- asst:" << asst << " contains unfriendly dot.";
-  //_problems.probitem[dspt].assertions.push_back(convert_expr_to_yosys(asst));
 }
 
 /// Add an assumption
 void VlgSglTgtGen_Yosys::add_a_direct_assumption(const std::string& aspt,
                                                 const std::string& dspt) {
-  if (dspt == "invariant_assume") {
-    ILA_WARN << "Ignore invariant assume : " << aspt;
-    return;
-  }
   _problems.assumptions[dspt].exprs.push_back(aspt);
 }
 /// Add an assertion
@@ -170,107 +375,103 @@ void VlgSglTgtGen_Yosys::add_a_direct_assertion(const std::string& asst,
   _problems.assertions[dspt].exprs.push_back(asst);
 }
 
-/// Pre export work : add assume and asssert to the top level
-/// collect the type of assumptions and assertions
-/// Assertions: variable_map_assert (no invariant_assert --- not for invariant target)
-/// Assumptions:
-///      1. global: noreset, funcmap, absmem, additonal_mapping_control_assume
-///      2. only at starting state:
-///          variable_map_assume, issue_decode, issue_valid, ...
-///      Question: invariant assume? where to put it? Depends on ?
 
+// PreExportProcess is about how to add assumption/assertions
 void VlgSglTgtGen_Yosys::PreExportProcess() {
-  // .. ??
 
-  std::string global_assume = "`true";
-  std::string start_assume  = "`true";
+  std::string all_assert_wire_content;
+  std::string all_assume_wire_content;
 
-/*
-  for(auto&& dspt_exprs_pair : _problems.assumptions) {
-    const auto & dspt = dspt_exprs_pair.first;
-    const auto & expr = dspt_exprs_pair.second;
-    for (auto&& p: expr.exprs)
-      vlg_wrapper.add_stmt(
-        "assume property ("+p+"); // " + dspt
-      );
-  }
+  // you need to add assumptions as well
+  for (auto&& pbname_prob_pair : _problems.assumptions) {
+    const auto & prbname = pbname_prob_pair.first;
+    const auto & prob = pbname_prob_pair.second;
+    ILA_DLOG("VlgSglTgtGen_Yosys.PreExportProcess") << "Adding assumption:" << prbname;
+    
+    for (auto&& p: prob.exprs) {
+      if (all_assume_wire_content.empty())
+        all_assume_wire_content = "(" + p + ")";
+      else
+        all_assume_wire_content += "&& (" + p + ")";
+    } // for prob.exprs
+  } // for _problems.assumption
 
-  //std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
-*/
+  // this is to check given invariants
+  for (auto&& pbname_prob_pair : _problems.assertions) {
+    //const auto& prbname = pbname_prob_pair.first;
+    const auto& prob = pbname_prob_pair.second;
+    
+    // ILA_ASSERT(prbname == "cex_nonreachable_assert")
+    //  << "BUG: assertion can only be cex reachability queries.";
+    // sanity check, should only be invariant's related asserts
 
-  std::string all_assert_wire_content = "`true";
-
-  if(target_type == target_type_t::INSTRUCTIONS) {
-    // this is to synthesize invariants
-    for (auto & pbname_prob_pair : _problems.assumptions) {
-      const auto& prbname = pbname_prob_pair.first;
-      auto& prob = pbname_prob_pair.second; // will be modified !!!
-
-      if (prbname == "invariant_assume") { // add to submodule ?
-        for (auto & p : prob.exprs) {
-          // p does not contain "top."
-
-          auto assumption_wire_name = 
-            vlg_wrapper.sanitizeName(prbname) + "_sub_" + new_mapping_id();
-
-          vlg_mod_inv_vec.push_back(
-            "wire " + assumption_wire_name + 
-            " = " + p +";");
-          
-          p = assumption_wire_name;
-        }
-      } // dspt == invariant_assume
-    } // for assumptions
-  } else if(target_type == target_type_t::INVARIANTS) {
-    // this is to check given invariants
-    for (auto&& pbname_prob_pair : _problems.assertions) {
-      const auto& prbname = pbname_prob_pair.first;
-      const auto& prob = pbname_prob_pair.second;
-      
-      ILA_ASSERT(prbname == "invariant_assert"); 
-      // sanity check, should only be invariant's related asserts
-
-      for (auto&& p: prob.exprs) {
-        vlg_wrapper.add_stmt(
-          "assert property ("+p+"); //" + prbname + "\n"
-        );
-        all_assert_wire_content += "&& ( " + p  + " ) ";
-      } // for expr
-    } // for problem
-  } // target_type == target_type_t::INVARIANTS
-
-
+    for (auto&& p: prob.exprs) {
+      // there should be only one expression (for cex target)
+      // ILA_ASSERT(all_assert_wire_content.empty());
+      if (all_assert_wire_content.empty())
+        all_assert_wire_content = p;
+      else
+        all_assert_wire_content += " && " + p;
+    } // for expr
+  } // for problem
+  // add assert wire (though no use : make sure will not optimized away)
+  ILA_ASSERT(! all_assert_wire_content.empty())
+    << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
-} // PreExportProcess
 
-/// export the script to run the verification :
-/// like "yosys gemsmt.ys"
-void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
-  yosys_run_script_name = script_name;
-
-  auto fname = os_portable_append_dir(_output_path, script_name);
-  std::ofstream fout(fname);
-  if (!fout.is_open()) {
-    ILA_ERROR << "Error writing to file:" << fname;
-    return;
+  if (!all_assume_wire_content.empty()) {
+    vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
+    vlg_wrapper.add_output("__all_assume_wire__",1);
+    vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
   }
-  fout << "#!/bin/bash" << std::endl;
-  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
-  std::string yosys = "yosys";
-
-  if (! _vtg_config.YosysPath.empty())
-    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
-
-  if (yosys_prob_fname != "")
-    fout << yosys << " "<< yosys_prob_fname  << std::endl;
-  else
-    fout << "echo 'Nothing to check!'" << std::endl;
-} // Export_script
-
+  if (_backend == backend_selector::CHC) {
+    vlg_wrapper.add_stmt(
+      "assert property ( __all_assert_wire__ ); // the only assertion \n"
+    );
+    if (!all_assume_wire_content.empty())
+      vlg_wrapper.add_stmt(
+        "assume property ( __all_assume_wire__ ); // the only assumption \n"
+      );
+  } else if (_backend == backend_selector::AIGERABC) {
+    if (all_assume_wire_content.empty()) {
+      vlg_wrapper.add_stmt(
+        "assert property ( __all_assert_wire__ ); // the only assertion \n"
+      );
+    } else {
+      std::string precond;
+      ILA_ASSERT(! (_vtg_config.AbcUseAiger == false && _vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput))
+        << "If you don't use aiger, and has assumptions, there is no way to pass the extra output.";
+      if (_vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput) {
+        ILA_ASSERT(_vtg_config.AbcUseGla == false)
+          << "Cannot use it with GLA";
+        vlg_wrapper.add_stmt("assume property (__all_assume_wire__);\n");
+      } else {
+        vlg_wrapper.add_reg("__all_assumed_reg__",1);
+        vlg_wrapper.add_stmt("always @(posedge clk) begin");
+        vlg_wrapper.add_stmt("if (rst) __all_assumed_reg__ <= 0;");
+        vlg_wrapper.add_stmt("else if (!__all_assume_wire__) __all_assumed_reg__ <= 1; end");
+        precond = "!( __all_assume_wire__ && !__all_assumed_reg__) || ";
+      }
+      vlg_wrapper.add_stmt(
+        "assert property ("+precond+" __all_assert_wire__ ); // the only assertion \n"
+      );
+    } // all_assume_wire_content has sth. there
+  } // if (_backend == backend_selector::AIGERABC)
+  else {
+    // same as CHC
+    vlg_wrapper.add_stmt(
+      "assert property ( __all_assert_wire__ ); // the only assertion \n"
+    );
+    if (!all_assume_wire_content.empty())
+      vlg_wrapper.add_stmt(
+        "assume property ( __all_assume_wire__ ); // the only assumption \n"
+      );
+  }
+} // PreExportProcess
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Yosys::Export_modify_verilog() {
@@ -279,14 +480,8 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
   // if it is a port name, we will ask user to specify its upper level
   // signal name
   VerilogModifier vlg_mod(vlg_info_ptr,
-                          static_cast<VerilogModifier::port_decl_style_t>(
-                              _vtg_config.PortDeclStyle),
-                          _vtg_config.CosaAddKeep,
-                          supplementary_info.width_info);
-
-  // add mod stmt (wire something ... like that)
-  for (auto && stmt : vlg_mod_inv_vec)
-    vlg_mod.RecordAdditionalVlgModuleStmt(stmt, _vlg_mod_inst_name);
+    static_cast<VerilogModifier::port_decl_style_t>(_vtg_config.PortDeclStyle),
+    _vtg_config.CosaAddKeep, supplementary_info.width_info);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
@@ -340,43 +535,20 @@ void VlgSglTgtGen_Yosys::Export_mem(const std::string& mem_name) {
 }
 
 
-// export the gensmt.ys
-void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
-  // used by export script!
-  yosys_prob_fname = extra_name;
-
-  // generate tpl
-  if (_vtg_config.ForceInstCheckReset ) { // single-inv
-    single_inv_tpl("invSyn.tpl");
-    single_inv_problem(extra_name, "invSyn.tpl");
-  } else { // dual-inv
-
-    // first generate a temporary smt
-    // and extract from it the necessary info
-    auto smt_info = dual_inv_gen_smt("__design_smt.smt2","__gen_smt_script.ys");
-    auto final_smt_name = 
-      os_portable_append_dir(_output_path,
-        os_portable_remove_file_name_extension(top_file_name) + ".smt2" );
-
-    dual_inv_tpl(final_smt_name, smt_info);
-    dual_inv_problem(extra_name);
-  } // end of single/dual-inv
-  
-} // Export_problem
-
-
-void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
-                        const std::string& ila_vlg_name,
-                        const std::string& script_name,
-                        const std::string& extra_name,
-                        const std::string& mem_name) {
+void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name, // wrapper.v
+                        const std::string& ila_vlg_name, // no use
+                        const std::string& script_name,  // the run.sh
+                        const std::string& extra_name,   // the chc
+                        const std::string& mem_name) {   // no use
 
   PreExportProcess();
+
   if (os_portable_mkdir(_output_path) == false)
     ILA_WARN << "Cannot create output directory:" << _output_path;
 
   // you don't need to worry about the path and names
   Export_wrapper(wrapper_name);
+  // design only
   if (target_type == target_type_t::INSTRUCTIONS)
     Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
 
@@ -391,27 +563,190 @@ void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
   Export_script(script_name);
 }
 
+// ------------------------------------------------------------------
+// The above is generic for all
+// The followings are backend specific
+// ------------------------------------------------------------------
+
+
+void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
+  run_script_name = script_name;
+
+  auto fname = os_portable_append_dir(_output_path, script_name);
+  std::ofstream fout(fname);
+  if (!fout.is_open()) {
+    ILA_ERROR << "Error writing to file:" << fname;
+    return;
+  }
+  fout << "#!/bin/bash" << std::endl;
+
+  std::string runnable;
+  std::string options;
+  std::string redirect;
+
+  if (s_backend == synthesis_backend_selector::Z3) {
+    runnable = "z3";
+    if (! _vtg_config.Z3Path.empty())
+      runnable = os_portable_append_dir(_vtg_config.Z3Path, runnable);
+  }
+  else if(s_backend == synthesis_backend_selector::GRAIN) {
+    runnable = "bv";
+    if (! _vtg_config.GrainPath.empty())
+      runnable = os_portable_append_dir(_vtg_config.GrainPath, runnable);
+    for (auto && op : _vtg_config.GrainOptions)
+      options += " " + op;
+
+    if (_vtg_config.GrainHintsUseCnfStyle) {
+      ILA_ERROR_IF(! S_IN(" --cnf ", options) && ! S_IN(" --grammar ", options)) << "You must provide grammar in Grain options!";
+    } else {
+      ILA_ERROR_IF(! S_IN(" --grammar-file=", options)) << "You must provide grammar in Grain options!";
+      options += " --chc-file=\""+prob_fname+"\"";
+    }
+    redirect = " 2> ../grain.result";
+  } else if (s_backend == synthesis_backend_selector::ABC) {
+    std::string runnable = "abc";
+    if (! _vtg_config.AbcPath.empty())
+      runnable = os_portable_append_dir(_vtg_config.AbcPath, runnable);
+    std::string abc_cmd;
+    if (_vtg_config.AbcUseGla)
+      abc_cmd = abcAigCmdGLA;
+    else
+      abc_cmd = abcAigCmdNoGLA;
+    
+    abc_cmd = ReplaceAll(abc_cmd, "%glatime%",  std::to_string(_vtg_config.AbcGlaTimeLimit));
+    abc_cmd = ReplaceAll(abc_cmd, "%glaframe%", std::to_string(_vtg_config.AbcGlaFrameLimit));
+    abc_cmd = ReplaceAll(abc_cmd, "{scorr}",  _vtg_config.AbcUseCorr ? "scorr -v -l -k -F 4":"");
+    abc_cmd = ReplaceAll(abc_cmd, "{lcorr}",  _vtg_config.AbcUseCorr ? "lcorr -v":"");
+    abc_cmd = ReplaceAll(abc_cmd, "{inv_min}", _vtg_config.AbcMinimizeInv ? "inv_min -l":"");
+    abc_cmd = ReplaceAll(abc_cmd, "{-v -d}", _vtg_config.YosysPropertyCheckShowProof ? "-v -d":"");
+    abc_cmd = ReplaceAll(abc_cmd, "{inv_print -v}", _vtg_config.YosysPropertyCheckShowProof ? "inv_print -v":"");
+  
+    std::string abc_command_file_name = "abcCmd.txt";
+    { // generate abc command
+      abc_cmd = ReplaceAll(abc_cmd, "%blifname%", "__aiger_prepare.blif");
+      abc_cmd = ReplaceAll(abc_cmd, "%aigname%", prob_fname);
+      auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);
+      std::ofstream abc_cmd_fn(abc_cmd_fname);
+      if (!abc_cmd_fn.is_open()) {
+        ILA_ERROR << "Error writing to file:" << abc_cmd_fname;
+        return;
+      }
+      abc_cmd_fn << abc_cmd;
+    } // generate abc command
+    options = " -F " + abc_command_file_name;
+
+  } else if (s_backend == synthesis_backend_selector::ELDERICA) {
+    ILA_ASSERT(false) << "Not implemented.";
+  } else if (s_backend == synthesis_backend_selector::NOSYN) {
+    runnable = "echo";
+    options = " \"btor file is available as :" + prob_fname + "\"";
+  }
+
+  if (prob_fname != "") {
+    if ( s_backend == synthesis_backend_selector::Z3 || 
+         (s_backend == synthesis_backend_selector::GRAIN &&
+          _vtg_config.GrainHintsUseCnfStyle)
+      )
+      fout << runnable << options << " " << prob_fname << redirect << std::endl;
+    else // ABC, GRAIN, None
+      fout << runnable << options << redirect << std::endl;
+  }
+  else
+    fout << "echo 'Nothing to check!'" << std::endl;
+
+} // Export_script
+
+
+std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Yosys::GetDesignSmtInfo() const {
+  ILA_ASSERT(_backend == backend_selector::CHC)
+    << "Only CHC target will generate smt-lib2.";
+  ILA_ASSERT(design_smt_info != nullptr);
+  return design_smt_info;
+}
+
+
+// export the chc file
+void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
+  // used by export script!
+  prob_fname = extra_name;
+  if (s_backend == synthesis_backend_selector::ABC)
+  {
+    generate_aiger(
+      os_portable_append_dir(_output_path, "__aiger_prepare.blif"),
+      os_portable_append_dir(_output_path, extra_name),
+      os_portable_append_dir(_output_path, extra_name+".map"),
+      os_portable_append_dir(_output_path, "__gen_blif_script.ys")
+    );
+  } else if ( 
+    s_backend == synthesis_backend_selector::GRAIN ||
+    s_backend == synthesis_backend_selector::Z3 
+    ) {
+    // first generate a temporary smt
+    // and extract from it the necessary info
+    // this is the CHC-style thing
+    design_only_gen_smt(
+      os_portable_append_dir(_output_path, "__design_smt.smt2"),
+      os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
+    //if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
+    convert_smt_to_chc_datatype (
+      os_portable_append_dir(_output_path, "__design_smt.smt2"),
+      os_portable_append_dir(_output_path, 
+        s_backend == synthesis_backend_selector::GRAIN ?
+          "grain_prep.txt"  : extra_name));
+    // design_smt_info is assigned here in this function
+
+    // for grain : convert wrapper# --> w wrapper_ --> w
+    if (s_backend == synthesis_backend_selector::GRAIN) {
+      std::ifstream fin( os_portable_append_dir(_output_path, "grain_prep.txt"));
+      std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
+      if (!fin.is_open())  { ILA_ERROR << "Cannot read from : " << os_portable_append_dir(_output_path, "grain_prep.txt"); return; }
+      if (!fout.is_open()) { ILA_ERROR << "Cannot write to : " << os_portable_append_dir(_output_path, extra_name); return; }
+      std::string line;
+      while(std::getline(fin,line)) {
+        fout << ReplaceAll(ReplaceAll(line,"wrapper#", "w"), "wrapper_", "w_") << "\n";
+      }
+    }
+  }
+  // else: None , Eldarica
+} // Export_problem
+
+
+
 
 /// generate the wrapper's smt first
-YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
+void VlgSglTgtGen_Yosys::design_only_gen_smt(
   const std::string & smt_name,
   const std::string & ys_script_name) {
   
-  auto ys_full_name =
-      os_portable_append_dir(_output_path, ys_script_name);
-  { // export to ys_full_name
-    std::ofstream ys_script_fout( ys_full_name );
+  auto ys_output_full_name =
+      os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
+  { // export to ys_script_name
+    std::ofstream ys_script_fout( ys_script_name );
     
-    std::string write_smt2_options = " -mem -bv -stdt "; // future work : -stbv, or nothing
+    std::string write_smt2_options = " -mem -bv "; // future work : -stbv, or nothing
+    if (_vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
+      write_smt2_options += "-stdt ";
+    else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
+      write_smt2_options += "-stbv ";
+    else
+      ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
 
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
-    ys_script_fout << ReplaceAll(
-      yosysGenerateSmtScript_wo_Array, 
-      "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
+    //FIXME: %rstlen% %cycle% !!!
+    auto chcGenSmtTemplate = 
+      _vtg_config.ChcWordBlastArray ? 
+        chcGenerateSmtScript_wo_Array : chcGenerateSmtScript_w_Array ;
+
+    ys_script_fout << 
+      ReplaceAll(
+      ReplaceAll(chcGenSmtTemplate, "%flatten%", 
+        _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""),
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "")
+        ;
     ys_script_fout << "write_smt2"<<write_smt2_options 
-      << os_portable_append_dir( _output_path, smt_name );   
+      << smt_name;   
   } // finish writing
 
   std::string yosys = "yosys";
@@ -421,27 +756,193 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
 
   // execute it
   std::vector<std::string> cmd;
-  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
-
-  auto res = os_portable_execute_shell( cmd ); // this does not redirect
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
+  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
     ILA_ERROR_IF( res.failure != res.NONE  )
       << "Executing Yosys failed!";
     ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
       << "Yosys returns error code:" << res.ret;
+} // design_only_gen_smt
 
-  YosysDesignSmtInfo ret;
-  { // now read in the file 
-    auto smt_in_fn = os_portable_append_dir(_output_path, smt_name);
-    std::ifstream smtfin( smt_in_fn );
+// %WrapperName%
+// %WrapperDataType%
+// %State%
+// %StatePrime%
+// %Ss% %Sps%
+static std::string RewriteDatatypeChc(
+  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
+  const std::string & wrapper_mod_name) {
+  
+  std::string chc = tmpl;
 
-    if (! smtfin.is_open()) {
-      ILA_ERROR << "Cannot read from: " << smt_in_fn;
-      return YosysDesignSmtInfo();
+  std::vector<smt::var_type> inv_tps;
+  smt::YosysSmtParser::convert_datatype_to_type_vec(dt, inv_tps);
+  auto WrapperDataType = smt::var_type::toString(inv_tps);
+
+  // %BeforeInitVar%
+  // %InitVar%
+  // %State%
+  // %StatePrime%
+  // declare-var s ...
+  std::string State;
+  std::string StatePrime;
+  // %BIs% %Is%  %Ss% %Sps%
+  std::string Ss;
+  std::string Sps;
+  bool first = true;
+
+  std::set<std::string> name_set; // avoid repetition
+  for (auto && st : dt) {
+    auto st_name = st.verilog_name.back() == '.' || st.verilog_name.empty() ? st.internal_name : st.verilog_name;
+    st_name = ReplaceAll(st_name, "|", ""); // remove its ||
+    // check no repetition is very important!
+    ILA_ASSERT(! IN(st_name, name_set)) << "Bug: name repetition!";
+    ILA_ASSERT(st._type._type != smt::var_type::tp::Datatype);
+    name_set.insert(st_name);
+    auto type_string = st._type.toString();
+    State         += "(declare-var |S_"  + st_name + "| " + type_string + ")\n";
+    StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
+
+    if(! first) {
+      Ss  += " ";
+      Sps += " ";
     }
-    ret.full_smt << smtfin.rdbuf();
-  } // finish file readin
-  return ret;
-  } // dual_inv_gen_smt
+    first = false;
+    Ss  += "|S_"  + st_name + "|";
+    Sps += "|S'_" + st_name + "|";
+  }
+  // Replacement
+  chc = ReplaceAll(chc, "%WrapperName%",     wrapper_mod_name);
+  chc = ReplaceAll(chc, "%WrapperDataType%", WrapperDataType);
+  chc = ReplaceAll(chc, "%State%",           State);
+  chc = ReplaceAll(chc, "%StatePrime%",      StatePrime);
+  chc = ReplaceAll(chc, "%Ss%",              Ss);
+  chc = ReplaceAll(chc, "%Sps%",             Sps);
 
+  return chc;  
+} // RewriteDatatypeChc
+
+void VlgSglTgtGen_Yosys::convert_smt_to_chc_datatype(const std::string & smt_fname, const std::string & chc_fname) {
+  
+  std::stringstream ibuf;
+  { // read file
+    std::ifstream smt_fin( smt_fname );
+    if(! smt_fin.is_open()) {
+      ILA_ERROR << "Cannot read from " << smt_fname;
+      return;
+    }
+    ibuf << smt_fin.rdbuf();
+  } // end read file
+
+  std::string smt_converted;
+  design_smt_info = std::make_shared<smt::YosysSmtParser> (ibuf.str());
+  if (_vtg_config.YosysSmtFlattenDatatype) {
+    design_smt_info->BreakDatatypes();
+    //smt_rewriter.AddNoChangeStateUpdateFunction();
+    smt_converted = design_smt_info->Export();
+  } else {
+    smt_converted = ibuf.str();
+  }
+
+  std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
+  // construct the template
+
+  std::string chc;
+  if (_vtg_config.YosysSmtFlattenDatatype) {
+    const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
+    auto tmpl = ReplaceAll(chc_tmpl_wo_datatypes, 
+      "%(set-option :fp.engine spacer)%" ,
+      s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
+    tmpl = ReplaceAll(tmpl, "<!ui>(|%WrapperName%_u| %Ss%)<!>" , _vtg_config.ChcAssumptionsReset ?     "(|%WrapperName%_u| %Ss%)" : "");
+    tmpl = ReplaceAll(tmpl, "<!us>(|%WrapperName%_u| %Sps%)<!>" , _vtg_config.ChcAssumptionNextState ? "(|%WrapperName%_u| %Sps%)": "");
+    tmpl = ReplaceAll(tmpl, "<!ue>(|%WrapperName%_u| %Ss%)<!>" , _vtg_config.ChcAssumptionEnd ?        "(|%WrapperName%_u| %Ss%)" : "");
+    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
+    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
+    tmpl = ReplaceAll(tmpl, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : "(and");
+    tmpl = ReplaceAll(tmpl, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : ")");
+    chc = RewriteDatatypeChc(
+      tmpl,
+      datatype_top_mod, wrapper_mod_name);
+    chc = ReplaceAll(chc, "%%", smt_converted );
+  } else {
+    chc = ReplaceAll(chc_tmpl_datatypes, 
+      "%(set-option :fp.engine spacer)%" , "(set-option :fp.engine spacer)");
+
+    chc = ReplaceAll(chc, "<!ui>(|%1%_u| |__S__|)<!>" , _vtg_config.ChcAssumptionsReset ? "(|%1%_u| |__S__|)" : "");
+    chc = ReplaceAll(chc, "<!us>(|%1%_u| |__S'__|)<!>" , _vtg_config.ChcAssumptionNextState ? "(|%1%_u| |__S'__|)" : "");
+    chc = ReplaceAll(chc, "<!ue>(|%1%_u| |__S__|)<!>" , _vtg_config.ChcAssumptionEnd ? "(|%1%_u| |__S__|)" : "");
+    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
+    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
+    chc = ReplaceAll(chc, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : "(and");
+    chc = ReplaceAll(chc, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : ")");
+    chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
+    chc = ReplaceAll(chc, "%%", smt_converted );
+  } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
+
+  { // (query fail :print-certificate true)
+    if (_vtg_config.YosysPropertyCheckShowProof)
+      chc += "\n(query fail :print-certificate true)\n";
+    else
+      chc += "\n(query fail)\n";
+  }
+
+  { // write file
+    std::ofstream chc_fout(chc_fname);
+    if (! chc_fout.is_open()) {
+      ILA_ERROR << "Error writing to : "<< chc_fname;
+      return;
+    }
+    chc_fout << chc;
+  } // end write file
+
+} // convert_smt_to_chc_datatype
+
+
+
+/// generate the wrapper's smt first
+void VlgSglTgtGen_Yosys::generate_aiger(
+  const std::string & blif_name,
+  const std::string & aiger_name,
+  const std::string & map_name,
+  const std::string & ys_script_name) {
+  
+  auto ys_output_full_name =
+      os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
+  { // export to ys_script_name
+    std::ofstream ys_script_fout( ys_script_name );
+    
+    ys_script_fout << 
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll( 
+      ReplaceAll( 
+      ReplaceAll(abcGenerateAigerWInit_wo_Array,
+        "%topfile%", os_portable_append_dir( _output_path , top_file_name ) ),
+        "%module%",  top_mod_name ),
+        "%blifname%",blif_name),
+        "%aigname%", aiger_name),
+        "%mapname%", map_name),
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
+  } // finish writing
+
+  std::string yosys = "yosys";
+
+  if (! _vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
+
+  // execute it
+  std::vector<std::string> cmd;
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
+  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
+    ILA_ERROR_IF( res.failure != res.NONE  )
+      << "Executing Yosys failed!";
+    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
+      << "Yosys returns error code:" << res.ret;
+} // generate_aiger
 
 }; // namespace ilang

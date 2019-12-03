@@ -433,7 +433,10 @@ void VlgSglTgtGen::ConstructWrapper() {
   
   ILA_DLOG("VtargetGen") << "STEP:" << 6;
   // 4. additional mapping if any
-  ConstructWrapper_add_additional_mapping_control();
+  if (target_type == target_type_t::INSTRUCTIONS)
+    ConstructWrapper_add_additional_mapping_control();
+
+  ConstructWrapper_add_rf_assumptions();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 7;
   // if invariants, will do nothing

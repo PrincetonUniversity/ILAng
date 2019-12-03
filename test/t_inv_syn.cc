@@ -6,7 +6,6 @@
 #include <ilang/ilang++.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
-#include <ilang/vtarget-out/inv-syn/sygus/sim_trace_extract.h>
 
 #include "unit-include/config.h"
 #include "unit-include/pipe_ila.h"
@@ -18,10 +17,13 @@ namespace ilang {
 
 typedef std::vector<std::string> P;
 // Z3, ABC, FREQHORN
+// ABC w. different configurations
+// FREQHORN w. different configurations
+// SMT IN?
+// smt-target-gen
 
-// this is the only one with exec
-// This test uses CEGAR loop
-// This tests has no extra start cycle
+
+// will not execute any external tools
 TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   auto ila_model = CntTest::BuildModel();
 
