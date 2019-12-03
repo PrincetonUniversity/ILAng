@@ -89,9 +89,9 @@ public:
   void ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet = true, bool reachable = true);
 
   /// run Verification : returns eq true/false
-  bool virtual RunVerifAuto(const std::string & script_selection, const std::string & pid_fname = "");
+  bool virtual RunVerifAuto(const std::string & script_selection, const std::string & pid_fname = "", bool run_test = false);
   /// run Synthesis : returns reachable/not
-  bool virtual RunSynAuto();
+  bool virtual RunSynAuto(bool run_test = false);
   
   /// set the sygus name lists (cannot be empty)
   void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);

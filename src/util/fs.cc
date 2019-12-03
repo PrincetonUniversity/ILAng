@@ -65,9 +65,9 @@ std::string os_portable_append_dir(const std::string& dir1,
 #endif
   auto str1 = dir1;
   auto str2 = dir2;
-  if (!endsWith(str1, sep))
+  if (!StrEndsWith(str1, sep))
     str1 += sep;
-  if (startsWith(dir2, sep)) {
+  if (StrStartsWith(dir2, sep)) {
     ILA_ERROR << "appending root path:" << dir2 << " to " << dir1;
     str2 = dir2.substr(1);
   }

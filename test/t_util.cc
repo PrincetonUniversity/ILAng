@@ -9,6 +9,7 @@
 
 namespace ilang {
 
+
 void RecordLog() {
   // precondition for log test
   SetLogLevel(0); // log all
@@ -67,7 +68,7 @@ TEST(TestUtil, DirAppend) {
   EXPECT_ERROR(os_portable_append_dir("/a/", "/b"));
   EXPECT_ERROR(os_portable_append_dir("/a", "/b"));
 
-  EXPECT_EQ(os_portable_append_dir("/a", {"b","c"}), "/a/b/c");
+  EXPECT_EQ(os_portable_append_dir("/a", std::vector<std::string>({"b","c"})), "/a/b/c");
 }
 #endif
 
@@ -95,7 +96,12 @@ TEST(TestUtil, FileNameFromDir) {
 #if defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 
 TEST(TestUtil, ExecShell) {
-  auto scriptName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/shell_ex/shell.sh";
+  typedef std::vector<std::string> P;
+
+  auto scriptName = 
+    os_portable_append_dir(std::string(ILANG_TEST_SRC_ROOT), 
+      P({"unit-data", "shell_ex", "shell.sh"}));
+
   std::vector<std::string> cmd;
   cmd.push_back("bash");
   cmd.push_back(scriptName);
@@ -113,13 +119,20 @@ TEST(TestUtil, ExecShellOSPath) {
 
 
 TEST(TestUtil, ExecShellRedirect) {
-  auto redirect_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/shell_ex/date_out.txt";
+  auto redirect_file =
+    os_portable_append_dir(std::string(ILANG_TEST_SRC_ROOT), 
+      {"unit-data", "shell_ex", "date_out.txt"});
+
+  auto pid_file =
+    os_portable_append_dir(std::string(ILANG_TEST_SRC_ROOT), 
+      {"unit-data", "shell_ex", "pid_out.txt"});
+
   auto scriptName = "date";
   std::vector<std::string> cmd;
   cmd.push_back(scriptName);
   execute_result res;
 
-  res = os_portable_execute_shell(cmd,redirect_file, BOTH);
+  res = os_portable_execute_shell(cmd,redirect_file, BOTH,0,pid_file);
   EXPECT_EQ(res.failure, execute_result::NONE);
   
   std::ifstream d1(redirect_file);
@@ -133,7 +146,7 @@ TEST(TestUtil, ExecShellRedirect) {
   
   sleep(2); // wait for at ~ 2 seconds
 
-  res = os_portable_execute_shell(cmd,redirect_file, BOTH);
+  res = os_portable_execute_shell(cmd,redirect_file, BOTH,0, pid_file);
   EXPECT_EQ(res.failure, execute_result::NONE);
 
   std::ifstream d2(redirect_file);
@@ -150,7 +163,10 @@ TEST(TestUtil, ExecShellRedirect) {
 
 
 TEST(TestUtil, ExecShellRedirectTimeOut) {
-  auto redirect_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/shell_ex/sleep_out.txt";
+  auto redirect_file = 
+    os_portable_append_dir(std::string(ILANG_TEST_SRC_ROOT), 
+      {"unit-data", "shell_ex", "sleep_out.txt"});
+
   std::vector<std::string> s1cmd({"sleep", "1"});
   std::vector<std::string> s10cmd({"sleep", "10"});
   execute_result res;

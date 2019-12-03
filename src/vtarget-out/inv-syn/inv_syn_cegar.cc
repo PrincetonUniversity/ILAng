@@ -680,21 +680,32 @@ bool static has_verify_tool_unknown_cosa(const std::string & fn) {
   return false;
 } // has_verify_tool_error_cosa
 /// run Verification
-bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selection, const std::string & pid_fname) {
+bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selection, const std::string & pid_fname, bool under_test) {
   auto script_sel = select_script_to_run(runnable_script_name, script_selection );
   if(check_in_bad_state())
     return true;
   // Not implemented
   auto result_fn = os_portable_append_dir(_output_path, "__verification_result.txt");
-  auto redirect_fn = os_portable_append_dir("../", "__verification_result.txt");
+  auto redirect_fn = os_portable_append_dir("..", "__verification_result.txt");
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(script_sel);
   ILA_ERROR_IF(! os_portable_chdir(new_wd)) 
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing verify script:" << script_sel;
-  auto res = os_portable_execute_shell({"bash", 
-    os_portable_file_name_from_path( script_sel) },
-   redirect_fn, redirect_t::BOTH, 0, pid_fname);
+
+  execute_result res;
+  if (under_test) {
+    res.subexit_normal = true;
+    res.seconds = 0;
+    res.ret = 0;
+    res.failure = res.NONE;
+    res.timeout = false;
+  } else {
+    res = os_portable_execute_shell({"bash", 
+      os_portable_file_name_from_path( script_sel) },
+    redirect_fn, redirect_t::BOTH, 0, pid_fname);
+  }
+  
   ILA_ERROR_IF(res.failure != execute_result::NONE)
     << "Running verification script " << script_sel << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
@@ -724,13 +735,13 @@ bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selectio
 }
 
 /// run Synthesis
-bool InvariantSynthesizerCegar::RunSynAuto() {
+bool InvariantSynthesizerCegar::RunSynAuto(bool under_test) {
   if(check_in_bad_state())
     return true;
   
   ILA_ASSERT(runnable_script_name.size() == 1) << "Please run GenerateInvSynTargets function first";
   synthesis_result_fn = os_portable_append_dir(_output_path, "__synthesis_result.txt");
-  auto redirect_fn = os_portable_append_dir("../", "__synthesis_result.txt");
+  auto redirect_fn = os_portable_append_dir("..", "__synthesis_result.txt");
 
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(runnable_script_name[0]);
@@ -739,9 +750,17 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
 
   execute_result res;
-  res = os_portable_execute_shell({"bash",
-    os_portable_file_name_from_path( runnable_script_name[0] )},
-    redirect_fn, redirect_t::BOTH);
+  if (under_test) {
+    res.subexit_normal = true;
+    res.seconds = 0;
+    res.ret = 0;
+    res.failure = res.NONE;
+    res.timeout = false;
+  } else {
+    res = os_portable_execute_shell({"bash",
+      os_portable_file_name_from_path( runnable_script_name[0] )},
+      redirect_fn, redirect_t::BOTH);
+  }
 
   ILA_ERROR_IF(res.failure != execute_result::NONE )
     << "Running synthesis script " << runnable_script_name[0] << " results in error."; 

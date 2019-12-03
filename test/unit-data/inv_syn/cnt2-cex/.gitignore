@@ -3,6 +3,7 @@ inv-syn/*
 inv-syn-test/*
 invariants/*
 inv-syn-sygus/*
+design_stat.txt
 __synthesis_result.txt
 __verification_result.txt
 
