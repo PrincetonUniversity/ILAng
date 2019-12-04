@@ -100,7 +100,7 @@ var_type * GrainInvariantParser::make_sort(const std::string &name, const std::v
 void GrainInvariantParser::declare_function(const std::string &name, var_type * sort) {
   ILA_ASSERT(quantifier_def_stack.size() == 1) << "There should only be a global quantified var list";
   // we need to extract the name from verilog
-  auto top_module = design_smt_info_ptr->get_module_def_orders().back();
+  // auto top_module = design_smt_info_ptr->get_module_def_orders().back();
   /// we need to check the format
   std::string vlg_name = name;
   if (name.front() == '|' && name.back() == '|') {

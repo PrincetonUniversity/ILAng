@@ -6,7 +6,6 @@
 #define ILANG_VTARGET_OUT_INV_OBJ_H__
 
 #include <ilang/config.h>
-#ifdef INVSYN_INTERFACE
 
 #include <ilang/vtarget-out/inv-syn/inv_cnf.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
@@ -37,6 +36,8 @@ public:
   InvariantObject();
   /// copy constructor = default
   
+#ifdef INVSYN_INTERFACE
+
   /// add invariants from smt-like output
   void AddInvariantFromChcResultFile(
     smt::YosysSmtParser & design_info, 
@@ -64,6 +65,8 @@ public:
     const std::string & aiger_map_name,
     InvariantInCnf & inv_cnf,
     const InvariantInCnf & ref_cnf);
+
+#endif // INVSYN_INTERFACE
 
   /// add invariants from verilog-like output
   void AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in);
@@ -105,6 +108,5 @@ protected:
 
 }; // namespace ilang
 
-#endif // INVSYN_INTERFACE
 
 #endif // ILANG_VTARGET_OUT_INV_OBJ_H__

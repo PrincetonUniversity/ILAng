@@ -210,7 +210,6 @@ void parent_alarm_handler(int signum) {
   {
     FILETIME ft;
     unsigned __int64 tmpres = 0;
-    static int tzflag;
   
     if (NULL != tv)
     {
@@ -226,18 +225,8 @@ void parent_alarm_handler(int signum) {
       tv->tv_sec = (long)(tmpres / 1000000UL);
       tv->tv_usec = (long)(tmpres % 1000000UL);
     }
-  
-    if (NULL != tz)
-    {
-      if (!tzflag)
-      {
-        _tzset();
-        tzflag++;
-      }
-      tz->tz_minuteswest = _timezone / 60;
-      tz->tz_dsttime = _daylight;
-    }
-  
+
+    ILA_ERROR_IF(tz != NULL) << "Not implemented: timezone feature.";
     return 0;
   }
 
@@ -293,9 +282,17 @@ execute_result os_portable_execute_shell(
 
   gettimeofday(&Time1, NULL);
 
+  char * cmdline_ptr = new char[cmdline.length()+1];
+  if (!cmdline_ptr) {
+    _ret.failure = execute_result::EXEC;
+    return _ret;
+  }
+  strncpy(cmdline_ptr, cmdline.c_str(),cmdline.length());
+  cmdline_ptr[cmdline.length()] = '\0';
+
   // Start the child process. 
   if( !CreateProcess( NULL,   // No module name (use command line)
-      cmdline.c_str(),      // Command line
+      cmdline_ptr,      // Command line
       NULL,           // Process handle not inheritable
       NULL,           // Thread handle not inheritable
       FALSE,          // Set handle inheritance to FALSE
@@ -306,8 +303,11 @@ execute_result os_portable_execute_shell(
       &pi )           // Pointer to PROCESS_INFORMATION structure
     ) {
       _ret.failure = execute_result::EXEC;
+      delete [] cmdline_ptr;
       return _ret;
     }
+  
+  delete [] cmdline_ptr;
   // wait for its exit
   WaitForSingleObject(pi.hProcess, INFINITE );
   DWORD exitCode;

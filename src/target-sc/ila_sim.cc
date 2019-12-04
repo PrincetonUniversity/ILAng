@@ -113,13 +113,13 @@ void IlaSim::sim_gen_state() {
 
 void IlaSim::sim_gen_init() {
   std::queue<InstrLvlAbsPtr> child_ila_queue;
-  for (int i = 0; i < model_ptr_->child_num(); i++)
+  for (unsigned int i = 0; i < model_ptr_->child_num(); i++)
     child_ila_queue.push(model_ptr_->child(i));
   while (!child_ila_queue.empty()) {
     auto current_ila = child_ila_queue.front();
     child_ila_queue.pop();
     create_init(current_ila);
-    for (int i = 0; i < current_ila->child_num(); i++) {
+    for (unsigned int i = 0; i < current_ila->child_num(); i++) {
       child_ila_queue.push(current_ila->child(i));
     }
   }
@@ -203,7 +203,7 @@ void IlaSim::sim_gen_execute_invoke() {
     increase_indent(header_indent_);
     header_ << header_indent_ << "SC_METHOD(compute);" << std::endl;
     header_ << header_indent_ << "sensitive";
-    for (int i = 0; i < model_ptr_->input_num(); i++) {
+    for (unsigned int i = 0; i < model_ptr_->input_num(); i++) {
       header_ << " << " << model_ptr_->name() << "_"
               << model_ptr_->input(i)->name() << "_in";
     }

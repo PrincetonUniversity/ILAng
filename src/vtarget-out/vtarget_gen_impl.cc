@@ -402,7 +402,7 @@ void VlgVerifTgtGen::load_json(const std::string& fname, nlohmann::json& j) {
   j = nlohmann::json::parse(contents);
 } // load_json
 
-
+#ifdef INVSYN_INTERFACE
 
 std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
   ILA_ASSERT(_backend == backend_selector::YOSYS) << "All inv-syn relies on yosys!";
@@ -527,5 +527,7 @@ void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool us
     os_portable_append_dir(
       os_portable_append_dir(_output_path, "inv-syn-abc/"), "run.sh"));
 } // GenerateInvSynTargetsAbc
+
+#endif
 
 }; // namespace ilang

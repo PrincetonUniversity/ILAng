@@ -898,8 +898,10 @@ bool SmtlibInvariantParser::ParseInvResultFromFile(const std::string & fname) {
 void SmtlibInvariantParser::ParseSmtResultFromString(const std::string & text) {
   auto len = text.size()+1;
   char * buffer = new char[len];
+  ILA_ASSERT(buffer) << "Memory allocation failed";
   strncpy(buffer,text.c_str(),len);
   ILA_ASSERT(buffer[len-1] == '\0');
+  buffer[len-1] = '\0'; // to make static analysis happy
   std::FILE * fp = fmemopen((void * )buffer, len * sizeof(char), "r" );
   ILA_NOT_NULL(fp);
 

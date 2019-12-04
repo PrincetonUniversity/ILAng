@@ -216,7 +216,7 @@ static std::string abcAigCmdGLA = R"***(
 )***";
 
 
-#define IMPLY(a,b) (~(a) || (b))
+#define IMPLY(a,b) (!(a) || (b))
 
 
 VlgSglTgtGen_Yosys::~VlgSglTgtGen_Yosys() {

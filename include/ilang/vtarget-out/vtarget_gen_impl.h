@@ -461,6 +461,8 @@ public:
   bool in_bad_state(void) const { return _bad_state; }
   /// get vlg-module instance name
   std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
+
+#ifdef INVSYN_INTERFACE
   /// generate invariant synthesis target
   void GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool useAiger);
   /// generate inv-syn target
@@ -469,6 +471,8 @@ public:
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynEnhanceTargets(const InvariantInCnf & cnf);
   /// just to get the smt info
   std::shared_ptr<smt::YosysSmtParser> GenerateSmtTargets();
+#endif
+
   /// generate the runable script name
   const std::vector<std::string> & GetRunnableScriptName() const;
   /// return the result from parsing supplymentary information

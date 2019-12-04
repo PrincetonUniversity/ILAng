@@ -4,7 +4,6 @@
 
 #include <ilang/config.h>
 
-#ifdef INVSYN_INTERFACE
 
 #include <ilang/util/str_util.h>
 #include <ilang/util/container_shortcut.h>
@@ -30,6 +29,8 @@ InvariantObject::InvariantObject() {
 void InvariantObject::set_dut_inst_name(const std::string & name) {
   dut_inst_name = name;
 }
+
+#ifdef INVSYN_INTERFACE
 
 bool InvariantObject::AddInvariantFromAbcResultFile(
   const std::string & blif_fname,
@@ -160,7 +161,7 @@ void InvariantObject::AddInvariantFromGrainResultFile(
   }
 } // AddInvariantFromGrainResultFile
 
-
+#endif // INVSYN_INTERFACE
 
 /// add invariants from verilog-like output
 void InvariantObject::AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in) {
@@ -314,4 +315,3 @@ void InvariantObject::RemoveInvByIdx(size_t idx) {
 
 }; // namespace ilang
 
-#endif // INVSYN_INTERFACE
