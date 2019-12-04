@@ -4,6 +4,9 @@
 ///
 // Hongce Zhang
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/util/container_shortcut.h>
@@ -192,3 +195,5 @@ void GrainInvariantParser::define_function(const std::string &func_name,
 
 }; // namespace smt
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE

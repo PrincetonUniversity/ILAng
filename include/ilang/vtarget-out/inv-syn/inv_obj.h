@@ -5,6 +5,9 @@
 #ifndef ILANG_VTARGET_OUT_INV_OBJ_H__
 #define ILANG_VTARGET_OUT_INV_OBJ_H__
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <ilang/vtarget-out/inv-syn/inv_cnf.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
 
@@ -101,5 +104,7 @@ protected:
 };
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE
 
 #endif // ILANG_VTARGET_OUT_INV_OBJ_H__

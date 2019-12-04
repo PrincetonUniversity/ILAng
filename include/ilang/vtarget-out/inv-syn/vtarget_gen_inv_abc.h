@@ -6,10 +6,11 @@
 /// This file should not be included, as it requires the impl.
 // ---Hongce Zhang
 
-#ifndef VTARGET_GEN_INV_Abc_H__
-#define VTARGET_GEN_INV_Abc_H__
+#ifndef VTARGET_GEN_INV_ABC_H__
+#define VTARGET_GEN_INV_ABC_H__
 
 #include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vlg_mod.h>
@@ -198,4 +199,6 @@ public:
 
 }; // namespace ilang
 
-#endif // VTARGET_GEN_INV_Abc_H__
+#endif // INVSYN_INTERFACE
+
+#endif // VTARGET_GEN_INV_ABC_H__

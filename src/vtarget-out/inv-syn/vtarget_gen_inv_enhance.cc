@@ -10,6 +10,9 @@
 
 /// the monolithic CHC generation is located in inv_syn.cc
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <algorithm>
 #include <fstream>
 #include <ilang/util/container_shortcut.h>
@@ -760,3 +763,5 @@ static std::string RewriteDatatypeChc(
 } // RewriteDatatypeChc
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE

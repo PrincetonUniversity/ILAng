@@ -2,6 +2,9 @@
 /// the inv-syn related HC generation is located in inv_syn.cc
 // --- Hongce Zhang
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <algorithm>
 #include <fstream>
 #include <ilang/util/container_shortcut.h>
@@ -616,3 +619,5 @@ void VlgSglTgtGen_Abc::generate_aiger(
 
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE

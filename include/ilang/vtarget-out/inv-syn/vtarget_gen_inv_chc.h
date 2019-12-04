@@ -10,6 +10,7 @@
 #define VTARGET_GEN_INV_CHC_H__
 
 #include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vlg_mod.h>
@@ -191,5 +192,7 @@ public:
 
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE
 
 #endif // VTARGET_GEN_INV_CHC_H__

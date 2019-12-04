@@ -5,6 +5,9 @@
 #ifndef INV_CNF_H__
 #define INV_CNF_H__
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <set>
 #include <tuple>
 #include <unordered_map>
@@ -72,6 +75,8 @@ protected:
 }; // class InvariantInCnf
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE
 
 #endif // INV_CNF_H__
 

@@ -3,6 +3,11 @@
 
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+
+#if defined(_WIN32) || defined(_WIN64)
+  #include <ilang/util/posix_emu.h>
+#endif
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/smt-inout/chc_inv_in.h>
 #include <ilang/smt-inout/chc_inv_callback_fn.h>
@@ -888,6 +893,7 @@ bool SmtlibInvariantParser::ParseInvResultFromFile(const std::string & fname) {
   ParseSmtResultFromString("(assert " + raw_string + ")");
   return true;
 }
+
 // parse from a string: assume we have the (assert ...) there
 void SmtlibInvariantParser::ParseSmtResultFromString(const std::string & text) {
   auto len = text.size()+1;

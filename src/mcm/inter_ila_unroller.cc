@@ -48,7 +48,7 @@ void InterIlaUnroller::FindSharedStates() {
   SharedStatesSet temp_shared_states_;
   for (auto&& ila_ptr_ : sys_ila_) {
     ILA_NOT_NULL(ila_ptr_);
-    // FIXME: currently not directly handle hierarchy, you need to flatten the
+    // currently not directly handle hierarchy, you need to flatten the
     // ILA first
     ILA_ASSERT(ila_ptr_->child_num() == 0)
         << " Implementation bug: "

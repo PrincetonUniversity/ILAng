@@ -6,6 +6,9 @@
 #ifndef ILANG_VTARGET_OUT_INV_ABC_PARSE_H__
 #define ILANG_VTARGET_OUT_INV_ABC_PARSE_H__
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <ilang/vtarget-out/inv-syn/inv_cnf.h>
 
 #include <set>
@@ -81,5 +84,7 @@ public:
 }; // class AbcInvariantParser
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE
 
 #endif // ILANG_VTARGET_OUT_INV_ABC_PARSE_H__

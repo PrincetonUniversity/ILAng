@@ -14,6 +14,7 @@
 
 namespace ilang {
 
+#ifdef ILANG_BUILD_INVSYN
 
 typedef std::vector<std::string> P;
 // Z3, ABC, FREQHORN
@@ -118,5 +119,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegarPassed) {
   vg.GenerateVerificationTarget();
   EXPECT_TRUE(vg.RunVerifAuto("INC", "", true));
 } // SimpleCntCegarPassed
+
+#endif
 
 }; // namespace ilang

@@ -166,6 +166,13 @@ else()
   set(SYNTH_INTERFACE FALSE)
 endif()
 
+
+if(${ILANG_BUILD_INVSYN})
+  set(INVSYN_INTERFACE TRUE)
+else()
+  set(INVSYN_INTERFACE FALSE)
+endif()
+
 ##
 ## static analysis only
 ##

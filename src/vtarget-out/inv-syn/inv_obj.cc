@@ -2,6 +2,10 @@
 /// a smt-like-output
 // Hongce Zhang
 
+#include <ilang/config.h>
+
+#ifdef INVSYN_INTERFACE
+
 #include <ilang/util/str_util.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
@@ -308,5 +312,6 @@ void InvariantObject::RemoveInvByIdx(size_t idx) {
   smt_formula_vec.erase(smt_formula_vec.begin()+idx);
 }
 
-
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE

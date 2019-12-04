@@ -2,8 +2,12 @@
 /// the inv-syn related HC generation is located in inv_syn.cc
 // --- Hongce Zhang
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <algorithm>
 #include <fstream>
+#include <ilang/config.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
@@ -11,6 +15,7 @@
 #include <ilang/vtarget-out/absmem.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
 #include <iostream>
+
 
 namespace ilang {
 
@@ -776,3 +781,5 @@ static std::string RewriteDatatypeChc(
 } // RewriteDatatypeChc
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE

@@ -257,8 +257,8 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
     // enforcing flush constraints
     std::string flush_enforcement = VLG_TRUE;
     if (instr["flush constraints"].is_null()) {
-    } // do nothing. we are good
-    else if (instr["flush constraints"].is_string()) {
+      // do nothing. we are good
+    } else if (instr["flush constraints"].is_string()) {
       flush_enforcement +=
           "&& (" + ReplExpr(instr["flush constraints"].get<std::string>()) +
           ")";

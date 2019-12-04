@@ -1,6 +1,9 @@
 /// \file CounterExample Extractor
 // ---Hongce Zhang
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <ilang/util/log.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/str_util.h>
@@ -259,3 +262,5 @@ void CexExtractor::DropStates(const std::vector<std::string> & vnames) {
 }
 
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE

@@ -1,6 +1,9 @@
 /// \file Source of initial constraint synthesis utility
 // --- Hongce Zhang
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <algorithm>
 #include <fstream>
 #include <ilang/util/container_shortcut.h>
@@ -628,6 +631,6 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
 
   } // dual_inv_tpl 
 
-
-
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE

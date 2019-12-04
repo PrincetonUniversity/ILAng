@@ -15,6 +15,9 @@
 #ifndef ILANG_VTARGET_OUT_GRAIN_INV_PARSE_H__
 #define ILANG_VTARGET_OUT_GRAIN_INV_PARSE_H__
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <ilang/smt-inout/chc_inv_in.h>
 
 namespace ilang {
@@ -93,5 +96,7 @@ public:
 
 }; // namespace smt
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE
 
 #endif // ILANG_VTARGET_OUT_GRAIN_INV_PARSE_H__

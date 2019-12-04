@@ -4,6 +4,9 @@
 #ifndef ILANG_VTARGET_OUT_CEX_EXTRACT_H__
 #define ILANG_VTARGET_OUT_CEX_EXTRACT_H__
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <string>
 #include <map>
 #include <set>
@@ -62,7 +65,8 @@ public:
 
 }; // class CexExtractor
 
-
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE
 
 #endif // ILANG_VTARGET_OUT_CEX_EXTRACT_H__

@@ -9,6 +9,10 @@
 
 #include <ilang/util/log.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <locale>
+#endif
+
 namespace ilang {
 
 // it is of course possible to update it with arbitrary base
@@ -78,14 +82,22 @@ unsigned long long StrToULongLong(const std::string& str, int base) {
 /// Trim a string from start (in place)
 void StrLeftTrim(std::string& s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+#if defined(_WIN32) || defined(_WIN64)
+        return !std::isspace(ch, std::locale("en_US.UTF8"));
+#else
         return !std::isspace(static_cast<unsigned char>(ch));
+#endif
     }));
 }
 
 /// Trim a string from end (in place)
 void StrRightTrim(std::string& s) {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+#if defined(_WIN32) || defined(_WIN64)
+        return ! std::isspace(ch, std::locale("en_US.UTF8"));
+#else
         return !std::isspace(static_cast<unsigned char>(ch));
+#endif
     }).base(), s.end());
 }
 

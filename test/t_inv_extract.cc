@@ -15,6 +15,7 @@
 
 namespace ilang {
 
+#ifdef ILANG_BUILD_INVSYN
 
 TEST(TestInvExtract, Abc) {
 
@@ -84,5 +85,7 @@ TEST(TestInvExtract, AbcAigerGLA) {
   EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
   std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
 }
+
+#endif
 
 }; // namespace ilang

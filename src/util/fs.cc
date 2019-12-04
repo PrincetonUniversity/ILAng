@@ -10,6 +10,7 @@
 #include <iomanip>
 
 #include <cstdlib>
+#include <cctype>
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -267,7 +268,7 @@ execute_result os_portable_execute_shell(
     sa.nLength = sizeof(sa);
     sa.lpSecurityDescriptor = NULL;
     sa.bInheritHandle = TRUE;
-    h = CreateFile(_T(redirect_output_file.c_str()),
+    h = CreateFile(TEXT(redirect_output_file.c_str()),
         FILE_APPEND_DATA,
         FILE_SHARE_WRITE | FILE_SHARE_READ,
         &sa,
@@ -562,8 +563,8 @@ std::string os_portable_getcwd() {
 #if defined(_WIN32) || defined(_WIN64)
   // windows
   size_t len = GetCurrentDirectory(0,NULL);
-  char * buffer = new char [len];
-  if ( GetCurrentDirectory(buffer,len) == 0) {
+  char * buffer = new char [len+1];
+  if ( GetCurrentDirectory(len,buffer) == 0) {
     ILA_ERROR << "Unable to get the current working directory.";
     delete [] buffer;
     return "";

@@ -1,6 +1,9 @@
 /// \file Source for invariant synthesis --- using CEGAR loop
 // Hongce Zhang
 
+#include <ilang/config.h>
+#ifdef INVSYN_INTERFACE
+
 #include <ilang/util/log.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/str_util.h>
@@ -972,6 +975,6 @@ void InvariantSynthesizerCegar::ChangeGrainSyntax(const std::vector <std::string
   _vtg_config.GrainOptions = syn;
 }
 
-
-
 }; // namespace ilang
+
+#endif // INVSYN_INTERFACE
