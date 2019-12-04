@@ -15,6 +15,22 @@ namespace ilang {
 
 /// \brief the class to hold supplementary information
 struct VlgTgtSupplementaryInfo {
+
+  //  ----------------------- TYPE  ------------------------ //
+  struct reset_config_t {
+      /// whether to enforce no reset constraint
+      bool no_reset_after_starting_state;
+      /// how many cycles should reset signal holds
+      unsigned reset_cycles;
+      /// the reset sequence: list of (signal name -> value) map (not supported yet)
+      // we anticipate in the reset sequence, you don't need a wide signal
+      std::vector<std::map<std::string, unsigned>> reset_sequence;
+      /// Future work: reset state: signame -> signal value (valid vlog expr) (not supported yet)
+      std::map<std::string,std::string>  reset_state;
+      /// Constructor, set default parameters
+      reset_config_t():no_reset_after_starting_state(false),reset_cycles(1) {}
+  }; // struct reset_config_t
+
   //  ----------------------- MEMBERS  ------------------------ //
   /// the width info
   std::map<std::string, int>  width_info;
@@ -28,6 +44,8 @@ struct VlgTgtSupplementaryInfo {
   std::map<std::string, memory_export_type> memory_export;
   /// the port to keep : memory_name -> (port and its connector)
   std::map<std::string,std::map<std::string,std::string>> memory_ports;
+  /// The reset annotation for CoSA & Yosys (Jasper should be fine...)
+  reset_config_t cosa_yosys_reset_config;
   
   //  ----------------------- METHODS  ------------------------ //
   /// Constructor - default

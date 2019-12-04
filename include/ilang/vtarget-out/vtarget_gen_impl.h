@@ -209,6 +209,8 @@ protected:
   // --------------- STEPS OF GENERATION ------------------------//
   /// add ila input to the wrapper
   void ConstructWrapper_add_ila_input();
+  /// setup reset, add assumptions if necessary
+  void ConstructWrapper_reset_setup();
   /// add the vlg input ouput to the wrapper I/O
   void ConstructWrapper_add_vlg_input_output();
   /// add a cycle counter to be used to deal with the end cycle

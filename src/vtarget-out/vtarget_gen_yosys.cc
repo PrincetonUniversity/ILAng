@@ -741,10 +741,14 @@ void VlgSglTgtGen_Yosys::design_only_gen_smt(
 
     ys_script_fout << 
       ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
       ReplaceAll(chcGenSmtTemplate, "%flatten%", 
         _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""),
-        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "")
-        ;
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
+        "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles));
+
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << smt_name;   
   } // finish writing

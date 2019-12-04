@@ -24,28 +24,20 @@ public:
     ex_info_t(const std::string& r) : range(r) {}
   };
 
-  struct cosa_reset_config_t {
-      /// whether to enforce no reset constraint
-      bool no_reset_after_starting_state;
-      /// the reset sequence: list of (signal name -> value) map
-      // we anticipate in the reset sequence, you don't need a wide signal
-      std::vector<std::map<std::string, unsigned>> reset_sequence;
-      /// Future work: reset state: signame -> signal value (valid vlog expr)
-      std::map<std::string,std::string>  reset_state;
-  };
-
   // ----------- Verification Settings -------------- //
   /// Type of the backend:
   /// CoSA, JasperGold, CHC for chc solver, AIGER for abc
   // YOSYS is for invariant synthesis use
-  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, 
-    YOSYS = 64,               // 1000000
-    CHC  = YOSYS + 8,         // 1001000
-    Z3PDR = CHC + 1,          // 1001001
-    ELD_CEGAR = CHC + 2,      // 1001010
-    GRAIN_SYGUS = CHC + 4,    // 1001100
-    AIGERABC = YOSYS + 16,    // 1010000
-    BTOR_GENERIC = YOSYS + 32 // 1100000
+  typedef enum { NONE = 0, 
+    COSA = 1, 
+    JASPERGOLD = 2, 
+    YOSYS = 64,                  // 1000000
+      CHC  = YOSYS + 8,          // 1001000
+        Z3PDR = CHC + 1,         // 1001001
+        ELD_CEGAR = CHC + 2,     // 1001010
+        GRAIN_SYGUS = CHC + 4,   // 1001100
+      AIGERABC = YOSYS + 16,     // 1010000
+      BTOR_GENERIC = YOSYS + 32  // 1100000
     } backend_selector;
   /// Type of invariant synthesis backend
   typedef enum { 

@@ -394,13 +394,8 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_generate_header();
   ILA_DLOG("VtargetGen") << "STEP:" << 2;
 
-  // 1. add input
-  if (target_type == target_type_t::INSTRUCTIONS) {
-    vlg_wrapper.add_input("dummy_reset", 1);
-    vlg_wrapper.add_wire("dummy_reset", 1, true);
-    if (_vtg_config.InstructionNoReset)
-      add_an_assumption(" (~__RESETED__) || (dummy_reset == 0) ", "noreset");
-  }
+  // 1. dealing with reset
+  ConstructWrapper_reset_setup();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 3;
   // -- find out the inputs

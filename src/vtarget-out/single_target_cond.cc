@@ -53,6 +53,32 @@ namespace ilang {
 //  & postflush cond
 //
 
+/// setup reset, add assumptions if necessary
+void VlgSglTgtGen::ConstructWrapper_reset_setup() {
+  if (target_type == target_type_t::INSTRUCTIONS) {
+    vlg_wrapper.add_input("dummy_reset", 1);
+    vlg_wrapper.add_wire("dummy_reset", 1, true);
+    if (_vtg_config.InstructionNoReset || 
+        supplementary_info.cosa_yosys_reset_config.no_reset_after_starting_state)
+      add_an_assumption(" (~__RESETED__) || (dummy_reset == 0) ", "noreset");
+  } else if (target_type == target_type_t::INVARIANTS ||
+     target_type == target_type_t::INV_SYN_DESIGN_ONLY ) {
+    if (supplementary_info.cosa_yosys_reset_config.no_reset_after_starting_state) {
+      if(_backend == backend_selector::COSA) {
+        add_a_direct_assumption("reset_done = 1_1 -> rst = 0_1","noresetagain");
+        add_a_direct_assumption("reset_done = 1_1 -> next( reset_done ) = 1_1","noresetnextdone");
+      } else if (_backend == backend_selector::JASPERGOLD) {
+        // no need to any thing
+      } else if (_backend == backend_selector::AIGERABC) {
+        add_a_direct_assumption("rst == 0", "noreset");
+      } // for the others no worries
+    }
+    // COSA : direct assumption
+    // JasperGold will not mess with it 
+    // yosys : abc needs assumptions but not all of them
+  }
+} // ConstructWrapper_reset_setup
+
 void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   // find in rf_cond, how many cycles will be needed
   max_bound = 0;

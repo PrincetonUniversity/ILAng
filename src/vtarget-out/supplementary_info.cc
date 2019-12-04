@@ -65,6 +65,30 @@ void VlgTgtSupplementaryInfo::FromJson(nlohmann::json & vmap) {
       memory_export.insert(std::make_pair(nw.key(),directive));
     }
   }
+
+  // reset sequence annotation
+  if ( IN("reset", supplementary_info) && supplementary_info["reset"].is_object() ) {
+    if (IN("cycle", supplementary_info["reset"])) {
+      if (supplementary_info["reset"]["cycle"].is_number_unsigned()) {
+        unsigned cycle = supplementary_info["reset"]["cycle"].get<unsigned>();
+        ILA_ERROR_IF(cycle == 0) << "reset cycle must >= 1";
+        cosa_yosys_reset_config.reset_cycles = cycle;
+      }else
+        ILA_ERROR << "`cycle` field in `reset` annotation must be unsigned integer";
+    }
+    if (IN("no-reset-after", supplementary_info["reset"])) {
+      if (supplementary_info["no-reset-after"]["cycle"].is_boolean()) {
+        cosa_yosys_reset_config.no_reset_after_starting_state = 
+          supplementary_info["reset"]["no-reset-after"].get<bool>();
+      }else
+        ILA_ERROR << "`no-reset-after` field in `reset` annotation must be boolean";
+    }
+    ILA_ERROR_IF(IN("reset-state", supplementary_info["reset"]))
+      << "reset-state is not implemented yet.";
+    ILA_ERROR_IF(IN("reset-sequence", supplementary_info["reset"]))
+      << "reset-sequence is not implemented yet.";
+  }
+
 } // VlgTgtSupplementaryInfo
 
 }; // namespace ilang
