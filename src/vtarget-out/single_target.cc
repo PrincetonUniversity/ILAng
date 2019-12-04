@@ -208,7 +208,8 @@ VlgSglTgtGen::VlgSglTgtGen(
   // if you supply additional invariant in the invariant synthesis
   // they will still be a target for invariant generated. 
   // you can use it to verify the invariants if you like
-  ILA_ASSERT(! (has_flush && backend == backend_selector::YOSYS) ) 
+  ILA_ASSERT(! (has_flush && 
+    (backend & backend_selector::YOSYS) == backend_selector::YOSYS ) ) 
       << "Currently does not support flushing in invariant synthesis."
       << "Future work.";
 
@@ -253,12 +254,12 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
 
     std::string problem_name = "variable_map_assume_";
     if (_vtg_config.PerVariableProblemCosa && 
-	 _backend != backend_selector::YOSYS)
+	 (_backend & backend_selector::YOSYS) != backend_selector::YOSYS)
       problem_name += "_" + sname;
     // if we are targeting yosys, we should make sure they have the same problem_name
     // so the it knowns these are the assumptions for varmap
 
-    if (_backend == backend_selector::YOSYS) {
+    if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
 
       add_an_assumption(
         GetStateVarMapExpr(sname, i.value()), problem_name);
@@ -334,7 +335,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 
     std::string problem_name = "variable_map_assert";
     if (_vtg_config.PerVariableProblemCosa &&
-        _backend != backend_selector::YOSYS)
+        (_backend & backend_selector::YOSYS) != backend_selector::YOSYS)
       problem_name += "_" + sname;
     // for Yosys, we must keep the name the same
     // so it knows these are for variable map assertions
@@ -457,7 +458,7 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   // 5.0 add the extra wires to the top module wrapper
   if (_backend == backend_selector::COSA || 
-      _backend == backend_selector::YOSYS)
+      (_backend & backend_selector::YOSYS) == backend_selector::YOSYS)
     ConstructWrapper_register_extra_io_wire();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 9;
@@ -490,7 +491,7 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
   std::ofstream fout;
   std::string fn;
   if (_backend == backend_selector::COSA ||
-      _backend == backend_selector::YOSYS) {
+      (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
     fn = os_portable_append_dir(_output_path, top_file_name);
     fout.open(fn, std::ios_base::app);
   } else if (_backend == backend_selector::JASPERGOLD) {

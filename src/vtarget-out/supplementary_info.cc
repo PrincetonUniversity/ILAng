@@ -77,7 +77,7 @@ void VlgTgtSupplementaryInfo::FromJson(nlohmann::json & vmap) {
         ILA_ERROR << "`cycle` field in `reset` annotation must be unsigned integer";
     }
     if (IN("no-reset-after", supplementary_info["reset"])) {
-      if (supplementary_info["no-reset-after"]["cycle"].is_boolean()) {
+      if (supplementary_info["reset"]["no-reset-after"].is_boolean()) {
         cosa_yosys_reset_config.no_reset_after_starting_state = 
           supplementary_info["reset"]["no-reset-after"].get<bool>();
       }else

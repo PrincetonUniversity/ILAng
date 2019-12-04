@@ -69,9 +69,9 @@ void VlgSglTgtGen::ConstructWrapper_reset_setup() {
         add_a_direct_assumption("reset_done = 1_1 -> next( reset_done ) = 1_1","noresetnextdone");
       } else if (_backend == backend_selector::JASPERGOLD) {
         // no need to any thing
-      } else if (_backend == backend_selector::AIGERABC) {
+      } else if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
         add_a_direct_assumption("rst == 0", "noreset");
-      } // for the others no worries
+      } 
     }
     // COSA : direct assumption
     // JasperGold will not mess with it 

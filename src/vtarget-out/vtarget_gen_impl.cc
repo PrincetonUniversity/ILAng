@@ -143,9 +143,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     return; //
   }
 
-  if (_backend != backend_selector::COSA &&
-      _backend != backend_selector::JASPERGOLD &&
-      _backend != backend_selector::YOSYS ) {
+  if (!isValidVerifBackend(_backend)) {
     ILA_ERROR << "Unknown backend specification:" << _backend << ", quit.";
     return;
   }
@@ -197,7 +195,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           _advanced_param_ptr);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
-    } else if (_backend == backend_selector::YOSYS && invariantExists) {
+    } else if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS && invariantExists) {
         auto target = VlgSglTgtGen_Yosys(
             sub_output_path,
             NULL, // instruction
@@ -211,7 +209,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         std::string design_file;
         if (_backend == backend_selector::AIGERABC)
           design_file = "wrapper.aig";
-        else if(_backend == backend_selector::CHC)
+        else if( (_backend & backend_selector::CHC) == backend_selector::CHC)
           design_file = "wrapper.smt2";
         else if(_backend == backend_selector::BTOR_GENERIC)
           design_file = "wrapper.btor2";
@@ -291,7 +289,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         std::string design_file;
         if (_backend == backend_selector::AIGERABC)
           design_file = "wrapper.aig";
-        else if(_backend == backend_selector::CHC)
+        else if( (_backend & backend_selector::CHC) == backend_selector::CHC)
           design_file = "wrapper.smt2";
         else if(_backend == backend_selector::BTOR_GENERIC)
           design_file = "wrapper.btor2";

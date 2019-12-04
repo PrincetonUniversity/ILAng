@@ -191,6 +191,7 @@ public:
       : target_select(BOTH), CheckThisInstructionOnly(""),
         InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
         VerificationSettingAvoidIssueStage(false),
+        ValidateSynthesizedInvariant(ALL),
 
         // ----------- Options for CoSA settings -------------- //
         PerVariableProblemCosa(false),
@@ -261,6 +262,8 @@ public:
   VlgVerifTgtGenBase() {}
   // destructor : do nothing (make it virtual !!!)
   virtual ~VlgVerifTgtGenBase() {}
+  /// check if a backend selector is valid
+  static bool isValidVerifBackend(backend_selector vbackend);
 
 private:
   // avoid instantiation

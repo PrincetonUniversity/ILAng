@@ -273,13 +273,13 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     ILA_ASSERT(
       IMPLY(
        s_backend == synthesis_backend_selector::GRAIN,
-       vbackend == backend_selector::CHC)
+       vbackend == backend_selector::GRAIN_SYGUS)
     );
 
     ILA_ASSERT(
       IMPLY(
        s_backend == synthesis_backend_selector::Z3,
-       vbackend == backend_selector::CHC)
+       vbackend == backend_selector::Z3PDR)
     );
 
     ILA_ASSERT(
@@ -428,7 +428,7 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
     vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
   }
 
-  if (_backend == backend_selector::CHC) {
+  if ( (_backend & backend_selector::CHC) == backend_selector::CHC) {
     vlg_wrapper.add_stmt(
       "assert property ( __all_assert_wire__ ); // the only assertion \n"
     );
@@ -658,7 +658,7 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
 
 
 std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Yosys::GetDesignSmtInfo() const {
-  ILA_ASSERT(_backend == backend_selector::CHC)
+  ILA_ASSERT( (_backend & backend_selector::CHC) == backend_selector::CHC)
     << "Only CHC target will generate smt-lib2.";
   ILA_ASSERT(design_smt_info != nullptr);
   return design_smt_info;
@@ -743,11 +743,13 @@ void VlgSglTgtGen_Yosys::design_only_gen_smt(
       ReplaceAll(
       ReplaceAll(
       ReplaceAll(
+      ReplaceAll(
       ReplaceAll(chcGenSmtTemplate, "%flatten%", 
         _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""),
         "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
         "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
-        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles));
+        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%module%", top_mod_name);
 
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << smt_name;   
@@ -862,9 +864,9 @@ void VlgSglTgtGen_Yosys::convert_smt_to_chc_datatype(const std::string & smt_fna
     tmpl = ReplaceAll(tmpl, "<!ue>(|%WrapperName%_u| %Ss%)<!>" , _vtg_config.ChcAssumptionEnd ?        "(|%WrapperName%_u| %Ss%)" : "");
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+    tmpl = ReplaceAll(tmpl, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset &&  _vtg_config.YosysSmtFlattenHierarchy ?
       "" : "(and");
-    tmpl = ReplaceAll(tmpl, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+    tmpl = ReplaceAll(tmpl, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
       "" : ")");
     chc = RewriteDatatypeChc(
       tmpl,
@@ -879,9 +881,9 @@ void VlgSglTgtGen_Yosys::convert_smt_to_chc_datatype(const std::string & smt_fna
     chc = ReplaceAll(chc, "<!ue>(|%1%_u| |__S__|)<!>" , _vtg_config.ChcAssumptionEnd ? "(|%1%_u| |__S__|)" : "");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
-    chc = ReplaceAll(chc, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+    chc = ReplaceAll(chc, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
       "" : "(and");
-    chc = ReplaceAll(chc, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && ! _vtg_config.YosysSmtFlattenHierarchy ?
+    chc = ReplaceAll(chc, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
       "" : ")");
     chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
     chc = ReplaceAll(chc, "%%", smt_converted );

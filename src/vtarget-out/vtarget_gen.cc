@@ -9,6 +9,26 @@
 
 namespace ilang {
 
+bool VlgVerifTgtGenBase::isValidVerifBackend(backend_selector vbackend) {
+  if ( vbackend == backend_selector::COSA)
+    return true;
+  if ( vbackend == backend_selector::JASPERGOLD)
+    return true;
+  if ( (vbackend & backend_selector::YOSYS) == backend_selector::YOSYS) {
+    if (vbackend == backend_selector::AIGERABC)
+      return true;
+    if (vbackend == backend_selector::BTOR_GENERIC)
+      return true;
+    if ( (vbackend & backend_selector::CHC) == backend_selector::CHC) {
+      if (vbackend == backend_selector::ELD_CEGAR ||
+          vbackend == backend_selector::GRAIN_SYGUS ||
+          vbackend == backend_selector::Z3PDR)
+      return true;
+    }
+  }
+  return false;
+}
+
 VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
     const std::vector<std::string>& implementation_include_path,
     const std::vector<std::string>& implementation_srcs,

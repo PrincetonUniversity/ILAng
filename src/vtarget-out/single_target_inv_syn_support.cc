@@ -152,6 +152,9 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_invar
     add_inv_obj_as_assertion(_advanced_param_ptr->_inv_obj_ptr);
     // assume rf
     add_rf_inv_as_assumption();
+  } else if (_vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::NOINV) {
+    // assert rf
+    add_rf_inv_as_assertion();
   }
 }
 
