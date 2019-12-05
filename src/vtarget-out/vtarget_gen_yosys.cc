@@ -166,10 +166,10 @@ static std::string chc_tmpl_wo_datatypes = R"***(
 static std::string abcGenerateAigerWInit_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 miter -assert %module%
 flatten
 %setundef -undriven -expose%
-sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
 opt_clean
 techmap
@@ -273,7 +273,8 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     ILA_ASSERT(
       IMPLY(
        s_backend == synthesis_backend_selector::GRAIN,
-       vbackend == backend_selector::GRAIN_SYGUS)
+       vbackend == backend_selector::GRAIN_SYGUS &&
+       _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
     );
 
     ILA_ASSERT(
@@ -285,7 +286,7 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     ILA_ASSERT(
       IMPLY(
        s_backend == synthesis_backend_selector::ABC,
-       vbackend == backend_selector::AIGERABC)
+       vbackend == backend_selector::ABCPDR)
     );
 
     ILA_ASSERT(
@@ -436,7 +437,7 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
       vlg_wrapper.add_stmt(
         "assume property ( __all_assume_wire__ ); // the only assumption \n"
       );
-  } else if (_backend == backend_selector::AIGERABC) {
+  } else if (_backend == backend_selector::ABCPDR) {
     if (all_assume_wire_content.empty()) {
       vlg_wrapper.add_stmt(
         "assert property ( __all_assert_wire__ ); // the only assertion \n"
@@ -460,7 +461,7 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
         "assert property ("+precond+" __all_assert_wire__ ); // the only assertion \n"
       );
     } // all_assume_wire_content has sth. there
-  } // if (_backend == backend_selector::AIGERABC)
+  } // if (_backend == backend_selector::ABCPDR)
   else {
     // same as CHC
     vlg_wrapper.add_stmt(
@@ -604,7 +605,7 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
     }
     redirect = " 2> ../grain.result";
   } else if (s_backend == synthesis_backend_selector::ABC) {
-    std::string runnable = "abc";
+    runnable = "abc";
     if (! _vtg_config.AbcPath.empty())
       runnable = os_portable_append_dir(_vtg_config.AbcPath, runnable);
     std::string abc_cmd;
@@ -658,8 +659,10 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
 
 
 std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Yosys::GetDesignSmtInfo() const {
-  ILA_ASSERT( (_backend & backend_selector::CHC) == backend_selector::CHC)
-    << "Only CHC target will generate smt-lib2.";
+  ILA_ASSERT( (_backend & backend_selector::CHC) == backend_selector::CHC
+    && _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes
+  )
+    << "Only CHC target with datatypes will generate suitable smt-lib2.";
   ILA_ASSERT(design_smt_info != nullptr);
   return design_smt_info;
 }
@@ -841,8 +844,11 @@ void VlgSglTgtGen_Yosys::convert_smt_to_chc_datatype(const std::string & smt_fna
   } // end read file
 
   std::string smt_converted;
-  design_smt_info = std::make_shared<smt::YosysSmtParser> (ibuf.str());
+  if (_vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
+    design_smt_info = std::make_shared<smt::YosysSmtParser> (ibuf.str());
+
   if (_vtg_config.YosysSmtFlattenDatatype) {
+    ILA_NOT_NULL(design_smt_info);
     design_smt_info->BreakDatatypes();
     //smt_rewriter.AddNoChangeStateUpdateFunction();
     smt_converted = design_smt_info->Export();
@@ -850,11 +856,14 @@ void VlgSglTgtGen_Yosys::convert_smt_to_chc_datatype(const std::string & smt_fna
     smt_converted = ibuf.str();
   }
 
-  std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
+  std::string wrapper_mod_name = design_smt_info ? 
+    design_smt_info->get_module_def_orders().back() :
+    "wrapper";
   // construct the template
 
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {
+    ILA_NOT_NULL(design_smt_info);
     const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
     auto tmpl = ReplaceAll(chc_tmpl_wo_datatypes, 
       "%(set-option :fp.engine spacer)%" ,
@@ -925,6 +934,8 @@ void VlgSglTgtGen_Yosys::generate_aiger(
       ReplaceAll(
       ReplaceAll(
       ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
       ReplaceAll( 
       ReplaceAll( 
       ReplaceAll(abcGenerateAigerWInit_wo_Array,
@@ -933,7 +944,10 @@ void VlgSglTgtGen_Yosys::generate_aiger(
         "%blifname%",blif_name),
         "%aigname%", aiger_name),
         "%mapname%", map_name),
-        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
+        "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles))
+        ;
   } // finish writing
 
   std::string yosys = "yosys";

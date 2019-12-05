@@ -36,14 +36,14 @@ public:
         Z3PDR = CHC + 1,         // 1001001
         ELD_CEGAR = CHC + 2,     // 1001010
         GRAIN_SYGUS = CHC + 4,   // 1001100
-      AIGERABC = YOSYS + 16,     // 1010000
+      ABCPDR = YOSYS + 16,       // 1010000
       BTOR_GENERIC = YOSYS + 32  // 1100000
     } backend_selector;
   /// Type of invariant synthesis backend
   typedef enum { 
     Z3 = Z3PDR^YOSYS, 
     GRAIN = GRAIN_SYGUS^YOSYS, 
-    ABC = AIGERABC^YOSYS, 
+    ABC = ABCPDR^YOSYS, 
     ELDERICA = ELD_CEGAR^YOSYS,
     NOSYN = BTOR_GENERIC^YOSYS  } synthesis_backend_selector;
   /// Type of the chc target
@@ -227,7 +227,7 @@ public:
 
         // ----------- Options for ABC -------------- //
         AbcUseGla(false), AbcGlaTimeLimit(500), AbcGlaFrameLimit(200),
-        AbcUseCorr(false), AbcUseAiger(false),
+        AbcUseCorr(false), AbcUseAiger(true),
         AbcMinimizeInv(false),
         AbcAssumptionStyle(_abc_assumption_style_t::AigMiterExtraOutput)
 

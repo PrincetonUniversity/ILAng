@@ -207,7 +207,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             );
         target.ConstructWrapper();
         std::string design_file;
-        if (_backend == backend_selector::AIGERABC)
+        if (_backend == backend_selector::ABCPDR)
           design_file = "wrapper.aig";
         else if( (_backend & backend_selector::CHC) == backend_selector::CHC)
           design_file = "wrapper.smt2";
@@ -287,7 +287,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             );
         target.ConstructWrapper();
         std::string design_file;
-        if (_backend == backend_selector::AIGERABC)
+        if (_backend == backend_selector::ABCPDR)
           design_file = "wrapper.aig";
         else if( (_backend & backend_selector::CHC) == backend_selector::CHC)
           design_file = "wrapper.smt2";

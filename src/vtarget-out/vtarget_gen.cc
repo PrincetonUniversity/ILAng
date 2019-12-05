@@ -15,7 +15,7 @@ bool VlgVerifTgtGenBase::isValidVerifBackend(backend_selector vbackend) {
   if ( vbackend == backend_selector::JASPERGOLD)
     return true;
   if ( (vbackend & backend_selector::YOSYS) == backend_selector::YOSYS) {
-    if (vbackend == backend_selector::AIGERABC)
+    if (vbackend == backend_selector::ABCPDR)
       return true;
     if (vbackend == backend_selector::BTOR_GENERIC)
       return true;
