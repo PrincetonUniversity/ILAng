@@ -737,7 +737,7 @@ void VlgSglTgtGen_Yosys::design_only_gen_smt(
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
-    //FIXME: %rstlen% %cycle% !!!
+    
     auto chcGenSmtTemplate = 
       _vtg_config.ChcWordBlastArray ? 
         chcGenerateSmtScript_wo_Array : chcGenerateSmtScript_w_Array ;

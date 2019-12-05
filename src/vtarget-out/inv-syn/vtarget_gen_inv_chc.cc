@@ -32,6 +32,7 @@ opt
 opt
 %flatten%
 %setundef -undriven -expose%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
 proc
 opt;;
@@ -45,9 +46,11 @@ opt
 opt_expr -mux_undef
 opt
 opt
+%flatten%
+%setundef -undriven -expose%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory_dff -wr_only
 memory_collect;
-
 memory_unpack
 splitnets -driver
 opt;;
@@ -64,17 +67,10 @@ static std::string inv_syn_tmpl_datatypes = R"***(
 ;----------------------------------------
 %(set-option :fp.engine spacer)%
 
-
 %%
 
-;(declare-rel INIT (|%1%_s|))
-;(declare-rel T (|%1%_s|) (|%1%_s|))
 (declare-rel INV (|%1%_s|))
 (declare-rel fail ())
-
-
-(declare-var |__BI__| |%1%_s|)
-(declare-var |__I__| |%1%_s|)
 
 (declare-var |__S__| |%1%_s|)
 (declare-var |__S'__| |%1%_s|)
@@ -86,20 +82,19 @@ static std::string inv_syn_tmpl_datatypes = R"***(
 ; --------------------------------
 
 ; init => inv
-(rule (=> (and 
-  (|%1%_n rst| |__BI__|)
-  ;(|%1%_u| |__BI__|)
-  ;(|%1%_u| |__I__|)
-  <!>(|%1%_h| |__BI__|)<!>
-  <!>(|%1%_h| |__I__|)<!>
-  (|%1%_t| |__BI__| |__I__|))
-  (INV |__I__|)))
+(rule (=> 
+  <!>(and<!>
+  (|%1%_i| |__S__|)
+  <!ui>(|%1%_u| |__S__|)<!>
+  <!>(|%1%_h| |__S__|)<!>
+  <!>)<!>
+  (INV |__S__|)))
 
 ; inv /\ T => inv
 (rule (=> (and 
   (INV |__S__|) 
   (|%1%_u| |__S__|)
-  ;(|%1%_u| |__S'__|)
+  <!us>(|%1%_u| |__S'__|)<!>
   <!>(|%1%_h| |__S__|)<!>
   <!>(|%1%_h| |__S'__|)<!>
   (|%1%_t| |__S__| |__S'__|)) 
@@ -108,7 +103,7 @@ static std::string inv_syn_tmpl_datatypes = R"***(
 ; inv /\ ~p => \bot
 (rule (=> (and 
   (INV |__S__|) 
-  (|%1%_u| |__S__|)
+  <!ue>(|%1%_u| |__S__|)<!>
   <!>(|%1%_h| |__S__|)<!>
   (not (|%1%_a| |__S__|)))
   fail))
@@ -131,10 +126,6 @@ static std::string inv_syn_tmpl_wo_datatypes = R"***(
 (declare-rel INV %WrapperDataType%)
 (declare-rel fail ())
 
-%BeforeInitVar%
-%InitVar%
-;(declare-var |__BI__state| Type)
-;(declare-var |__I__state|  Type)
 
 %State%
 %StatePrime%
@@ -144,18 +135,19 @@ static std::string inv_syn_tmpl_wo_datatypes = R"***(
 ; same for flattened
 
 ; init => inv
-(rule (=> (and 
-  (|%WrapperName%_n rst| %BIs%) 
-  <!>(|%WrapperName%_h| %BIs%)<!> 
-  <!>(|%WrapperName%_h| %Is%)<!>
-  (|%WrapperName%_t| %BIs% %Is%)) 
-  (INV %Is%)))
+(rule (=> 
+  <!>(and<!>
+  (|%WrapperName%_i| %Ss%) 
+  <!ui>(|%WrapperName%_u| %Ss%)<!>
+  <!>(|%WrapperName%_h| %Ss%)<!> 
+  <!>)<!>
+  (INV %Ss%)))
 
 ; inv /\ T => inv
 (rule (=> (and 
   (INV %Ss%) 
   (|%WrapperName%_u| %Ss%) 
-  (|%WrapperName%_u| %Sps%) 
+  <!us>(|%WrapperName%_u| %Sps%)<!> 
   <!>(|%WrapperName%_h| %Ss%)<!>
   <!>(|%WrapperName%_h| %Sps%)<!>
   (|%WrapperName%_t| %Ss% %Sps%)) 
@@ -164,7 +156,7 @@ static std::string inv_syn_tmpl_wo_datatypes = R"***(
 ; inv /\ ~p => \bot
 (rule (=> (and 
   (INV %Ss%)
-  (|%WrapperName%_u| %Ss%) 
+  <!ue>(|%WrapperName%_u| %Ss%)<!> 
   <!>(|%WrapperName%_h| %Ss%)<!>
   (not (|%WrapperName%_a| %Ss%))) 
   fail))
@@ -564,12 +556,23 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
+
+    auto chcGenSmtTemplate = 
+      _vtg_config.ChcWordBlastArray ? 
+        chcGenerateSmtScript_wo_Array : chcGenerateSmtScript_w_Array ;
+
     ys_script_fout << 
       ReplaceAll(
-      ReplaceAll(chcGenerateSmtScript_wo_Array, "%flatten%", 
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(chcGenSmtTemplate, "%flatten%", 
         _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""),
-        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "")
-        ;
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
+        "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%module%", top_mod_name);
+
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << smt_name;   
   } // finish writing
@@ -671,22 +674,37 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
     auto tmpl = ReplaceAll(inv_syn_tmpl_wo_datatypes, 
       "%(set-option :fp.engine spacer)%" ,
       s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
+
+    tmpl = ReplaceAll(tmpl, "<!ui>(|%WrapperName%_u| %Ss%)<!>" , _vtg_config.ChcAssumptionsReset ?     "(|%WrapperName%_u| %Ss%)" : "");
+    tmpl = ReplaceAll(tmpl, "<!us>(|%WrapperName%_u| %Sps%)<!>" , _vtg_config.ChcAssumptionNextState ? "(|%WrapperName%_u| %Sps%)": "");
+    tmpl = ReplaceAll(tmpl, "<!ue>(|%WrapperName%_u| %Ss%)<!>" , _vtg_config.ChcAssumptionEnd ?        "(|%WrapperName%_u| %Ss%)" : "");
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %BIs%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %BIs%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Is%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Is%)" );
+    tmpl = ReplaceAll(tmpl, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset &&  _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : "(and");
+    tmpl = ReplaceAll(tmpl, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : ")");
+
     chc = RewriteDatatypeChc(
       tmpl,
       datatype_top_mod, wrapper_mod_name);
+
     chc = ReplaceAll(chc, "%%", smt_converted );
+
   } else {
     chc = ReplaceAll(inv_syn_tmpl_datatypes, 
       "%(set-option :fp.engine spacer)%" ,
       s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
+
+    chc = ReplaceAll(chc, "<!ui>(|%1%_u| |__S__|)<!>" , _vtg_config.ChcAssumptionsReset ? "(|%1%_u| |__S__|)" : "");
+    chc = ReplaceAll(chc, "<!us>(|%1%_u| |__S'__|)<!>" , _vtg_config.ChcAssumptionNextState ? "(|%1%_u| |__S'__|)" : "");
+    chc = ReplaceAll(chc, "<!ue>(|%1%_u| |__S__|)<!>" , _vtg_config.ChcAssumptionEnd ? "(|%1%_u| |__S__|)" : "");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
     chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
+    chc = ReplaceAll(chc, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : "(and");
+    chc = ReplaceAll(chc, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
+      "" : ")");
     chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
     chc = ReplaceAll(chc, "%%", smt_converted );
   } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
@@ -726,18 +744,12 @@ static std::string RewriteDatatypeChc(
   smt::YosysSmtParser::convert_datatype_to_type_vec(dt, inv_tps);
   auto WrapperDataType = smt::var_type::toString(inv_tps);
 
-  // %BeforeInitVar%
-  // %InitVar%
   // %State%
   // %StatePrime%
   // declare-var s ...
-  std::string BeforeInitVar;
-  std::string InitVar;
   std::string State;
   std::string StatePrime;
-  // %BIs% %Is%  %Ss% %Sps%
-  std::string BIs;
-  std::string Is;
+  // %Ss% %Sps%
   std::string Ss;
   std::string Sps;
   bool first = true;
@@ -751,29 +763,22 @@ static std::string RewriteDatatypeChc(
     ILA_ASSERT(st._type._type != smt::var_type::tp::Datatype);
     name_set.insert(st_name);
     auto type_string = st._type.toString();
-    BeforeInitVar += "(declare-var |BI_" + st_name + "| " + type_string + ")\n";
-    InitVar       += "(declare-var |I_"  + st_name + "| " + type_string + ")\n";
     State         += "(declare-var |S_"  + st_name + "| " + type_string + ")\n";
     StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
 
     if(! first) {
-      BIs += " "; Is  += " "; Ss  += " "; Sps += " ";
+      Ss  += " ";
+      Sps += " ";
     }
     first = false;
-    BIs += "|BI_" + st_name + "|";
-    Is  += "|I_"  + st_name + "|";
     Ss  += "|S_"  + st_name + "|";
     Sps += "|S'_" + st_name + "|";
   }
   // Replacement
   chc = ReplaceAll(chc, "%WrapperName%",     wrapper_mod_name);
   chc = ReplaceAll(chc, "%WrapperDataType%", WrapperDataType);
-  chc = ReplaceAll(chc, "%BeforeInitVar%",   BeforeInitVar);
-  chc = ReplaceAll(chc, "%InitVar%",         InitVar);
   chc = ReplaceAll(chc, "%State%",           State);
   chc = ReplaceAll(chc, "%StatePrime%",      StatePrime);
-  chc = ReplaceAll(chc, "%BIs%",             BIs);
-  chc = ReplaceAll(chc, "%Is%",              Is);
   chc = ReplaceAll(chc, "%Ss%",              Ss);
   chc = ReplaceAll(chc, "%Sps%",             Sps);
 

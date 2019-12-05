@@ -235,13 +235,22 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
               << os_portable_append_dir(_output_path, "rst.ets");
     return;
   }
+
   rstf << "I: rst = 1_1" << std::endl;
   rstf << "I: reset_done = 0_1" << std::endl;
-  rstf << "S1: rst = 0_1" << std::endl;
-  rstf << "S1: reset_done = 1_1" << std::endl;
+  
+  unsigned cycle_after_i = 1;
+  for (; cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles; ++ cycle_after_i) {
+    rstf << "S" << cycle_after_i << ": rst = 1_1" << std::endl;
+    rstf << "S" << cycle_after_i << ": reset_done = 0_1" << std::endl;
+  }
+  rstf << "S" << cycle_after_i << ": rst = 0_1" << std::endl;
+  rstf << "S" << cycle_after_i << ": reset_done = 1_1" << std::endl;
   rstf << "# TRANS" << std::endl;
   rstf << "I -> S1" << std::endl;
-  rstf << "S1 -> S1" << std::endl;
+  for (cycle_after_i = 1; cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles; ++ cycle_after_i)
+    rstf << "S" << cycle_after_i << " -> S" << (cycle_after_i+1) << std::endl;
+  rstf << "S" << cycle_after_i << " -> S" << cycle_after_i << std::endl;
 
   std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
   if (!fout.is_open()) {

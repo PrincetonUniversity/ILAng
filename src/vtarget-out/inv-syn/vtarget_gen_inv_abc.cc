@@ -24,10 +24,10 @@ namespace ilang {
 static std::string abcGenerateSmtScript_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 miter -assert %module%
 flatten
 %setundef -undriven -expose%
-sim -clock clk -reset rst -n 1 -w %module%
 memory -nordff
 techmap; opt -fast
 write_blif %blifname%
@@ -37,10 +37,10 @@ write_blif %blifname%
 static std::string abcGenerateAigerWInit_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 miter -assert %module%
 flatten
 %setundef -undriven -expose%
-sim -clock clk -reset rst -n 1 -w %module%
 memory -nordff
 opt_clean
 techmap
@@ -551,12 +551,17 @@ void VlgSglTgtGen_Abc::generate_blif(
     ys_script_fout << 
       ReplaceAll(
       ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
       ReplaceAll( 
       ReplaceAll(abcGenerateSmtScript_wo_Array,
         "%topfile%", os_portable_append_dir( _output_path , top_file_name ) ),
         "%module%",  top_mod_name ),
         "%blifname%",blif_name),
-        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
+        "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles))
+        ;
   } // finish writing
 
   std::string yosys = "yosys";
@@ -591,6 +596,8 @@ void VlgSglTgtGen_Abc::generate_aiger(
       ReplaceAll(
       ReplaceAll(
       ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
       ReplaceAll( 
       ReplaceAll( 
       ReplaceAll(abcGenerateAigerWInit_wo_Array,
@@ -599,7 +606,10 @@ void VlgSglTgtGen_Abc::generate_aiger(
         "%blifname%",blif_name),
         "%aigname%", aiger_name),
         "%mapname%", map_name),
-        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : "");
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
+        "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles))
+        ;
   } // finish writing
 
   std::string yosys = "yosys";
