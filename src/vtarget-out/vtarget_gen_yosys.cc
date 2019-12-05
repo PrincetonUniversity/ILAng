@@ -264,7 +264,9 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
       IMPLY(
        s_backend == synthesis_backend_selector::ABC,
        vtg_config.YosysSmtFlattenHierarchy)
-    )  << "ABCS requires not to flatten hierarchy";
+    )  << "ABC requires to flatten hierarchy";
+    // This is hard-coded in the Yosys script
+    // if not flattened, abc will be unhappy
 
     ILA_ASSERT(
       (vbackend & backend_selector::YOSYS) == backend_selector::YOSYS ) 
