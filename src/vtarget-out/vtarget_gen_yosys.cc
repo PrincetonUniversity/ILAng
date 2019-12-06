@@ -318,7 +318,7 @@ void VlgSglTgtGen_Yosys::add_wire_assign_assumption(
     const std::string& dspt) {
 
   vlg_wrapper.add_assign_stmt(varname, expression);
-  ILA_ERROR_IF(expression.find(".") == std::string::npos)
+  ILA_ERROR_IF(expression.find(".") != std::string::npos)
       << "-------- expression:" << expression << " contains unfriendly dot.";
 }
 

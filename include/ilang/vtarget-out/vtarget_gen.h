@@ -210,7 +210,7 @@ public:
 
         // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
         YosysUndrivenNetAsInput(true),
-        YosysSmtFlattenHierarchy(false),
+        YosysSmtFlattenHierarchy(true),
         YosysSmtFlattenDatatype(false),
         YosysPropertyCheckShowProof(false),
         YosysSmtStateSort(Datatypes),
