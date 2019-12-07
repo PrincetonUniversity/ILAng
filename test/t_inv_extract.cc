@@ -86,6 +86,49 @@ TEST(TestInvExtract, AbcAigerGLA) {
   std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
 }
 
+#if 0
+TEST(TestInvExtract, GrainInvExtract) {
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/grain/";
+
+  InvariantObject inv_obj;
+  inv_obj.set_dut_inst_name("m1");
+
+  inv_obj.AddInvariantFromGrainResultFile(
+    , // smt
+    "" , // tag
+    , // result file
+    true, // dt flatten
+    true, // hier flatten
+    false // discourage outside var
+    );
+
+  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+}
+
+TEST(TestInvExtract, Z3InvExtract) {
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/z3/";
+
+  InvariantObject inv_obj;
+  InvariantInCnf inv_cnf;
+  inv_obj.set_dut_inst_name("m1");
+
+  inv_obj.AddInvariantFromAbcResultFile(
+    dirName + "__aiger_prepare.blif",
+    dirName + "ffmap.info",
+    true,
+    false,
+    dirName + "glamap.info", /*,dirName + "glamap.info"*/
+    true, // use aiger, if false, the following has no use
+    dirName + "wrapper.aig.map",
+    inv_cnf,
+    InvariantInCnf());
+
+  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+}
+#endif
+
 #endif
 
 }; // namespace ilang

@@ -85,6 +85,8 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3adapter.cc
   t_z3sanity.cc
   t_inv_syn.cc
+  t_smt_in.cc
+  t_smt_trans.cc
 )
 
 if(${ILANG_BUILD_SYNTH})
