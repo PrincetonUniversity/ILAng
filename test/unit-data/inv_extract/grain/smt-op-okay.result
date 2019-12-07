@@ -3,6 +3,7 @@
 
 (assert 
   (and 
+    (=> false true)
     (= S_m1.imp (bvnot S_m1.v))
     (not (= S_m1.imp (bvnot S_m1.v)))
     (or (= S_m1.imp (bvnot S_m1.v)) (= S_m1.imp (bvnot S_m1.v)))
