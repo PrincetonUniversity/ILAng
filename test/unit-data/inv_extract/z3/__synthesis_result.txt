@@ -1,0 +1,5 @@
+unsat
+(forall ((A wrapper_s))
+  (let ((a!1 (= ((_ extract 0 0) (|opposite#3| (|wrapper_h m1| A))) #b1))
+        (a!2 (= ((_ extract 0 0) (|opposite#2| (|wrapper_h m1| A))) #b1)))
+    (= (INV A) (and (or a!1 a!2) (or (not a!1) (not a!2))))))
