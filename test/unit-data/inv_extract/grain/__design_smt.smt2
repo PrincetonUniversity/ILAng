@@ -25,9 +25,9 @@
 (define-fun |wrapper_n __START__| ((state |wrapper_s|)) Bool (|wrapper#3| state))
 ; yosys-smt2-output __all_assert_wire__ 1
 ; yosys-smt2-wire __all_assert_wire__ 1
-(define-fun |wrapper#5| ((state |wrapper_s|)) Bool (not (or  (= ((_ extract 0 0) (|wrapper#4| state)) #b1) (= ((_ extract 1 1) (|wrapper#4| state)) #b1) (= ((_ extract 2 2) (|wrapper#4| state)) #b1) (= ((_ extract 3 3) (|wrapper#4| state)) #b1)))) ; $eq$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain-back/inv-syn/wrapper.v:42$1_Y
-(define-fun |wrapper#7| ((state |wrapper_s|)) Bool (not (or  (= ((_ extract 0 0) (|wrapper#6| state)) #b1) (= ((_ extract 1 1) (|wrapper#6| state)) #b1) (= ((_ extract 2 2) (|wrapper#6| state)) #b1) (= ((_ extract 3 3) (|wrapper#6| state)) #b1)))) ; $eq$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain-back/inv-syn/wrapper.v:43$3_Y
-(define-fun |wrapper#8| ((state |wrapper_s|)) Bool (and (or  (|wrapper#5| state) false) (or  (|wrapper#7| state) false))) ; $logic_and$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain-back/inv-syn/wrapper.v:43$4_Y
+(define-fun |wrapper#5| ((state |wrapper_s|)) Bool (not (or  (= ((_ extract 0 0) (|wrapper#4| state)) #b1) (= ((_ extract 1 1) (|wrapper#4| state)) #b1) (= ((_ extract 2 2) (|wrapper#4| state)) #b1) (= ((_ extract 3 3) (|wrapper#4| state)) #b1)))) ; $eq$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain/inv-syn/wrapper.v:42$1_Y
+(define-fun |wrapper#7| ((state |wrapper_s|)) Bool (not (or  (= ((_ extract 0 0) (|wrapper#6| state)) #b1) (= ((_ extract 1 1) (|wrapper#6| state)) #b1) (= ((_ extract 2 2) (|wrapper#6| state)) #b1) (= ((_ extract 3 3) (|wrapper#6| state)) #b1)))) ; $eq$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain/inv-syn/wrapper.v:43$3_Y
+(define-fun |wrapper#8| ((state |wrapper_s|)) Bool (and (or  (|wrapper#5| state) false) (or  (|wrapper#7| state) false))) ; $logic_and$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain/inv-syn/wrapper.v:43$4_Y
 (define-fun |wrapper#9| ((state |wrapper_s|)) (_ BitVec 1) (bvnot (ite (|wrapper#8| state) #b1 #b0))) ; \cex_nonreachable_assert__p0__
 (define-fun |wrapper_n __all_assert_wire__| ((state |wrapper_s|)) Bool (= ((_ extract 0 0) (|wrapper#9| state)) #b1))
 ; yosys-smt2-output cex_nonreachable_assert__p0__ 1
@@ -48,14 +48,14 @@
 (define-fun |wrapper_n m1__DOT__v| ((state |wrapper_s|)) (_ BitVec 4) (|wrapper#6| state))
 ; yosys-smt2-output out 4
 ; yosys-smt2-wire out 4
-(define-fun |wrapper#11| ((state |wrapper_s|)) (_ BitVec 4) (bvsub #b1111 (|wrapper#4| state))) ; $techmap\m1.$sub$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain-back/inv-syn/wrapper.v:78$11_Y
+(define-fun |wrapper#11| ((state |wrapper_s|)) (_ BitVec 4) (bvsub #b1111 (|wrapper#4| state))) ; $techmap\m1.$sub$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain/inv-syn/wrapper.v:78$11_Y
 (define-fun |wrapper#12| ((state |wrapper_s|)) (_ BitVec 4) (bvand (|wrapper#6| state) (|wrapper#11| state))) ; \m1.out
 (define-fun |wrapper_n out| ((state |wrapper_s|)) (_ BitVec 4) (|wrapper#12| state))
 ; yosys-smt2-input rst 1
 (define-fun |wrapper_n rst| ((state |wrapper_s|)) Bool (|wrapper#13| state))
-; yosys-smt2-assert 0 /home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain-back/inv-syn/wrapper.v:53
-(define-fun |wrapper_a 0| ((state |wrapper_s|)) Bool (or (= ((_ extract 0 0) (|wrapper#9| state)) #b1) (not true))) ; $assert$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain-back/inv-syn/wrapper.v:53$6
-(define-fun |wrapper#14| ((state |wrapper_s|)) (_ BitVec 4) (bvadd (|wrapper#6| state) #b0001)) ; $techmap\m1.$add$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain-back/inv-syn/wrapper.v:68$8_Y
+; yosys-smt2-assert 0 /home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain/inv-syn/wrapper.v:53
+(define-fun |wrapper_a 0| ((state |wrapper_s|)) Bool (or (= ((_ extract 0 0) (|wrapper#9| state)) #b1) (not true))) ; $assert$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain/inv-syn/wrapper.v:53$6
+(define-fun |wrapper#14| ((state |wrapper_s|)) (_ BitVec 4) (bvadd (|wrapper#6| state) #b0001)) ; $techmap\m1.$add$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-grain/inv-syn/wrapper.v:68$8_Y
 (define-fun |wrapper#15| ((state |wrapper_s|)) (_ BitVec 4) (ite (|wrapper#0| state) (|wrapper#14| state) (|wrapper#6| state))) ; $techmap\m1.$procmux$18_Y
 (define-fun |wrapper#16| ((state |wrapper_s|)) (_ BitVec 4) (ite (|wrapper#13| state) #b0000 (|wrapper#15| state))) ; $techmap\m1.$0\v[3:0]
 (define-fun |wrapper#17| ((state |wrapper_s|)) (_ BitVec 4) (bvsub (|wrapper#4| state) #b0001)) ; $techmap\m1.$auto$wreduce.cc:455:run$26 [3:0]
