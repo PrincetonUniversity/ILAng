@@ -134,11 +134,6 @@ TEST(TestVlgVerifInvSyn, CegarCntAbc) {
   cfg.AbcUseAiger = true;
   cfg.AbcUseCorr = false;
 
-  cfg.CosaSolver = "btor";
-  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
-  cfg.CosaPath = "/home/hongce/CoSA/";
-  cfg.AbcPath = "/home/hongce/abc/";
-
   auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
     {"unit-data","inv_syn","cnt2"});
   auto outDir  = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
