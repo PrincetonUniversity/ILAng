@@ -255,10 +255,27 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
       << "Unknown target type: " << target_tp;
     
     ILA_ASSERT(
+      (vbackend & backend_selector::YOSYS) == backend_selector::YOSYS ) 
+      << "Must use Yosys as vbackend";
+
+    ILA_ASSERT(
+      s_backend == synthesis_backend_selector::ABC ||
+      s_backend == synthesis_backend_selector::Z3  ||
+      s_backend == synthesis_backend_selector::GRAIN ||
+      s_backend == synthesis_backend_selector::ELDERICA ||
+      s_backend == synthesis_backend_selector::NOSYN
+    );
+
+    ILA_ASSERT(
       IMPLY(
        s_backend == synthesis_backend_selector::GRAIN,
        vtg_config.YosysSmtFlattenDatatype && vtg_config.YosysSmtFlattenHierarchy)
     )  << "Grain requires not to flatten hierarchy/datatype";
+
+    ILA_ASSERT(
+      IMPLY(s_backend == synthesis_backend_selector::ABC,
+      _vtg_config.AbcUseAiger)
+    ) << "Currently only support using AIGER";
 
     ILA_ASSERT(
       IMPLY(
@@ -267,11 +284,13 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     )  << "ABC requires to flatten hierarchy";
     // This is hard-coded in the Yosys script
     // if not flattened, abc will be unhappy
-
-    ILA_ASSERT(
-      (vbackend & backend_selector::YOSYS) == backend_selector::YOSYS ) 
-      << "Must use Yosys as vbackend";
     
+    ILA_ASSERT(
+      IMPLY(
+       s_backend == synthesis_backend_selector::ABC,
+       vbackend == backend_selector::ABCPDR)
+    );
+
     ILA_ASSERT(
       IMPLY(
        s_backend == synthesis_backend_selector::GRAIN,
@@ -287,21 +306,10 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
 
     ILA_ASSERT(
       IMPLY(
-       s_backend == synthesis_backend_selector::ABC,
-       vbackend == backend_selector::ABCPDR)
-    );
-
-    ILA_ASSERT(
-      IMPLY(
        vbackend == backend_selector::BTOR_GENERIC,
        s_backend == synthesis_backend_selector::NOSYN
        ));
     
-    ILA_ASSERT(
-      IMPLY(s_backend == synthesis_backend_selector::ABC,
-      _vtg_config.AbcUseAiger)
-    ) << "Currently only support using AIGER";
-
     ILA_ASSERT(
       s_backend != synthesis_backend_selector::ELDERICA
     ) << "Bug : not implemented yet!";
@@ -642,7 +650,7 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
     ILA_ASSERT(false) << "Not implemented.";
   } else if (s_backend == synthesis_backend_selector::NOSYN) {
     runnable = "echo";
-    options = " \"btor file is available as :" + prob_fname + "\"";
+    options = " \"btor file is available as: " + prob_fname + "\"";
   }
 
   if (prob_fname != "") {
@@ -711,10 +719,70 @@ void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
         fout << ReplaceAll(ReplaceAll(line,"wrapper#", "w"), "wrapper_", "w_") << "\n";
       }
     }
+  } else if (s_backend == synthesis_backend_selector::ELDERICA)
+    ILA_ASSERT(false) << "Not implemented.";
+  else if (s_backend == synthesis_backend_selector::NOSYN) {
+    design_only_gen_btor(
+      os_portable_append_dir(_output_path, extra_name),
+      os_portable_append_dir(_output_path, "__gen_btor_script.ys"));
   }
   // else: None , Eldarica
 } // Export_problem
 
+
+
+/// generate the wrapper's btor
+void VlgSglTgtGen_Yosys::design_only_gen_btor(
+  const std::string & btor_name,
+  const std::string & ys_script_name) {
+  
+  auto ys_output_full_name =
+      os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
+  { // export to ys_script_name
+    std::ofstream ys_script_fout( ys_script_name );
+    
+    std::string write_btor_options;
+    write_btor_options += _vtg_config.BtorAddCommentsInOutputs ? " -v" : "";
+    write_btor_options += _vtg_config.BtorSingleProperty ? " -s":"";
+
+    ys_script_fout << "read_verilog -sv " 
+      << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
+    ys_script_fout << "prep -top " << top_mod_name << std::endl;
+    
+    auto chcGenSmtTemplate = 
+      _vtg_config.ChcWordBlastArray ? 
+        chcGenerateSmtScript_wo_Array : chcGenerateSmtScript_w_Array ;
+
+    ys_script_fout << 
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(
+      ReplaceAll(chcGenSmtTemplate, "%flatten%", 
+        _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""),
+        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
+        "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+        "%module%", top_mod_name);
+
+    ys_script_fout << "write_btor "<<write_btor_options << " "
+      << btor_name;   
+  } // finish writing
+
+  std::string yosys = "yosys";
+
+  if (! _vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
+
+  // execute it
+  std::vector<std::string> cmd;
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
+  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
+    ILA_ERROR_IF( res.failure != res.NONE  )
+      << "Executing Yosys failed!";
+    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
+      << "Yosys returns error code:" << res.ret;
+} // design_only_gen_smt
 
 
 

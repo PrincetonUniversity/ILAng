@@ -92,6 +92,51 @@ TEST(TestVlgTargetGen, PipeExampleZ3) {
 }
 
 
+TEST(TestVlgTargetGen, PipeExampleGrain) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(dirName, "verify-grain"),       // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::GRAIN_SYGUS // engine
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
+
+TEST(TestVlgTargetGen, PipeExampleBtor) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(dirName, "verify-btor"),       // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::BTOR_GENERIC // engine
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
 
 TEST(TestVlgTargetGen, PipeExampleAbc) {
   auto ila_model = SimplePipe::BuildModel();

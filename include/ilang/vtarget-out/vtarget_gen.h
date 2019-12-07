@@ -151,6 +151,12 @@ public:
   /// CHC, whether to force assumption on the end T
   bool ChcAssumptionEnd;
 
+  // ----------- Options for Btor Output -------------- //
+  /// CHC, whether to turn array into individual registers
+  bool BtorSingleProperty;
+  /// CHC, whether to force assumption on the init
+  bool BtorAddCommentsInOutputs;
+
   // ----------- Options for Z3/Grain/ABC Solver -------------- //
   /// The path to Z3, if "z3" is not in the PATH, default empty
   std::string Z3Path;
@@ -222,6 +228,13 @@ public:
         ChcWordBlastArray(true),
         ChcAssumptionsReset(false),  ChcAssumptionNextState(false),
         ChcAssumptionEnd(false),
+
+        // ----------- Options for Btor Output -------------- //
+        /// CHC, whether to turn array into individual registers
+        BtorSingleProperty(true),
+        /// CHC, whether to force assumption on the init
+        BtorAddCommentsInOutputs(false),
+
         // ----------- Options for Z3/Grain/ABC Solver -------------- //
         GrainHintsUseCnfStyle(true),
 

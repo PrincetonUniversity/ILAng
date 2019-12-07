@@ -168,6 +168,10 @@ private:
   void design_only_gen_smt(
     const std::string & smt_name,
     const std::string & ys_script_name);  
+  /// generate the wrapper's btor
+  void design_only_gen_btor(
+    const std::string & btor_name,
+    const std::string & ys_script_name);  
   /// generate the aiger file
   void generate_aiger(
     const std::string & blif_name,
