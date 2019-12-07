@@ -97,6 +97,8 @@ TEST(TestVlgTargetGen, PipeExampleGrain) {
 
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
+  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
+  vtg_config.YosysSmtFlattenDatatype = true;
 
   VerilogVerificationTargetGenerator vg(
       {},                                                 // no include
@@ -106,7 +108,8 @@ TEST(TestVlgTargetGen, PipeExampleGrain) {
       os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
       os_portable_append_dir(dirName, "verify-grain"),       // verification dir
       ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::GRAIN_SYGUS // engine
+      VerilogVerificationTargetGenerator::backend_selector::GRAIN_SYGUS, // engine
+      vtg_config
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -114,6 +117,31 @@ TEST(TestVlgTargetGen, PipeExampleGrain) {
   vg.GenerateTargets();
 }
 
+
+TEST(TestVlgTargetGen, PipeExampleGrainDeath) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
+  vtg_config.YosysSmtFlattenDatatype = false;
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(dirName, "verify-grain"),       // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::GRAIN_SYGUS, // engine
+      vtg_config
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  EXPECT_DEATH(vg.GenerateTargets(),".*");
+}
 
 
 TEST(TestVlgTargetGen, PipeExampleBtor) {
