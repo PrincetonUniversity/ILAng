@@ -86,46 +86,142 @@ TEST(TestInvExtract, AbcAigerGLA) {
   std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
 }
 
-#if 0
 TEST(TestInvExtract, GrainInvExtract) {
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/grain/";
+  auto smt_file = os_portable_append_dir(dirName, "__design_smt.smt2");
+  
+  bool flatten_datatype = true;
+  bool flatten_hierarchy = true;
 
   InvariantObject inv_obj;
   inv_obj.set_dut_inst_name("m1");
 
-  inv_obj.AddInvariantFromGrainResultFile(
-    , // smt
-    "" , // tag
-    , // result file
-    true, // dt flatten
-    true, // hier flatten
-    false // discourage outside var
-    );
+  std::ifstream fin(smt_file);
+  std::stringstream buffer;
+  buffer << fin.rdbuf();
+  {
+    smt::YosysSmtParser design_info(buffer.str());
 
-  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
-  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+    auto inv_file = os_portable_append_dir(dirName, "smt-op-okay.result");
+    inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      );
+    
+    EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+    std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+    EXPECT_TRUE(inv_obj.GetExtraFreeVarDefs().empty());
+    EXPECT_EQ(inv_obj.GetExtraVarDefs().size() , 1);
+    for (auto && vdef: inv_obj.GetExtraVarDefs()) {
+      std::cout << std::get<0>(vdef) << std::endl << std::get<1>(vdef) << std::endl
+        << std::get<2>(vdef) << std::endl;
+    }
+  }
+
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "bvsrem.result");
+    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      ), ".*");
+  }
+
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "repeat.result");
+    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      ), ".*");
+  }
+
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "rotate_left.result");
+    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      ), ".*");
+  }
+
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "rotate_right.result");
+    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      ), ".*");
+  }
+
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "sign_extend.result");
+    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      ), ".*");
+  }
+
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "zero_extend.result");
+    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      ), ".*");
+  }
 }
 
+// Current implementation does not support extract invariants
+// from un-flattened hierarchy
+#if 0
 TEST(TestInvExtract, Z3InvExtract) {
+  // prepare for ...
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/z3/";
+  auto smt_file = os_portable_append_dir(dirName, "__design_smt.smt2");
+
+  InvariantInCnf inv_cnf;
+ 
+  bool flatten_datatype = true;
+  bool flatten_hierarchy = false;
 
   InvariantObject inv_obj;
-  InvariantInCnf inv_cnf;
   inv_obj.set_dut_inst_name("m1");
 
-  inv_obj.AddInvariantFromAbcResultFile(
-    dirName + "__aiger_prepare.blif",
-    dirName + "ffmap.info",
-    true,
-    false,
-    dirName + "glamap.info", /*,dirName + "glamap.info"*/
-    true, // use aiger, if false, the following has no use
-    dirName + "wrapper.aig.map",
-    inv_cnf,
-    InvariantInCnf());
+  std::ifstream fin(smt_file);
+  std::stringstream buffer;
+  buffer << fin.rdbuf();
+  {
+    smt::YosysSmtParser design_info(buffer.str());
 
-  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
-  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+    auto inv_file = os_portable_append_dir(dirName, "__synthesis_result.txt");
+    inv_obj.AddInvariantFromChcResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file, // result file
+      flatten_datatype,
+      flatten_hierarchy
+      );
+    
+    EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+    std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+    EXPECT_TRUE(inv_obj.GetExtraFreeVarDefs().empty());
+    EXPECT_TRUE(inv_obj.GetExtraVarDefs().empty());
+  }
 }
 #endif
 

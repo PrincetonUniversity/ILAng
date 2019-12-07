@@ -426,7 +426,11 @@ execute_result os_portable_execute_shell(
     struct sigaction old_act;
 
     close(pipefd[1]); // close the write end
-    read(pipefd[0], (void *) &child_report, sizeof(child_report));
+    if(read(pipefd[0], (void *) &child_report, sizeof(child_report)) == -1) {
+      _ret.failure = execute_result::PREIO ;
+      close(pipefd[0]);
+      return _ret;
+    }
     if (child_report != execute_result::NONE) {
       // the child has error before exec
       _ret.failure = static_cast<execute_result::_failure>( child_report) ;

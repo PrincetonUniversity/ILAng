@@ -547,7 +547,7 @@ DEFINE_OPERATOR(bvnand) {
   
   std::string vlg_expr;
   MAKE_MULTI_OP(vlg_expr, args,var_type::tp::BV, "&");
-  vlg_expr += "~(" + vlg_expr + ")";
+  vlg_expr = "~(" + vlg_expr + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvnand
 DEFINE_OPERATOR(bvor) {
@@ -561,7 +561,7 @@ DEFINE_OPERATOR(bvnor) {
   CHECK_BV_MULTI_ARG(idx,args);
   std::string vlg_expr;
   MAKE_MULTI_OP(vlg_expr, args,var_type::tp::BV, "|");
-  vlg_expr += "~(" + vlg_expr + ")";
+  vlg_expr = "~(" + vlg_expr + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvnor
 
@@ -588,7 +588,7 @@ DEFINE_OPERATOR(bvult) {
 DEFINE_OPERATOR(bvslt) {
   CHECK_BV_COMPARE(idx,args);
   std::string vlg_expr = 
-   "$signed(" + args[0]->_translate + ") < $signed(" = args[1]->_translate + ")";
+   "$signed(" + args[0]->_translate + ") < $signed(" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr); 
 } // bvslt
 DEFINE_OPERATOR(bvule) {
@@ -749,7 +749,7 @@ DEFINE_OPERATOR(extract) {
   //if (left == right)
   //  bitslice = "[" + std::to_string(left)  + "]";
 
-  if (S_IN("(",args[0]->_translate )) 
+  if (S_IN("(",args[0]->_translate ) || S_IN("{",args[0]->_translate )) 
   { // when we cannot put in one expression
     std::string vlg_expr = 
     "(" + args[0]->_translate + ")" + bitslice;
@@ -772,7 +772,7 @@ DEFINE_OPERATOR(extract) {
     }
     return & ( term_container[search_name] );
   } // else 
-  ILA_ASSERT(! S_IN(')', args[0]->_translate));
+  ILA_ASSERT(! S_IN(')', args[0]->_translate) && ! S_IN('}', args[0]->_translate));
 
   std::string vlg_expr = args[0]->_translate + bitslice;
   std::string search_name = "##bv"+std::to_string(new_width) + "_"  + vlg_expr;

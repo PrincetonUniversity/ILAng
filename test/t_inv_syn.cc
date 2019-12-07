@@ -230,8 +230,79 @@ TEST(TestVlgVerifInvSyn, CegarCntGrain) {
   vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
   EXPECT_FALSE(vg.in_bad_state());
 
-} // CegarPipelineExample
+} // CegarCntGrain
 
+
+TEST(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.YosysUndrivenNetAsInput = true;
+
+  cfg.GrainHintsUseCnfStyle = true;
+  cfg.GrainOptions = {
+    "--skip-cnf --skip-const-check --skip-stat-collect --ante-size 1 --conseq-size 1  --cnf cnt-no-group.cnf --use-arith-bvnot --no-const-enum-vars-on m1.v,m1.imp"};
+
+  auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
+    {"unit-data","inv_syn","cnt2"});
+  auto outDir  = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
+    {"unit-data","inv_syn","cnt2-grain-back"});
+  
+  InvariantInCnf var_in_cnf;
+  { // save grammar file
+    os_portable_mkdir(
+      os_portable_append_dir(outDir, "inv-syn"));
+    InvariantInCnf::clause cl;
+    InvariantInCnf::VarsToClause( {
+      "m1.imp", "m1.v"
+      } , cl);
+    var_in_cnf.InsertClause(cl);
+    std::ofstream fout(
+      os_portable_append_dir(outDir ,P({"inv-syn","cnt-no-group.cnf"})));
+    if (fout.is_open())
+      var_in_cnf.ExportInCnfFormat(fout);
+    else
+      EXPECT_TRUE(false);
+  } // save grammar file
+  
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {os_portable_append_dir(dirName, P({"verilog","opposite.v"}))},
+      "opposite",                // top_module_name
+      os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+      os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+      outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::GRAIN,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.ChangeGrainSyntax({
+    "--skip-cnf",
+    "--skip-const-check",
+    "--skip-stat-collect",
+    "--ante-size 1", "--conseq-size 1",
+    "--cnf cnt-no-group.cnf",
+    "--use-arith-bvnot",
+    "--no-const-enum-vars-on m1.v,m1.imp"});
+
+  vg.GenerateVerificationTarget();
+  EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
+  vg.ExtractVerificationResult();
+  vg.GenerateSynthesisTarget(); // you will need fp engine
+  EXPECT_FALSE(vg.RunSynAuto(true));
+  vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+  EXPECT_FALSE(vg.in_bad_state());
+  vg.GenerateInvariantVerificationTarget();
+  vg.GenerateVerificationTarget();
+
+} // CegarCntGrain
 
 #endif
 

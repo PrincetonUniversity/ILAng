@@ -222,6 +222,9 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
     if (sbackend == synthesis_backend_selector::GRAIN)
       ILA_ASSERT (vtg_config.YosysSmtFlattenDatatype)
         << "For Grain, datatype must be flattened!";
+    
+    ILA_ASSERT(_vtg_config.YosysSmtFlattenHierarchy)
+      << "Currently implementation only supports extract invariants from flattened hierarchy.";
  }
 
 

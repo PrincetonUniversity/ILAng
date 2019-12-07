@@ -99,7 +99,10 @@ TEST(TestVlgTargetGen, PipeExampleGrain) {
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
   auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
   vtg_config.YosysSmtFlattenDatatype = true;
-
+  vtg_config.GrainHintsUseCnfStyle = true;
+  vtg_config.GrainOptions = {
+    "--skip-cnf --skip-const-check --skip-stat-collect --ante-size 1 --conseq-size 1  --cnf cnt-no-group.cnf --use-arith-bvnot --no-const-enum-vars-on m1.v,m1.imp"};
+    
   VerilogVerificationTargetGenerator vg(
       {},                                                 // no include
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
