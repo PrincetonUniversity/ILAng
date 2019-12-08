@@ -43,6 +43,45 @@ TEST(InvSynCexObj, CexObj) {
 }
 
 
+TEST(InvSynInvCnf, InvCnf) {
+  auto dirName = 
+    os_portable_append_dir(ILANG_TEST_SRC_ROOT, std::vector<std::string>({"unit-data", "cex"}));
+  auto cnffile =
+    os_portable_append_dir(dirName, "cnf.txt");
+  
+  InvariantInCnf cnf;
+  {
+    std::ifstream fin(cnffile);
+    EXPECT_TRUE(fin.is_open());
+    cnf.ImportFromFile(fin);
+    InvariantInCnf::clause cl({ {true, "m1.imp" , 1}, {true, "m1.v", 1} });
+    cnf.InsertClauseNoReorder(cl);
+    EXPECT_EQ(cnf.GetCnfs().size(), 2);
+  }
+  {
+    InvariantInCnf cnf2;
+    std::ifstream fin(cnffile);
+    EXPECT_TRUE(fin.is_open());
+    cnf2.ImportFromFile(fin);
+    cnf.InsertClauseIncremental(cnf2);
+    EXPECT_EQ(cnf.GetCnfs().size(), 2);
+    cnf2.Clear();
+    EXPECT_EQ(cnf2.GetCnfs().size(), 0);
+  }
+  {
+    auto cocifile =
+      os_portable_append_dir(dirName, "coci.txt");
+    std::ofstream fout(cocifile);
+    cnf.ExportInCociFormat(fout);
+  }
+  {
+    auto cnfout =
+      os_portable_append_dir(dirName, "cnfout.txt");
+    std::ofstream fout(cnfout);
+    cnf.ExportInCnfFormat(fout);
+  }
+  
+}
 
 #endif
 
