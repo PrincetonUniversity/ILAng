@@ -18,13 +18,13 @@
 #define CHECK_BOOL_ONE_ARG(idx,args) \
   ILA_ASSERT(idx.empty()); \
   ILA_ASSERT(args.size() == 1); \
-  ILA_ASSERT(args[0]->_type._type == var_type::tp::Bool)
+  ILA_ASSERT(args[0]->_type.is_bool())
 
 #define CHECK_BOOL_TWO_ARG(idx,args) \
   ILA_ASSERT((idx).empty()); \
   ILA_ASSERT((args).size() == 2); \
-  ILA_ASSERT((args)[0]->_type._type == var_type::tp::Bool); \
-  ILA_ASSERT((args)[1]->_type._type == var_type::tp::Bool)
+  ILA_ASSERT((args)[0]->_type.is_bool()); \
+  ILA_ASSERT((args)[1]->_type.is_bool())
 
 #define CHECK_BV_TWO_ARG(idx,args) \
   ILA_ASSERT((idx).empty()); \

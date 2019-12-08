@@ -734,7 +734,7 @@ static std::string RewriteDatatypeChc(
     st_name = ReplaceAll(st_name, "|", ""); // remove its ||
     // check no repetition is very important!
     ILA_ASSERT(! IN(st_name, name_set)) << "Bug: name repetition!";
-    ILA_ASSERT(st._type._type != smt::var_type::tp::Datatype);
+    ILA_ASSERT(! st._type.is_datatype());
     name_set.insert(st_name);
     auto type_string = st._type.toString();
     InitVar       += "(declare-var |I_"  + st_name + "| " + type_string + ")\n";

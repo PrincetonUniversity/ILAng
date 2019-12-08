@@ -185,6 +185,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                        "absmem.v");
+      target.do_not_instantiate();
     } else if (_backend == backend_selector::JASPERGOLD && invariantExists) {
       auto target = VlgSglTgtGen_Jasper(
           sub_output_path,
@@ -195,6 +196,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           _advanced_param_ptr);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
+      target.do_not_instantiate();
     } else if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS && invariantExists) {
         auto target = VlgSglTgtGen_Yosys(
             sub_output_path,
@@ -218,7 +220,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
 
         target.ExportAll("wrapper.v", "ila.v", "run.sh", 
           design_file, "absmem.v");
-      
+        target.do_not_instantiate();
     }
     if(invariantExists)
       runnable_script_name.push_back(
@@ -258,6 +260,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                          "absmem.v");
+        target.do_not_instantiate();
       } else if (_backend == backend_selector::JASPERGOLD) {
         auto target = VlgSglTgtGen_Jasper(
             sub_output_path,
@@ -269,6 +272,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _advanced_param_ptr);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
+        target.do_not_instantiate();
       } else if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
         // in this case we will have two targets to generate
         // one is the target with only the design and
@@ -298,6 +302,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
 
         target.ExportAll("wrapper.v", "ila.v", "run.sh", 
           design_file, "absmem.v");
+        target.do_not_instantiate();
       } // end case backend
       runnable_script_name.push_back(
         os_portable_append_dir(sub_output_path, "run.sh"));
@@ -429,6 +434,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
     os_portable_append_dir(
       os_portable_append_dir(_output_path, "inv-syn/"), "run.sh"));
 
+  target.do_not_instantiate();
   return target.GetDesignSmtInfo();
 } // GenerateInvSynTargets
 
@@ -479,6 +485,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTarget
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/, "inv_cnf.txt" , cnf);
+  target.do_not_instantiate();
   runnable_script_name.clear();
   runnable_script_name.push_back(
     os_portable_append_dir(

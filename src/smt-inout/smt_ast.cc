@@ -187,9 +187,9 @@ std::string line_comment::toString() const {
 
 
 unsigned var_type::GetBoolBvWidth() const {
-  if (_type == tp::BV)
+  if (is_bv())
     return _width;
-  else if (_type == tp::Bool)
+  else if (is_bool())
     return 1;
   ILA_ASSERT(false) << "Does not support vlog width on type:" << _type;
   return 0;
@@ -208,12 +208,12 @@ bool var_type::is_datatype() const {
 }
 
 bool var_type::eqtype(const var_type & l, const var_type & r) {
-  if (l._type == tp::Bool) {
-    if (r._type == tp::Bool)
+  if (l.is_bool()) {
+    if (r.is_bool())
       return true;
     return false;
-  } else if (l._type == tp::BV) {
-    if (r._type == tp::BV && l._width == r._width)
+  } else if (l.is_bv()) {
+    if (r.is_bv() && l._width == r._width)
       return true;
     return false;
   }
@@ -257,10 +257,10 @@ var_type var_type::ParseFromString(str_iterator & it) {
 } // ParseFromString
 
 std::string var_type::toString() const {
-  if(_type == tp::Bool) return "Bool";
-  else if(_type == tp::BV)
+  if(is_bool()) return "Bool";
+  else if(is_bv())
     return "(_ BitVec " + std::to_string(_width) +")";
-  else if(_type == tp::Datatype)
+  else if(is_datatype())
     return "|" + module_name + "_s|";
   ILA_ASSERT(false) << "Unknown type";
   return "";
@@ -283,7 +283,7 @@ arg_t arg_t::ParseFromString(str_iterator &) {
 }
 
 std::string arg_t::toString() const {
-  ILA_ERROR_IF (arg_type._type == var_type::tp::Datatype)
+  ILA_ERROR_IF (arg_type.is_datatype())
     << "Should not be used on unconverted datatype";
   return "(" + arg_name  + " " + arg_type.toString() + ")";
 }
@@ -319,7 +319,7 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
 
   ret.internal_name = raw_name;
   // if it is a module
-  if (ret._type._type == var_type::tp::Datatype) {
+  if (ret._type.is_datatype()) {
     // use the backup modulename (won't determine from inside)
     ret.module_name = default_module_name;
   } else {
@@ -525,7 +525,7 @@ std::string convert_to_binary(const std::string& v, unsigned radix, unsigned w) 
   }
   if (v.length() > w) {
     ILA_ERROR << "string : " << v << "(" << v.length() << ") cast to width:" << w;
-    return v.substr(v.length()-w);
+    return "#b" + v.substr(v.length()-w);
   }
   return "";
 }

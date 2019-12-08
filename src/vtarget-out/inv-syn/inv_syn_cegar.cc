@@ -443,7 +443,7 @@ void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pas
 
   // not passing
   cex_extract = std::unique_ptr<CexExtractor>(
-    new CexExtractor(res_file,vlg_mod_inst_name, is_reg, not _vtg_config.CosaFullTrace));
+    new CexExtractor(res_file,vlg_mod_inst_name, is_reg, ! _vtg_config.CosaFullTrace));
   // advance to synthesis stage
   status = cegar_status::NEXT_S;
 } // extract result

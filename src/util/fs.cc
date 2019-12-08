@@ -146,7 +146,7 @@ std::string os_portable_path_from_path(const std::string& path) {
   sep = "/";
 #endif
   if (path.find(sep) == path.npos)
-    return "./";
+    return "."+sep;
   auto pos = path.rfind(sep);
   ILA_ASSERT(pos != path.npos);
   return path.substr(0,pos+1); // include sep

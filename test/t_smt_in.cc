@@ -12,6 +12,22 @@
 
 namespace ilang {
 
+TEST(TestSmtParse, Type) {
+  smt::var_type t1,t2;
+  t1._type = smt::var_type::tp::Bool;
+  t2._type = smt::var_type::tp::BV;
+  EXPECT_FALSE(smt::var_type::eqtype(t1,t2));
+  t1._type = smt::var_type::tp::Datatype;
+  t1.module_name = "m1";
+  EXPECT_FALSE(smt::var_type::eqtype(t1,t2));
+  EXPECT_EQ(t1.toString(),"|m1_s|");
+
+  EXPECT_EQ(smt::convert_to_binary(5,4), "#b0101");
+  EXPECT_EQ(smt::convert_to_binary("0011",2,4), "#b0011");
+  EXPECT_EQ(smt::convert_to_binary("0011",2,5), "#b00011");
+  EXPECT_EQ(smt::convert_to_binary("0011",2,3), "#b011");
+}
+
 TEST(TestSmtParse, Parse) {
   auto fn = 
     os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "smt", "pipeline_design.smt2"});

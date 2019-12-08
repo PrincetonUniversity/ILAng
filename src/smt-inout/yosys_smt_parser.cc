@@ -39,7 +39,7 @@ void YosysSmtParser::construct_flatten_dataype() {
       // copy all its var here
       ILA_ASSERT(! IN(module_name, flatten_datatype));
       for (const auto & state_var : state_var_vec) {
-        if(state_var._type._type == var_type::tp::Datatype) {
+        if(state_var._type.is_datatype()) {
           const auto & mod_tp_name = state_var._type.module_name;
           auto inst_name = get_mod_inst_name( state_var.internal_name );
           auto tp_mod_name = get_mod_name(mod_tp_name); // | _s|
@@ -56,7 +56,7 @@ void YosysSmtParser::construct_flatten_dataype() {
               st_name_add_prefix(sub_st_var.internal_name, inst_name + ".");
             // sub_st_var.module_name = ? // no one use it
             sub_st_var.verilog_name = inst_name + "." + sub_st_var.verilog_name;
-            ILA_ASSERT(sub_st_var._type._type != var_type::tp::Datatype);
+            ILA_ASSERT(!sub_st_var._type.is_datatype());
           }
         } // if itself is a datatype
         else
@@ -78,7 +78,7 @@ void YosysSmtParser::convert_flatten_datatype_to_arg_vec(
     const std::vector<state_var_t> & all_flattened_state_var, 
     std::vector<arg_t> & args, const std::string & suffix) {
   for (auto && st : all_flattened_state_var ){
-    ILA_ASSERT(st._type._type != var_type::tp::Datatype); 
+    ILA_ASSERT(!st._type.is_datatype()); 
     // should already flattened.
     args.push_back( arg_t( st_name_add_suffix( st.internal_name, suffix) , st._type) );
   } // just use its internal_name as the arg name
@@ -188,7 +188,7 @@ std::string YosysSmtParser::replace_a_body(
                   ));
               } else if ( IN(pred, current_mod_state_var_idx)) {
                 const auto & st = current_mod_state_var_idx.at(pred);
-                if(st._type._type == var_type::tp::Datatype) {
+                if(st._type.is_datatype()) {
                   const auto & mod_full_name = st._type.module_name;
                   auto module_name = get_mod_name(mod_full_name); // | _s|
                   auto mod_inst_name = get_mod_inst_name(pred);
@@ -242,7 +242,7 @@ std::string YosysSmtParser::replace_a_body(
               ILA_ASSERT(! IN(pred, defined_func));
               ILA_ASSERT(IN(pred, current_mod_state_var_idx));
               const auto & st = current_mod_state_var_idx.at(pred);
-              if(st._type._type == var_type::tp::Datatype) {
+              if(st._type.is_datatype()) {
                 const auto & mod_full_name = st._type.module_name;
                 auto module_name = get_mod_name(mod_full_name); // | _s|
                 auto mod_inst_name = get_mod_inst_name(pred);
@@ -369,7 +369,7 @@ void YosysSmtParser::add_no_change_function() {
     fn->func_body = "(and ";
     std::vector<std::string> eqlist;
     for (auto && st: st_vec) {
-      if (st._type._type == var_type::tp::Datatype) {
+      if (st._type.is_datatype()) {
         // add a hierarchy func call
         std::string hier_func_call = "(" + 
           ("|" + get_mod_name(st._type.module_name) + "_k|");

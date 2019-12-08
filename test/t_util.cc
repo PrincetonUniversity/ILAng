@@ -73,8 +73,28 @@ TEST(TestUtil, DirAppend) {
 #endif
 
 
+TEST(TestUtil, CopyDir) {
+  auto src_dir =
+    os_portable_append_dir(std::string(ILANG_TEST_SRC_ROOT), 
+      {"unit-data", "fs", "cpsrc"});
+  auto dst_dir =
+    os_portable_append_dir(std::string(ILANG_TEST_SRC_ROOT), 
+      {"unit-data", "fs", "cpdst/"});
+  EXPECT_TRUE(os_portable_mkdir(dst_dir));
+  EXPECT_TRUE(os_portable_copy_dir(src_dir, dst_dir));
+  EXPECT_FALSE(os_portable_mkdir(os_portable_append_dir(dst_dir,"dummy")));
+
+}
+
+
 #if defined(_WIN32) || defined(_WIN64)
 TEST(TestUtil, FileNameFromDir) {
+
+  EXPECT_EQ(os_portable_remove_file_name_extension(".\\a"), ".\\a");
+  EXPECT_EQ(os_portable_remove_file_name_extension(".\\a.out"), ".\\a");
+  EXPECT_EQ(os_portable_remove_file_name_extension("a.out"), "a");
+  EXPECT_EQ(os_portable_remove_file_name_extension("a"), "a");
+  EXPECT_EQ(os_portable_path_from_path("a"), ".\\");
 
   EXPECT_EQ(os_portable_file_name_from_path("a"), "a");
   EXPECT_EQ(os_portable_file_name_from_path("a\\b"), "b");
@@ -84,6 +104,12 @@ TEST(TestUtil, FileNameFromDir) {
 }
 #else
 TEST(TestUtil, FileNameFromDir) {
+
+  EXPECT_EQ(os_portable_remove_file_name_extension("./a"), "./a");
+  EXPECT_EQ(os_portable_remove_file_name_extension("./a.out"), "./a");
+  EXPECT_EQ(os_portable_remove_file_name_extension("a.out"), "a");
+  EXPECT_EQ(os_portable_remove_file_name_extension("a"), "a");
+  EXPECT_EQ(os_portable_path_from_path("a"), "./");
 
   EXPECT_EQ(os_portable_file_name_from_path("a"), "a");
   EXPECT_EQ(os_portable_file_name_from_path("a/b"), "b");

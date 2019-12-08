@@ -87,6 +87,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_inv_syn.cc
   t_smt_in.cc
   t_smt_trans.cc
+  t_inv_obj.cc
 )
 
 if(${ILANG_BUILD_SYNTH})

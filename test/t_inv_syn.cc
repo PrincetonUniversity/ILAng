@@ -84,6 +84,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   EXPECT_EQ(vg.GetInvariants().NumInvariant(),0);
   vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
   EXPECT_EQ(vg.GetInvariants().NumInvariant(),1);
+  vg.GenerateInvariantVerificationTarget();
 } // CegarPipelineExample
 
 

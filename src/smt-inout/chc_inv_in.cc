@@ -324,7 +324,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
   }
   else {
     ILA_ASSERT(args.size() == 1);
-    ILA_ASSERT(args[0]->_type._type == var_type::tp::Datatype);
+    ILA_ASSERT(args[0]->_type.is_datatype());
 
     if(IN(name, inv_pred_name))
       return mk_true("true",NULL,{},{});
@@ -336,9 +336,9 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
       if (dt.internal_name == name || dt.internal_name == "|"+name+"|" ) {
         // make the new variable here
         std::string search_name;
-        if (dt._type._type == var_type::tp::Bool)
+        if (dt._type.is_bool())
           search_name = "##bool_";
-        else if (dt._type._type == var_type::tp::BV)
+        else if (dt._type.is_bv())
           search_name = "##bv" + std::to_string(dt._type._width) + "_";
         else
           ILA_ASSERT(false) << "unexpected type!";
@@ -468,9 +468,9 @@ DEFINE_OPERATOR(ite) {
   auto vlg_expr = "(" + args[0]->_translate + ") ? ("
     + args[1]->_translate + ") : (" + args[2]->_translate + ")";
 
-  if (args[1]->_type._type == var_type::tp::Bool) {
+  if (args[1]->_type.is_bool()) {
     MAKE_BOOL_RESULT(vlg_expr);
-  } else if (args[1]->_type._type == var_type::tp::BV) {
+  } else if (args[1]->_type.is_bv()) {
     MAKE_BV_RESULT_TYPE_AS_ARGN(vlg_expr,args,1);
   } // diff on type
   // should not be executed...

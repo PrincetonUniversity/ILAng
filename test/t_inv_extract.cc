@@ -1,5 +1,5 @@
 /// \file
-/// Unit test for invariant synthesis
+/// Unit test for invariant extract
 
 #include <ilang/util/fs.h>
 #include <ilang/ila/instr_lvl_abs.h>
@@ -19,15 +19,16 @@ namespace ilang {
 
 TEST(TestInvExtract, Abc) {
 
-  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/abc/";
+  auto dirName = 
+    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "abc"});
 
   InvariantObject inv_obj;
   InvariantInCnf inv_cnf;
   inv_obj.set_dut_inst_name("m1");
 
   inv_obj.AddInvariantFromAbcResultFile(
-    dirName + "wrapper.blif",
-    dirName + "ffmap.info",
+    os_portable_append_dir( dirName , "wrapper.blif"),
+    os_portable_append_dir( dirName , "ffmap.info"),
     true,
     false,
     "",/*,dirName + "glamap.info"*/
@@ -42,20 +43,21 @@ TEST(TestInvExtract, Abc) {
 
 
 TEST(TestInvExtract, AbcAiger) {
-  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/abc-aig/";
+  auto dirName = 
+    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "abc-aig"});
 
   InvariantObject inv_obj;
   InvariantInCnf inv_cnf;
   inv_obj.set_dut_inst_name("m1");
 
   inv_obj.AddInvariantFromAbcResultFile(
-    dirName + "__aiger_prepare.blif",
-    dirName + "ffmap.info",
+    os_portable_append_dir( dirName ,  "__aiger_prepare.blif"),
+    os_portable_append_dir( dirName ,  "ffmap.info"),
     true,
     false,
     "",/*,dirName + "glamap.info"*/
     true, // use aiger, if false, the following has no use
-    dirName + "wrapper.aig.map",
+    os_portable_append_dir( dirName , "wrapper.aig.map"),
     inv_cnf,
     InvariantInCnf());
 
@@ -65,20 +67,21 @@ TEST(TestInvExtract, AbcAiger) {
 
 
 TEST(TestInvExtract, AbcAigerGLA) {
-  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/abc-aig-gla/";
+  auto dirName = 
+    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "abc-aig-gla"});
 
   InvariantObject inv_obj;
   InvariantInCnf inv_cnf;
   inv_obj.set_dut_inst_name("m1");
 
   inv_obj.AddInvariantFromAbcResultFile(
-    dirName + "__aiger_prepare.blif",
-    dirName + "ffmap.info",
+    os_portable_append_dir( dirName , "__aiger_prepare.blif"),
+    os_portable_append_dir( dirName , "ffmap.info"),
     true,
     false,
-    dirName + "glamap.info", /*,dirName + "glamap.info"*/
+    os_portable_append_dir( dirName , "glamap.info"), /*,dirName + "glamap.info"*/
     true, // use aiger, if false, the following has no use
-    dirName + "wrapper.aig.map",
+    os_portable_append_dir( dirName , "wrapper.aig.map"),
     inv_cnf,
     InvariantInCnf());
 
@@ -87,7 +90,8 @@ TEST(TestInvExtract, AbcAigerGLA) {
 }
 
 TEST(TestInvExtract, GrainInvExtract) {
-  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/grain/";
+  auto dirName = 
+    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "grain"});
   auto smt_file = os_portable_append_dir(dirName, "__design_smt.smt2");
   
   bool flatten_datatype = true;
