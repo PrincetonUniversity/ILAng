@@ -40,6 +40,8 @@ VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
                    implementation_include_path, vtg_config, backend,
                    target_tp, adv_ptr) {}
 
+#if 0
+// currently this function has no use
 std::string convert_expr_to_cosa(const std::string& in) {
   return ReplaceAll(
       ReplaceAll(ReplaceAll(ReplaceAll(ReplaceAll(ReplaceAll(in, "&&", "&"),
@@ -49,6 +51,8 @@ std::string convert_expr_to_cosa(const std::string& in) {
                  VLG_TRUE, "True"),
       VLG_FALSE, "False");
 }
+#endif 
+
 void VlgSglTgtGen_Cosa::add_wire_assign_assumption(
     const std::string& varname, const std::string& expression,
     const std::string& dspt) {

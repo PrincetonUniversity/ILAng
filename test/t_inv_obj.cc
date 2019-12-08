@@ -18,7 +18,7 @@ namespace ilang {
 
 #ifdef ILANG_BUILD_INVSYN
 
-TEST(InvSynCexObj, CexObj) {
+TEST(InvSynSupportAuxClass, CexObj) {
   auto dirName = 
     os_portable_append_dir(ILANG_TEST_SRC_ROOT, std::vector<std::string>({"unit-data", "cex"}));
   auto vcdfile =
@@ -43,7 +43,7 @@ TEST(InvSynCexObj, CexObj) {
 }
 
 
-TEST(InvSynInvCnf, InvCnf) {
+TEST(InvSynSupportAuxClass, InvCnf) {
   auto dirName = 
     os_portable_append_dir(ILANG_TEST_SRC_ROOT, std::vector<std::string>({"unit-data", "cex"}));
   auto cnffile =
@@ -81,6 +81,10 @@ TEST(InvSynInvCnf, InvCnf) {
     cnf.ExportInCnfFormat(fout);
   }
   
+}
+
+
+TEST(InvSynSupportAuxClass, InvObj) {
 }
 
 #endif

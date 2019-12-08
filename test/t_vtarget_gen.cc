@@ -51,6 +51,8 @@ TEST(TestVlgTargetGen, PipeExample) {
 
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
+  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
+  vtg_config.CosaGenJgTesterScript = true;
 
   VerilogVerificationTargetGenerator vg(
       {},                                                 // no include
@@ -60,7 +62,8 @@ TEST(TestVlgTargetGen, PipeExample) {
       os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
       os_portable_append_dir(dirName, "verify"),          // verification dir
       ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::COSA // engine
+      VerilogVerificationTargetGenerator::backend_selector::COSA, // engine
+      vtg_config
   );
 
   EXPECT_FALSE(vg.in_bad_state());

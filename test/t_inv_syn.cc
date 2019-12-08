@@ -53,7 +53,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
 
   EXPECT_FALSE(vg.in_bad_state());
 
-  vg.GenerateVerificationTarget();
+  vg.GenerateVerificationTarget({"1==1"});
   EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
   vg.ExtractVerificationResult();
   vg.GenerateSynthesisTarget(); // you will need fp engine
@@ -81,12 +81,122 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
   EXPECT_EQ(vg.GetCandidateInvariants().NumInvariant(), vg.GetInvariants().NumInvariant());
   vg.RemoveInvariantsByIdx(0);
-  EXPECT_EQ(vg.GetInvariants().NumInvariant(),0);
-  vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
   EXPECT_EQ(vg.GetInvariants().NumInvariant(),1);
+  vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+  EXPECT_EQ(vg.GetInvariants().NumInvariant(),3);
+  
   vg.GenerateInvariantVerificationTarget();
 } // CegarPipelineExample
 
+
+
+// will not execute any external tools
+TEST(TestVlgVerifInvSyn, LoadInvFromBeginning) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.ValidateSynthesizedInvariant = cfg.CANDIDATE;
+
+  auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT) , 
+    P({ "unit-data","inv_syn","cnt2"}) );
+  auto outDir  = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT) , 
+    P({"unit-data","inv_syn","cnt2-cex"}) );
+  {
+    InvariantSynthesizerCegar vg(
+        {},                          // no include
+        {os_portable_append_dir(dirName , P({"verilog", "opposite.v" }))} , //
+        "opposite",                // top_module_name
+        os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+        os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+        outDir, ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+        cfg);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.GenerateInvariantVerificationTarget();
+  }
+  cfg.ValidateSynthesizedInvariant = cfg.CONFIRMED;
+  {
+    InvariantSynthesizerCegar vg(
+        {},                          // no include
+        {os_portable_append_dir(dirName , P({"verilog", "opposite.v" }))} , //
+        "opposite",                // top_module_name
+        os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+        os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+        outDir, ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+        cfg);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.GenerateInvariantVerificationTarget();
+  }
+  cfg.ValidateSynthesizedInvariant = cfg.NOINV;
+  {
+    InvariantSynthesizerCegar vg(
+        {},                          // no include
+        {os_portable_append_dir(dirName , P({"verilog", "opposite.v" }))} , //
+        "opposite",                // top_module_name
+        os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+        os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+        outDir, ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+        cfg);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.GenerateInvariantVerificationTarget();
+    vg.GenerateVerificationTarget();
+    EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
+    vg.ExtractVerificationResult();
+    vg.GenerateSynthesisTarget(); // you will need fp engine
+    EXPECT_FALSE(vg.RunSynAuto(true));
+    vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+    EXPECT_FALSE(vg.in_bad_state());
+  }
+
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
+  {
+    InvariantSynthesizerCegar vg(
+        {},                          // no include
+        {os_portable_append_dir(dirName , P({"verilog", "opposite.v" }))} , //
+        "opposite",                // top_module_name
+        os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+        os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+        outDir, ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+        cfg);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.GenerateInvariantVerificationTarget();
+    vg.GenerateVerificationTarget();
+    EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
+    vg.ExtractVerificationResult();
+    vg.GenerateSynthesisTarget(); // you will need fp engine
+    EXPECT_FALSE(vg.RunSynAuto(true));
+    vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+    EXPECT_FALSE(vg.in_bad_state());
+  }
+} // CegarPipelineExample
 
 
 TEST(TestVlgVerifInvSyn, SimpleCntCegarPassed) {
