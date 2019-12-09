@@ -98,7 +98,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   {
     InvariantInCnf cnf2;
     vg.ExtractInvariantVarForEnhance(0, cnf2,false, {});
-    std::ofstream fout(os_portable_append_dir(outDir, "cnf1.txt"));
+    std::ofstream fout(os_portable_append_dir(outDir, "cnf2.txt"));
     cnf2.ExportInCnfFormat(fout);
   }
 
