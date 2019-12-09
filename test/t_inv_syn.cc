@@ -89,6 +89,19 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   vg.RemoveInvariantsByIdx(0);
   EXPECT_EQ(vg.GetInvariants().NumInvariant(),1);
 
+  {
+    InvariantInCnf cnf1;
+    vg.ExtractInvariantVarForEnhance(0, cnf1,true, {});
+    std::ofstream fout(os_portable_append_dir(outDir, "cnf1.txt"));
+    cnf1.ExportInCnfFormat(fout);
+  }
+  {
+    InvariantInCnf cnf2;
+    vg.ExtractInvariantVarForEnhance(0, cnf2,false, {});
+    std::ofstream fout(os_portable_append_dir(outDir, "cnf1.txt"));
+    cnf2.ExportInCnfFormat(fout);
+  }
+
   InvariantObject inv_obj;
   inv_obj.InsertFromAnotherInvObj(vg.GetInvariants());
 
