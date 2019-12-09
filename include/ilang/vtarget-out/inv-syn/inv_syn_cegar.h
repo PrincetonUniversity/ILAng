@@ -116,7 +116,7 @@ public:
   void ChangeGrainSyntax(const std::vector <std::string> & syn);
   /// generate enhancement target and run it
   /// return false, if grain fails
-  bool WordLevelEnhancement(const InvariantInCnf& incremental_cnf);
+  bool WordLevelEnhancement(const InvariantInCnf& incremental_cnf, bool run_test = false);
   /// get the current inv in cnf
   const InvariantInCnf & GetCurrentCnfEnhance() const;
   /// merge cnfs

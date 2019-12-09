@@ -305,7 +305,8 @@ void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(
   incremental_cnf.InsertClause(cl);
 }
 
-bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incremental_cnf) {
+bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incremental_cnf,
+  bool under_test) {
   if (check_in_bad_state()) return false;
   // to send in the invariants
   advanced_parameters_t adv_param;
@@ -349,9 +350,17 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement(const InvariantInCnf& incre
     << "WordLevelEnhancement: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing script:" <<  runnable_scripts[0] ;
   execute_result res;
-  res = os_portable_execute_shell({"bash",
-    os_portable_file_name_from_path( runnable_scripts[0] )},
-    redirect_fn, redirect_t::BOTH);
+
+  if (under_test) {
+    res.subexit_normal = true;
+    res.seconds = 0;
+    res.ret = 0;
+    res.failure = res.NONE;
+    res.timeout = false;
+  } else 
+    res = os_portable_execute_shell({"bash",
+      os_portable_file_name_from_path( runnable_scripts[0] )},
+      redirect_fn, redirect_t::BOTH);
   
   ILA_ERROR_IF(res.failure != execute_result::NONE )
     << "Running synthesis script " << runnable_scripts[0] << " results in error."; 

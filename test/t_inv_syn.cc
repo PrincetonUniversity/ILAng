@@ -34,6 +34,12 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
 
   auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT) , 
     P({ "unit-data","inv_syn","cnt2"}) );
@@ -106,6 +112,12 @@ TEST(TestVlgVerifInvSyn, LoadInvFromBeginning) {
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
   cfg.ValidateSynthesizedInvariant = cfg.CANDIDATE;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
 
   auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT) , 
     P({ "unit-data","inv_syn","cnt2"}) );
@@ -213,6 +225,12 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegarPassed) {
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
 
   auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT) , 
     P({ "unit-data","inv_syn","cnt2"}) );
@@ -250,6 +268,12 @@ TEST(TestVlgVerifInvSyn, CegarCntAbc) {
   cfg.AbcUseGla = true;
   cfg.AbcUseAiger = true;
   cfg.AbcUseCorr = false;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
 
   auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
     {"unit-data","inv_syn","cnt2"});
@@ -295,6 +319,12 @@ TEST(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
   cfg.AbcUseGla = true;
   cfg.AbcUseAiger = true;
   cfg.AbcUseCorr = false;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
 
   auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
     {"unit-data","inv_syn","cnt2"});
@@ -376,6 +406,12 @@ TEST(TestVlgVerifInvSyn, CegarCntGrain) {
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
   cfg.YosysUndrivenNetAsInput = true;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
 
   cfg.GrainHintsUseCnfStyle = true;
   cfg.GrainOptions = {
@@ -446,6 +482,12 @@ TEST(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
   cfg.YosysUndrivenNetAsInput = true;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
 
   cfg.GrainHintsUseCnfStyle = true;
   cfg.GrainOptions = {
@@ -506,6 +548,92 @@ TEST(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
   vg.GenerateVerificationTarget();
 
 } // CegarCntGrain
+
+
+TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  // cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = true; // for freqhorn
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
+  cfg.AbcUseGla = true;
+  cfg.AbcUseAiger = true;
+  cfg.AbcUseCorr = false;
+  cfg.CosaSolver = "btor";
+
+  cfg.GrainOptions = {"--ante-size", "1", "--conseq-size", "1" , "--gen-spec-only"};
+
+  auto dirName = 
+    os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "vpipe"});
+  auto outDir  = 
+    os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "inv_syn", "vpipe-out-abc-aig-enhance"});
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {os_portable_append_dir( dirName, "simple_pipe.v")}, //
+      "pipeline_v",                // top_module_name
+      os_portable_join_dir({dirName, "rfmap", "vmap.json"}), // variable mapping
+      os_portable_join_dir({dirName, "rfmap", "cond-noinv.json"}),
+      outDir,
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  /// The incremental cnf
+  InvariantInCnf incremental_cnf;
+
+  vg.GenerateVerificationTarget();
+  EXPECT_FALSE(vg.RunVerifAuto("ADD", "", true)); // should continue : has cex
+  vg.ExtractVerificationResult();
+  vg.GenerateSynthesisTarget();
+  EXPECT_FALSE(vg.RunSynAuto(true));
+  
+  vg.ExtractAbcSynthesisResultForEnhancement(incremental_cnf);
+  { // what inv to enhance
+    const auto & inv_to_enhance = 
+      vg.GetCandidateInvariants();
+    ILA_ASSERT(inv_to_enhance.NumInvariant() == 1);
+    std::cout << "INV to enhance:" << inv_to_enhance.GetVlgConstraints()[0] << std::endl;
+  }
+  
+  // This is the function we need to write
+  EXPECT_TRUE(vg.WordLevelEnhancement(incremental_cnf, true) );
+  vg.MergeCnf(incremental_cnf);
+  incremental_cnf.Clear();
+  vg.ClearAllCandidateInvariants(); // already included (you can also accept but unnecessary)
+  
+  vg.GetInvariants().ExportToFile(os_portable_append_dir( outDir, "inv.txt"));
+  
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
+}
+
+
+
 
 #endif
 
