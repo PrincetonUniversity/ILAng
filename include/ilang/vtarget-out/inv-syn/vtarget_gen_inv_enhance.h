@@ -127,30 +127,13 @@ protected:
   _chc_target_t chc_target;
 
 protected:
-  /// Add an assumption -- needed by base class
-  virtual void add_an_assumption(const std::string& aspt,
-                                 const std::string& dspt) override;
-  /// Add an assertion -- needed by base class
-  virtual void add_an_assertion(const std::string& asst,
-                                const std::string& dspt) override;
+
   /// Add a direct assumption -- needed by base class
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) override;
   /// Add a direct assertion -- needed by base class
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
-  /// Add an assignment which in JasperGold could be an assignment, but in Chc
-  /// has to be an assumption -- needed by base class
-  virtual void add_wire_assign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          const std::string& dspt) override;
-  /// Add an assignment to a register which in JasperGold could be an
-  /// assignment, but in Chc has to be an assumption -- needed by base class
-  virtual void add_reg_cassign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          int width,
-                                          const std::string& cond,
-                                          const std::string& dspt) override;
 
   /// Pre export work : add assume and asssert to the top level
   void virtual PreExportProcess() override;

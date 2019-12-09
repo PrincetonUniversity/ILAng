@@ -10,6 +10,7 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/var_extract.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_impl.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/single_target.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/single_target_as.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/single_target_connect.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/single_target_misc.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/single_target_cond.cc

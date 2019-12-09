@@ -279,6 +279,24 @@ output          equal;
 input           issue;
 
 (* keep *)  reg             start_and_on;
+(* keep *)  reg [DW-1:0] mem[0:TTS-1];
+
+wire vlg_ren_real;
+wire vlg_wen_real;
+wire ila_ren_real;
+wire ila_wen_real;
+
+(* keep *)  reg          vlg_m_e0;
+(* keep *)  reg [AW-1:0] vlg_m_a0;
+(* keep *)  reg [DW-1:0] vlg_m_d0;
+
+
+(* keep *)  reg          ila_m_e0;
+(* keep *)  reg [AW-1:0] ila_m_a0;
+(* keep *)  reg [DW-1:0] ila_m_d0;
+
+(* keep *)  reg vlg_match_ila;
+(* keep *)  reg ila_match_vlg;
 
 always @(posedge clk) begin
   if(rst)
@@ -286,13 +304,6 @@ always @(posedge clk) begin
   else if(issue)
     start_and_on <= 1'b1;
 end
-
-(* keep *)  reg [DW-1:0] mem[0:TTS-1];
-
-wire vlg_ren_real;
-wire vlg_wen_real;
-wire ila_ren_real;
-wire ila_wen_real;
 
 assign vlg_ren_real = vlg_ren & ~compare & start_and_on;
 assign vlg_wen_real = vlg_wen & ~compare & start_and_on;
@@ -309,15 +320,6 @@ assign ila_rdata = ila_ren_real ?
                       ila_m_e0 && ila_m_a0 == ila_raddr ? ila_m_d0
                    :
                       mem[ila_raddr] : ila_r_rand_input;
-
-(* keep *)  reg          vlg_m_e0;
-(* keep *)  reg [AW-1:0] vlg_m_a0;
-(* keep *)  reg [DW-1:0] vlg_m_d0;
-
-
-(* keep *)  reg          ila_m_e0;
-(* keep *)  reg [AW-1:0] ila_m_a0;
-(* keep *)  reg [DW-1:0] ila_m_d0;
 
 always @(posedge clk) begin 
   if( rst ) begin
@@ -344,9 +346,6 @@ always @(posedge clk) begin
     end
   end
 end
-
-(* keep *)  reg vlg_match_ila;
-(* keep *)  reg ila_match_vlg;
 
 always @(*) begin
   vlg_match_ila = 0;
@@ -449,20 +448,38 @@ input           issue;
 
 (* keep *)  reg             start_and_on;
 
+wire vlg_ren_real;
+wire vlg_wen_real;
+wire ila_ren_real;
+wire ila_wen_real;
+
+(* keep *)  reg          vlg_r_e0;
+(* keep *)  reg [AW-1:0] vlg_r_a0;
+(* keep *)  reg [DW-1:0] vlg_r_d0;
+
+
+(* keep *)  reg          ila_r_e0;
+(* keep *)  reg [AW-1:0] ila_r_a0;
+(* keep *)  reg [DW-1:0] ila_r_d0;
+
+(* keep *)  reg          vlg_m_e0;
+(* keep *)  reg [AW-1:0] vlg_m_a0;
+(* keep *)  reg [DW-1:0] vlg_m_d0;
+
+
+(* keep *)  reg          ila_m_e0;
+(* keep *)  reg [AW-1:0] ila_m_a0;
+(* keep *)  reg [DW-1:0] ila_m_d0;
+
+(* keep *)  reg vlg_match_ila;
+(* keep *)  reg ila_match_vlg;
+
 always @(posedge clk) begin
   if(rst)
     start_and_on <= 1'b%%%AVOID_ISSUE%%%;
   else if(issue)
     start_and_on <= 1'b1;
 end
-
-// now, we remove this
-//(* keep *)  reg [DW-1:0] mem[0:TTS-1];
-
-wire vlg_ren_real;
-wire vlg_wen_real;
-wire ila_ren_real;
-wire ila_wen_real;
 
 assign vlg_ren_real = vlg_ren & ~compare & start_and_on;
 assign vlg_wen_real = vlg_wen & ~compare & start_and_on;
@@ -477,18 +494,6 @@ assign vlg_rdata = vlg_ren_real ? (
 assign ila_rdata = ila_ren_real ? (
                       (ila_m_e0 && ila_m_a0 == ila_raddr) ? ila_m_d0
                    : ila_r_rand_input) : ila_r_rand_input;
-
-
-
-(* keep *)  reg          vlg_r_e0;
-(* keep *)  reg [AW-1:0] vlg_r_a0;
-(* keep *)  reg [DW-1:0] vlg_r_d0;
-
-
-(* keep *)  reg          ila_r_e0;
-(* keep *)  reg [AW-1:0] ila_r_a0;
-(* keep *)  reg [DW-1:0] ila_r_d0;
-
 
 always @(posedge clk) begin 
   if( rst ) begin
@@ -532,15 +537,6 @@ assign read_assume_true =
 
 // ------------- WRITE LOGIC ---------------- //
 
-(* keep *)  reg          vlg_m_e0;
-(* keep *)  reg [AW-1:0] vlg_m_a0;
-(* keep *)  reg [DW-1:0] vlg_m_d0;
-
-
-(* keep *)  reg          ila_m_e0;
-(* keep *)  reg [AW-1:0] ila_m_a0;
-(* keep *)  reg [DW-1:0] ila_m_d0;
-
 always @(posedge clk) begin 
   if( rst ) begin
     vlg_m_e0 <= 1'b0;
@@ -567,8 +563,6 @@ always @(posedge clk) begin
   end
 end
 
-(* keep *)  reg vlg_match_ila;
-(* keep *)  reg ila_match_vlg;
 
 always @(*) begin
   vlg_match_ila = 0;

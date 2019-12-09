@@ -209,61 +209,6 @@ VlgSglTgtGen_Chc_wCNF::VlgSglTgtGen_Chc_wCNF(
         << "For Grain, datatype must be flattened!";
  }
 
-
-void VlgSglTgtGen_Chc_wCNF::add_wire_assign_assumption(
-    const std::string& varname, const std::string& expression,
-    const std::string& dspt) {
-
-  vlg_wrapper.add_assign_stmt(varname, expression);
-  ILA_ERROR_IF(expression.find(".") == std::string::npos)
-      << "-------- expression:" << expression << " contains unfriendly dot.";
-}
-
-void VlgSglTgtGen_Chc_wCNF::add_reg_cassign_assumption(
-    const std::string& varname, const std::string& expression, int width,
-    const std::string& cond, const std::string& dspt) {
-
-  ILA_ERROR_IF(expression.find(".") != std::string::npos)
-      << "-------- expression:" << expression << " contains unfriendly dot.";
-
-  std::string rand_in_name = "__" + varname + "_init__";
-  vlg_wrapper.add_input(rand_in_name, width);
-  vlg_wrapper.add_wire (rand_in_name, width);
-  
-  vlg_wrapper.add_init_stmt(varname + " <= " + rand_in_name + ";");
-  vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
-  add_an_assumption(
-      "(~(" + cond + ") || ((" + varname + ") == (" + expression + ")))", dspt);
-}
-
-/// Add an assumption
-void VlgSglTgtGen_Chc_wCNF::add_an_assumption(const std::string& aspt,
-                                          const std::string& dspt) {
-  auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
-  
-  vlg_wrapper.add_wire(assumption_wire_name, 1, true);
-  // I find it is necessary to connect to the output
-  vlg_wrapper.add_output(assumption_wire_name, 1);
-  vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
-
-  ILA_ERROR_IF(aspt.find(".") != std::string::npos)
-      << "-------- aspt:" << aspt << " contains unfriendly dot.";
-  _problems.assumptions[dspt].exprs.push_back(assumption_wire_name);
-
-}
-/// Add an assertion
-void VlgSglTgtGen_Chc_wCNF::add_an_assertion(const std::string& asst,
-                                         const std::string& dspt) {
-  auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
-  vlg_wrapper.add_wire(assrt_wire_name, 1, true);
-  vlg_wrapper.add_output(assrt_wire_name,
-                         1); // I find it is necessary to connect to the output
-  vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
-  _problems.assertions[dspt].exprs.push_back(assrt_wire_name);
-  ILA_ERROR_IF(asst.find(".") != std::string::npos)
-      << "-------- asst:" << asst << " contains unfriendly dot.";
-}
-
 /// Add an assumption
 void VlgSglTgtGen_Chc_wCNF::add_a_direct_assumption(const std::string& aspt,
                                                 const std::string& dspt) {

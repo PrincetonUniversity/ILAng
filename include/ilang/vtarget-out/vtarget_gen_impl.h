@@ -320,32 +320,33 @@ public:
 
 protected:
   // helper function to be implemented by COSA/JASPER
-  /// Add an assumption
-  virtual void add_an_assumption(const std::string& aspt,
-                                 const std::string& dspt) = 0;
-  /// Add an assertion
-  virtual void add_an_assertion(const std::string& asst,
-                                const std::string& dspt) = 0;
-  // helper function to be implemented by COSA/JASPER
-  /// Add an assumption
+  /// Add an assumption -- backend dependent
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) = 0;
   /// Add an assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) = 0;
 
+  // helper function to be implemented by COSA, Yosys, invsyn, jasper is not
+  /// Add an assumption -- JasperGold will override this
+  virtual void add_an_assumption(const std::string& aspt,
+                                 const std::string& dspt);
+  /// Add an assertion -- JasperGold will override this
+  virtual void add_an_assertion(const std::string& asst,
+                                const std::string& dspt);
+
   /// Add an assignment which in JasperGold could be an assignment, but in CoSA
   /// has to be an assumption
   virtual void add_wire_assign_assumption(const std::string& varname,
                                           const std::string& expression,
-                                          const std::string& dspt) = 0;
+                                          const std::string& dspt);
   /// Add an assignment to a register which in JasperGold could be an
   /// assignment, but in CoSA has to be an assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
                                           int width,
                                           const std::string& cond,
-                                          const std::string& dspt) = 0;
+                                          const std::string& dspt);
 
 public:
   // Do not instantiate
