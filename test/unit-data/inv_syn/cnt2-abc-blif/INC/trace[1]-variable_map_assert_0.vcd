@@ -1,0 +1,278 @@
+$date
+Monday 2019/12/09 09:52:30
+$end
+$version
+CoSA
+$end
+$timescale
+1 ns
+$end
+$scope module top $end
+$var reg 1 v0 N11[0:0] $end
+$var reg 1 v1 N15[0:0] $end
+$var reg 1 v2 N17[0:0] $end
+$var reg 1 v3 N19[0:0] $end
+$var reg 1 v4 N6[0:0] $end
+$var reg 1 v5 N71[0:0] $end
+$var reg 1 v6 N72[0:0] $end
+$var reg 1 v7 N73[0:0] $end
+$var reg 1 v8 N74[0:0] $end
+$var reg 4 v9 N9[3:0] $end
+$var reg 1 v10 __2ndENDED__[0:0] $end
+$var reg 4 v11 __CYCLE_CNT__[3:0] $end
+$var reg 1 v12 __EDCOND__[0:0] $end
+$var reg 1 v13 __ENDED__[0:0] $end
+$var reg 1 v14 __IEND__[0:0] $end
+$var reg 1 v15 __ILA_I_en[0:0] $end
+$var reg 4 v16 __ILA_SO_v[3:0] $end
+$var reg 1 v17 __ILA_counter_decode_of_INC__[0:0] $end
+$var reg 1 v18 __ILA_counter_valid__[0:0] $end
+$var reg 1 v19 __ISSUE__[0:0] $end
+$var reg 1 v20 __RESETED__[0:0] $end
+$var reg 1 v21 __STARTED__[0:0] $end
+$var reg 1 v22 __START__[0:0] $end
+$var reg 1 v23 __m1__[0:0] $end
+$var reg 1 v24 __m3__[0:0] $end
+$var reg 1 v25 clk[0:0] $end
+$var reg 1 v26 dummy_reset[0:0] $end
+$var reg 1 v27 invariant_assume__m5__[0:0] $end
+$var reg 1 v28 issue_decode__m6__[0:0] $end
+$var reg 1 v29 issue_valid__m7__[0:0] $end
+$var reg 4 v30 m1__DOT__out[3:0] $end
+$var reg 1 v31 noreset__m0__[0:0] $end
+$var reg 4 v32 out[3:0] $end
+$var reg 1 v33 reset_done[0:0] $end
+$var reg 1 v34 rst[0:0] $end
+$var reg 1 v35 variable_map_assert__p4__[0:0] $end
+$var reg 1 v36 variable_map_assume___m2__[0:0] $end
+$scope module m0 $end
+$var reg 1 v37 __ILA_counter_decode_of_INC__[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 1 v38 __ILA_counter_valid__[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 1 v39 __START__[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 1 v40 bv_1_1_n0[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 4 v41 bv_4_1_n3[3:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 1 v42 clk[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 1 v43 en[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 1 v44 n1[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 4 v45 n4[3:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 1 v46 rst[0:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 4 v47 v[3:0] $end
+$upscope $end
+$scope module m0 $end
+$var reg 4 v48 v_randinit[3:0] $end
+$upscope $end
+$scope module m1 $end
+$var reg 1 v49 clk[0:0] $end
+$upscope $end
+$scope module m1 $end
+$var reg 1 v50 en[0:0] $end
+$upscope $end
+$scope module m1 $end
+$var reg 4 v51 imp[3:0] $end
+$upscope $end
+$scope module m1 $end
+$var reg 4 v52 m1__DOT__out[3:0] $end
+$upscope $end
+$scope module m1 $end
+$var reg 4 v53 out[3:0] $end
+$upscope $end
+$scope module m1 $end
+$var reg 1 v54 rst[0:0] $end
+$upscope $end
+$scope module m1 $end
+$var reg 4 v55 v[3:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+b0 v0
+b0 v1
+b0 v2
+b0 v3
+b0 v4
+b0 v5
+b0 v6
+b0 v7
+b0 v8
+b0011 v9
+b0 v10
+b0011 v11
+b0 v12
+b0 v13
+b0 v14
+b0 v15
+b0000 v16
+b0 v17
+b1 v18
+b1 v19
+b0 v20
+b0 v21
+b0 v22
+b1 v23
+b1 v24
+b0 v25
+b0 v26
+b1 v27
+b1 v28
+b1 v29
+b0000 v30
+b1 v31
+b0000 v32
+b0 v33
+b1 v34
+b1 v35
+b1 v36
+b0 v37
+b1 v38
+b0 v39
+b1 v40
+b0001 v41
+b0 v42
+b0 v43
+b0 v44
+b0001 v45
+b1 v46
+b0000 v47
+b0000 v48
+b0 v49
+b0 v50
+b0000 v51
+b0000 v52
+b0000 v53
+b0 v54
+b0000 v55
+#1
+b0 v0
+b1 v1
+b0 v2
+b1 v3
+b0 v4
+b0 v5
+b0 v6
+b0 v7
+b0 v8
+b0000 v9
+b0 v10
+b0000 v11
+b0 v12
+b0 v13
+b0 v14
+b1 v15
+b0000 v16
+b1 v17
+b1 v18
+b1 v19
+b1 v20
+b0 v21
+b1 v22
+b1 v23
+b1 v24
+b0 v25
+b0 v26
+b1 v27
+b1 v28
+b1 v29
+b0000 v30
+b1 v31
+b0000 v32
+b1 v33
+b0 v34
+b1 v35
+b1 v36
+b1 v37
+b1 v38
+b1 v39
+b1 v40
+b0001 v41
+b0 v42
+b1 v43
+b1 v44
+b0001 v45
+b0 v46
+b0000 v47
+b0000 v48
+b0 v49
+b1 v50
+b0000 v51
+b0000 v52
+b0000 v53
+b0 v54
+b0000 v55
+#2
+b0 v0
+b1 v1
+b1 v2
+b0 v3
+b0 v4
+b0 v5
+b0 v6
+b0 v7
+b0 v8
+b0001 v9
+b0 v10
+b0001 v11
+b1 v12
+b0 v13
+b1 v14
+b0 v15
+b0001 v16
+b0 v17
+b1 v18
+b1 v19
+b1 v20
+b1 v21
+b0 v22
+b0 v23
+b0 v24
+b0 v25
+b0 v26
+b1 v27
+b1 v28
+b1 v29
+b0000 v30
+b1 v31
+b0000 v32
+b1 v33
+b0 v34
+b0 v35
+b1 v36
+b0 v37
+b1 v38
+b0 v39
+b1 v40
+b0001 v41
+b0 v42
+b0 v43
+b0 v44
+b0010 v45
+b0 v46
+b0001 v47
+b0000 v48
+b0 v49
+b0 v50
+b1111 v51
+b0000 v52
+b0000 v53
+b0 v54
+b0001 v55
+#3
