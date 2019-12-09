@@ -188,6 +188,17 @@ TEST(TestInvExtract, GrainInvExtract) {
       inv_file // result file
       ), ".*");
   }
+
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "outside_var.result");
+    inv_obj.AddInvariantFromGrainResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file // result file
+      ), ".*";
+  }
 }
 
 // Current implementation does not support extract invariants

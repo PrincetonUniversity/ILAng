@@ -1,0 +1,6 @@
+(declare-fun S_m1.v () (_ BitVec 4))
+(declare-fun S_m1.imp () (_ BitVec 4))
+(declare-fun S_impout () (_ BitVec 4))
+
+(assert (= S_m1.v S_impout))
+(check-sat)

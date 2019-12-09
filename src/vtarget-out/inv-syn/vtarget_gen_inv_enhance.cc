@@ -190,15 +190,14 @@ VlgSglTgtGen_Chc_wCNF::VlgSglTgtGen_Chc_wCNF(
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
     
-    if(chctarget == _chc_target_t::CEX) {
-      ILA_ASSERT(
-        target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
-        << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
-      ILA_ASSERT(has_cex)
-        << "for cex chc, cex must be provided!";
-    }
-    else 
-      ILA_ASSERT(false) << "Not implemented!";
+    ILA_ASSERT(chctarget == _chc_target_t::CEX) << "Target type must be chc";
+    ILA_ASSERT(
+      target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
+      << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
+    ILA_ASSERT(has_cex)
+      << "for cex chc, cex must be provided!";
+    ILA_ERROR_IF(_vtg_config.YosysSmtStateSort != _vtg_config.Datatypes)
+      << "will ignore smt non-datatype encoding option";
 
 
     ILA_ASSERT (
@@ -588,49 +587,6 @@ void VlgSglTgtGen_Chc_wCNF::design_only_gen_smt(
     ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
       << "Yosys returns error code:" << res.ret;
 } // design_only_gen_smt
-
-void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_bitvec(
-    const std::string & smt_fname, const std::string & chc_fname, 
-    const std::string & wrapper_mod_name) {
-  
-  std::stringstream ibuf;
-  { // read file
-    std::ifstream smt_fin( smt_fname );
-    if(! smt_fin.is_open()) {
-      ILA_ERROR << "Cannot read from " << smt_fname;
-      return;
-    }
-    ibuf << smt_fin.rdbuf();
-  } // end read file
-
-  std::string smt_converted;
-  smt_converted = ibuf.str();
-
-  std::string chc;
-
-  chc = inv_enhance_tmpl_datatypes;
-  chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
-  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
-  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
-  chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
-  chc = ReplaceAll(chc, "%%", smt_converted );
-
-  { // (query fail :print-certificate true)
-    if (generate_proof)
-      chc += "\n(query fail :print-certificate true)\n";
-    else
-      chc += "\n(query fail)\n";
-  }
-
-  { // write file
-    std::ofstream chc_fout(chc_fname);
-    if (! chc_fout.is_open()) {
-      ILA_ERROR << "Error writing to : "<< chc_fname;
-      return;
-    }
-    chc_fout << chc;
-  } // end write file
-}
   
 
 void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_fname, const std::string & chc_fname) {
@@ -647,19 +603,19 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_
 
   std::string smt_converted;
   design_smt_info = std::make_shared<smt::YosysSmtParser> (ibuf.str());
-  if (_vtg_config.YosysSmtFlattenDatatype) {
+  //if (_vtg_config.YosysSmtFlattenDatatype) {
     design_smt_info->BreakDatatypes();
     //smt_rewriter.AddNoChangeStateUpdateFunction();
     smt_converted = design_smt_info->Export();
-  } else {
-    smt_converted = ibuf.str();
-  }
+  //} else {
+  //  smt_converted = ibuf.str();
+  //}
 
   std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
   // construct the template
 
   std::string chc;
-  if (_vtg_config.YosysSmtFlattenDatatype) {
+  //if (_vtg_config.YosysSmtFlattenDatatype) {
     const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
     auto tmpl = inv_enhance_tmpl_wo_datatypes;
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
@@ -670,15 +626,15 @@ void VlgSglTgtGen_Chc_wCNF::convert_smt_to_chc_datatype(const std::string & smt_
       tmpl,
       datatype_top_mod, wrapper_mod_name);
     chc = ReplaceAll(chc, "%%", smt_converted );
-  } else {
-    chc = inv_enhance_tmpl_datatypes;
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
-    chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
-    chc = ReplaceAll(chc, "%%", smt_converted );
-  } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
+  //} else {
+  //  chc = inv_enhance_tmpl_datatypes;
+  //  chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
+  //  chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
+  //  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
+  //  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
+  //  chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
+  //  chc = ReplaceAll(chc, "%%", smt_converted );
+  //} // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
 
   { // (query fail :print-certificate true)
     if (generate_proof)

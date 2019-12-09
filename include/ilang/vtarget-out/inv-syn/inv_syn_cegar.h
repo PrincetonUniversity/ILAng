@@ -85,9 +85,6 @@ public:
   /// to extract reachability test result
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
-  /// to extract reachability test result
-  void PrepareCexForGrain(bool autodet = true, bool reachable = true, 
-    const std::string & res_file = "");
   /// to extract reachability test result, this will extract to candidate invariant
   void ExtractAbcSynthesisResultForEnhancement(InvariantInCnf& incremental_cnf, bool autodet = true, bool reachable = true);
 
@@ -96,13 +93,6 @@ public:
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto(bool run_test = false);
   
-  /// set the sygus name lists (cannot be empty)
-  void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
-  /// set the sygus name lists (but also auto-add width info)
-  std::set<std::string> SetSygusVarnameListAndDeduceWidth(
-    const std::vector<std::string> & sygus_var_name, 
-    const std::string & top_module_instance_name);
-
   /// Forcing to accept all the candidate invariants
   void AcceptAllCandidateInvariant();
   /// Remove potentially failing candidate invariants (conservative approach remove all candidates)
@@ -184,11 +174,6 @@ protected:
   std::string synthesis_result_fn;
   /// the invariant type
   enum cur_inv_tp { NONE,  GRAIN_CHC, CHC, CEGAR_ABC } current_inv_type;
-
-  /// the sygus varname
-  std::vector<std::string> sygus_vars;
-  /// will also convert the above to a set (easier to index)
-  std::set<std::string> sygus_vars_set;
 
   // --------------------------------------------------
   // for book-keeping purpose

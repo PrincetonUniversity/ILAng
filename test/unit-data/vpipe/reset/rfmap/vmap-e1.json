@@ -14,7 +14,7 @@
 
   "annotation": {
     "reset" : {
-      "cycle": 5,
+      "cycle": 0,
       "no-reset-after": true,
       "reset-state":[],
       "reset-sequence":[]

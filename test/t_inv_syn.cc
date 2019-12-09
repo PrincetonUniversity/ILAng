@@ -110,9 +110,57 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   vg.GenerateInvariantVerificationTarget();
 
   inv_obj.ClearAllInvariants();
+  vg.SupplyCandidateInvariant("1==1");
+  vg.AcceptAllCandidateInvariant();
+  EXPECT_FALSE(vg.GetRunnableTargetScriptName().empty());
+  vg.CexGeneralizeRemoveStates({});
+  vg.LoadDesignSmtInfo(os_portable_join_dir({outDir, "inv-syn", "__design_smt.smt2"}));
 } // CegarPipelineExample
 
 
+// will not execute any external tools
+TEST(TestVlgVerifInvSyn, SimpleCntCegarWithAssumptions) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
+
+  auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT) , 
+    P({ "unit-data","inv_syn","cnt2"}) );
+  auto outDir  = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT) , 
+    P({"unit-data","inv_syn","cnt2-cex"}) );
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {os_portable_append_dir(dirName , P({"verilog", "opposite.v" }))} , //
+      "opposite",                // top_module_name
+      os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+      os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+      outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateVerificationTarget({"1==1"});
+  EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
+  vg.ExtractVerificationResult();
+  vg.GenerateSynthesisTarget(); // you will need fp engine
+  EXPECT_FALSE(vg.RunSynAuto(true));
+  vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+  EXPECT_FALSE(vg.in_bad_state());
+}
 
 // will not execute any external tools
 TEST(TestVlgVerifInvSyn, LoadInvFromBeginning) {
@@ -320,6 +368,104 @@ TEST(TestVlgVerifInvSyn, CegarCntAbc) {
 } // CegarCntAbc
 
 
+
+TEST(TestVlgVerifInvSyn, CegarCntAbcBlif) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false;
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.AbcUseGla = true;
+  cfg.AbcUseAiger = false;
+  cfg.AbcAssumptionStyle = cfg.AssumptionRegister;
+  cfg.AbcUseCorr = false;
+  //cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "~/cosaEnv/bin/activate";
+  cfg.CosaPath = "~/CoSA/";
+  cfg.AbcPath = "~/abc/";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
+
+  auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
+    {"unit-data","inv_syn","cnt2"});
+  auto outDir  = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
+    {"unit-data","inv_syn","cnt2-abc-blif"});
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {os_portable_append_dir(dirName, P({"verilog","opposite.v"}))},
+      "opposite",                // top_module_name
+      os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+      os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+      outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateVerificationTarget();
+  EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
+  vg.ExtractVerificationResult();
+  vg.GenerateSynthesisTarget(); // you will need fp engine
+  EXPECT_FALSE(vg.RunSynAuto(true));
+  vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+  EXPECT_FALSE(vg.in_bad_state());
+
+  EXPECT_EQ(vg.GetCandidateInvariants().NumInvariant(), 0);
+  vg.GetInvariants().ExportToFile(os_portable_append_dir(outDir, "inv.txt"));
+
+} // CegarCntAbc
+
+
+TEST(TestVlgVerifInvSyn, CegarCntAbcWithAssumption) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false;
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.AbcUseGla = false;
+  cfg.AbcUseAiger = true;
+  cfg.AbcUseCorr = false;
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
+  cfg.Z3Path = "N/A";
+  cfg.GrainPath = "N/A";
+
+  auto dirName = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
+    {"unit-data","inv_syn","cnt2"});
+  auto outDir  = os_portable_append_dir( std::string(ILANG_TEST_SRC_ROOT),
+    {"unit-data","inv_syn","cnt2-abc"});
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {os_portable_append_dir(dirName, P({"verilog","opposite.v"}))},
+      "opposite",                // top_module_name
+      os_portable_append_dir(dirName , P({ "rfmap","vmap.json" })), // variable mapping
+      os_portable_append_dir(dirName , P({ "rfmap","cond-noinv.json" })),
+      outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+  vg.SupplyCandidateInvariant("1'b1 == 1'b1");
+
+  vg.GenerateVerificationTarget();
+  EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
+  vg.ExtractVerificationResult();
+  vg.GenerateSynthesisTarget();
+
+} // CegarCntAbc
+
 TEST(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
   auto ila_model = CntTest::BuildModel();
 
@@ -360,6 +506,10 @@ TEST(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
 
     EXPECT_FALSE(vg.in_bad_state());
     vg.LoadInvariantsFromFile(inv_in);
+    std::cout << "--- LOADED ---" << std::endl;
+    for (auto && v : vg.GetInvariants().GetVlgConstraints())
+      std::cout << "[" << v << "]" << std::endl;
+    std::cout << "--- END ---" << std::endl;
 
     vg.GenerateVerificationTarget();
     EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
@@ -413,7 +563,7 @@ TEST(TestVlgVerifInvSyn, CegarCntGrain) {
   auto ila_model = CntTest::BuildModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
-  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
   cfg.CosaAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
@@ -489,7 +639,7 @@ TEST(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
   auto ila_model = CntTest::BuildModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
-  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
   cfg.CosaAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also

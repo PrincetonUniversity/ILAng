@@ -175,9 +175,6 @@ private:
   /// Convert the smt file to CHC -- datatype encoding
   void convert_smt_to_chc_datatype(
     const std::string & smt_fname, const std::string & chc_fname);
-  /// Convert the smt file to CHC -- bitvector encoding
-  void convert_smt_to_chc_bitvec(
-    const std::string & smt_fname, const std::string & chc_fname, const std::string & wrapper_mod_name);
   /// generate the wrapper's smt first
   void design_only_gen_smt(
     const std::string & smt_name,

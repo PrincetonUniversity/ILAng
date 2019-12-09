@@ -161,22 +161,13 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
     
-    if(chctarget == _chc_target_t::CEX) {
-      ILA_ASSERT(
-        target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
-        << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
-      ILA_ASSERT(has_cex)
-        << "for cex chc, cex must be provided!";
-    }
-    else if (chctarget == _chc_target_t::INVCANDIDATE)
-      ILA_ASSERT(has_gussed_synthesized_invariant)
-        << "for inv candidate verification, the candidate invariant must be provided!";
-    else if (chctarget == _chc_target_t::GENERAL_PROPERTY) {
-      // TODO : I don't know what to do here...
-      ILA_ASSERT(false)<< "Unimplemented.";
-    }
-    else
-      ILA_ASSERT(false) << "Unknown chc target:" << chctarget ;
+    ILA_ASSERT(chctarget == _chc_target_t::CEX) << "Target must be cex";
+    ILA_ASSERT(
+      target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
+      << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
+    ILA_ASSERT(has_cex)
+      << "for cex chc, cex must be provided!";
+        
 
     ILA_ASSERT (
       sbackend == synthesis_backend_selector::ABC

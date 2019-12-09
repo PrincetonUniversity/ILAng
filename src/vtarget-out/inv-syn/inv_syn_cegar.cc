@@ -96,7 +96,8 @@ void InvariantSynthesizerCegar::GenerateInvariantVerificationTarget() {
 
   auto inv_gen_vtg_config = _vtg_config;
   inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
-  inv_gen_vtg_config.ValidateSynthesizedInvariant = vtg_config_t::_validate_synthesized_inv::ALL; // overwrite
+  // no overwite
+  // inv_gen_vtg_config.ValidateSynthesizedInvariant = vtg_config_t::_validate_synthesized_inv::ALL; // overwrite
   
   VlgVerifTgtGen vg(
       implementation_incl_path,         // include
@@ -587,75 +588,6 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
 } // ExtractSynthesisResult
 
 
-void InvariantSynthesizerCegar::PrepareCexForGrain(bool autodet, bool reachable, 
-  const std::string & given_smt_chc_result_txt) {
-  
-  if(check_in_bad_state()) return;
-
-  std::string res_file = given_smt_chc_result_txt;
-  if (autodet) {
-    reachable = cex_reachable;
-    res_file = synthesis_result_fn;
-  }
-  
-  ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
-
-  if (reachable) {
-    ILA_ERROR << "Verification failed with true counterexample!";
-    status = cegar_status::FAILED;
-    return;
-  }
-
-
-  if (current_inv_type == cur_inv_tp::CHC) {
-    if (design_smt_info == nullptr) {
-      ILA_ERROR << "Design SMT-LIB2 info is not available. "
-        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
-      return;
-    }
-    inv_obj.AddInvariantFromChcResultFile(
-      *(design_smt_info.get()), "", res_file, 
-      _vtg_config.YosysSmtFlattenDatatype,
-      _vtg_config.YosysSmtFlattenHierarchy );
-  } else if (current_inv_type == cur_inv_tp::GRAIN_CHC) {
-    if (design_smt_info == nullptr) {
-      ILA_ERROR << "Design SMT-LIB2 info is not available. "
-        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
-      return;
-    }
-    inv_obj.AddInvariantFromGrainResultFile(
-      *(design_smt_info.get()), "", os_portable_append_dir(_output_path, "grain.result"), 
-      true,
-      true );
-  } else if (current_inv_type == cur_inv_tp::CEGAR_ABC){
-    ILA_ASSERT(
-    inv_obj.AddInvariantFromAbcResultFile(
-       _vtg_config.AbcUseAiger ?
-          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "__aiger_prepare.blif"):
-          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
-      os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "ffmap.info"),
-      true,true, _vtg_config.AbcUseGla ? 
-        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "",
-      _vtg_config.AbcUseAiger,
-      _vtg_config.AbcUseAiger ?
-          os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.aig.map") : "", inv_cnf, InvariantInCnf() )
-    ) << "Extracting of invariant failed!";
-  }
-  else
-    ILA_ERROR<<"Inv type unknown:" << current_inv_type;
-  
-  std::cout << "Confirmed synthesized invariants:" << std::endl;
-  for (auto && v : inv_obj.GetVlgConstraints() )
-    std::cout << v << std::endl;
-
-  status = cegar_status::NEXT_V;
-  current_inv_type = cur_inv_tp::NONE; // we have extracted, reset this marker
-  // remove it then
-  RemoveInvariantsByIdx(GetInvariants().NumInvariant() - 1);
-} // PrepareCexForGrain
-
-
-
 // -------------------------------- AUTO RUNS ------------------------------------------- //
 
 /// a helper function (only locally available)
@@ -918,50 +850,6 @@ void InvariantSynthesizerCegar::LoadInvariantsFromFile(const std::string &fn) {
 void InvariantSynthesizerCegar::LoadCandidateInvariantsFromFile(const std::string &fn) {
   inv_candidate.ImportFromFile(fn);
 }
-
-// -------------------------------- SYGUS SUPPORT ------------------------------------------- //
-
-
-/// set the sygus name lists (cannot be empty)
-void InvariantSynthesizerCegar::SetSygusVarnameList(const std::vector<std::string> & sygus_var_name) {
-  sygus_vars = sygus_var_name;
-  sygus_vars_set.clear();
-  for (auto && vname : sygus_var_name)
-    sygus_vars_set.insert(vname);
-}
-
-std::set<std::string> InvariantSynthesizerCegar::SetSygusVarnameListAndDeduceWidth(
-  const std::vector<std::string> & sygus_var_name,
-  const std::string & top_module_instance_name) {
-  VerilogAnalyzer va(
-    implementation_incl_path,
-    implementation_srcs_path,
-    top_module_instance_name,
-    implementation_top_module_name);
-  
-  ILA_ERROR_IF(sygus_var_name.empty()) << "Giving empty sygus var names!";
-  std::set<std::string> missing_names;
-
-  sygus_vars = sygus_var_name;
-  sygus_vars_set.clear();
-  for (auto && vname : sygus_var_name)
-    sygus_vars_set.insert(vname);
-  for (auto && var : sygus_var_name) {
-    auto tp = va.check_hierarchical_name_type(var);
-    if (tp == va.NONE)
-      missing_names.insert(var);
-    auto sig_info = va.get_signal(var, & additional_width_info); // will use the RF provided one if available
-    if (IN(var, additional_width_info))
-      ILA_ERROR_IF ((unsigned)additional_width_info.at(var) != sig_info.get_width())
-        << "The width info in refinement (annotation) does not match the width in design";
-    else
-      additional_width_info.insert(
-        std::make_pair(var,sig_info.get_width()));
-  }
-  return missing_names;
-}
-
-
 
 void InvariantSynthesizerCegar::AcceptAllCandidateInvariant() {
   if(inv_candidate.NumInvariant() != 0) {

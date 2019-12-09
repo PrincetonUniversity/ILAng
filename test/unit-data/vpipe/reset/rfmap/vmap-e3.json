@@ -13,12 +13,10 @@
   // "mapping control" : ["__MEM_mema_0_ren == ((m1.state == 1)?1'b1:1'b0)", "__MEM_memb_0_ren == ((m1.state == 1)?1'b1:1'b0)"],
 
   "annotation": {
-    "reset" : {
-      "cycle": 5,
-      "no-reset-after": true,
-      "reset-state":[],
-      "reset-sequence":[]
-    }
+    "width":{"m1.v":1},
+    "memory":{"abc":"unknown"},
+    "memory-ports":{"abc.r1":123,"bcd.r2":"abc"}
   },
+
   "assumptions":["1==1"]
 }

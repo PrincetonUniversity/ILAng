@@ -505,25 +505,106 @@ TEST(TestVlgTargetGen, UndetFunc) {
 }
 
 
+
+
 TEST(TestVlgTargetGen, ResetAnnotation) {
-  auto ila_model = MemorySwap::BuildResetterTest();
-  auto dirName = 
-    os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data","vpipe", "reset"});
+  {
+    auto ila_model = MemorySwap::BuildResetterTest();
+    auto dirName = 
+      os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data","vpipe", "reset"});
 
-  VerilogVerificationTargetGenerator vg(
-      {},                         // no include
-      {os_portable_join_dir({dirName, "verilog","resetter.v"})},       // vlog files
-      "resetter",                // top_module_name
-      os_portable_join_dir({dirName, "rfmap","vmap.json"}), // variable mapping
-      os_portable_join_dir({dirName, "rfmap","cond.json"}), // cond path
-      os_portable_append_dir( dirName, "out" ) ,                    // output path
-      ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+    VerilogVerificationTargetGenerator vg(
+        {},                         // no include
+        {os_portable_join_dir({dirName, "verilog","resetter.v"})},       // vlog files
+        "resetter",                // top_module_name
+        os_portable_join_dir({dirName, "rfmap","vmap-e1.json"}), // variable mapping
+        os_portable_join_dir({dirName, "rfmap","cond.json"}), // cond path
+        os_portable_append_dir( dirName, "out" ) ,                    // output path
+        ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA);
 
-  EXPECT_FALSE(vg.in_bad_state());
+    EXPECT_FALSE(vg.in_bad_state());
 
-  vg.GenerateTargets();
+    vg.GenerateTargets();
+  }
+  {
+    auto ila_model = MemorySwap::BuildResetterTest();
+    auto dirName = 
+      os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data","vpipe", "reset"});
+
+    VerilogVerificationTargetGenerator vg(
+        {},                         // no include
+        {os_portable_join_dir({dirName, "verilog","resetter.v"})},       // vlog files
+        "resetter",                // top_module_name
+        os_portable_join_dir({dirName, "rfmap","vmap-e2.json"}), // variable mapping
+        os_portable_join_dir({dirName, "rfmap","cond.json"}), // cond path
+        os_portable_append_dir( dirName, "out" ) ,                    // output path
+        ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.GenerateTargets();
+  }
+  {
+    auto ila_model = MemorySwap::BuildResetterTest();
+    auto dirName = 
+      os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data","vpipe", "reset"});
+
+    VerilogVerificationTargetGenerator vg(
+        {},                         // no include
+        {os_portable_join_dir({dirName, "verilog","resetter.v"})},       // vlog files
+        "resetter",                // top_module_name
+        os_portable_join_dir({dirName, "rfmap","vmap-e3.json"}), // variable mapping
+        os_portable_join_dir({dirName, "rfmap","cond.json"}), // cond path
+        os_portable_append_dir( dirName, "out" ) ,                    // output path
+        ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.GenerateTargets();
+  }
+  {
+    auto ila_model = MemorySwap::BuildResetterTest();
+    auto dirName = 
+      os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data","vpipe", "reset"});
+
+    VerilogVerificationTargetGenerator vg(
+        {},                         // no include
+        {os_portable_join_dir({dirName, "verilog","resetter.v"})},       // vlog files
+        "resetter",                // top_module_name
+        os_portable_join_dir({dirName, "rfmap","vmap-e4.json"}), // variable mapping
+        os_portable_join_dir({dirName, "rfmap","cond.json"}), // cond path
+        os_portable_append_dir( dirName, "out" ) ,                    // output path
+        ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.GenerateTargets();
+  }
+  {
+    auto ila_model = MemorySwap::BuildResetterTest();
+    auto dirName = 
+      os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data","vpipe", "reset"});
+
+    VerilogVerificationTargetGenerator vg(
+        {},                         // no include
+        {os_portable_join_dir({dirName, "verilog","resetter.v"})},       // vlog files
+        "resetter",                // top_module_name
+        os_portable_join_dir({dirName, "rfmap","vmap.json"}), // variable mapping
+        os_portable_join_dir({dirName, "rfmap","cond.json"}), // cond path
+        os_portable_append_dir( dirName, "out" ) ,                    // output path
+        ila_model.get(),
+        VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+    EXPECT_FALSE(vg.in_bad_state());
+
+    vg.GenerateTargets();
+  }
 }
+
 
 
 TEST(TestVlgTargetGen, ResetAnnotationZ3) {
