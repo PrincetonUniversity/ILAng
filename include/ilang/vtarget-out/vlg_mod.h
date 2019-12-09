@@ -51,7 +51,7 @@ public:
                      unsigned,    // width
                      std::string> // short_sig_name;
       assign_item_t;
-  
+
   /// type of an additional statement of an module
   typedef std::tuple<long,        // lineno
                      std::string> // stmt
@@ -71,7 +71,7 @@ public:
   typedef std::map<std::string, // file name
                    std::vector<assign_item_t>>
       assign_map_t;
-  
+
   /// type of additional stmt modification record
   typedef std::map<std::string, // filename
                    std::vector<add_stmt_t>>
@@ -88,7 +88,8 @@ public:
   /// \param[in] pointer to a verilog info  class
   /// \param[in] the style: 0 auto deteremined, 1 Old, 2 New
   VerilogModifier(VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style,
-                  bool add_keep_or_not, const std::map<std::string, int> & _sup_width_info); //
+                  bool add_keep_or_not,
+                  const std::map<std::string, int>& _sup_width_info); //
   /// Destructor:
   ~VerilogModifier();
   /// do the work : read from fin and append to fout, fout needs to be open with
@@ -105,6 +106,7 @@ public:
   /// record the stmt to be added to a module
   void RecordAdditionalVlgModuleStmt(const std::string& stmt,
                                      const std::string& mod_instance_name);
+
 protected:
   // --------------- MEMBERS ---------------------------- //
   /// the record of where to insert keep
@@ -124,7 +126,7 @@ protected:
   /// whether to add keep
   bool _add_keep_or_not;
   /// the supplementary width info
-  const std::map<std::string, int> & sup_width_info;
+  const std::map<std::string, int>& sup_width_info;
 
 protected:
   // --------------- HELPERS --------------------------- //

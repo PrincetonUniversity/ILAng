@@ -16,7 +16,6 @@
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
 #include <iostream>
 
-
 namespace ilang {
 
 #define VLG_TRUE "`true"
@@ -112,8 +111,6 @@ static std::string inv_syn_tmpl_datatypes = R"***(
 
 )***";
 
-
-
 static std::string inv_syn_tmpl_wo_datatypes = R"***(
 ;----------------------------------------
 ;  Single Inductive Invariant Synthesis
@@ -165,15 +162,11 @@ static std::string inv_syn_tmpl_wo_datatypes = R"***(
 
 )***";
 
+static std::string RewriteDatatypeChc(const std::string& tmpl,
+                                      const std::vector<smt::state_var_t>& dt,
+                                      const std::string& wrapper_mod_name);
 
-static std::string RewriteDatatypeChc(
-  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
-  const std::string & wrapper_mod_name);
-
-
-VlgSglTgtGen_Chc::~VlgSglTgtGen_Chc() {
-  
-}
+VlgSglTgtGen_Chc::~VlgSglTgtGen_Chc() {}
 
 VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
     const std::string&
@@ -181,61 +174,56 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
-    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _sup_info,
-    VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
-    const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
+    VlgTgtSupplementaryInfo& _sup_info, VerilogInfo* _vlg_info_ptr,
+    const std::string& vlg_mod_inst_name, const std::string& ila_mod_inst_name,
+    const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config,  backend_selector vbackend,
-    synthesis_backend_selector sbackend,
-    const target_type_t& target_tp,
-    advanced_parameters_t* adv_ptr,
-    bool GenerateProof,
-    _chc_target_t chctarget )
-    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond, _sup_info,
-                   _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
-                   wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, vbackend,
-                   target_tp, adv_ptr),
-      s_backend(sbackend), generate_proof(GenerateProof), 
-      has_cex(adv_ptr && adv_ptr->_cex_obj_ptr), chc_target(chctarget) { 
-    
-    ILA_ASSERT(vbackend == backend_selector::YOSYS)
+    const vtg_config_t& vtg_config, backend_selector vbackend,
+    synthesis_backend_selector sbackend, const target_type_t& target_tp,
+    advanced_parameters_t* adv_ptr, bool GenerateProof, _chc_target_t chctarget)
+    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
+                   _sup_info, _vlg_info_ptr, vlg_mod_inst_name,
+                   ila_mod_inst_name, wrapper_name, implementation_srcs,
+                   implementation_include_path, vtg_config, vbackend, target_tp,
+                   adv_ptr),
+      s_backend(sbackend), generate_proof(GenerateProof),
+      has_cex(adv_ptr && adv_ptr->_cex_obj_ptr), chc_target(chctarget) {
+
+  ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
-    
-    ILA_ASSERT(chctarget == _chc_target_t::CEX) 
+
+  ILA_ASSERT(chctarget == _chc_target_t::CEX)
       << "Bug: VlgSglTgtGen_Chc should only be used for CEX";
 
-    ILA_ASSERT(
-      target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
+  ILA_ASSERT(target_tp == target_type_t::INV_SYN_DESIGN_ONLY)
       << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
-    ILA_ASSERT(has_cex)
-      << "for cex chc, cex must be provided!";
-    ILA_ASSERT(_vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
+  ILA_ASSERT(has_cex) << "for cex chc, cex must be provided!";
+  ILA_ASSERT(_vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
       << "invariant synthesis only supports datatypes state encoding.";
 
-    ILA_ASSERT (
-      sbackend == synthesis_backend_selector::GRAIN or
-      sbackend == synthesis_backend_selector::Z3
-      ) << "Unknown synthesis backend:" << sbackend;
-    
-    if (sbackend == synthesis_backend_selector::GRAIN)
-      ILA_ASSERT (vtg_config.YosysSmtFlattenDatatype)
-        << "For Grain, datatype must be flattened!";
-    
-    ILA_ASSERT(_vtg_config.YosysSmtFlattenHierarchy)
-      << "Currently implementation only supports extract invariants from flattened hierarchy.";
- }
+  ILA_ASSERT(sbackend == synthesis_backend_selector::GRAIN or
+             sbackend == synthesis_backend_selector::Z3)
+      << "Unknown synthesis backend:" << sbackend;
 
+  if (sbackend == synthesis_backend_selector::GRAIN)
+    ILA_ASSERT(vtg_config.YosysSmtFlattenDatatype)
+        << "For Grain, datatype must be flattened!";
+
+  ILA_ASSERT(_vtg_config.YosysSmtFlattenHierarchy)
+      << "Currently implementation only supports extract invariants from "
+         "flattened hierarchy.";
+}
 
 /// Add an assumption
 void VlgSglTgtGen_Chc::add_a_direct_assumption(const std::string& aspt,
-                                                const std::string& dspt) {
+                                               const std::string& dspt) {
   _problems.assumptions[dspt].exprs.push_back(aspt);
 }
 /// Add an assertion
 void VlgSglTgtGen_Chc::add_a_direct_assertion(const std::string& asst,
-                                               const std::string& dspt) {
+                                              const std::string& dspt) {
   _problems.assertions[dspt].exprs.push_back(asst);
 }
 
@@ -249,34 +237,32 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
 
   // you need to add assumptions as well
   for (auto&& pbname_prob_pair : _problems.assumptions) {
-    const auto & prbname = pbname_prob_pair.first;
-    const auto & prob = pbname_prob_pair.second;
-    ILA_DLOG("VlgSglTgtGen_Chc.PreExportProcess") << "Adding assumption:" << prbname;
-    
-    for (auto&& p: prob.exprs) {
-      vlg_wrapper.add_stmt(
-        "assume property ("+p+"); //" + prbname + "\n");
+    const auto& prbname = pbname_prob_pair.first;
+    const auto& prob = pbname_prob_pair.second;
+    ILA_DLOG("VlgSglTgtGen_Chc.PreExportProcess")
+        << "Adding assumption:" << prbname;
+
+    for (auto&& p : prob.exprs) {
+      vlg_wrapper.add_stmt("assume property (" + p + "); //" + prbname + "\n");
       if (all_assume_wire_content.empty())
         all_assume_wire_content = "(" + p + ")";
       else
         all_assume_wire_content += "&& (" + p + ")";
     } // for prob.exprs
-  } // for _problems.assumption
+  }   // for _problems.assumption
 
   bool first = true;
   // this is to check given invariants
   for (auto&& pbname_prob_pair : _problems.assertions) {
     const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
-    
+
     // ILA_ASSERT(prbname == "cex_nonreachable_assert")
     //  << "BUG: assertion can only be cex reachability queries.";
     // sanity check, should only be invariant's related asserts
 
-    for (auto&& p: prob.exprs) {
-      vlg_wrapper.add_stmt(
-        "assert property ("+p+"); //" + prbname + "\n"
-      );
+    for (auto&& p : prob.exprs) {
+      vlg_wrapper.add_stmt("assert property (" + p + "); //" + prbname + "\n");
       // there should be only one expression (for cex target)
       // ILA_ASSERT(all_assert_wire_content.empty());
       if (first)
@@ -286,22 +272,20 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
 
       first = false;
     } // for expr
-  } // for problem
+  }   // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(! all_assert_wire_content.empty())
-    << "no property to check!";
+  ILA_ASSERT(!all_assert_wire_content.empty()) << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
-  vlg_wrapper.add_output("__all_assert_wire__",1);
+  vlg_wrapper.add_output("__all_assert_wire__", 1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
 
-  if (! all_assume_wire_content.empty()) {
+  if (!all_assume_wire_content.empty()) {
     vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
-    vlg_wrapper.add_output("__all_assume_wire__",1);
+    vlg_wrapper.add_output("__all_assume_wire__", 1);
     vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
   }
 } // PreExportProcess
-
 
 /// export the script to run the verification :
 /// like "yosys gemsmt.ys"
@@ -316,43 +300,44 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
-  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
+  // fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
   std::string runable;
   std::string options;
   std::string redirect;
   if (s_backend == synthesis_backend_selector::Z3) {
     runable = "z3";
-    if (! _vtg_config.Z3Path.empty())
+    if (!_vtg_config.Z3Path.empty())
       runable = os_portable_append_dir(_vtg_config.Z3Path, runable);
-  }
-  else if(s_backend == synthesis_backend_selector::GRAIN) {
+  } else if (s_backend == synthesis_backend_selector::GRAIN) {
     runable = "bv";
-    if (! _vtg_config.GrainPath.empty())
+    if (!_vtg_config.GrainPath.empty())
       runable = os_portable_append_dir(_vtg_config.GrainPath, runable);
-    for (auto && op : _vtg_config.GrainOptions)
+    for (auto&& op : _vtg_config.GrainOptions)
       options += " " + op;
 
     if (_vtg_config.GrainHintsUseCnfStyle) {
-      ILA_ERROR_IF(! S_IN(" --cnf ", options) && ! S_IN(" --grammar ", options)) << "You must provide grammar in Grain options!";
+      ILA_ERROR_IF(!S_IN(" --cnf ", options) && !S_IN(" --grammar ", options))
+          << "You must provide grammar in Grain options!";
     } else {
-      ILA_ERROR_IF(! S_IN(" --grammar-file=", options)) << "You must provide grammar in Grain options!";
-      options += " --chc-file=\""+chc_prob_fname+"\"";
+      ILA_ERROR_IF(!S_IN(" --grammar-file=", options))
+          << "You must provide grammar in Grain options!";
+      options += " --chc-file=\"" + chc_prob_fname + "\"";
     }
 
     redirect = " 2> ../grain.result";
   }
 
   if (chc_prob_fname != "") {
-    if (_vtg_config.GrainHintsUseCnfStyle || s_backend == synthesis_backend_selector::Z3)
-      fout << runable << options << " " << chc_prob_fname << redirect << std::endl;
+    if (_vtg_config.GrainHintsUseCnfStyle ||
+        s_backend == synthesis_backend_selector::Z3)
+      fout << runable << options << " " << chc_prob_fname << redirect
+           << std::endl;
     else
       fout << runable << options << redirect << std::endl;
-  }
-  else
+  } else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
-
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Chc::Export_modify_verilog() {
@@ -361,8 +346,10 @@ void VlgSglTgtGen_Chc::Export_modify_verilog() {
   // if it is a port name, we will ask user to specify its upper level
   // signal name
   VerilogModifier vlg_mod(vlg_info_ptr,
-    static_cast<VerilogModifier::port_decl_style_t>(_vtg_config.PortDeclStyle),
-    _vtg_config.CosaAddKeep, supplementary_info.width_info);
+                          static_cast<VerilogModifier::port_decl_style_t>(
+                              _vtg_config.PortDeclStyle),
+                          _vtg_config.CosaAddKeep,
+                          supplementary_info.width_info);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
@@ -375,8 +362,7 @@ void VlgSglTgtGen_Chc::Export_modify_verilog() {
   }
   vlg_mod.FinishRecording();
 
-
-  //auto tmp_fn = os_portable_append_dir(_output_path, tmp_design_file);
+  // auto tmp_fn = os_portable_append_dir(_output_path, tmp_design_file);
   auto tmp_fn = os_portable_append_dir(_output_path, top_file_name);
   // now let's do the job
   for (auto&& fn : vlg_design_files) {
@@ -392,7 +378,7 @@ void VlgSglTgtGen_Chc::Export_modify_verilog() {
     }
     vlg_mod.ReadModifyWrite(fn, fin, fout);
   } // for (auto && fn : vlg_design_files)
-  
+
   // handles the includes
   // .. (copy all the verilog file in the folder), this has to be os independent
   if (vlg_include_files_path.size() != 0) {
@@ -403,7 +389,6 @@ void VlgSglTgtGen_Chc::Export_modify_verilog() {
 
 } // Export_modify_verilog
 
-
 /// export the memory abstraction (implementation)
 /// Yes, this is also implementation specific, (jasper may use a different one)
 void VlgSglTgtGen_Chc::Export_mem(const std::string& mem_name) {
@@ -412,9 +397,9 @@ void VlgSglTgtGen_Chc::Export_mem(const std::string& mem_name) {
   auto outfn = os_portable_append_dir(_output_path, top_file_name);
   std::ofstream fout(outfn, std::ios_base::app); // append
 
-  VlgAbsMem::OutputMemFile(fout, _vtg_config.VerificationSettingAvoidIssueStage);
+  VlgAbsMem::OutputMemFile(fout,
+                           _vtg_config.VerificationSettingAvoidIssueStage);
 }
-
 
 // export the chc file
 void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
@@ -428,39 +413,49 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
   // and extract from it the necessary info
   // this is the CHC-style thing
   design_only_gen_smt(
-    os_portable_append_dir(_output_path, "__design_smt.smt2"),
-    os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
-  //if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-  convert_smt_to_chc_datatype (
-    os_portable_append_dir(_output_path, "__design_smt.smt2"),
-    os_portable_append_dir(_output_path, 
-      s_backend == synthesis_backend_selector::GRAIN ?
-        "grain_prep.txt"  : extra_name));
-  
+      os_portable_append_dir(_output_path, "__design_smt.smt2"),
+      os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
+  // if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
+  convert_smt_to_chc_datatype(
+      os_portable_append_dir(_output_path, "__design_smt.smt2"),
+      os_portable_append_dir(_output_path,
+                             s_backend == synthesis_backend_selector::GRAIN
+                                 ? "grain_prep.txt"
+                                 : extra_name));
 
   // for grain : convert wrapper# --> w wrapper_ --> w
   if (s_backend == synthesis_backend_selector::GRAIN) {
-    std::ifstream fin( os_portable_append_dir(_output_path, "grain_prep.txt"));
+    std::ifstream fin(os_portable_append_dir(_output_path, "grain_prep.txt"));
     std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
-    if (!fin.is_open())  { ILA_ERROR << "Cannot read from : " << os_portable_append_dir(_output_path, "grain_prep.txt"); return; }
-    if (!fout.is_open()) { ILA_ERROR << "Cannot write to : " << os_portable_append_dir(_output_path, extra_name); return; }
+    if (!fin.is_open()) {
+      ILA_ERROR << "Cannot read from : "
+                << os_portable_append_dir(_output_path, "grain_prep.txt");
+      return;
+    }
+    if (!fout.is_open()) {
+      ILA_ERROR << "Cannot write to : "
+                << os_portable_append_dir(_output_path, extra_name);
+      return;
+    }
     std::string line;
-    while(std::getline(fin,line)) {
-      fout << ReplaceAll(ReplaceAll(line,"wrapper#", "w"), "wrapper_", "w_") << "\n";
+    while (std::getline(fin, line)) {
+      fout << ReplaceAll(ReplaceAll(line, "wrapper#", "w"), "wrapper_", "w_")
+           << "\n";
     }
   }
 
 } // Export_problem
 
-std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Chc::GetDesignSmtInfo() const {
+std::shared_ptr<smt::YosysSmtParser>
+VlgSglTgtGen_Chc::GetDesignSmtInfo() const {
   return design_smt_info;
 }
 
 void VlgSglTgtGen_Chc::ExportAll(const std::string& wrapper_name, // wrapper.v
-                        const std::string& ila_vlg_name, // no use
-                        const std::string& script_name,  // the run.sh
-                        const std::string& extra_name,   // the chc
-                        const std::string& mem_name) {   // no use
+                                 const std::string& ila_vlg_name, // no use
+                                 const std::string& script_name,  // the run.sh
+                                 const std::string& extra_name,   // the chc
+                                 const std::string& mem_name) {   // no use
 
   PreExportProcess();
 
@@ -470,77 +465,85 @@ void VlgSglTgtGen_Chc::ExportAll(const std::string& wrapper_name, // wrapper.v
   // you don't need to worry about the path and names
   Export_wrapper(wrapper_name);
   // design only
-  //if (target_type == target_type_t::INSTRUCTIONS)
+  // if (target_type == target_type_t::INSTRUCTIONS)
   //  Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
 
   // for Jasper, this will be put to multiple files
   // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
-  Export_modify_verilog();        // this must be after Export_wrapper
+  Export_modify_verilog(); // this must be after Export_wrapper
   Export_mem(mem_name);
 
-  // you need to create the map function -- 
-  Export_problem(extra_name); // the gensmt.ys 
-  
+  // you need to create the map function --
+  Export_problem(extra_name); // the gensmt.ys
+
   Export_script(script_name);
 }
 
 /// generate the wrapper's smt first
-void VlgSglTgtGen_Chc::design_only_gen_smt(
-  const std::string & smt_name,
-  const std::string & ys_script_name) {
-  
+void VlgSglTgtGen_Chc::design_only_gen_smt(const std::string& smt_name,
+                                           const std::string& ys_script_name) {
+
   auto ys_output_full_name =
       os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
   { // export to ys_script_name
-    std::ofstream ys_script_fout( ys_script_name );
-    
-    std::string write_smt2_options = " -mem -bv "; // future work : -stbv, or nothing
-    //if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-    write_smt2_options += "-stdt ";
-    //else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
-    //  write_smt2_options += "-stbv ";
-    //else
-    //  ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
+    std::ofstream ys_script_fout(ys_script_name);
 
-    ys_script_fout << "read_verilog -sv " 
-      << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
+    std::string write_smt2_options =
+        " -mem -bv "; // future work : -stbv, or nothing
+    // if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
+    write_smt2_options += "-stdt ";
+    // else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
+    //  write_smt2_options += "-stbv ";
+    // else
+    //  ILA_ASSERT(false) << "Unsupported smt state sort encoding:" <<
+    //  _vtg_config.YosysSmtStateSort;
+
+    ys_script_fout << "read_verilog -sv "
+                   << os_portable_append_dir(_output_path, top_file_name)
+                   << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
 
-    auto chcGenSmtTemplate = 
-      _vtg_config.ChcWordBlastArray ? 
-        chcGenerateSmtScript_wo_Array : chcGenerateSmtScript_w_Array ;
+    auto chcGenSmtTemplate = _vtg_config.ChcWordBlastArray
+                                 ? chcGenerateSmtScript_wo_Array
+                                 : chcGenerateSmtScript_w_Array;
 
-    ys_script_fout << 
-      ReplaceAll(
-      ReplaceAll(
-      ReplaceAll(
-      ReplaceAll(
-      ReplaceAll(chcGenSmtTemplate, "%flatten%", 
-        _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : ""),
-        "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
-        "%rstlen%", std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
-        "%cycle%",  std::to_string(supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+    ys_script_fout << ReplaceAll(
+        ReplaceAll(
+            ReplaceAll(
+                ReplaceAll(ReplaceAll(chcGenSmtTemplate, "%flatten%",
+                                      _vtg_config.YosysSmtFlattenHierarchy
+                                          ? "flatten;"
+                                          : ""),
+                           "%setundef -undriven -expose%",
+                           _vtg_config.YosysUndrivenNetAsInput
+                               ? "setundef -undriven -expose"
+                               : ""),
+                "%rstlen%",
+                std::to_string(
+                    supplementary_info.cosa_yosys_reset_config.reset_cycles)),
+            "%cycle%",
+            std::to_string(
+                supplementary_info.cosa_yosys_reset_config.reset_cycles)),
         "%module%", top_mod_name);
 
-    ys_script_fout << "write_smt2"<<write_smt2_options 
-      << smt_name;   
+    ys_script_fout << "write_smt2" << write_smt2_options << smt_name;
   } // finish writing
 
   std::string yosys = "yosys";
 
-  if (! _vtg_config.YosysPath.empty())
+  if (!_vtg_config.YosysPath.empty())
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
   // execute it
   std::vector<std::string> cmd;
-  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
-  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
-    ILA_ERROR_IF( res.failure != res.NONE  )
-      << "Executing Yosys failed!";
-    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
+  cmd.push_back(yosys);
+  cmd.push_back("-s");
+  cmd.push_back(ys_script_name);
+  auto res = os_portable_execute_shell(cmd, ys_output_full_name);
+  ILA_ERROR_IF(res.failure != res.NONE) << "Executing Yosys failed!";
+  ILA_ERROR_IF(res.failure == res.NONE && res.ret != 0)
       << "Yosys returns error code:" << res.ret;
 } // design_only_gen_smt
-
 
 // currently we don't support prepresenting state using a bit vector
 #if 0
@@ -590,14 +593,14 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_bitvec(
   } // end write file
 }
 #endif
-  
 
-void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname, const std::string & chc_fname) {
-  
+void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(
+    const std::string& smt_fname, const std::string& chc_fname) {
+
   std::stringstream ibuf;
   { // read file
-    std::ifstream smt_fin( smt_fname );
-    if(! smt_fin.is_open()) {
+    std::ifstream smt_fin(smt_fname);
+    if (!smt_fin.is_open()) {
       ILA_ERROR << "Cannot read from " << smt_fname;
       return;
     }
@@ -605,57 +608,92 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
   } // end read file
 
   std::string smt_converted;
-  design_smt_info = std::make_shared<smt::YosysSmtParser> (ibuf.str());
+  design_smt_info = std::make_shared<smt::YosysSmtParser>(ibuf.str());
   if (_vtg_config.YosysSmtFlattenDatatype) {
     design_smt_info->BreakDatatypes();
-    //smt_rewriter.AddNoChangeStateUpdateFunction();
+    // smt_rewriter.AddNoChangeStateUpdateFunction();
     smt_converted = design_smt_info->Export();
   } else {
     smt_converted = ibuf.str();
   }
 
-  std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
+  std::string wrapper_mod_name =
+      design_smt_info->get_module_def_orders().back();
   // construct the template
 
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {
-    const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
-    auto tmpl = ReplaceAll(inv_syn_tmpl_wo_datatypes, 
-      "%(set-option :fp.engine spacer)%" ,
-      s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
+    const auto& datatype_top_mod =
+        design_smt_info->get_module_flatten_dt(wrapper_mod_name);
+    auto tmpl = ReplaceAll(inv_syn_tmpl_wo_datatypes,
+                           "%(set-option :fp.engine spacer)%",
+                           s_backend == synthesis_backend_selector::GRAIN
+                               ? ""
+                               : "(set-option :fp.engine spacer)");
 
-    tmpl = ReplaceAll(tmpl, "<!ui>(|%WrapperName%_u| %Ss%)<!>" , _vtg_config.ChcAssumptionsReset ?     "(|%WrapperName%_u| %Ss%)" : "");
-    tmpl = ReplaceAll(tmpl, "<!us>(|%WrapperName%_u| %Sps%)<!>" , _vtg_config.ChcAssumptionNextState ? "(|%WrapperName%_u| %Sps%)": "");
-    tmpl = ReplaceAll(tmpl, "<!ue>(|%WrapperName%_u| %Ss%)<!>" , _vtg_config.ChcAssumptionEnd ?        "(|%WrapperName%_u| %Ss%)" : "");
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset &&  _vtg_config.YosysSmtFlattenHierarchy ?
-      "" : "(and");
-    tmpl = ReplaceAll(tmpl, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
-      "" : ")");
+    tmpl = ReplaceAll(
+        tmpl, "<!ui>(|%WrapperName%_u| %Ss%)<!>",
+        _vtg_config.ChcAssumptionsReset ? "(|%WrapperName%_u| %Ss%)" : "");
+    tmpl = ReplaceAll(
+        tmpl, "<!us>(|%WrapperName%_u| %Sps%)<!>",
+        _vtg_config.ChcAssumptionNextState ? "(|%WrapperName%_u| %Sps%)" : "");
+    tmpl = ReplaceAll(tmpl, "<!ue>(|%WrapperName%_u| %Ss%)<!>",
+                      _vtg_config.ChcAssumptionEnd ? "(|%WrapperName%_u| %Ss%)"
+                                                   : "");
+    tmpl = ReplaceAll(
+        tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>",
+        _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)");
+    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>",
+                      _vtg_config.YosysSmtFlattenHierarchy
+                          ? ""
+                          : "(|%WrapperName%_h| %Sps%)");
+    tmpl = ReplaceAll(tmpl, "<!>(and<!>",
+                      !_vtg_config.ChcAssumptionsReset &&
+                              _vtg_config.YosysSmtFlattenHierarchy
+                          ? ""
+                          : "(and");
+    tmpl = ReplaceAll(tmpl, "<!>)<!>",
+                      !_vtg_config.ChcAssumptionsReset &&
+                              _vtg_config.YosysSmtFlattenHierarchy
+                          ? ""
+                          : ")");
 
-    chc = RewriteDatatypeChc(
-      tmpl,
-      datatype_top_mod, wrapper_mod_name);
+    chc = RewriteDatatypeChc(tmpl, datatype_top_mod, wrapper_mod_name);
 
-    chc = ReplaceAll(chc, "%%", smt_converted );
+    chc = ReplaceAll(chc, "%%", smt_converted);
 
   } else {
-    chc = ReplaceAll(inv_syn_tmpl_datatypes, 
-      "%(set-option :fp.engine spacer)%" ,
-      s_backend == synthesis_backend_selector::GRAIN ? "" : "(set-option :fp.engine spacer)");
+    chc = ReplaceAll(inv_syn_tmpl_datatypes, "%(set-option :fp.engine spacer)%",
+                     s_backend == synthesis_backend_selector::GRAIN
+                         ? ""
+                         : "(set-option :fp.engine spacer)");
 
-    chc = ReplaceAll(chc, "<!ui>(|%1%_u| |__S__|)<!>" , _vtg_config.ChcAssumptionsReset ? "(|%1%_u| |__S__|)" : "");
-    chc = ReplaceAll(chc, "<!us>(|%1%_u| |__S'__|)<!>" , _vtg_config.ChcAssumptionNextState ? "(|%1%_u| |__S'__|)" : "");
-    chc = ReplaceAll(chc, "<!ue>(|%1%_u| |__S__|)<!>" , _vtg_config.ChcAssumptionEnd ? "(|%1%_u| |__S__|)" : "");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
-    chc = ReplaceAll(chc, "<!>(and<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
-      "" : "(and");
-    chc = ReplaceAll(chc, "<!>)<!>", !_vtg_config.ChcAssumptionsReset && _vtg_config.YosysSmtFlattenHierarchy ?
-      "" : ")");
-    chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
-    chc = ReplaceAll(chc, "%%", smt_converted );
+    chc =
+        ReplaceAll(chc, "<!ui>(|%1%_u| |__S__|)<!>",
+                   _vtg_config.ChcAssumptionsReset ? "(|%1%_u| |__S__|)" : "");
+    chc = ReplaceAll(chc, "<!us>(|%1%_u| |__S'__|)<!>",
+                     _vtg_config.ChcAssumptionNextState ? "(|%1%_u| |__S'__|)"
+                                                        : "");
+    chc = ReplaceAll(chc, "<!ue>(|%1%_u| |__S__|)<!>",
+                     _vtg_config.ChcAssumptionEnd ? "(|%1%_u| |__S__|)" : "");
+    chc = ReplaceAll(
+        chc, "<!>(|%1%_h| |__S__|)<!>",
+        _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
+    chc = ReplaceAll(
+        chc, "<!>(|%1%_h| |__S'__|)<!>",
+        _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
+    chc = ReplaceAll(chc, "<!>(and<!>",
+                     !_vtg_config.ChcAssumptionsReset &&
+                             _vtg_config.YosysSmtFlattenHierarchy
+                         ? ""
+                         : "(and");
+    chc = ReplaceAll(chc, "<!>)<!>",
+                     !_vtg_config.ChcAssumptionsReset &&
+                             _vtg_config.YosysSmtFlattenHierarchy
+                         ? ""
+                         : ")");
+    chc = ReplaceAll(chc, "%1%", wrapper_mod_name);
+    chc = ReplaceAll(chc, "%%", smt_converted);
   } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
 
   { // (query fail :print-certificate true)
@@ -667,15 +705,15 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
 
   { // write file
     std::ofstream chc_fout(chc_fname);
-    if (! chc_fout.is_open()) {
-      ILA_ERROR << "Error writing to : "<< chc_fname;
+    if (!chc_fout.is_open()) {
+      ILA_ERROR << "Error writing to : " << chc_fname;
       return;
     }
     chc_fout << chc;
   } // end write file
 
 } // convert_smt_to_chc_datatype
-  
+
 // %WrapperName%
 // %WrapperDataType%
 // %BeforeInitVar%
@@ -683,10 +721,10 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname
 // %State%
 // %StatePrime%
 // %BIs% %Is%  %Ss% %Sps%
-static std::string RewriteDatatypeChc(
-  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
-  const std::string & wrapper_mod_name) {
-  
+static std::string RewriteDatatypeChc(const std::string& tmpl,
+                                      const std::vector<smt::state_var_t>& dt,
+                                      const std::string& wrapper_mod_name) {
+
   std::string chc = tmpl;
 
   std::vector<smt::var_type> inv_tps;
@@ -704,34 +742,36 @@ static std::string RewriteDatatypeChc(
   bool first = true;
 
   std::set<std::string> name_set; // avoid repetition
-  for (auto && st : dt) {
-    auto st_name = st.verilog_name.back() == '.' || st.verilog_name.empty() ? st.internal_name : st.verilog_name;
+  for (auto&& st : dt) {
+    auto st_name = st.verilog_name.back() == '.' || st.verilog_name.empty()
+                       ? st.internal_name
+                       : st.verilog_name;
     st_name = ReplaceAll(st_name, "|", ""); // remove its ||
     // check no repetition is very important!
-    ILA_ASSERT(! IN(st_name, name_set)) << "Bug: name repetition!";
-    ILA_ASSERT(! st._type.is_datatype());
+    ILA_ASSERT(!IN(st_name, name_set)) << "Bug: name repetition!";
+    ILA_ASSERT(!st._type.is_datatype());
     name_set.insert(st_name);
     auto type_string = st._type.toString();
-    State         += "(declare-var |S_"  + st_name + "| " + type_string + ")\n";
-    StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
+    State += "(declare-var |S_" + st_name + "| " + type_string + ")\n";
+    StatePrime += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
 
-    if(! first) {
-      Ss  += " ";
+    if (!first) {
+      Ss += " ";
       Sps += " ";
     }
     first = false;
-    Ss  += "|S_"  + st_name + "|";
+    Ss += "|S_" + st_name + "|";
     Sps += "|S'_" + st_name + "|";
   }
   // Replacement
-  chc = ReplaceAll(chc, "%WrapperName%",     wrapper_mod_name);
+  chc = ReplaceAll(chc, "%WrapperName%", wrapper_mod_name);
   chc = ReplaceAll(chc, "%WrapperDataType%", WrapperDataType);
-  chc = ReplaceAll(chc, "%State%",           State);
-  chc = ReplaceAll(chc, "%StatePrime%",      StatePrime);
-  chc = ReplaceAll(chc, "%Ss%",              Ss);
-  chc = ReplaceAll(chc, "%Sps%",             Sps);
+  chc = ReplaceAll(chc, "%State%", State);
+  chc = ReplaceAll(chc, "%StatePrime%", StatePrime);
+  chc = ReplaceAll(chc, "%Ss%", Ss);
+  chc = ReplaceAll(chc, "%Sps%", Sps);
 
-  return chc;  
+  return chc;
 } // RewriteDatatypeChc
 
 }; // namespace ilang

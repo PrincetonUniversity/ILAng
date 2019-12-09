@@ -66,7 +66,8 @@ VerilogInfo::module_io_vec_t VerilogInfo::get_top_module_io() const {
   return _ptr->get_top_module_io();
 }
 
-VerilogInfo::module_io_vec_t VerilogInfo::get_top_module_io(const std::map<std::string,int> & width_info) const {
+VerilogInfo::module_io_vec_t VerilogInfo::get_top_module_io(
+    const std::map<std::string, int>& width_info) const {
   const VerilogAnalyzer* _ptr = dynamic_cast<const VerilogAnalyzer*>(_analyzer);
   ILA_NOT_NULL(_ptr);
   return _ptr->get_top_module_io(&width_info);
@@ -79,7 +80,9 @@ SignalInfoBase VerilogInfo::get_signal(const std::string& net_name) const {
 }
 
 /// Find a signal (and use the width info, if width is unknown)
-SignalInfoBase VerilogInfo::get_signal(const std::string& net_name, const std::map<std::string,int> & width_info) const {
+SignalInfoBase
+VerilogInfo::get_signal(const std::string& net_name,
+                        const std::map<std::string, int>& width_info) const {
   const VerilogAnalyzer* _ptr = dynamic_cast<const VerilogAnalyzer*>(_analyzer);
   ILA_NOT_NULL(_ptr);
   return _ptr->get_signal(net_name, &width_info);

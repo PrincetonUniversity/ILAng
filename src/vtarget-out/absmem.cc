@@ -7,8 +7,8 @@
 #include <sstream>
 
 #include <ilang/util/container_shortcut.h>
-#include <ilang/util/str_util.h>
 #include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -100,18 +100,18 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
 
     // connect ports, create
     // treat unconnected wire?
-#define CONNECT(e, s, w, i)                                                        \
-  do {                                                                          \
-    std::string wn = (e);                                                       \
-    if ((wn).size() == 0) {                                                     \
-      (wn) = base_name + (s);                                                   \
-      gen.add_wire((wn), (w), true);                                            \
-      if(i)                                           \
-        gen.add_input((wn), (w));                                                 \
-      else                                           \
-        gen.add_output((wn), (w));                                                 \
-    }                                                                           \
-    ret << ",\n    .vlg" s "(" << (wn) << ")";                                  \
+#define CONNECT(e, s, w, i)                                                    \
+  do {                                                                         \
+    std::string wn = (e);                                                      \
+    if ((wn).size() == 0) {                                                    \
+      (wn) = base_name + (s);                                                  \
+      gen.add_wire((wn), (w), true);                                           \
+      if (i)                                                                   \
+        gen.add_input((wn), (w));                                              \
+      else                                                                     \
+        gen.add_output((wn), (w));                                             \
+    }                                                                          \
+    ret << ",\n    .vlg" s "(" << (wn) << ")";                                 \
   } while (false)
 
   for (auto&& np : vlg_wports) {
@@ -124,7 +124,7 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
     CONNECT(p.waddr, "_waddr", addr_width, true);
     CONNECT(p.wdata, "_wdata", data_width, false);
     CONNECT(p.wen, "_wen", 1, true);
-  } // the else case: 
+  }                             // the else case:
   if (vlg_wports.size() == 0) { // avoid write arbitrarily
     ret << ",\n    .vlg_wen(1'b0)";
     int n = 0;
@@ -172,9 +172,15 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
     ret << ",\n    .ila_wen  (" << base_name + "_wen"
         << ")";
 
-    ILA_DLOG("VtargetGen.AbsMem") << ".ila_waddr(" << p.waddr << " or " << base_name + "_waddr" << ")";
-    ILA_DLOG("VtargetGen.AbsMem") << ".ila_wdata(" << p.wdata << " or " << base_name + "_wdata" << ")";
-    ILA_DLOG("VtargetGen.AbsMem") << ".ila_wen  (" << p.wen << " or " << base_name + "_wen" << ")";
+    ILA_DLOG("VtargetGen.AbsMem")
+        << ".ila_waddr(" << p.waddr << " or " << base_name + "_waddr"
+        << ")";
+    ILA_DLOG("VtargetGen.AbsMem")
+        << ".ila_wdata(" << p.wdata << " or " << base_name + "_wdata"
+        << ")";
+    ILA_DLOG("VtargetGen.AbsMem")
+        << ".ila_wen  (" << p.wen << " or " << base_name + "_wen"
+        << ")";
   }
   if (ila_wports.size() == 0)
     ret << ",\n    .ila_wen  ( 1'b0 )"; // make sure we don't do any writes if
@@ -207,9 +213,9 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
 
 bool VlgAbsMem::hasAbsMem() { return concrete_level_encountered.size() > 0; }
 
-void VlgAbsMem::ClearAbsMemRecord() { 
-  mem_count = 0; 
-  concrete_level_encountered.clear(); 
+void VlgAbsMem::ClearAbsMemRecord() {
+  mem_count = 0;
+  concrete_level_encountered.clear();
 }
 
 // the parameters are :
@@ -381,7 +387,7 @@ endmodule
 
   )**##**";
 
-  std::string d1ra = R"**##**(
+std::string d1ra = R"**##**(
 
 // 1R 1W (x2) d=1 AW(V=I) DW(V=I) absmem
 // CoSA & Jasper
@@ -604,17 +610,18 @@ endmodule
 
     )**##**";
 
-
 void VlgAbsMem::OutputMemFile(std::ostream& os, bool avoid_issue_stage) {
 
   for (auto&& cl : concrete_level_encountered) {
     if (cl == 1)
-      os << ReplaceAll(d1model,"%%%AVOID_ISSUE%%%", avoid_issue_stage?"1":"0" );
+      os << ReplaceAll(d1model, "%%%AVOID_ISSUE%%%",
+                       avoid_issue_stage ? "1" : "0");
     else if (cl == -1)
-      os << ReplaceAll(d1ra,"%%%AVOID_ISSUE%%%", avoid_issue_stage?"1":"0" );
+      os << ReplaceAll(d1ra, "%%%AVOID_ISSUE%%%",
+                       avoid_issue_stage ? "1" : "0");
     else
       ILA_ASSERT(false) << "depth :" << cl
-                << " abs mem model is not developed. Future work.";
+                        << " abs mem model is not developed. Future work.";
   }
 }
 

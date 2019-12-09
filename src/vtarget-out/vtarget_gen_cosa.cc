@@ -25,20 +25,18 @@ VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
     nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
-    VlgTgtSupplementaryInfo & _supplementary_info,
-    VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
-    const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+    VlgTgtSupplementaryInfo& _supplementary_info, VerilogInfo* _vlg_info_ptr,
+    const std::string& vlg_mod_inst_name, const std::string& ila_mod_inst_name,
+    const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
-    const target_type_t& target_tp,
-    advanced_parameters_t * adv_ptr)
+    const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
-                   _supplementary_info,
-                   _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
-                   wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend,
-                   target_tp, adv_ptr) {}
+                   _supplementary_info, _vlg_info_ptr, vlg_mod_inst_name,
+                   ila_mod_inst_name, wrapper_name, implementation_srcs,
+                   implementation_include_path, vtg_config, backend, target_tp,
+                   adv_ptr) {}
 
 #if 0
 // currently this function has no use
@@ -51,8 +49,7 @@ std::string convert_expr_to_cosa(const std::string& in) {
                  VLG_TRUE, "True"),
       VLG_FALSE, "False");
 }
-#endif 
-
+#endif
 
 /// Add an assumption
 void VlgSglTgtGen_Cosa::add_a_direct_assumption(const std::string& aspt,
@@ -74,13 +71,13 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
-  if (! _vtg_config.CosaPyEnvironment.empty())
+  if (!_vtg_config.CosaPyEnvironment.empty())
     fout << "source " << _vtg_config.CosaPyEnvironment << std::endl;
 
   std::string cosa = "CoSA";
   std::string options;
 
-  if (! _vtg_config.CosaSolver.empty())
+  if (!_vtg_config.CosaSolver.empty())
     options += " --solver-name=" + _vtg_config.CosaSolver;
   if (_vtg_config.CosaGenTraceVcd)
     options += " --vcd";
@@ -92,7 +89,7 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
   // if(vlg_include_files_path.size() != 0)
   //  options += " -I./";
 
-  if (! _vtg_config.CosaPath.empty()) {
+  if (!_vtg_config.CosaPath.empty()) {
     cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
   }
 
@@ -161,9 +158,11 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
 
   rstf << "I: rst = 1_1" << std::endl;
   rstf << "I: reset_done = 0_1" << std::endl;
-  
+
   unsigned cycle_after_i = 1;
-  for (; cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles; ++ cycle_after_i) {
+  for (;
+       cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles;
+       ++cycle_after_i) {
     rstf << "S" << cycle_after_i << ": rst = 1_1" << std::endl;
     rstf << "S" << cycle_after_i << ": reset_done = 0_1" << std::endl;
   }
@@ -171,8 +170,10 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   rstf << "S" << cycle_after_i << ": reset_done = 1_1" << std::endl;
   rstf << "# TRANS" << std::endl;
   rstf << "I -> S1" << std::endl;
-  for (cycle_after_i = 1; cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles; ++ cycle_after_i)
-    rstf << "S" << cycle_after_i << " -> S" << (cycle_after_i+1) << std::endl;
+  for (cycle_after_i = 1;
+       cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles;
+       ++cycle_after_i)
+    rstf << "S" << cycle_after_i << " -> S" << (cycle_after_i + 1) << std::endl;
   rstf << "S" << cycle_after_i << " -> S" << cycle_after_i << std::endl;
 
   std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
@@ -232,7 +233,8 @@ void VlgSglTgtGen_Cosa::Export_mem(const std::string& mem_name) {
   auto outfn = os_portable_append_dir(_output_path, top_file_name);
   std::ofstream fout(outfn, std::ios_base::app); // append
 
-  VlgAbsMem::OutputMemFile(fout, _vtg_config.VerificationSettingAvoidIssueStage);
+  VlgAbsMem::OutputMemFile(fout,
+                           _vtg_config.VerificationSettingAvoidIssueStage);
 }
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
@@ -244,7 +246,8 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
   VerilogModifier vlg_mod(vlg_info_ptr,
                           static_cast<VerilogModifier::port_decl_style_t>(
                               _vtg_config.PortDeclStyle),
-                          _vtg_config.CosaAddKeep, supplementary_info.width_info);
+                          _vtg_config.CosaAddKeep,
+                          supplementary_info.width_info);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");

@@ -6,76 +6,68 @@
 #ifndef CHC_INV_CALLBACK_FN_H__
 #define CHC_INV_CALLBACK_FN_H__
 
+#include <ilang/smt-inout/chc_inv_in.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/smt-inout/chc_inv_in.h>
-
-
 
 namespace ilang {
 namespace smt {
 
-
 //
 // -------------- call back function declarations ---------------- //
 //
-// these are just proxy that forwards calls to the SmtlibInvariantParser 
+// these are just proxy that forwards calls to the SmtlibInvariantParser
 // member functions
 // this is just because we can not pass function objects (lambda functions)
 // to the legacy C code
 
 // --- for abstract parser
 // (forall
-smtlib2_term proxy_push_quantifier_scope(smtlib2_parser_interface *p);
+smtlib2_term proxy_push_quantifier_scope(smtlib2_parser_interface* p);
 
 // ) ; end of forall
-smtlib2_term proxy_pop_quantifier_scope(smtlib2_parser_interface *p);
+smtlib2_term proxy_pop_quantifier_scope(smtlib2_parser_interface* p);
 
 // the special function dealing with the final term in a forall term
-smtlib2_term proxy_make_forall_term(smtlib2_parser_interface *parser,
-                                     smtlib2_term term);
+smtlib2_term proxy_make_forall_term(smtlib2_parser_interface* parser,
+                                    smtlib2_term term);
 
 // the special function dealing with the final term in an exists term
-smtlib2_term proxy_make_exists_term(smtlib2_parser_interface *parser,
-                                     smtlib2_term term);
+smtlib2_term proxy_make_exists_term(smtlib2_parser_interface* parser,
+                                    smtlib2_term term);
 
 // we will treat everything as an assert, although it does nothing
-void proxy_assert_formula(smtlib2_parser_interface *parser, smtlib2_term term);
+void proxy_assert_formula(smtlib2_parser_interface* parser, smtlib2_term term);
 
 // in the case of CVC4 output, it will be a define-fun
-void proxy_define_func(smtlib2_parser_interface *parser,
-                            const char *name,
-                            smtlib2_vector *params,
-                            smtlib2_sort sort, smtlib2_term term);
-// 
-smtlib2_sort proxy_make_sort(smtlib2_parser_interface *p,
-                                               const char *sortname,
-                                               smtlib2_vector *index);
-//                                               
-void proxy_declare_variable(smtlib2_parser_interface *p,
-                                              const char *name,
-                                              smtlib2_sort sort);  
+void proxy_define_func(smtlib2_parser_interface* parser, const char* name,
+                       smtlib2_vector* params, smtlib2_sort sort,
+                       smtlib2_term term);
+//
+smtlib2_sort proxy_make_sort(smtlib2_parser_interface* p, const char* sortname,
+                             smtlib2_vector* index);
+//
+void proxy_declare_variable(smtlib2_parser_interface* p, const char* name,
+                            smtlib2_sort sort);
 
-void proxy_declare_function(smtlib2_parser_interface *p,
-                                                  const char *name,
-                                                  smtlib2_sort sort);
-                                                  
-void proxy_check_sat(smtlib2_parser_interface *p);
+void proxy_declare_function(smtlib2_parser_interface* p, const char* name,
+                            smtlib2_sort sort);
+
+void proxy_check_sat(smtlib2_parser_interface* p);
 // --- for term parser
 
-smtlib2_term proxy_mk_function(smtlib2_context ctx,
-                                                const char *symbol,
-                                                smtlib2_sort sort,
-                                                smtlib2_vector *index,
-                                                smtlib2_vector *args);
+smtlib2_term proxy_mk_function(smtlib2_context ctx, const char* symbol,
+                               smtlib2_sort sort, smtlib2_vector* index,
+                               smtlib2_vector* args);
 
-smtlib2_term proxy_mk_number(smtlib2_context ctx,
-                                                const char *rep,
-                                                unsigned int width,
-                                                unsigned int base);                                                     
+smtlib2_term proxy_mk_number(smtlib2_context ctx, const char* rep,
+                             unsigned int width, unsigned int base);
 // handle the operators
 
-#define SMTLIB2_VERILOG_DECLHANDLER(name) smtlib2_term smt_to_vlg_mk_##name ( smtlib2_context ctx, const char *symbol, smtlib2_sort sort, smtlib2_vector *idx, smtlib2_vector *args)
+#define SMTLIB2_VERILOG_DECLHANDLER(name)                                      \
+  smtlib2_term smt_to_vlg_mk_##name(smtlib2_context ctx, const char* symbol,   \
+                                    smtlib2_sort sort, smtlib2_vector* idx,    \
+                                    smtlib2_vector* args)
 
 SMTLIB2_VERILOG_DECLHANDLER(and);
 SMTLIB2_VERILOG_DECLHANDLER(or);
@@ -83,9 +75,8 @@ SMTLIB2_VERILOG_DECLHANDLER(not);
 SMTLIB2_VERILOG_DECLHANDLER(implies);
 SMTLIB2_VERILOG_DECLHANDLER(eq);
 SMTLIB2_VERILOG_DECLHANDLER(ite);
-SMTLIB2_VERILOG_DECLHANDLER(xor);
+SMTLIB2_VERILOG_DECLHANDLER (xor);
 SMTLIB2_VERILOG_DECLHANDLER(nand);
-
 
 SMTLIB2_VERILOG_DECLHANDLER(true);
 SMTLIB2_VERILOG_DECLHANDLER(false);

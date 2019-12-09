@@ -21,20 +21,18 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
     nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
-    VlgTgtSupplementaryInfo & _supplementary_info,
-    VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
-    const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+    VlgTgtSupplementaryInfo& _supplementary_info, VerilogInfo* _vlg_info_ptr,
+    const std::string& vlg_mod_inst_name, const std::string& ila_mod_inst_name,
+    const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
-    const target_type_t& target_tp,
-    advanced_parameters_t * adv_ptr)
+    const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
-                   _supplementary_info,
-                   _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
-                   wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend,
-                   target_tp, adv_ptr) {}
+                   _supplementary_info, _vlg_info_ptr, vlg_mod_inst_name,
+                   ila_mod_inst_name, wrapper_name, implementation_srcs,
+                   implementation_include_path, vtg_config, backend, target_tp,
+                   adv_ptr) {}
 
 void VlgSglTgtGen_Jasper::add_wire_assign_assumption(
     const std::string& varname, const std::string& expression,
@@ -44,14 +42,13 @@ void VlgSglTgtGen_Jasper::add_wire_assign_assumption(
 }
 
 void VlgSglTgtGen_Jasper::add_reg_cassign_assumption(
-    const std::string& varname, const std::string& expression,
-    int width,
+    const std::string& varname, const std::string& expression, int width,
     const std::string& cond, const std::string& dspt) {
 
   std::string rand_in_name = "__" + varname + "_init__";
   vlg_wrapper.add_input(rand_in_name, width);
-  vlg_wrapper.add_wire (rand_in_name, width);
-  
+  vlg_wrapper.add_wire(rand_in_name, width);
+
   vlg_wrapper.add_init_stmt(varname + " <= " + rand_in_name + ";");
   vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
   add_an_assumption(
@@ -95,7 +92,7 @@ void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {
   auto fn = os_portable_append_dir(_output_path, script_name);
 
   std::ofstream fout(fn);
-  if (! fout.is_open()) {
+  if (!fout.is_open()) {
     ILA_ERROR << "Unable to open " << fn << " for write.";
     return;
   }
@@ -107,7 +104,7 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
 
   auto fn = os_portable_append_dir(_output_path, extra_name);
   std::ofstream fout(fn);
-  if (! fout.is_open()) {
+  if (!fout.is_open()) {
     ILA_ERROR << "Unable to open " << fn << " for write.";
     return;
   }
@@ -155,7 +152,7 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
 /// Yes, this is also implementation specific, (jasper may use a different one)
 void VlgSglTgtGen_Jasper::Export_mem(const std::string& mem_name) {
   // TODO;
-  if (! VlgAbsMem::hasAbsMem())
+  if (!VlgAbsMem::hasAbsMem())
     return;
 
   abs_mem_name = mem_name;
@@ -163,7 +160,8 @@ void VlgSglTgtGen_Jasper::Export_mem(const std::string& mem_name) {
   auto outfn = os_portable_append_dir(_output_path, mem_name);
   std::ofstream fout(outfn); // will not append
 
-  VlgAbsMem::OutputMemFile(fout, _vtg_config.VerificationSettingAvoidIssueStage);
+  VlgAbsMem::OutputMemFile(fout,
+                           _vtg_config.VerificationSettingAvoidIssueStage);
 }
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Jasper::Export_modify_verilog() {

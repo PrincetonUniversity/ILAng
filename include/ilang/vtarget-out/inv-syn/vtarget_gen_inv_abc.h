@@ -16,9 +16,9 @@
 #include <ilang/vtarget-out/vlg_mod.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace ilang {
 
@@ -48,7 +48,6 @@ protected:
 
 }; // Abc_problem
 
-
 /// \brief a class to interface w.  Abc
 class VlgSglTgtGen_Abc : public VlgSglTgtGen {
 
@@ -63,7 +62,7 @@ public:
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
   /// Type of Abc target
   using _chc_target_t = VlgVerifTgtGenBase::_chc_target_t;
-  
+
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -86,18 +85,15 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond,  VlgTgtSupplementaryInfo & _sup_info , VerilogInfo* _vlg_info_ptr,
-      const std::string& vlg_mod_inst_name,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _sup_info,
+      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector vbackend,
-      synthesis_backend_selector sbackend,
-      const target_type_t& target_tp,
-      advanced_parameters_t * adv_ptr,
-      bool generate_proof,
-      _chc_target_t Abc_target,
-      bool useGLA, bool useCORR, bool useAIGER);
+      synthesis_backend_selector sbackend, const target_type_t& target_tp,
+      advanced_parameters_t* adv_ptr, bool generate_proof,
+      _chc_target_t Abc_target, bool useGLA, bool useCORR, bool useAIGER);
 
   // --------------------- Destructor ---------------------------- //
   /// do nothing
@@ -108,7 +104,8 @@ protected:
   Abc_problem _problems;
   /// Abc problem file name
   std::string blif_fname;
-  /// Abc problem file name (aiger file), if aiger_fname is not empty, it will be do aiger
+  /// Abc problem file name (aiger file), if aiger_fname is not empty, it will
+  /// be do aiger
   std::string aiger_fname;
   /// Abc script 'run.sh' name
   std::string abc_run_script_name;
@@ -144,8 +141,7 @@ protected:
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
   /// export extra things: the Abc script, the smt template
-  virtual void
-  Export_problem(const std::string& extra_name) override;
+  virtual void Export_problem(const std::string& extra_name) override;
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
@@ -155,15 +151,13 @@ protected:
 
 private:
   /// generate the wrapper's smt first
-  void generate_blif(
-    const std::string & blif_name,
-    const std::string & ys_script_name);  
+  void generate_blif(const std::string& blif_name,
+                     const std::string& ys_script_name);
   /// generate the wrapper's aig first
-  void generate_aiger(
-    const std::string & blif_name,
-    const std::string & aiger_name,
-    const std::string & map_name,
-    const std::string & ys_script_name);
+  void generate_aiger(const std::string& blif_name,
+                      const std::string& aiger_name,
+                      const std::string& map_name,
+                      const std::string& ys_script_name);
 
 public:
   /// overwrite the Export
@@ -177,7 +171,6 @@ public:
   virtual void do_not_instantiate(void) override{};
 
 }; // class VlgVerifTgtGenAbc
-
 
 }; // namespace ilang
 

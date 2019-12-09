@@ -2,7 +2,6 @@
 /// the conditions
 // --- Hongce Zhang
 
-
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
@@ -24,8 +23,6 @@ namespace ilang {
 #define IntToStr(x) (std::to_string(x))
 
 // ------------- END of CONFIGURAIONS -------------------- //
-
-  
 
 //  NON-FLUSH case
 //  1 RESET
@@ -58,23 +55,28 @@ void VlgSglTgtGen::ConstructWrapper_reset_setup() {
   if (target_type == target_type_t::INSTRUCTIONS) {
     vlg_wrapper.add_input("dummy_reset", 1);
     vlg_wrapper.add_wire("dummy_reset", 1, true);
-    if (_vtg_config.InstructionNoReset || 
-        supplementary_info.cosa_yosys_reset_config.no_reset_after_starting_state)
+    if (_vtg_config.InstructionNoReset ||
+        supplementary_info.cosa_yosys_reset_config
+            .no_reset_after_starting_state)
       add_an_assumption(" (~__RESETED__) || (dummy_reset == 0) ", "noreset");
   } else if (target_type == target_type_t::INVARIANTS ||
-     target_type == target_type_t::INV_SYN_DESIGN_ONLY ) {
-    if (supplementary_info.cosa_yosys_reset_config.no_reset_after_starting_state) {
-      if(_backend == backend_selector::COSA) {
-        add_a_direct_assumption("reset_done = 1_1 -> rst = 0_1","noresetagain");
-        add_a_direct_assumption("reset_done = 1_1 -> next( reset_done ) = 1_1","noresetnextdone");
+             target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
+    if (supplementary_info.cosa_yosys_reset_config
+            .no_reset_after_starting_state) {
+      if (_backend == backend_selector::COSA) {
+        add_a_direct_assumption("reset_done = 1_1 -> rst = 0_1",
+                                "noresetagain");
+        add_a_direct_assumption("reset_done = 1_1 -> next( reset_done ) = 1_1",
+                                "noresetnextdone");
       } else if (_backend == backend_selector::JASPERGOLD) {
         // no need to any thing
-      } else if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
+      } else if ((_backend & backend_selector::YOSYS) ==
+                 backend_selector::YOSYS) {
         add_a_direct_assumption("rst == 0", "noreset");
-      } 
+      }
     }
     // COSA : direct assumption
-    // JasperGold will not mess with it 
+    // JasperGold will not mess with it
     // yosys : abc needs assumptions but not all of them
   }
 } // ConstructWrapper_reset_setup
@@ -107,8 +109,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   if (_vtg_config.VerificationSettingAvoidIssueStage) {
     vlg_wrapper.add_stmt("if (rst) __START__ <= 1;");
     vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
-  }
-  else {
+  } else {
     vlg_wrapper.add_stmt("if (rst) __START__ <= 0;");
     vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
     vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
@@ -129,13 +130,15 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
       "else if (__IEND__) __ENDED__ <= 1;"); // will never return to zero
   vlg_wrapper.add_stmt("end");
 
-  vlg_wrapper.add_reg ("__2ndENDED__", 1);
+  vlg_wrapper.add_reg("__2ndENDED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __2ndENDED__ <= 1'b0;");
-  vlg_wrapper.add_stmt("else if (__ENDED__ && __EDCOND__ && ~__2ndENDED__)  __2ndENDED__ <= 1'b1; end");
+  vlg_wrapper.add_stmt("else if (__ENDED__ && __EDCOND__ && ~__2ndENDED__)  "
+                       "__2ndENDED__ <= 1'b1; end");
 
   vlg_wrapper.add_wire("__2ndIEND__", 1);
-  vlg_wrapper.add_assign_stmt("__2ndIEND__", "__ENDED__ && __EDCOND__ && ~__2ndENDED__");
+  vlg_wrapper.add_assign_stmt("__2ndIEND__",
+                              "__ENDED__ && __EDCOND__ && ~__2ndENDED__");
 
   vlg_wrapper.add_reg("__RESETED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
@@ -150,8 +153,6 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
 } // ConstructWrapper_add_cycle_count_moniter
 
-
-
 void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // TODO
   // remember to generate
@@ -160,7 +161,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // __ENDFLUSH__ == (end flush condition ) && ENDED
   // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
 
-  ILA_ASSERT (target_type == target_type_t::INSTRUCTIONS );
+  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS);
   // we don't need additional signals, just make reset drives the design
 
   // find the instruction
@@ -227,13 +228,13 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   //                            "IEND");
   // else
   auto end_no_recur = has_flush ? "(~ __FLUSHENDED__ )" : "(~ __ENDED__)";
-  
+
   add_wire_assign_assumption("__EDCOND__",
-                             "(" + iend_cond + ") && __STARTED__ " ,
-                             "EDCOND");
+                             "(" + iend_cond + ") && __STARTED__ ", "EDCOND");
 
   add_wire_assign_assumption("__IEND__",
-                             "(" + iend_cond + ") && __STARTED__ && __RESETED__ && " +
+                             "(" + iend_cond +
+                                 ") && __STARTED__ && __RESETED__ && " +
                                  end_no_recur + max_bound_constr,
                              "IEND");
   // handle start decode
@@ -321,4 +322,3 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 } // ConstructWrapper_add_condition_signals
 
 } // namespace ilang
-

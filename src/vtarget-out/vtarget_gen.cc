@@ -10,20 +10,20 @@
 namespace ilang {
 
 bool VlgVerifTgtGenBase::isValidVerifBackend(backend_selector vbackend) {
-  if ( vbackend == backend_selector::COSA)
+  if (vbackend == backend_selector::COSA)
     return true;
-  if ( vbackend == backend_selector::JASPERGOLD)
+  if (vbackend == backend_selector::JASPERGOLD)
     return true;
-  if ( (vbackend & backend_selector::YOSYS) == backend_selector::YOSYS) {
+  if ((vbackend & backend_selector::YOSYS) == backend_selector::YOSYS) {
     if (vbackend == backend_selector::ABCPDR)
       return true;
     if (vbackend == backend_selector::BTOR_GENERIC)
       return true;
-    if ( (vbackend & backend_selector::CHC) == backend_selector::CHC) {
+    if ((vbackend & backend_selector::CHC) == backend_selector::CHC) {
       if (vbackend == backend_selector::ELD_CEGAR ||
           vbackend == backend_selector::GRAIN_SYGUS ||
           vbackend == backend_selector::Z3PDR)
-      return true;
+        return true;
     }
   }
   return false;
@@ -61,7 +61,8 @@ bool VerilogVerificationTargetGenerator::in_bad_state(void) const {
   return ptr_->in_bad_state();
 }
 
-std::string VerilogVerificationTargetGenerator::GetVlgModuleInstanceName(void) const {
+std::string
+VerilogVerificationTargetGenerator::GetVlgModuleInstanceName(void) const {
   VlgVerifTgtGen* ptr_ = dynamic_cast<VlgVerifTgtGen*>(_generator);
   ILA_NOT_NULL(ptr_);
   return ptr_->GetVlgModuleInstanceName();

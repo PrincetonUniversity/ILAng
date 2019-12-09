@@ -120,7 +120,7 @@ VerilogGeneratorBase::ToVlgNum(IlaBvValType value, unsigned width) {
     // because any value representable is within the range.
     IlaBvValType maxpos = (width >= sizeof(IlaBvValType) * 8)
                               ? IlaBvValType(-1)
-                              : (( (IlaBvValType)(1) << width) - 1);
+                              : (((IlaBvValType)(1) << width) - 1);
     IlaBvValType minneg = 0;
     ILA_ASSERT((minneg <= value && maxpos >= value))
         << "value : " << value << " is out-of-range, min:" << minneg

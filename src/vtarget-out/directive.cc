@@ -16,7 +16,7 @@ namespace ilang {
 // ------------------------------- // static function
 bool IntefaceDirectiveRecorder::beginsWith(const std::string& c,
                                            const std::string& s) {
-  return StrStartsWith(c,s);
+  return StrStartsWith(c, s);
 }
 
 // static function
@@ -34,8 +34,8 @@ bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
     return true;
   if (c == "**SO**")
     return vlg_sig.is_output();
-  if (c == "**RESET**" || c == "**NRESET**" || c == "**CLOCK**"
-      || c == "**START**")
+  if (c == "**RESET**" || c == "**NRESET**" || c == "**CLOCK**" ||
+      c == "**START**")
     return (vlg_sig.is_input() && vlg_sig.get_width() == 1);
   if (beginsWith(c, "**MEM**")) {
     auto first_dot_loc = c.find(".");
@@ -139,9 +139,10 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
     const auto& the_wire_connected_to_the_port = signal_conn_pair.second.second;
     if (conn_tp == inf_dir_t::NC)
       continue; // no need to check them, will be declared
-    
+
     if (conn_tp == inf_dir_t::START)
-      continue; // this is connected to __START__ | __STARTED__ // hope it will be fine
+      continue; // this is connected to __START__ | __STARTED__ // hope it will
+                // be fine
 
     if (IN(the_wire_connected_to_the_port, gen.wires))
       continue; // if found okay
@@ -242,9 +243,8 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       mod_inst_rec.insert({short_name, inf_connector_t({inf_dir_t::NC, ""})});
     } else if (refstr == "**START**") {
       mod_inst_rec.insert(
-        {short_name,
-          inf_connector_t({inf_dir_t::START, "__START__ | __STARTED__"})}
-      );
+          {short_name,
+           inf_connector_t({inf_dir_t::START, "__START__ | __STARTED__"})});
     } else if (refstr == "**SO**") {
       ILA_ERROR_IF(!is_output)
           << "Forcing a non-output signal to be connected as output:"
@@ -382,7 +382,6 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
   _reset_vlg = reset_vlg;
 }
 
-
 void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
                                            const std::string& ila_state_name,
                                            bool abs_read) {
@@ -397,9 +396,9 @@ void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
   auto pos = abs_mems.find(mem_name);
   if (pos == abs_mems.end()) {
     ILA_INFO << directive << " refers to a new memory!";
-    abs_mems.insert(std::make_pair(mem_name,VlgAbsMem()));
+    abs_mems.insert(std::make_pair(mem_name, VlgAbsMem()));
     pos = abs_mems.find(mem_name);
-    //return;
+    // return;
   }
 
   pos->second.read_abstract = abs_read;
@@ -408,7 +407,7 @@ void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
     pos->second.mem_name = mem_name;
   if (pos->second.ila_map_name == "")
     pos->second.ila_map_name = ila_state_name;
-  
+
   // check no duplicate settings
   ILA_ERROR_IF(pos->second.mem_name != mem_name)
       << "Implementation bug,"
@@ -418,17 +417,14 @@ void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
       << "Implementation bug,"
       << " setting memory abstraction with a different name"
       << " old:" << pos->second.ila_map_name << ", new:" << ila_state_name;
-
 }
 
-
-void IntefaceDirectiveRecorder::SetMemNameAndWidth(const std::string& directive,
-                                           const std::string& ila_state_name,
-                                           bool abs_read, int ila_addr_width,
-                                           int ila_data_width) {
+void IntefaceDirectiveRecorder::SetMemNameAndWidth(
+    const std::string& directive, const std::string& ila_state_name,
+    bool abs_read, int ila_addr_width, int ila_data_width) {
 
   ILA_ASSERT(beginsWith(directive, "**"));
-  if (! beginsWith(directive, "**MEM**")) {
+  if (!beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
     return;
   }
@@ -437,9 +433,9 @@ void IntefaceDirectiveRecorder::SetMemNameAndWidth(const std::string& directive,
   auto pos = abs_mems.find(mem_name);
   if (pos == abs_mems.end()) {
     ILA_INFO << directive << " refers to a new memory!";
-    abs_mems.insert(std::make_pair(mem_name,VlgAbsMem()));
+    abs_mems.insert(std::make_pair(mem_name, VlgAbsMem()));
     pos = abs_mems.find(mem_name);
-    //return;
+    // return;
   }
 
   pos->second.read_abstract = abs_read;
@@ -448,7 +444,7 @@ void IntefaceDirectiveRecorder::SetMemNameAndWidth(const std::string& directive,
     pos->second.mem_name = mem_name;
   if (pos->second.ila_map_name == "")
     pos->second.ila_map_name = ila_state_name;
-  
+
   // check no duplicate settings
   ILA_ERROR_IF(pos->second.mem_name != mem_name)
       << "Implementation bug,"
@@ -463,7 +459,6 @@ void IntefaceDirectiveRecorder::SetMemNameAndWidth(const std::string& directive,
   pos->second.SetAddrWidth(ila_addr_width);
   pos->second.SetDataWidth(ila_data_width);
 }
-
 
 std::string IntefaceDirectiveRecorder::ConnectMemory(
     const std::string& directive, const std::string& ila_state_name,
@@ -483,8 +478,9 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
     return VLG_TRUE;
   }
 
-  //pos->second.read_abstract = abs_read;
-  SetMemNameAndWidth(directive, ila_state_name, abs_read, ila_addr_width, ila_data_width);
+  // pos->second.read_abstract = abs_read;
+  SetMemNameAndWidth(directive, ila_state_name, abs_read, ila_addr_width,
+                     ila_data_width);
 
   // copy the ports
   ILA_ERROR_IF(pos->second.ila_rports.size() != 0 ||
@@ -498,49 +494,54 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
   return pos->second.MemEQSignalName();
 } // ConnectMemory
 
-
 /// Check if some verilog port has been connected,
 /// if not, connect it to the wire_name (will not create wire!)
 /// if connected, will warn and refuse to connect
 /// should be called before GetAbsMemInstString
-std::pair<std::string,unsigned int> IntefaceDirectiveRecorder::KeepMemoryPorts(
-  const std::string & mem_name, const std::string & port_name, bool caller_build_wire) {
+std::pair<std::string, unsigned int>
+IntefaceDirectiveRecorder::KeepMemoryPorts(const std::string& mem_name,
+                                           const std::string& port_name,
+                                           bool caller_build_wire) {
 
-#define check_connect_port(p) \
-  if (! (p).empty()) ILA_ERROR << port_name << " has been connected"; \
-  else (p) = caller_build_wire ? wire_name : ""; 
+#define check_connect_port(p)                                                  \
+  if (!(p).empty())                                                            \
+    ILA_ERROR << port_name << " has been connected";                           \
+  else                                                                         \
+    (p) = caller_build_wire ? wire_name : "";
   // set to empty here will cause absmem:CONNECT macro to add wire for it
 
   auto pos = abs_mems.find(mem_name);
   if (pos == abs_mems.end()) {
     ILA_ERROR << "No memory named: " << mem_name;
-    return std::pair<std::string,int>("KeepMemoryPortsERROR_no_mem_name_"+mem_name,0);
+    return std::pair<std::string, int>(
+        "KeepMemoryPortsERROR_no_mem_name_" + mem_name, 0);
   }
-  std::string wire_name = "__MEM_" +
-                    VerilogGeneratorBase::sanitizeName(pos->second.ila_map_name) + "_" +
-                    std::to_string(0) + "_" + port_name;
+  std::string wire_name =
+      "__MEM_" + VerilogGeneratorBase::sanitizeName(pos->second.ila_map_name) +
+      "_" + std::to_string(0) + "_" + port_name;
 
   if (port_name == "raddr") {
     check_connect_port(pos->second.vlg_rports[0].raddr);
-    return std::make_pair(wire_name,pos->second.addr_width);
+    return std::make_pair(wire_name, pos->second.addr_width);
   } else if (port_name == "rdata") {
     check_connect_port(pos->second.vlg_rports[0].rdata);
-    return std::make_pair(wire_name,pos->second.data_width);
+    return std::make_pair(wire_name, pos->second.data_width);
   } else if (port_name == "ren") {
     check_connect_port(pos->second.vlg_rports[0].ren);
-    return std::make_pair(wire_name,1);
+    return std::make_pair(wire_name, 1);
   } else if (port_name == "waddr") {
     check_connect_port(pos->second.vlg_wports[0].waddr);
-    return std::make_pair(wire_name,pos->second.addr_width);
+    return std::make_pair(wire_name, pos->second.addr_width);
   } else if (port_name == "wdata") {
     check_connect_port(pos->second.vlg_wports[0].wdata);
-    return std::make_pair(wire_name,pos->second.data_width);
+    return std::make_pair(wire_name, pos->second.data_width);
   } else if (port_name == "wen") {
     check_connect_port(pos->second.vlg_wports[0].wen);
-    return std::make_pair(wire_name,1);
+    return std::make_pair(wire_name, 1);
   } else
     ILA_ERROR << "Unknown port:" << port_name;
-  return std::pair<std::string,int>("KeepMemoryPortsERROR_no_port_name_"+port_name,0);
+  return std::pair<std::string, int>(
+      "KeepMemoryPortsERROR_no_port_name_" + port_name, 0);
 }
 
 std::string
@@ -574,4 +575,3 @@ bool StateMappingDirectiveRecorder::isSpecialStateDirMem(const std::string& c) {
 }
 
 } // namespace ilang
-

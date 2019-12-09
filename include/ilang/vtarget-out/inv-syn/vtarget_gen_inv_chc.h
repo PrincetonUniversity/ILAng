@@ -13,13 +13,13 @@
 #ifdef INVSYN_INTERFACE
 
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/vtarget-out/vlg_mod.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
-#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace ilang {
 
@@ -49,7 +49,6 @@ protected:
 
 }; // Chc_problem
 
-
 /// \brief a class to interface w.  Chc
 class VlgSglTgtGen_Chc : public VlgSglTgtGen {
 
@@ -64,7 +63,7 @@ public:
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
   /// Type of chc target
   using _chc_target_t = VlgVerifTgtGenBase::_chc_target_t;
-  
+
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -87,16 +86,14 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond,  VlgTgtSupplementaryInfo & _sup_info , VerilogInfo* _vlg_info_ptr,
-      const std::string& vlg_mod_inst_name,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _sup_info,
+      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector vbackend,
-      synthesis_backend_selector sbackend,
-      const target_type_t& target_tp,
-      advanced_parameters_t * adv_ptr,
-      bool generate_proof,
+      synthesis_backend_selector sbackend, const target_type_t& target_tp,
+      advanced_parameters_t* adv_ptr, bool generate_proof,
       _chc_target_t chc_target);
 
   // --------------------- Destructor ---------------------------- //
@@ -124,7 +121,6 @@ protected:
   _chc_target_t chc_target;
 
 protected:
-
   /// Add a direct assumption -- needed by base class
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) override;
@@ -137,8 +133,7 @@ protected:
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
   /// export extra things: the chc script, the smt template
-  virtual void
-  Export_problem(const std::string& extra_name) override;
+  virtual void Export_problem(const std::string& extra_name) override;
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
@@ -147,17 +142,16 @@ protected:
   virtual void Export_modify_verilog() override;
 
 private:
- 
   /// Convert the smt file to CHC -- datatype encoding
-  void convert_smt_to_chc_datatype(
-    const std::string & smt_fname, const std::string & chc_fname);
+  void convert_smt_to_chc_datatype(const std::string& smt_fname,
+                                   const std::string& chc_fname);
   /// Convert the smt file to CHC -- bitvector encoding
-  void convert_smt_to_chc_bitvec(
-    const std::string & smt_fname, const std::string & chc_fname, const std::string & wrapper_mod_name);
+  void convert_smt_to_chc_bitvec(const std::string& smt_fname,
+                                 const std::string& chc_fname,
+                                 const std::string& wrapper_mod_name);
   /// generate the wrapper's smt first
-  void design_only_gen_smt(
-    const std::string & smt_name,
-    const std::string & ys_script_name);  
+  void design_only_gen_smt(const std::string& smt_name,
+                           const std::string& ys_script_name);
 
 public:
   /// overwrite the Export
@@ -166,13 +160,12 @@ public:
                          const std::string& script_name,
                          const std::string& extra_name,
                          const std::string& mem_name) override;
-  /// accessor of the design info 
+  /// accessor of the design info
   std::shared_ptr<smt::YosysSmtParser> GetDesignSmtInfo() const;
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 
 }; // class VlgVerifTgtGenChc
-
 
 }; // namespace ilang
 

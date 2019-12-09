@@ -21,8 +21,8 @@
 
 #include "nlohmann/json.hpp"
 #include <ilang/config.h>
-#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/directive.h>
@@ -50,7 +50,8 @@ public:
   /// Type of the verification backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of the synthesis backend
-  using synthesis_backend_selector = VlgVerifTgtGenBase::synthesis_backend_selector;
+  using synthesis_backend_selector =
+      VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of record of extra info of a signal
@@ -84,8 +85,7 @@ public:
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
       const vtg_config_t& vtg_config, backend_selector backend,
-      const target_type_t& target_tp,
-      advanced_parameters_t * adv_ptr);
+      const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
 
   /// Destructor: do nothing , most importantly it is virtual
   virtual ~VlgSglTgtGen() {}
@@ -142,7 +142,7 @@ protected:
   /// the width of the counter
   unsigned cnt_width;
   /// to store the advanced parameter configurations
-  advanced_parameters_t * _advanced_param_ptr;
+  advanced_parameters_t* _advanced_param_ptr;
   /// has guessed synthesized invariant
   const bool has_gussed_synthesized_invariant;
   /// has confirmed synthesized invariant
@@ -229,7 +229,7 @@ protected:
   /// Add more assumptions for mapping (only use for instruction target)
   void ConstructWrapper_add_additional_mapping_control();
   /// Add more assumptions for I/O for example (both instruction/invariant)
-  void ConstructWrapper_add_rf_assumptions();  
+  void ConstructWrapper_add_rf_assumptions();
   /// Generate __ISSUE__, __IEND__, ... signals
   void ConstructWrapper_add_condition_signals();
   /// Register the extra wires to the idr
@@ -244,32 +244,33 @@ protected:
   /// Add post value holder (val @ cond == ...)
   void ConstructWrapper_add_post_value_holder();
   /// A sub function of the above post-value-holder hanlder
-  int ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::json & pv_cond_val,
-                            const std::string & pv_name, int width, bool create_reg);
+  int ConstructWrapper_add_post_value_holder_handle_obj(
+      nlohmann::json& pv_cond_val, const std::string& pv_name, int width,
+      bool create_reg);
   /// Add Verilog inline monitor
   void ConstructWrapper_add_vlg_monitor();
 
   // -------------------------------------------------------------------------
   /// Add invariants as assumption/assertion when target is inv_syn_design_only
-  void ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
+  void
+  ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
   /// Connect the memory even we don't care a lot about them
   void ConstructWrapper_inv_syn_connect_mem();
-  /// Sometimes you need to add some signals that only appeared in Instruction target
+  /// Sometimes you need to add some signals that only appeared in Instruction
+  /// target
   void ConstructWrapper_inv_syn_cond_signals();
 
 protected:
   /// get the ila module instantiation string
   std::string ConstructWrapper_get_ila_module_inst();
   /// add an invariant object as assertion
-  void add_inv_obj_as_assertion( InvariantObject * inv_obj);
+  void add_inv_obj_as_assertion(InvariantObject* inv_obj);
   /// add an invariant object as an assumption
-  void add_inv_obj_as_assumption( InvariantObject * inv_obj);
+  void add_inv_obj_as_assumption(InvariantObject* inv_obj);
   /// add rf inv as assumptions (if there are)
   void add_rf_inv_as_assumption();
   /// add rf inv as assumptions (if there are)
   void add_rf_inv_as_assertion();
-
-
 
 protected:
   // ----------------------- MEMBERS for Export ------------------- //
@@ -344,8 +345,7 @@ protected:
   /// assignment, but in CoSA has to be an assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
-                                          int width,
-                                          const std::string& cond,
+                                          int width, const std::string& cond,
                                           const std::string& dspt);
 
 public:
@@ -402,7 +402,7 @@ public:
                  backend_selector backend, const vtg_config_t& vtg_config,
                  const VerilogGenerator::VlgGenConfig& config =
                      VerilogGenerator::VlgGenConfig(),
-                 advanced_parameters_t * adv_ptr = NULL);
+                 advanced_parameters_t* adv_ptr = NULL);
 
   /// no copy constructor, please
   VlgVerifTgtGen(const VlgVerifTgtGen&) = delete;
@@ -443,7 +443,7 @@ protected:
   /// to store the configuration
   vtg_config_t _vtg_config;
   /// to store the advanced parameter configurations
-  advanced_parameters_t * _advanced_param_ptr;
+  advanced_parameters_t* _advanced_param_ptr;
   /// to store the generate script name
   std::vector<std::string> runnable_script_name;
 
@@ -469,22 +469,24 @@ public:
   /// generate invariant synthesis target
   void GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool useAiger);
   /// generate inv-syn target
-  std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
+  std::shared_ptr<smt::YosysSmtParser>
+  GenerateInvSynTargets(synthesis_backend_selector s_backend);
   /// generate inv-enhance target
-  std::shared_ptr<smt::YosysSmtParser> GenerateInvSynEnhanceTargets(const InvariantInCnf & cnf);
+  std::shared_ptr<smt::YosysSmtParser>
+  GenerateInvSynEnhanceTargets(const InvariantInCnf& cnf);
   /// just to get the smt info
   std::shared_ptr<smt::YosysSmtParser> GenerateSmtTargets();
 #endif
 
   /// generate the runable script name
-  const std::vector<std::string> & GetRunnableScriptName() const;
+  const std::vector<std::string>& GetRunnableScriptName() const;
   /// return the result from parsing supplymentary information
-  const VlgTgtSupplementaryInfo & GetSupplementaryInfo() const;
+  const VlgTgtSupplementaryInfo& GetSupplementaryInfo() const;
 
 protected:
   // --------------------- METHODS ---------------------------- //
   /// subroutine for generating synthesis using chc targets
-  
+
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);

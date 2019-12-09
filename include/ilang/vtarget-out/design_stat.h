@@ -4,12 +4,12 @@
 #ifndef ILANG_VTARGET_OUT_DESIGN_STAT_H__
 #define ILANG_VTARGET_OUT_DESIGN_STAT_H__
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace ilang {
 
-/// \brief design statistics information 
+/// \brief design statistics information
 struct DesignStatistics {
   /// the number of state variables
   unsigned NumOfDesignStateVars;
@@ -36,19 +36,17 @@ struct DesignStatistics {
   double TotalTime;
 
   /// Constructor -- reset all values to 0
-  DesignStatistics() : 
-    NumOfDesignStateVars(0),
-    NumOfDesignStateBits(0),
-    NumOfExtraStateVars(0),
-    NumOfExtraStateBits(0),
-    TimeOfEqCheck(0), TimeOfInvValidate(0), 
-    TimeOfInvProof(0), TimeOfInvSyn(0), TotalTime(0) {} 
-  
+  DesignStatistics()
+      : NumOfDesignStateVars(0), NumOfDesignStateBits(0),
+        NumOfExtraStateVars(0), NumOfExtraStateBits(0), TimeOfEqCheck(0),
+        TimeOfInvValidate(0), TimeOfInvProof(0), TimeOfInvSyn(0), TotalTime(0) {
+  }
+
   /// Save statistics to file
-  void StoreToFile(const std::string & fn) const;
+  void StoreToFile(const std::string& fn) const;
 
   /// Load statistics from file (checkpoints)
-  void LoadFromFile(const std::string & fn);
+  void LoadFromFile(const std::string& fn);
 
 }; // struct DesignStatistics
 

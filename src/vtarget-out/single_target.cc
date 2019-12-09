@@ -33,43 +33,44 @@ VlgSglTgtGen::VlgSglTgtGen(
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
-    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond, 
-    VlgTgtSupplementaryInfo & _supplementary_info,
-    VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
-    const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
+    VlgTgtSupplementaryInfo& _supplementary_info, VerilogInfo* _vlg_info_ptr,
+    const std::string& vlg_mod_inst_name, const std::string& ila_mod_inst_name,
+    const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
-    const target_type_t& target_tp,
-    advanced_parameters_t * adv_ptr)
+    const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
     : _output_path(output_path), _instr_ptr(instr_ptr), _host(ila_ptr),
       _vlg_mod_inst_name(vlg_mod_inst_name),
       _ila_mod_inst_name(ila_mod_inst_name),
       // default option on wrapper
-      vlg_wrapper(VerilogGenerator::VlgGenConfig(
-                      config, // use default configuration
-                      true,  
-                      VerilogGeneratorBase::VlgGenConfig::funcOption::
-                          External, // function
-                      false,        // no start signal
-                      false,        // no rand init
-                      false),       // no expand memory
-                  wrapper_name),
+      vlg_wrapper(
+          VerilogGenerator::VlgGenConfig(config, // use default configuration
+                                         true,
+                                         VerilogGeneratorBase::VlgGenConfig::
+                                             funcOption::External, // function
+                                         false,  // no start signal
+                                         false,  // no rand init
+                                         false), // no expand memory
+          wrapper_name),
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
           config,
           // except overwriting these: external memory
           // if expand memory, then the ila's memory must be internal
-          config.extMem, // this depends on the given configuration (default case)
+          config
+              .extMem, // this depends on the given configuration (default case)
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true, // rand init
-          true // for internal should always expand (probe) memory
-          )), 
+          true  // for internal should always expand (probe) memory
+          )),
       // interface mapping directive
       // -------- CONTROLLING THE RESET CONNECTION ------------- //
-      _idr( target_tp == target_type_t::INVARIANTS ||
-            target_tp == target_type_t::INV_SYN_DESIGN_ONLY ? true :
-            (vtg_config.ForceInstCheckReset ? true : false) ),
+      _idr(target_tp == target_type_t::INVARIANTS ||
+                   target_tp == target_type_t::INV_SYN_DESIGN_ONLY
+               ? true
+               : (vtg_config.ForceInstCheckReset ? true : false)),
       // if checking instruction: by default, we don't reset
       // but if forced, we do; For the design only thing
       // we do ensure reset also
@@ -87,24 +88,18 @@ VlgSglTgtGen::VlgSglTgtGen(
       rf_vmap(_rf_vmap), rf_cond(_rf_cond), empty_json(nullptr),
       supplementary_info(_supplementary_info),
       target_type(target_tp), // whether it is
-                                                      // invariant/instructions
-      has_flush(false), ready_type(ready_type_t::NA),
-      max_bound(127),
-      cnt_width(1),
-      _advanced_param_ptr(adv_ptr),
+                              // invariant/instructions
+      has_flush(false), ready_type(ready_type_t::NA), max_bound(127),
+      cnt_width(1), _advanced_param_ptr(adv_ptr),
       has_gussed_synthesized_invariant(
-        adv_ptr && 
-        adv_ptr->_candidate_inv_ptr && 
-        ! adv_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()),
+          adv_ptr && adv_ptr->_candidate_inv_ptr &&
+          !adv_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()),
       has_confirmed_synthesized_invariant(
-        adv_ptr && 
-        adv_ptr->_inv_obj_ptr && 
-        ! adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
-      has_rf_invariant(
-        IN("global invariants", _rf_cond) &&
-        rf_cond["global invariants"].size() != 0),
-      mapping_counter(0),
-      property_counter(0), top_mod_name(wrapper_name),
+          adv_ptr && adv_ptr->_inv_obj_ptr &&
+          !adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
+      has_rf_invariant(IN("global invariants", _rf_cond) &&
+                       rf_cond["global invariants"].size() != 0),
+      mapping_counter(0), property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
       _vtg_config(vtg_config), _vlg_cfg(config), _backend(backend),
@@ -112,22 +107,20 @@ VlgSglTgtGen::VlgSglTgtGen(
 
   ILA_NOT_NULL(_host);
 
-  ILA_ASSERT(
-    target_type == target_type_t::INVARIANTS || 
-    target_type == target_type_t::INSTRUCTIONS ||
-    target_type == target_type_t::INV_SYN_DESIGN_ONLY
-    ) << "Implementation bug: unrecognized target type!" ;
+  ILA_ASSERT(target_type == target_type_t::INVARIANTS ||
+             target_type == target_type_t::INSTRUCTIONS ||
+             target_type == target_type_t::INV_SYN_DESIGN_ONLY)
+      << "Implementation bug: unrecognized target type!";
 
   // reset absmem's counter
   VlgAbsMem::ClearAbsMemRecord();
 
-  if (has_rf_invariant && ! rf_cond["global invariants"].is_array()) {
-      ILA_ERROR << "'global invariants' field in refinement relation has to be a "
-                  "JSON array.";
-      _bad_state = true;
-      return;
+  if (has_rf_invariant && !rf_cond["global invariants"].is_array()) {
+    ILA_ERROR << "'global invariants' field in refinement relation has to be a "
+                 "JSON array.";
+    _bad_state = true;
+    return;
   }
-  
 
   if (target_type == target_type_t::INSTRUCTIONS) {
 
@@ -149,7 +142,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       _bad_state = true;
     }
     // check for fields in
-    if (! IN("instruction", instr) || !instr["instruction"].is_string()) {
+    if (!IN("instruction", instr) || !instr["instruction"].is_string()) {
       ILA_ERROR << "RF: `instruction` field must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
@@ -201,23 +194,23 @@ VlgSglTgtGen::VlgSglTgtGen(
       _bad_state = true;
     }
   } // END of target_type == INSTRUCTION
-  else if(target_type == target_type_t::INVARIANTS) {
-    ILA_WARN_IF(instr_ptr != nullptr) << "Provide an instruction "
-      << "when verifying invariants. The instruction will not be used";
+  else if (target_type == target_type_t::INVARIANTS) {
+    ILA_WARN_IF(instr_ptr != nullptr)
+        << "Provide an instruction "
+        << "when verifying invariants. The instruction will not be used";
   }
   // if you supply additional invariant in the invariant synthesis
-  // they will still be a target for invariant generated. 
+  // they will still be a target for invariant generated.
   // you can use it to verify the invariants if you like
-  ILA_ASSERT(! (has_flush && 
-    (backend & backend_selector::YOSYS) == backend_selector::YOSYS ) ) 
+  ILA_ASSERT(!(has_flush &&
+               (backend & backend_selector::YOSYS) == backend_selector::YOSYS))
       << "Currently does not support flushing in invariant synthesis."
       << "Future work.";
 
-  ILA_ASSERT(! (has_flush && vtg_config.VerificationSettingAvoidIssueStage))
-    << "it is impossible to avoid issue stage for flushing refinement map, "
-    << "ignore this configuration option.";
+  ILA_ASSERT(!(has_flush && vtg_config.VerificationSettingAvoidIssueStage))
+      << "it is impossible to avoid issue stage for flushing refinement map, "
+      << "ignore this configuration option.";
 } // END of constructor
-
 
 void VlgSglTgtGen::ConstructWrapper_generate_header() {
   vlg_wrapper.add_preheader("\n`define true  1'b1\n");
@@ -236,7 +229,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
 
   for (auto& i : (rf_vmap["state mapping"]).items()) {
     auto sname = i.key();
-    if (! IN(sname, ila_state_names)) {
+    if (!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
@@ -253,20 +246,18 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     ILA_DLOG("VtargetGen.ConstructWrapper_add_varmap_assumptions") << sname;
 
     std::string problem_name = "variable_map_assume_";
-    if (_vtg_config.PerVariableProblemCosa && 
-	 (_backend & backend_selector::YOSYS) != backend_selector::YOSYS)
+    if (_vtg_config.PerVariableProblemCosa &&
+        (_backend & backend_selector::YOSYS) != backend_selector::YOSYS)
       problem_name += "_" + sname;
-    // if we are targeting yosys, we should make sure they have the same problem_name
-    // so the it knowns these are the assumptions for varmap
+    // if we are targeting yosys, we should make sure they have the same
+    // problem_name so the it knowns these are the assumptions for varmap
 
-    if ( (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
+    if ((_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
 
-      add_an_assumption(
-        GetStateVarMapExpr(sname, i.value()), problem_name);
+      add_an_assumption(GetStateVarMapExpr(sname, i.value()), problem_name);
       // its signal reference will be replaced, but this should be fine
       // because the names on any level is the same!
-    }
-    else
+    } else
       add_an_assumption("(~ __START__ )|| (" +
                             GetStateVarMapExpr(sname, i.value()) + ")",
                         problem_name);
@@ -274,7 +265,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   ILA_DLOG("VtargetGen") << "STEP:"
                          << "5.2.2";
   // check for unmapped states
-  if (! ila_state_names.empty()) {
+  if (!ila_state_names.empty()) {
     ILA_ERROR << "Refinement relation: missing state mapping for the following "
                  "state variables:";
     for (auto&& sn : ila_state_names)
@@ -297,7 +288,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 
   for (auto& i : (rf_vmap["state mapping"]).items()) {
     auto sname = i.key();
-    if (! IN(sname, ila_state_names)) {
+    if (!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
@@ -352,8 +343,6 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
   }
 } // ConstructWrapper_add_varmap_assertions
 
-
-
 //  NON-FLUSH case
 //  1 RESET
 //  2 ISSUE = true      RESETED (forever)
@@ -380,13 +369,11 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 //  & postflush cond
 //
 
-
-
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
   ILA_ASSERT(target_type == target_type_t::INVARIANTS ||
-             target_type == target_type_t::INSTRUCTIONS || 
-             target_type == target_type_t::INV_SYN_DESIGN_ONLY );
+             target_type == target_type_t::INSTRUCTIONS ||
+             target_type == target_type_t::INV_SYN_DESIGN_ONLY);
 
   if (bad_state_return())
     return;
@@ -418,15 +405,16 @@ void VlgSglTgtGen::ConstructWrapper() {
     ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
     ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
   } else if (target_type == target_type_t::INVARIANTS) {
-    ConstructWrapper_inv_syn_connect_mem(); // the same as inv-syn so I add it here
+    ConstructWrapper_inv_syn_connect_mem(); // the same as inv-syn so I add it
+                                            // here
     ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
     max_bound = _vtg_config.MaxBound;
   } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
     ConstructWrapper_inv_syn_cond_signals();
     ConstructWrapper_inv_syn_connect_mem();
-    ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();    
+    ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
   }
-  
+
   ILA_DLOG("VtargetGen") << "STEP:" << 6;
   // 4. additional mapping if any
   if (target_type == target_type_t::INSTRUCTIONS)
@@ -451,13 +439,13 @@ void VlgSglTgtGen::ConstructWrapper() {
     ConstructWrapper_add_vlg_monitor();
   }
   // add monitor
-  
+
   // 6. helper memory
   ConstructWrapper_add_helper_memory(); // need to decide what is the target
                                         // type
 
   // 5.0 add the extra wires to the top module wrapper
-  if (_backend == backend_selector::COSA || 
+  if (_backend == backend_selector::COSA ||
       (_backend & backend_selector::YOSYS) == backend_selector::YOSYS)
     ConstructWrapper_register_extra_io_wire();
 
@@ -465,7 +453,6 @@ void VlgSglTgtGen::ConstructWrapper() {
   // 5. module instantiation
   ConstructWrapper_add_module_instantiation();
 }
-
 
 /// create the wrapper file
 void VlgSglTgtGen::Export_wrapper(const std::string& wrapper_name) {
@@ -520,7 +507,7 @@ void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
 
   // for Jasper, this will be put to multiple files
   // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
-  Export_modify_verilog();        // this must be after Export_wrapper
+  Export_modify_verilog(); // this must be after Export_wrapper
   Export_mem(mem_name);
 
   Export_problem(extra_name);

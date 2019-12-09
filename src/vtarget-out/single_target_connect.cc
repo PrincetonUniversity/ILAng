@@ -2,7 +2,6 @@
 /// the connection wires / instantiation and etc.
 // --- Hongce Zhang
 
-
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
@@ -54,7 +53,7 @@ void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
 
 std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   if (target_type == target_type_t::INVARIANTS ||
-      target_type == target_type_t::INV_SYN_DESIGN_ONLY )
+      target_type == target_type_t::INV_SYN_DESIGN_ONLY)
     return "";
 
   ILA_ASSERT(vlg_ila.decodeNames.size() == 1)
@@ -77,7 +76,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     func_port_skip_set.insert(func_app.result.first);
     port_connected.insert(func_app.result.first);
     /// new reg : put in when __START__
-    if (! IN(func_app.func_name, func_cnt))
+    if (!IN(func_app.func_name, func_cnt))
       func_cnt.insert({func_app.func_name, 0});
     unsigned func_no = func_cnt[func_app.func_name]++;
 
@@ -90,8 +89,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     // add as a module input, also
     vlg_wrapper.add_input(func_reg_w, func_app.result.second);
 
-    add_reg_cassign_assumption(func_reg, func_reg_w, func_app.result.second, "__START__",
-                               "func_result");
+    add_reg_cassign_assumption(func_reg, func_reg_w, func_app.result.second,
+                               "__START__", "func_result");
     // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " +
     // func_reg_w + ";" );
 
@@ -108,7 +107,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
                              "_arg" + IntToStr(argNo) + "_reg";
       vlg_wrapper.add_reg(func_arg, arg.second);
       vlg_wrapper.add_wire(func_arg_w, arg.second, true);
-      add_reg_cassign_assumption(func_arg, func_arg_w, arg.second, "__START__", "func_arg");
+      add_reg_cassign_assumption(func_arg, func_arg_w, arg.second, "__START__",
+                                 "func_arg");
       // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " +
       // func_arg_w + ";" );
 
@@ -133,7 +133,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     else if (w.first == vlg_ila.startName) { // .__START__(__START__)
       retStr += "   ." + vlg_ila.startName + "(" + "__START__" + "),\n";
     } else {
-      ILA_ERROR_IF(! IN("__ILA_I_" + w.first, vlg_wrapper.wires))
+      ILA_ERROR_IF(!IN("__ILA_I_" + w.first, vlg_wrapper.wires))
           << "__ILA_I_" + w.first << " has not been defined yet";
       retStr += "   ." + w.first + "(__ILA_I_" + w.first + "),\n";
     }
@@ -162,10 +162,10 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   }
 
   // for internal memory connect the probes
-  for (auto && port : vlg_ila.mem_probe_o) {
-      std::string wrapper_wire_name = "__ILA_SO_" + port.first;
-      vlg_wrapper.add_wire(wrapper_wire_name, port.second, true);
-      retStr += "   ." + port.first + "(" + wrapper_wire_name + "),\n";
+  for (auto&& port : vlg_ila.mem_probe_o) {
+    std::string wrapper_wire_name = "__ILA_SO_" + port.first;
+    vlg_wrapper.add_wire(wrapper_wire_name, port.second, true);
+    retStr += "   ." + port.first + "(" + wrapper_wire_name + "),\n";
   }
 
   // handle memory io - use internal storage for this purpose
@@ -235,10 +235,9 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   // handle state-output
   std::string sep;
   for (auto&& r : vlg_ila.regs) {
-    if (! IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
-      ILA_WARN_IF(
-        ! StrStartsWith(r.first,"__COUNTER_start__n")
-      ) << "__ILA_SO_" + r.first << " will be ignored";
+    if (!IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
+      ILA_WARN_IF(!StrStartsWith(r.first, "__COUNTER_start__n"))
+          << "__ILA_SO_" + r.first << " will be ignored";
 
       retStr += sep + "   ." + r.first + "()"; // __ILA_SO_" + r.first + "
       port_connected.insert(r.first);
@@ -260,7 +259,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
 void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
-  auto vlg_inputs = vlg_info_ptr->get_top_module_io(supplementary_info.width_info);
+  auto vlg_inputs =
+      vlg_info_ptr->get_top_module_io(supplementary_info.width_info);
   auto& io_map = rf_vmap["interface mapping"];
   for (auto&& name_siginfo_pair : vlg_inputs) {
     std::string refstr =
@@ -283,7 +283,6 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
         }); // end of function call: RegisterInterface
   }
 } // ConstructWrapper_add_vlg_input_output
-
 
 // ------------------------ ALL instantiation ----------------------------- //
 void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
@@ -311,7 +310,8 @@ void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
 
     auto idx = refered_vlg_item.first.find("[");
     auto removed_range_name = refered_vlg_item.first.substr(0, idx);
-    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name, supplementary_info.width_info);
+    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name,
+                                                 supplementary_info.width_info);
 
     auto vname = ReplaceAll(
         ReplaceAll(ReplaceAll(refered_vlg_item.first, ".", "__DOT__"), "[",
@@ -330,4 +330,3 @@ void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
 } // ConstructWrapper_register_extra_io_wire
 
 } // namespace ilang
-

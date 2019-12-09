@@ -8,7 +8,7 @@
 
 namespace ilang {
 
-void DesignStatistics::StoreToFile(const std::string & fn) const {
+void DesignStatistics::StoreToFile(const std::string& fn) const {
   std::ofstream fout(fn);
   if (!fout.is_open()) {
     ILA_ERROR << "Unable to write to " << fn;
@@ -21,11 +21,11 @@ void DesignStatistics::StoreToFile(const std::string & fn) const {
   fout << TimeOfInvSynEnhance << std::endl;
   fout << TotalTime << std::endl;
   fout << TimeOfInvSynSeries.size() << std::endl;
-  for (auto && t : TimeOfInvSynSeries) 
+  for (auto&& t : TimeOfInvSynSeries)
     fout << " " << t << std::endl;
 }
 
-void DesignStatistics::LoadFromFile(const std::string & fn) {
+void DesignStatistics::LoadFromFile(const std::string& fn) {
   std::ifstream fin(fn);
   if (!fin.is_open()) {
     ILA_ERROR << "Unable to read " << fn;
@@ -40,7 +40,7 @@ void DesignStatistics::LoadFromFile(const std::string & fn) {
   unsigned series;
   double tmp;
   fin >> series;
-  for (unsigned idx = 0; idx < series; ++ idx ) {
+  for (unsigned idx = 0; idx < series; ++idx) {
     fin >> tmp;
     TimeOfInvSynSeries.push_back(tmp);
   }

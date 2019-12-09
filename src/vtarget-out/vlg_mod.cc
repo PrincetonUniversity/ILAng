@@ -12,10 +12,9 @@
 namespace ilang {
 
 /// Constructor: do nothing
-VerilogModifier::VerilogModifier(VerilogInfo* _vlg_info_ptr,
-                                 port_decl_style_t port_decl_style,
-                                 bool add_keep_or_not,
-                                 const std::map<std::string, int> & _sup_width_info)
+VerilogModifier::VerilogModifier(
+    VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style,
+    bool add_keep_or_not, const std::map<std::string, int>& _sup_width_info)
     : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style),
       _add_keep_or_not(add_keep_or_not), sup_width_info(_sup_width_info) {}
 /// Destructor: do nothing
@@ -68,26 +67,26 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
     }
     // todo: check other issues
 
-    while (add_stmt_vec_it != add_stmt_info.end() 
-           && lineno == std::get<0>(*add_stmt_vec_it)) {
-      const auto & stmt = std::get<1>(*add_stmt_vec_it);
-      line =  stmt + "\n" + line;
+    while (add_stmt_vec_it != add_stmt_info.end() &&
+           lineno == std::get<0>(*add_stmt_vec_it)) {
+      const auto& stmt = std::get<1>(*add_stmt_vec_it);
+      line = stmt + "\n" + line;
       add_stmt_vec_it++;
     }
 
     while (assign_vec_it != assign_info.end() &&
            lineno == std::get<0>(*assign_vec_it)) {
-      const auto & vname = std::get<1>(*assign_vec_it);
-      const auto & width = std::get<2>(*assign_vec_it);
-      const auto & signame = std::get<3>(*assign_vec_it);
+      const auto& vname = std::get<1>(*assign_vec_it);
+      const auto& width = std::get<2>(*assign_vec_it);
+      const auto& signame = std::get<3>(*assign_vec_it);
       line = add_assign_wire_to_this_line(line, vname, width, signame);
       assign_vec_it++;
     }
 
     while (mod_decl_vec_it != mod_decl_info.end() &&
            lineno >= std::get<0>(*mod_decl_vec_it)) {
-      const auto & vname = std::get<1>(*mod_decl_vec_it);
-      const auto & width = std::get<2>(*mod_decl_vec_it);
+      const auto& vname = std::get<1>(*mod_decl_vec_it);
+      const auto& width = std::get<2>(*mod_decl_vec_it);
       std::string new_line;
       if (add_mod_decl_wire_to_this_line(line, new_line, vname, width)) {
         line = new_line;
@@ -99,8 +98,8 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
 
     while (mod_inst_vec_it != mod_inst_info.end() &&
            lineno >= std::get<0>(*mod_inst_vec_it)) {
-      const auto & vname = std::get<1>(*mod_inst_vec_it);
-      const auto & width = std::get<2>(*mod_inst_vec_it);
+      const auto& vname = std::get<1>(*mod_inst_vec_it);
+      const auto& width = std::get<2>(*mod_inst_vec_it);
       std::string new_line;
       if (add_mod_inst_wire_to_this_line(line, new_line, vname, width)) {
         line = new_line;
@@ -250,7 +249,6 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
     return line_in;
   }
 
-
   midSplit[foundIdx] = "(* keep *)" + midSplit[foundIdx];
 
   auto midMod = Join(midSplit, ",");
@@ -262,12 +260,12 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 } // add_keep_to_port
 
 /// record the statement to be added to the end of Verilog topmodule
-void VerilogModifier::RecordAdditionalVlgModuleStmt(const std::string& stmt,
-                                                    const std::string& mod_instance_name) {
-  auto loc =
-    vlg_info_ptr->get_endmodule_loc(mod_instance_name); // this the endmodule location
-  
-  add_stmt_map[loc.first].push_back(add_stmt_t(loc.second,stmt));
+void VerilogModifier::RecordAdditionalVlgModuleStmt(
+    const std::string& stmt, const std::string& mod_instance_name) {
+  auto loc = vlg_info_ptr->get_endmodule_loc(
+      mod_instance_name); // this the endmodule location
+
+  add_stmt_map[loc.first].push_back(add_stmt_t(loc.second, stmt));
 }
 
 /// record the name to add a keep there
@@ -277,10 +275,11 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   auto vlg_sig_info =
       vlg_info_ptr->get_signal(vlg_sig_name); // will check it exists
   auto width = vlg_sig_info.get_width();
-  if (width == 0) { // will use the supplementary info if cannot find it find verilog
+  if (width ==
+      0) { // will use the supplementary info if cannot find it find verilog
     auto pos = sup_width_info.find(vlg_sig_name);
-    ILA_ERROR_IF(pos == sup_width_info.end() ||  
-      pos->second == 0) << "Unable to determine the width of signal:" << vlg_sig_name;
+    ILA_ERROR_IF(pos == sup_width_info.end() || pos->second == 0)
+        << "Unable to determine the width of signal:" << vlg_sig_name;
     if (pos != sup_width_info.end()) {
       width = pos->second;
     }
@@ -357,7 +356,6 @@ std::string VerilogModifier::add_assign_wire_to_this_line(
   }*/
 }
 
-
 // return npos if no comments in
 static size_t find_comments(const std::string& line) {
   enum state_t { PLAIN, STR, LEFT } state, next_state;
@@ -392,24 +390,24 @@ static size_t find_comments(const std::string& line) {
   return std::string::npos;
 }
 
-static bool is_good_id_name(const std::string & idname) {
+static bool is_good_id_name(const std::string& idname) {
   if (idname.length() == 0)
     return false;
-  if ( ! isalpha( idname.at(0) ) && idname.at(0)!='_' )
+  if (!isalpha(idname.at(0)) && idname.at(0) != '_')
     return false;
   for (size_t idx = 1; idx < idname.length(); ++idx) {
-    if (! isalnum( idname.at(idx) ) && idname.at(idx) != '_' )
+    if (!isalnum(idname.at(idx)) && idname.at(idx) != '_')
       return false;
   }
   return true;
 }
 
-static bool containUsefulPortInfo(const std::string &line, bool & newstyle){
+static bool containUsefulPortInfo(const std::string& line, bool& newstyle) {
   auto pos = find_comments(line);
-  auto line_no_comment = line.substr(0,pos); // remove comment
+  auto line_no_comment = line.substr(0, pos);    // remove comment
   auto wl = SplitSpaceTabEnter(line_no_comment); // should not go to the right
   if (std::find(wl.begin(), wl.end(), "output") != wl.end() ||
-      std::find(wl.begin(), wl.end(), "input") != wl.end() ) {
+      std::find(wl.begin(), wl.end(), "input") != wl.end()) {
     newstyle = true;
     return true;
   }
@@ -438,13 +436,12 @@ bool VerilogModifier::add_mod_decl_wire_to_this_line(const std::string& line_in,
       new_style = set_new_style;
     return false; // unsuccessful
   }
-    
+
   auto pos_rp = line_in.rfind(')', pos);
   if (pos_rp == std::string::npos) {
     ILA_ERROR
         << "unable to find the right ) to insert port decl, will continue.";
-    ILA_ERROR
-        << "Line-in : " << line_in << " vname:" << vname;
+    ILA_ERROR << "Line-in : " << line_in << " vname:" << vname;
     line_out = line_in;
     return true;
   }

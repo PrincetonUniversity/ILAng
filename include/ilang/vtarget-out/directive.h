@@ -107,15 +107,14 @@ public:
   /// Setting the memory abstraction name, but does not enforce any equality
   /// there
   void SetMemName(const std::string& directive,
-                  const std::string& ila_state_name,
-                  bool abs_read);
+                  const std::string& ila_state_name, bool abs_read);
 
   /// Setting the memory abstraction name, and width...
   /// but does not enforce any equality
   /// there
   void SetMemNameAndWidth(const std::string& directive,
-                  const std::string& ila_state_name,
-                  bool abs_read, int, int);
+                          const std::string& ila_state_name, bool abs_read, int,
+                          int);
 
   /// Return the memory instantiation string
   std::string GetAbsMemInstString(VerilogGeneratorBase& gen,
@@ -125,10 +124,9 @@ public:
   /// if connected, will warn and refuse to connect
   /// should be called before GetAbsMemInstString
   /// return the wire name to create (but no need to create if it is empty)
-  std::pair<std::string,unsigned int> KeepMemoryPorts(const std::string & mem_name, 
-                                                      const std::string & port_name, 
-                                                      bool caller_build_wire);
-
+  std::pair<std::string, unsigned int>
+  KeepMemoryPorts(const std::string& mem_name, const std::string& port_name,
+                  bool caller_build_wire);
 
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg

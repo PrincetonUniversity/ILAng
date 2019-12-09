@@ -4,10 +4,10 @@
 #ifndef ILANG_VTARGET_OUT_CEX_EXTRACT_H__
 #define ILANG_VTARGET_OUT_CEX_EXTRACT_H__
 
-#include <string>
+#include <functional>
 #include <map>
 #include <set>
-#include <functional>
+#include <string>
 
 namespace ilang {
 
@@ -18,12 +18,12 @@ public:
   /// a uniform value type (any radix/bool/bv should be fine)
   typedef std::string vlg_val;
   /// val_name -> val
-  typedef std::map<std::string, vlg_val>  cex_t;
+  typedef std::map<std::string, vlg_val> cex_t;
   /// when generating cex, will only use the regs
-  typedef std::map<std::string, bool>  cex_is_reg_t;
+  typedef std::map<std::string, bool> cex_is_reg_t;
   /// a function to determine if some name is a true signal
   /// and a register in the original design or not
-  typedef std::function<bool(const std::string &)> is_reg_t;
+  typedef std::function<bool(const std::string&)> is_reg_t;
 
 protected:
   /// the stored cex
@@ -33,32 +33,35 @@ protected:
   /// the helper function to extract info from vcd
   /// for future extension, you can replace this function
   /// to deal with other file format
-  void virtual parse_from(const std::string & vcd_file_name, 
-    const std::string & scope, is_reg_t is_reg, bool reg_only);
+  void virtual parse_from(const std::string& vcd_file_name,
+                          const std::string& scope, is_reg_t is_reg,
+                          bool reg_only);
 
 public:
   // -------------------- CONSTRUCTOR ------------------ //
   /// \brief to specify the input vcd name
   /// and also the scope name (the submodule instance name)
   /// to look at
-  CexExtractor(const std::string & vcd_file_name, 
-    const std::string & scope, is_reg_t is_reg, bool reg_only);
+  CexExtractor(const std::string& vcd_file_name, const std::string& scope,
+               is_reg_t is_reg, bool reg_only);
 
   /// create from a existing file
-  CexExtractor(const std::string & fin);
+  CexExtractor(const std::string& fin);
 
   // -------------------- MEMBERS ------------------ //
   /// return a string to be added to the design
   /// the argument actually has no use at all
-  std::string GenInvAssert(const std::string & prefix, const std::set<std::string> & focus_name = std::set<std::string>()) const;
+  std::string GenInvAssert(
+      const std::string& prefix,
+      const std::set<std::string>& focus_name = std::set<std::string>()) const;
   /// allow direct access to the counterexample
-  const cex_t & GetCex() const;
+  const cex_t& GetCex() const;
   // save to file
-  static void StoreCexToFile(const std::string & fn, const cex_t & c);
+  static void StoreCexToFile(const std::string& fn, const cex_t& c);
   // save to file (invoke within)
-  void StoreCexToFile(const std::string & fn) const;
+  void StoreCexToFile(const std::string& fn) const;
   // generalize cex
-  void DropStates(const std::vector<std::string> & vnames);
+  void DropStates(const std::vector<std::string>& vnames);
 
 }; // class CexExtractor
 

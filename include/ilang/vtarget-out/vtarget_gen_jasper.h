@@ -39,15 +39,13 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _supplementary_info,
-      VerilogInfo* _vlg_info_ptr,
-      const std::string& vlg_mod_inst_name,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _supplementary_info,
+      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector backend,
-      const target_type_t& target_tp,
-      advanced_parameters_t * adv_ptr);
+      const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
 
   /// if you have signals that are controled by assumptions to be equal as
   /// the outer clock, you need to put them here,
@@ -96,8 +94,7 @@ protected:
   /// assignment, but in CoSA has to be an assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
-                                          int width,
-                                          const std::string& cond,
+                                          int width, const std::string& cond,
                                           const std::string& dspt) override;
 
   /// Pre export work : nothing for cosa
