@@ -1,0 +1,11 @@
+{
+  "global invariants": ["m1.v1 == ~m1.v2"],
+
+  "instructions": [
+    {
+      "instruction": "inst",
+      "ready bound": 1
+    }
+  ]
+}
+
