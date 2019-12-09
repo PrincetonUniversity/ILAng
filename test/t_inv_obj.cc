@@ -54,7 +54,7 @@ TEST(InvSynSupportAuxClass, InvCnf) {
     std::ifstream fin(cnffile);
     EXPECT_TRUE(fin.is_open());
     cnf.ImportFromFile(fin);
-    InvariantInCnf::clause cl({ {true, "m1.imp" , 1}, {true, "m1.v", 1} });
+    InvariantInCnf::clause cl({ std::make_tuple(true, "m1.imp" , 1U), std::make_tuple(true, "m1.v", 1U) });
     cnf.InsertClauseNoReorder(cl);
     EXPECT_EQ(cnf.GetCnfs().size(), 2);
   }
