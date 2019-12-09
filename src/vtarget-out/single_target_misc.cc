@@ -206,6 +206,8 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::js
         ILA_ASSERT(cond_val_pair.value().get<std::string>() == "auto")
           <<"Expecting width to be unsigned int / auto";
         ILA_ASSERT(!original_val_field.empty()) << "You must first provide `val` field before auto";
+        if (original_val_field.find("[") != original_val_field.npos)
+          original_val_field = original_val_field.substr(0, original_val_field.find("["));
         if (S_IN("=", original_val_field)) {
           ILA_WARN << "Creating value-holder for conditions";
           width = 1;

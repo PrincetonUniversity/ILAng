@@ -16,11 +16,16 @@
   },
 
   "value-holder": {
-    "r0_pvholder" : {
-      "cond": "#stage_tracker# == 1",
+    "r0_pvholder" : [ {
+      "cond": "#stage_tracker# == 1 && 1 == 0",
       "val":"m1.registers[0]",
-      "width":8
+      "width":"auto"
     },
+    {
+      "cond": "#stage_tracker# == 1 && 1 == 1",
+      "val":"m1.registers[0]"
+    }
+    ],
     "r1_pvholder" : {
       "cond": "#stage_tracker# == 1",
       "val":"m1.registers[1]",
