@@ -42,6 +42,32 @@ TEST(TestInvExtract, Abc) {
 }
 
 
+TEST(TestInvExtract, PipeBlifGla) {
+
+  auto dirName = 
+    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "pipe", "blif-gla"});
+
+  InvariantObject inv_obj;
+  InvariantInCnf inv_cnf;
+  inv_obj.set_dut_inst_name("m1");
+
+  inv_obj.AddInvariantFromAbcResultFile(
+    os_portable_append_dir( dirName , "wrapper.blif"),
+    os_portable_append_dir( dirName , "ffmap.info"),
+    true,
+    false,
+    os_portable_append_dir( dirName , "glamap.info"), /*,dirName + "glamap.info"*/
+    false, // use aiger, if false, the following has no use
+    "",
+    inv_cnf,
+    InvariantInCnf());
+
+  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+}
+
+
+
 TEST(TestInvExtract, AbcAiger) {
   auto dirName = 
     os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "abc-aig"});
@@ -69,6 +95,30 @@ TEST(TestInvExtract, AbcAiger) {
 TEST(TestInvExtract, AbcAigerGLA) {
   auto dirName = 
     os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "abc-aig-gla"});
+
+  InvariantObject inv_obj;
+  InvariantInCnf inv_cnf;
+  inv_obj.set_dut_inst_name("m1");
+
+  inv_obj.AddInvariantFromAbcResultFile(
+    os_portable_append_dir( dirName , "__aiger_prepare.blif"),
+    os_portable_append_dir( dirName , "ffmap.info"),
+    true,
+    false,
+    os_portable_append_dir( dirName , "glamap.info"), /*,dirName + "glamap.info"*/
+    true, // use aiger, if false, the following has no use
+    os_portable_append_dir( dirName , "wrapper.aig.map"),
+    inv_cnf,
+    InvariantInCnf());
+
+  EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+  std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+}
+
+
+TEST(TestInvExtract, PipeAigerGLA) {
+  auto dirName = 
+    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "inv_extract", "pipe", "aiger-gla"});
 
   InvariantObject inv_obj;
   InvariantInCnf inv_cnf;
