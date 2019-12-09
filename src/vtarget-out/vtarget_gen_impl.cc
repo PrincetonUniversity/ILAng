@@ -419,12 +419,18 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
     ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
     return nullptr; //
   }
+
+
+  // parameter override
+  auto tmp_vtg_config(_vtg_config);
+  tmp_vtg_config.CosaDotReferenceNotify = vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC;
+
   auto target = VlgSglTgtGen_Chc(
       os_portable_append_dir(_output_path, "inv-syn/"),
       NULL, // invariant
       _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info , vlg_info_ptr, _vlg_mod_inst_name,
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-      _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
+      tmp_vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
       _advanced_param_ptr, true, _chc_target_t::CEX);
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
@@ -457,7 +463,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynEnhanceTarget
   auto tmp_vtg_config = _vtg_config;
   tmp_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant = true;
   tmp_vtg_config.YosysSmtFlattenDatatype = true;
-
+  tmp_vtg_config.CosaDotReferenceNotify = vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC;
 #if 0
   // currently we do this on the outer level
   // here we remove the last one, because it is the one we want to enhance
@@ -514,12 +520,16 @@ void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool us
     ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
     return; //
   }
+  // parameter override
+  auto tmp_vtg_config(_vtg_config);
+  tmp_vtg_config.CosaDotReferenceNotify = vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC;
+
   auto target = VlgSglTgtGen_Abc(
       os_portable_append_dir(_output_path, "inv-syn-abc/"),
       NULL, // invariant
       _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info , vlg_info_ptr, _vlg_mod_inst_name,
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-      _vtg_config, _backend, synthesis_backend_selector::ABC,
+      tmp_vtg_config, _backend, synthesis_backend_selector::ABC,
       target_type_t::INV_SYN_DESIGN_ONLY,
       _advanced_param_ptr, true, _chc_target_t::CEX,
       useGla, useCorr, useAiger);
