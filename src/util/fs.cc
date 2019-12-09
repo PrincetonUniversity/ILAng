@@ -85,6 +85,17 @@ std::string os_portable_append_dir(const std::string& dir1,
   return ret;
 }
 
+/// Append two path (you have to decide whether it is / or \)
+std::string os_portable_join_dir(const std::vector<std::string>& dirs) {
+  ILA_WARN_IF(dirs.empty()) << "No dir to join!";
+  if (dirs.empty())
+    return "";
+  std::string ret = dirs[0];
+  for (auto pos = dirs.begin()+1; pos != dirs.end() ; ++ pos)
+    ret = os_portable_append_dir(ret, *pos);
+  return ret;
+}
+
 /// C:\a\b\c.txt -> c.txt
 /// d/e/ghi  -> ghi
 std::string os_portable_file_name_from_path(const std::string& path) {

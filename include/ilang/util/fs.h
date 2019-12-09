@@ -23,13 +23,16 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst);
 bool os_portable_copy_file_to_dir(const std::string& src,
                                   const std::string& dst);
 
-/// Append two path (you have to decide whether it is / or \)
+/// Append two paths
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::string& dir2);
 
-/// Append two path (you have to decide whether it is / or \)
+/// Append paths to another
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::vector<std::string>& dirs);
+
+/// Join paths
+std::string os_portable_join_dir(const std::vector<std::string>& dirs);
 
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
 std::string os_portable_remove_file_name_extension(const std::string& fname);

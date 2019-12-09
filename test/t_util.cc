@@ -40,6 +40,7 @@ void EndRecordLog() {
 #if defined(_WIN32) || defined(_WIN64)
 TEST(TestUtil, DirAppend) {
 
+  EXPECT_EQ(os_portable_join_dir({}), "");
   EXPECT_EQ(os_portable_append_dir("\\a", "b"), "\\a\\b");
   EXPECT_EQ(os_portable_append_dir("\\a\\", "b"), "\\a\\b");
   EXPECT_EQ(os_portable_append_dir("a\\", "b"), "a\\b");
@@ -57,6 +58,7 @@ TEST(TestUtil, DirAppend) {
 #else
 TEST(TestUtil, DirAppend) {
 
+  EXPECT_EQ(os_portable_join_dir({}), "");
   EXPECT_EQ(os_portable_append_dir("/a", "b"), "/a/b");
   EXPECT_EQ(os_portable_append_dir("/a/", "b"), "/a/b");
   EXPECT_EQ(os_portable_append_dir("a/", "b"), "a/b");
