@@ -30,7 +30,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
       cmake --build .
       cmake --build . --target install 
-      ./test/unit_tests
+      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
     displayName: 'build'
 
 - job: macOS_Mojave
@@ -56,7 +56,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
       cmake --build .
       cmake --build . --target install 
-      ./test/unit_tests
+      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
     displayName: 'build'
 
 - job: Linux
@@ -77,7 +77,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release
       cmake --build .
       sudo cmake --build . --target install 
-      ./test/unit_tests
+      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
     displayName: 'build'
 
 - job: Windows

@@ -374,7 +374,7 @@ execute_result os_portable_execute_shell(
     fcntl(pipefd[1], F_SETFD, FD_CLOEXEC);
     #endif
 
-    unsigned report_to_parent;
+    unsigned char report_to_parent;
 
     // The child
     // will replace the image and execute the bash
@@ -432,12 +432,15 @@ execute_result os_portable_execute_shell(
   } else {
     // The parent will wait for its end
     int infop;
-    unsigned child_report;
+    unsigned char child_report;
     struct sigaction new_act;
     struct sigaction old_act;
 
     close(pipefd[1]); // close the write end
-    if(read(pipefd[0], (void *) &child_report, sizeof(child_report)) == -1) {
+    auto readlen = read(pipefd[0], (void *) &child_report, sizeof(child_report));
+    if (readlen != sizeof(child_report))
+      child_report = execute_result::PREIO ;
+    if(readlen == -1 || readlen != sizeof(child_report)) {
       _ret.failure = execute_result::PREIO ;
       close(pipefd[0]);
       return _ret;
@@ -491,6 +494,7 @@ execute_result os_portable_execute_shell(
 
     // read again, if exec suceeded, it should be EOF (read will fail)
     int sec_read = read(pipefd[0], (void *) &child_report, sizeof(child_report));
+    child_report = 0; // to make static analyzer happy
     if (sec_read != 0) { // not eof
       _ret.failure = execute_result::EXEC;
       close(pipefd[0]);

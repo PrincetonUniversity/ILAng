@@ -42,7 +42,7 @@ struct execute_result {
   /// has timeout
   bool timeout;
   /// failed execution
-  enum _failure {FORK = 0, PREIO, ALARM, ARG, EXEC, WAIT, NONE } failure;
+  enum _failure {PREIO = 0, FORK = 1, ALARM, ARG, EXEC, WAIT, NONE } failure;
   /// return value
   unsigned ret;
   /// true if it exits with _exit() call
