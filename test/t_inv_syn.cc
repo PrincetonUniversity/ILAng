@@ -382,10 +382,10 @@ TEST(TestVlgVerifInvSyn, CegarCntAbcBlif) {
   cfg.AbcUseAiger = false;
   cfg.AbcAssumptionStyle = cfg.AssumptionRegister;
   cfg.AbcUseCorr = false;
-  //cfg.YosysPath = "N/A";
-  cfg.CosaPyEnvironment = "~/cosaEnv/bin/activate";
-  cfg.CosaPath = "~/CoSA/";
-  cfg.AbcPath = "~/abc/";
+  cfg.YosysPath = "N/A";
+  cfg.CosaPyEnvironment = "N/A";
+  cfg.CosaPath = "N/A";
+  cfg.AbcPath = "N/A";
   cfg.Z3Path = "N/A";
   cfg.GrainPath = "N/A";
 
