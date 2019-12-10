@@ -2,6 +2,7 @@
 // --- Hongce Zhang (hongcez@princeton.edu)
 
 #include <ilang/util/log.h>
+#include <ilang/util/fs.h>
 #include <ilang/util/str_util.h>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -901,7 +902,7 @@ void SmtlibInvariantParser::ParseSmtResultFromString(const std::string& text) {
   ILA_ASSERT(buffer[len - 1] == '\0');
   buffer[len - 1] = '\0'; // to make static analysis happy
 
-#if defined(__linux__) 
+#if defined(__linux__)
   std::FILE* fp = fmemopen((void*)buffer, len * sizeof(char), "r");
 #elif ( defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) )
   std::FILE* fp = fmemopen_osx((void*)buffer, len * sizeof(char), "r");

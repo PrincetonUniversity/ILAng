@@ -143,7 +143,7 @@ bool os_portable_copy_file_to_dir(const std::string& src,
 }
 
 /// Extract path from path
-/// C:\a\b\c.txt -> "C:\a\b\" 
+/// C:\a\b\c.txt -> "C:\a\b\"
 /// C:\a\b\c -> C:\a\b
 /// d/e/ghi  -> d/e/
 std::string os_portable_path_from_path(const std::string& path) {
@@ -176,9 +176,9 @@ std::string os_portable_remove_file_name_extension(const std::string& fname) {
   auto dot_pos = fname.rfind('.');
   if(dot_pos == std::string::npos)
     return fname; // no dot
-  
+
   auto sep_pos = fname.rfind(sep);
-  
+
   if (sep_pos == std::string::npos) // no sep and only dot
     return fname.substr(0,dot_pos); // remove after dot
 
@@ -211,7 +211,7 @@ void parent_alarm_handler(int signum) {
     #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
   #endif
 
-  struct timezone 
+  struct timezone
   {
     int  tz_minuteswest; /* minutes W of Greenwich */
     int  tz_dsttime;     /* type of dst correction */
@@ -221,17 +221,17 @@ void parent_alarm_handler(int signum) {
   {
     FILETIME ft;
     unsigned __int64 tmpres = 0;
-  
+
     if (NULL != tv)
     {
       GetSystemTimeAsFileTime(&ft);
-  
+
       tmpres |= ft.dwHighDateTime;
       tmpres <<= 32;
       tmpres |= ft.dwLowDateTime;
-  
+
       /*converting file time to unix epoch*/
-      tmpres -= DELTA_EPOCH_IN_MICROSECS; 
+      tmpres -= DELTA_EPOCH_IN_MICROSECS;
       tmpres /= 10;  /*convert into microseconds*/
       tv->tv_sec = (long)(tmpres / 1000000UL);
       tv->tv_usec = (long)(tmpres % 1000000UL);
@@ -248,7 +248,7 @@ execute_result os_portable_execute_shell(
   const std::string & redirect_output_file,
   redirect_t rdt,
   unsigned timeout,
-  const std::string & pid_file_name ) 
+  const std::string & pid_file_name )
 {
   int pipefd[2];
   execute_result _ret;
@@ -256,7 +256,7 @@ execute_result os_portable_execute_shell(
 
   _ret.seconds = 0;
   _ret.timeout = false;
-  
+
   auto cmdline = Join(cmdargs, ",");
   ILA_ASSERT(! cmdargs.empty()) << "API misuse!";
 
@@ -301,7 +301,7 @@ execute_result os_portable_execute_shell(
   strncpy(cmdline_ptr, cmdline.c_str(),cmdline.length());
   cmdline_ptr[cmdline.length()] = '\0';
 
-  // Start the child process. 
+  // Start the child process.
   if( !CreateProcess( NULL,   // No module name (use command line)
       cmdline_ptr,      // Command line
       NULL,           // Process handle not inheritable
@@ -309,7 +309,7 @@ execute_result os_portable_execute_shell(
       FALSE,          // Set handle inheritance to FALSE
       0,              // No creation flags
       NULL,           // Use parent's environment block
-      NULL,           // Use parent's starting directory 
+      NULL,           // Use parent's starting directory
       &si,            // Pointer to STARTUPINFO structure
       &pi )           // Pointer to PROCESS_INFORMATION structure
     ) {
@@ -317,20 +317,20 @@ execute_result os_portable_execute_shell(
       delete [] cmdline_ptr;
       return _ret;
     }
-  
+
   delete [] cmdline_ptr;
   // wait for its exit
   WaitForSingleObject(pi.hProcess, INFINITE );
   DWORD exitCode;
   BOOL result = GetExitCodeProcess(pi.hProcess, &exitCode);
-  
+
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
 
   gettimeofday(&Time2, NULL);
-  _ret.seconds = 
-    ( 
-      (Time2.tv_usec + Time2.tv_sec*1000000.0) -  
+  _ret.seconds =
+    (
+      (Time2.tv_usec + Time2.tv_sec*1000000.0) -
       (Time1.tv_usec + Time1.tv_sec*1000000.0) ) / 1000000.0;
 
   if (!result) {
@@ -342,7 +342,7 @@ execute_result os_portable_execute_shell(
   _ret.subexit_normal = true;
   _ret.timeout = false;
   _ret.failure = execute_result::NONE;
-  return _ret; 
+  return _ret;
 #else
   // set up the pipe to transfer subprocess's information before exec
   // so close on exec
@@ -351,12 +351,12 @@ execute_result os_portable_execute_shell(
 #if defined(__linux__)
   pipe2(pipefd, O_CLOEXEC); // pipe2 is linux only feature!
 #elif defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) ||  defined(__FreeBSD__)
-  pipe(pipefd); 
-#endif 
+  pipe(pipefd);
+#endif
 
   // on *nix, spawn a child process to do this
   pid_t pid = fork();
-  
+
   if (pid == -1) {
     _ret.failure = execute_result::FORK;
     // not able to create no process
@@ -367,8 +367,8 @@ execute_result os_portable_execute_shell(
   if (pid == 0) {
 
     if(timeout != 0) // only if we want to have the time-out feature
-      setpgid(0,0); // creates a new proces group 
-    
+      setpgid(0,0); // creates a new proces group
+
     close(pipefd[0]); // close the read end
     #if !defined(__linux__)
     fcntl(pipefd[1], F_SETFD, FD_CLOEXEC);
@@ -396,7 +396,7 @@ execute_result os_portable_execute_shell(
         dup2(fd, STDERR_FILENO);
       close(fd);
     }
-    
+
     // this is memory leak, but I have no other way...
     // hope this will be reclaimed by OS
     // + 1 for NULL
@@ -451,7 +451,7 @@ execute_result os_portable_execute_shell(
     }
 
     child_pid = pid;
-    
+
     if (!pid_file_name.empty()) {
       std::ofstream fout(pid_file_name);
       fout << child_pid << std::endl;
@@ -468,18 +468,18 @@ execute_result os_portable_execute_shell(
     }
     // wait for sub-process
     int wait_pid_res = waitpid(pid, &infop, 0);
-    
+
     gettimeofday(&Time2, NULL);
-    _ret.seconds = 
-      ( 
-        (Time2.tv_usec + Time2.tv_sec*1000000.0) -  
+    _ret.seconds =
+      (
+        (Time2.tv_usec + Time2.tv_sec*1000000.0) -
         (Time1.tv_usec + Time1.tv_sec*1000000.0) ) / 1000000.0;
 
     if(timeout != 0) {
       alarm(0); //cancel if previously set
       sigaction(SIGALRM, &old_act, NULL); // restore the old one
     }
-    
+
     if (timeout == 0 && wait_pid_res == -1) {
       _ret.failure = execute_result::WAIT;
       perror(NULL);
@@ -502,7 +502,7 @@ execute_result os_portable_execute_shell(
     _ret.ret = WEXITSTATUS(infop);
     _ret.failure = execute_result::NONE;
     _ret.timeout = timeout != 0 && shared_time_out;
-    
+
 
     if (!pid_file_name.empty()) {
       std::ofstream fout(pid_file_name);
@@ -551,8 +551,8 @@ std::string os_portable_read_last_line(const std::string  & filename) {
       }
   }
 
-  std::string lastLine;            
-  std::getline(fin,lastLine);         
+  std::string lastLine;
+  std::getline(fin,lastLine);
   fin.close();
   return lastLine;
 }
@@ -572,7 +572,7 @@ bool os_portable_chdir(const std::string  & dirname) {
   int ret = chdir(dirname.c_str());
   ILA_ERROR_IF(ret != 0) << "Failed to change to dir:"<<dirname;
   return ret == 0;
-#endif 
+#endif
 }
 
 /// Get the current directory
@@ -601,10 +601,10 @@ std::string os_portable_getcwd() {
   std::string ret(buffer);
   delete []buffer;
   return ret;
-#endif 
+#endif
 } // os_portable_getcwd
 
-#if ( defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) ) && ! defined(__linux__) 
+#if ( defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) ) && ! defined(__linux__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -619,20 +619,20 @@ struct fmem {
 typedef struct fmem fmem_t;
 
 static int readfn(void *handler, char *buf, int size) {
-  fmem_t *mem = handler;
+  fmem_t *mem = (fmem_t *) handler;
   size_t available = mem->size - mem->pos;
-  
+
   if (size > available) {
     size = available;
   }
   memcpy(buf, mem->buffer, sizeof(char) * size);
   mem->pos += size;
-  
+
   return size;
 }
 
 static int writefn(void *handler, const char *buf, int size) {
-  fmem_t *mem = handler;
+  fmem_t *mem = (fmem_t *) handler;
   size_t available = mem->size - mem->pos;
 
   if (size > available) {
@@ -646,7 +646,7 @@ static int writefn(void *handler, const char *buf, int size) {
 
 static fpos_t seekfn(void *handler, fpos_t offset, int whence) {
   size_t pos;
-  fmem_t *mem = handler;
+  fmem_t *mem = (fmem_t *) handler;
 
   switch (whence) {
     case SEEK_SET: pos = offset; break;
@@ -676,7 +676,7 @@ FILE *fmemopen_osx(void *buf, size_t size, const char *mode) {
   memset(mem, 0, sizeof(fmem_t));
 
   mem->size = size;
-  mem->buffer = buf;
+  mem->buffer = (char *)buf;
 
   // funopen's man page: https://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man3/funopen.3.html
   return funopen(mem, readfn, writefn, seekfn, closefn);
