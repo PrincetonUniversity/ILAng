@@ -365,7 +365,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternal) {
   VerilogVerificationTargetGenerator vg(
       {}, // no include
       {os_portable_append_dir(dirName , "rf_as_mem.v")},  // vlog files
-      "swap",                // top_module_name
+      "proc",                // top_module_name
       os_portable_append_dir ( dirName, "vmap-rfarray.json"), // variable mapping
       os_portable_append_dir ( dirName, "cond-rfarray.json"),
       dirName,                       // output path
