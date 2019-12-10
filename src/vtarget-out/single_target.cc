@@ -107,7 +107,7 @@ VlgSglTgtGen::VlgSglTgtGen(
 
   ILA_NOT_NULL(_host);
 
-  ILA_ASSERT(target_type == target_type_t::INVARIANTS ||
+  ILA_CHECK(target_type == target_type_t::INVARIANTS ||
              target_type == target_type_t::INSTRUCTIONS ||
              target_type == target_type_t::INV_SYN_DESIGN_ONLY)
       << "Implementation bug: unrecognized target type!";
@@ -202,12 +202,12 @@ VlgSglTgtGen::VlgSglTgtGen(
   // if you supply additional invariant in the invariant synthesis
   // they will still be a target for invariant generated.
   // you can use it to verify the invariants if you like
-  ILA_ASSERT(!(has_flush &&
+  ILA_CHECK(!(has_flush &&
                (backend & backend_selector::YOSYS) == backend_selector::YOSYS))
       << "Currently does not support flushing in invariant synthesis."
       << "Future work.";
 
-  ILA_ASSERT(!(has_flush && vtg_config.VerificationSettingAvoidIssueStage))
+  ILA_CHECK(!(has_flush && vtg_config.VerificationSettingAvoidIssueStage))
       << "it is impossible to avoid issue stage for flushing refinement map, "
       << "ignore this configuration option.";
 } // END of constructor
@@ -219,7 +219,7 @@ void VlgSglTgtGen::ConstructWrapper_generate_header() {
 
 // for special memory, we don't need to do anything?
 void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
-  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
+  ILA_CHECK(target_type == target_type_t::INSTRUCTIONS)
       << "Implementation bug: vmap assumpt should only be used when verifying "
          "instructions.";
   std::set<std::string> ila_state_names;
@@ -276,7 +276,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
 // for memory, we need to assert new data match and ?
 //
 void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
-  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
+  ILA_CHECK(target_type == target_type_t::INSTRUCTIONS)
       << "Implementation bug: vmap assts should only be used when verifying "
          "instructions.";
   std::set<std::string> ila_state_names;
@@ -371,7 +371,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
-  ILA_ASSERT(target_type == target_type_t::INVARIANTS ||
+  ILA_CHECK(target_type == target_type_t::INVARIANTS ||
              target_type == target_type_t::INSTRUCTIONS ||
              target_type == target_type_t::INV_SYN_DESIGN_ONLY);
 

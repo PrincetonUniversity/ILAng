@@ -203,7 +203,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
           _host->state(hierName[1]))
         return quote + "__ILA_SO_" + hierName[1] + quote + range_s;
     // should not reachable
-    ILA_ASSERT(false)
+    ILA_CHECK(false)
         << "Implementation bug: should not be reachable. token_tp: ILA_S";
     return sname;
   } else if (token_tp == VarExtractor::token_type::ILA_IN) {
@@ -224,7 +224,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
           _host->input(hierName[1]))
         return quote + "__ILA_I_" + hierName[1] + quote + range_s;
     // should not reachable
-    ILA_ASSERT(false)
+    ILA_CHECK(false)
         << "Implementation bug: should not be reachable. token_tp: ILA_IN";
     return sname;
   } else if (token_tp == VarExtractor::token_type::VLG_S) {
@@ -258,11 +258,11 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
       return quote + _vlg_mod_inst_name + "__DOT__" + remove_dot_name + quote +
              range_underscore;
     }
-    ILA_ASSERT(false)
+    ILA_CHECK(false)
         << "Implementation bug: should not be reachable. token_type: VLG_S";
     return sname;
   }
-  ILA_ASSERT(false)
+  ILA_CHECK(false)
       << "Implementation bug: should not reachable. Caused by token_type:"
       << token_tp;
   return sname;
@@ -303,7 +303,7 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr& ila_var,
               << ", vlg w:" << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   }
-  ILA_ASSERT(false) << "Implementation bug: unknown sort";
+  ILA_CHECK(false) << "Implementation bug: unknown sort";
   return 0;
 }
 // static function

@@ -239,53 +239,53 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
       s_backend(synthesis_backend_selector(vbackend ^ backend_selector::YOSYS)),
       chc_target(_chc_target) {
 
-  ILA_ASSERT(chc_target == _chc_target_t::GENERAL_PROPERTY);
+  ILA_CHECK(chc_target == _chc_target_t::GENERAL_PROPERTY);
 
-  ILA_ASSERT(target_tp == target_type_t::INVARIANTS ||
+  ILA_CHECK(target_tp == target_type_t::INVARIANTS ||
              target_tp == target_type_t::INSTRUCTIONS)
       << "Unknown target type: " << target_tp;
 
-  ILA_ASSERT((vbackend & backend_selector::YOSYS) == backend_selector::YOSYS)
+  ILA_CHECK((vbackend & backend_selector::YOSYS) == backend_selector::YOSYS)
       << "Must use Yosys as vbackend";
 
-  ILA_ASSERT(s_backend == synthesis_backend_selector::ABC ||
+  ILA_CHECK(s_backend == synthesis_backend_selector::ABC ||
              s_backend == synthesis_backend_selector::Z3 ||
              s_backend == synthesis_backend_selector::GRAIN ||
              s_backend == synthesis_backend_selector::ELDERICA ||
              s_backend == synthesis_backend_selector::NOSYN);
 
-  ILA_ASSERT(IMPLY(s_backend == synthesis_backend_selector::GRAIN,
+  ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::GRAIN,
                    vtg_config.YosysSmtFlattenDatatype &&
                        vtg_config.YosysSmtFlattenHierarchy))
       << "Grain requires not to flatten hierarchy/datatype";
 
-  ILA_ASSERT(IMPLY(s_backend == synthesis_backend_selector::ABC,
+  ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::ABC,
                    _vtg_config.AbcUseAiger))
       << "Currently only support using AIGER";
 
-  ILA_ASSERT(IMPLY(s_backend == synthesis_backend_selector::ABC,
+  ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::ABC,
                    vtg_config.YosysSmtFlattenHierarchy))
       << "ABC requires to flatten hierarchy";
   // This is hard-coded in the Yosys script
   // if not flattened, abc will be unhappy
 
-  ILA_ASSERT(IMPLY(s_backend == synthesis_backend_selector::ABC,
+  ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::ABC,
                    vbackend == backend_selector::ABCPDR));
 
-  ILA_ASSERT(IMPLY(s_backend == synthesis_backend_selector::GRAIN,
+  ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::GRAIN,
                    vbackend == backend_selector::GRAIN_SYGUS &&
                        _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes));
 
-  ILA_ASSERT(IMPLY(s_backend == synthesis_backend_selector::Z3,
+  ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::Z3,
                    vbackend == backend_selector::Z3PDR));
 
-  ILA_ASSERT(IMPLY(vbackend == backend_selector::BTOR_GENERIC,
+  ILA_CHECK(IMPLY(vbackend == backend_selector::BTOR_GENERIC,
                    s_backend == synthesis_backend_selector::NOSYN));
 
-  ILA_ASSERT(s_backend != synthesis_backend_selector::ELDERICA)
+  ILA_CHECK(s_backend != synthesis_backend_selector::ELDERICA)
       << "Bug : not implemented yet!";
 
-  ILA_ASSERT(!(_vtg_config.YosysSmtFlattenDatatype &&
+  ILA_CHECK(!(_vtg_config.YosysSmtFlattenDatatype &&
                _vtg_config.YosysSmtStateSort != _vtg_config.Datatypes))
       << "Must use Datatypes to encode state in order to flatten";
 } // VlgSglTgtGen_Yosys
@@ -327,13 +327,13 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
     // const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
 
-    // ILA_ASSERT(prbname == "cex_nonreachable_assert")
+    // ILA_CHECK(prbname == "cex_nonreachable_assert")
     //  << "BUG: assertion can only be cex reachability queries.";
     // sanity check, should only be invariant's related asserts
 
     for (auto&& p : prob.exprs) {
       // there should be only one expression (for cex target)
-      // ILA_ASSERT(all_assert_wire_content.empty());
+      // ILA_CHECK(all_assert_wire_content.empty());
       if (all_assert_wire_content.empty())
         all_assert_wire_content = p;
       else
@@ -341,7 +341,7 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
     } // for expr
   }   // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(!all_assert_wire_content.empty()) << "no property to check!";
+  ILA_CHECK(!all_assert_wire_content.empty()) << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__", 1);
@@ -365,13 +365,13 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
           "assert property ( __all_assert_wire__ ); // the only assertion \n");
     } else {
       std::string precond;
-      ILA_ASSERT(
+      ILA_CHECK(
           !(_vtg_config.AbcUseAiger == false &&
             _vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput))
           << "If you don't use aiger, and has assumptions, there is no way to "
              "pass the extra output.";
       if (_vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput) {
-        ILA_ASSERT(_vtg_config.AbcUseGla == false) << "Cannot use it with GLA";
+        ILA_CHECK(_vtg_config.AbcUseGla == false) << "Cannot use it with GLA";
         vlg_wrapper.add_stmt("assume property (__all_assume_wire__);\n");
       } else {
         vlg_wrapper.add_reg("__all_assumed_reg__", 1);
@@ -568,7 +568,7 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
     options = " -F " + abc_command_file_name;
 
   } else if (s_backend == synthesis_backend_selector::ELDERICA) {
-    ILA_ASSERT(false) << "Not implemented.";
+    ILA_CHECK(false) << "Not implemented.";
   } else if (s_backend == synthesis_backend_selector::NOSYN) {
     runnable = "echo";
     options = " \"btor file is available as: " + prob_fname + "\"";
@@ -588,10 +588,10 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
 
 std::shared_ptr<smt::YosysSmtParser>
 VlgSglTgtGen_Yosys::GetDesignSmtInfo() const {
-  ILA_ASSERT((_backend & backend_selector::CHC) == backend_selector::CHC &&
+  ILA_CHECK((_backend & backend_selector::CHC) == backend_selector::CHC &&
              _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
       << "Only CHC target with datatypes will generate suitable smt-lib2.";
-  ILA_ASSERT(design_smt_info != nullptr);
+  ILA_CHECK(design_smt_info != nullptr);
   return design_smt_info;
 }
 
@@ -643,7 +643,7 @@ void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
       }
     }
   } else if (s_backend == synthesis_backend_selector::ELDERICA)
-    ILA_ASSERT(false) << "Not implemented.";
+    ILA_CHECK(false) << "Not implemented.";
   else if (s_backend == synthesis_backend_selector::NOSYN) {
     design_only_gen_btor(
         os_portable_append_dir(_output_path, extra_name),
@@ -728,7 +728,7 @@ void VlgSglTgtGen_Yosys::design_only_gen_smt(
     else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
       write_smt2_options += "-stbv ";
     else
-      ILA_ASSERT(false) << "Unsupported smt state sort encoding:"
+      ILA_CHECK(false) << "Unsupported smt state sort encoding:"
                         << _vtg_config.YosysSmtStateSort;
 
     ys_script_fout << "read_verilog -sv "
@@ -812,8 +812,8 @@ static std::string RewriteDatatypeChc(const std::string& tmpl,
                        : st.verilog_name;
     st_name = ReplaceAll(st_name, "|", ""); // remove its ||
     // check no repetition is very important!
-    ILA_ASSERT(!IN(st_name, name_set)) << "Bug: name repetition!";
-    ILA_ASSERT(!st._type.is_datatype());
+    ILA_CHECK(!IN(st_name, name_set)) << "Bug: name repetition!";
+    ILA_CHECK(!st._type.is_datatype());
     name_set.insert(st_name);
     auto type_string = st._type.toString();
     State += "(declare-var |S_" + st_name + "| " + type_string + ")\n";

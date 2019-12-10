@@ -229,7 +229,7 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
   auto right_cut = right_p != std::string::npos ? line_in.substr(right_p) : "";
   auto middle = line_in.substr(left_p, mid_len);
 
-  ILA_ASSERT(left_cut + middle + right_cut == line_in);
+  ILA_CHECK(left_cut + middle + right_cut == line_in);
 
   auto midSplit = Split(middle, ",");
 
@@ -294,20 +294,20 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   auto hier = mod_hier_name.size();
   auto last_level_name = mod_hier_name[hier - 1];
 
-  ILA_ASSERT(hier >= 2);
+  ILA_CHECK(hier >= 2);
 
   // add module decl mod
   std::string inst_name = mod_hier_name[0];
   // add topmodule:
   auto loc = vlg_info_ptr->name2loc(inst_name);
-  ILA_ASSERT(loc.first != ""); // should be found
+  ILA_CHECK(loc.first != ""); // should be found
   mod_decl_map[loc.first].push_back(mod_decl_item_t(loc.second, vname, width));
 
   for (unsigned idx = 1; idx < hier - 1; ++idx) { // exclude the last level name
     inst_name += "." + mod_hier_name[idx];
 
     auto loc = vlg_info_ptr->name2loc(inst_name);
-    ILA_ASSERT(loc.first != ""); // should be found
+    ILA_CHECK(loc.first != ""); // should be found
     mod_decl_map[loc.first].push_back(
         mod_decl_item_t(loc.second, vname, width));
   }
@@ -317,7 +317,7 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   for (unsigned idx = 1; idx < hier - 1; ++idx) {
     inst_name += "." + mod_hier_name[idx];
     auto loc = vlg_info_ptr->get_module_inst_loc(inst_name);
-    ILA_ASSERT(loc.first != ""); // should be found
+    ILA_CHECK(loc.first != ""); // should be found
     mod_inst_map[loc.first].push_back(
         mod_inst_item_t(loc.second, vname, width));
   }
@@ -378,12 +378,12 @@ static size_t find_comments(const std::string& line) {
         next_state = STR;
     } else if (state == LEFT) {
       if (c == '/') {
-        ILA_ASSERT(ret > 0);
+        ILA_CHECK(ret > 0);
         return ret - 1;
       } else
         next_state = PLAIN;
     } else
-      ILA_ASSERT(false);
+      ILA_CHECK(false);
     state = next_state;
     ++ret;
   }

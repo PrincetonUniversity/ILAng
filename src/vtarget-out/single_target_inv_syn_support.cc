@@ -124,17 +124,17 @@ void VlgSglTgtGen::add_rf_inv_as_assertion() {
 // this is for cosa
 void VlgSglTgtGen::
     ConstructWrapper_add_inv_assumption_or_assertion_target_invariant() {
-  ILA_ASSERT(target_type == target_type_t::INVARIANTS);
+  ILA_CHECK(target_type == target_type_t::INVARIANTS);
   if (_vtg_config.ValidateSynthesizedInvariant ==
           vtg_config_t::_validate_synthesized_inv::NOINV &&
       !has_rf_invariant) {
-    ILA_ASSERT(false)
+    ILA_CHECK(false)
         << "No invariant to handle for INVARIANT target, this is a bug!";
   }
 
   if (_vtg_config.ValidateSynthesizedInvariant ==
       vtg_config_t::_validate_synthesized_inv::ALL) {
-    ILA_ASSERT(has_confirmed_synthesized_invariant ||
+    ILA_CHECK(has_confirmed_synthesized_invariant ||
                has_gussed_synthesized_invariant || has_rf_invariant)
         << "No invariant to handle for INVARIANT target, this is a bug!";
     if (has_confirmed_synthesized_invariant)
@@ -145,7 +145,7 @@ void VlgSglTgtGen::
 
   } else if (_vtg_config.ValidateSynthesizedInvariant ==
              vtg_config_t::_validate_synthesized_inv::CANDIDATE) {
-    ILA_ASSERT(has_gussed_synthesized_invariant)
+    ILA_CHECK(has_gussed_synthesized_invariant)
         << "No invariant to handle for INVARIANT target, need candidate "
            "invariant!";
     // check candidate
@@ -160,7 +160,7 @@ void VlgSglTgtGen::
     ILA_INFO_IF(has_confirmed_synthesized_invariant)
         << "Will ignore candidate invariants when checking confirmed "
            "invariants";
-    ILA_ASSERT(has_confirmed_synthesized_invariant)
+    ILA_CHECK(has_confirmed_synthesized_invariant)
         << "No invariant to handle for INVARIANT target, need candidate "
            "invariant!";
     // check confirmed
@@ -176,7 +176,7 @@ void VlgSglTgtGen::
 
 void VlgSglTgtGen::
     ConstructWrapper_add_inv_assumption_or_assertion_target_instruction() {
-  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS);
+  ILA_CHECK(target_type == target_type_t::INSTRUCTIONS);
   ILA_WARN_IF(has_gussed_synthesized_invariant)
       << "Using guessed invariants also, please check to confirm them!";
 
@@ -193,7 +193,7 @@ void VlgSglTgtGen::
 
 void VlgSglTgtGen::
     ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only() {
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+  ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
 
   if (_advanced_param_ptr && _advanced_param_ptr->_cex_obj_ptr) {
     // this is cex reachability checking
@@ -227,18 +227,18 @@ void VlgSglTgtGen::
     add_rf_inv_as_assertion();
     */
   } else
-    ILA_ASSERT(false) << "Unknown invariant handling for design_only target!";
+    ILA_CHECK(false) << "Unknown invariant handling for design_only target!";
 }
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY ||
+  ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY ||
              target_type == target_type_t::INVARIANTS);
   vlg_wrapper.add_input("__START__", 1);
   vlg_wrapper.add_input("__STARTED__", 1);
 }
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY ||
+  ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY ||
              target_type == target_type_t::INVARIANTS);
 
   std::map<std::string, std::pair<int, int>> ila_mem_state_names;

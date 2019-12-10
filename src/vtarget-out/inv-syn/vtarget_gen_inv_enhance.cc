@@ -177,21 +177,21 @@ VlgSglTgtGen_Chc_wCNF::VlgSglTgtGen_Chc_wCNF(
       s_backend(sbackend), generate_proof(GenerateProof),
       has_cex(adv_ptr && adv_ptr->_cex_obj_ptr), chc_target(chctarget) {
 
-  ILA_ASSERT(vbackend == backend_selector::YOSYS)
+  ILA_CHECK(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
 
-  ILA_ASSERT(chctarget == _chc_target_t::CEX) << "Target type must be chc";
-  ILA_ASSERT(target_tp == target_type_t::INV_SYN_DESIGN_ONLY)
+  ILA_CHECK(chctarget == _chc_target_t::CEX) << "Target type must be chc";
+  ILA_CHECK(target_tp == target_type_t::INV_SYN_DESIGN_ONLY)
       << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
-  ILA_ASSERT(has_cex) << "for cex chc, cex must be provided!";
+  ILA_CHECK(has_cex) << "for cex chc, cex must be provided!";
   ILA_ERROR_IF(_vtg_config.YosysSmtStateSort != _vtg_config.Datatypes)
       << "will ignore smt non-datatype encoding option";
 
-  ILA_ASSERT(sbackend == synthesis_backend_selector::GRAIN)
+  ILA_CHECK(sbackend == synthesis_backend_selector::GRAIN)
       << "Only support grain backend" << sbackend;
 
   if (sbackend == synthesis_backend_selector::GRAIN)
-    ILA_ASSERT(vtg_config.YosysSmtFlattenDatatype)
+    ILA_CHECK(vtg_config.YosysSmtFlattenDatatype)
         << "For Grain, datatype must be flattened!";
 }
 
@@ -211,7 +211,7 @@ void VlgSglTgtGen_Chc_wCNF::PreExportProcess() {
   std::string all_assert_wire_content;
   std::string all_assume_wire_content;
 
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+  ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
   ILA_ERROR_IF(_problems.assertions.size() != 1) << "BUG in cex extract";
 
   // you need to add assumptions as well
@@ -236,14 +236,14 @@ void VlgSglTgtGen_Chc_wCNF::PreExportProcess() {
     const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
 
-    // ILA_ASSERT(prbname == "cex_nonreachable_assert")
+    // ILA_CHECK(prbname == "cex_nonreachable_assert")
     //  << "BUG: assertion can only be cex reachability queries.";
     // sanity check, should only be invariant's related asserts
 
     for (auto&& p : prob.exprs) {
       vlg_wrapper.add_stmt("assert property (" + p + "); //" + prbname + "\n");
       // there should be only one expression (for cex target)
-      // ILA_ASSERT(all_assert_wire_content.empty());
+      // ILA_CHECK(all_assert_wire_content.empty());
       if (first)
         all_assert_wire_content = p;
       else
@@ -253,7 +253,7 @@ void VlgSglTgtGen_Chc_wCNF::PreExportProcess() {
     } // for expr
   }   // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(!all_assert_wire_content.empty()) << "no property to check!";
+  ILA_CHECK(!all_assert_wire_content.empty()) << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__", 1);
@@ -286,7 +286,7 @@ void VlgSglTgtGen_Chc_wCNF::Export_script(const std::string& script_name,
   std::string options;
   std::string redirect;
 
-  ILA_ASSERT(s_backend == synthesis_backend_selector::GRAIN);
+  ILA_CHECK(s_backend == synthesis_backend_selector::GRAIN);
   runnable = "bv";
   if (!_vtg_config.GrainPath.empty())
     runnable = os_portable_append_dir(_vtg_config.GrainPath, runnable);
@@ -479,14 +479,14 @@ void VlgSglTgtGen_Chc_wCNF::Export_cnf(const InvariantInCnf& cnf,
 }
 
 void VlgSglTgtGen_Chc_wCNF::Export_script(const std::string& script_name) {
-  ILA_ASSERT(false) << "Deprecated. Should not be used!";
+  ILA_CHECK(false) << "Deprecated. Should not be used!";
 }
 void VlgSglTgtGen_Chc_wCNF::ExportAll(const std::string& wrapper_name,
                                       const std::string& ila_vlg_name,
                                       const std::string& script_name,
                                       const std::string& extra_name,
                                       const std::string& mem_name) {
-  ILA_ASSERT(false) << "Deprecated. Should not be used!";
+  ILA_CHECK(false) << "Deprecated. Should not be used!";
 }
 
 /// generate the wrapper's smt first
@@ -644,8 +644,8 @@ static std::string RewriteDatatypeChc(const std::string& tmpl,
                        : st.verilog_name;
     st_name = ReplaceAll(st_name, "|", ""); // remove its ||
     // check no repetition is very important!
-    ILA_ASSERT(!IN(st_name, name_set)) << "Bug: name repetition!";
-    ILA_ASSERT(!st._type.is_datatype());
+    ILA_CHECK(!IN(st_name, name_set)) << "Bug: name repetition!";
+    ILA_CHECK(!st._type.is_datatype());
     name_set.insert(st_name);
     auto type_string = st._type.toString();
     InitVar += "(declare-var |I_" + st_name + "| " + type_string + ")\n";

@@ -63,12 +63,12 @@ void AbcInvariantParser::parseAigerResultWoGLA(
         const auto& bit_no = vec.at(2);
         const auto new_name = vec.at(3) + "[" + bit_no + ":" + bit_no + "]";
         const auto blif_ref_name = vec.at(3) + "[" + bit_no + "]";
-        ILA_ASSERT(aig_state_order.size() == latch_no ||
+        ILA_CHECK(aig_state_order.size() == latch_no ||
                    aig_state_order.size() == latch_no + 1)
             << new_name << " " << latch_no << " " << aig_state_order.size();
         if (IN(blif_ref_name, blif_valid_state_names) ||
             (IN(vec.at(3), blif_valid_state_names) && bit_no == "0")) {
-          ILA_ASSERT(aig_state_order.size() ==
+          ILA_CHECK(aig_state_order.size() ==
                      latch_no); // insert to the right index
           aig_state_order.push_back(new_name);
           aig_literal.push_back(std::make_pair(vec.at(3), StrToInt(bit_no)));
@@ -101,7 +101,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
         int neg = flop & 0x1;
         unsigned long long flopno = flop >> 1;
         std::string literal;
-        ILA_ASSERT(aig_state_order.size() >=
+        ILA_CHECK(aig_state_order.size() >=
                    flopno) // remeber : the last one should be one
             << "Referring #" << flopno
             << " flop, while size of blifstates:" << aig_state_order.size();
@@ -222,12 +222,12 @@ void AbcInvariantParser::parseAigerResultWithGLA(
         const auto& bit_no = vec.at(2);
         const auto new_name = vec.at(3) + "[" + bit_no + ":" + bit_no + "]";
         const auto blif_ref_name = vec.at(3) + "[" + bit_no + "]";
-        ILA_ASSERT(aig_state_order.size() == latch_no ||
+        ILA_CHECK(aig_state_order.size() == latch_no ||
                    aig_state_order.size() == latch_no + 1)
             << new_name << " " << latch_no << " " << aig_state_order.size();
         if (IN(blif_ref_name, blif_valid_state_names) ||
             (IN(vec.at(3), blif_valid_state_names) && bit_no == "0")) {
-          ILA_ASSERT(aig_state_order.size() ==
+          ILA_CHECK(aig_state_order.size() ==
                      latch_no); // insert to the right index
           aig_state_order.push_back(new_name);
           aig_literal.push_back(std::make_pair(vec.at(3), StrToInt(bit_no)));
@@ -246,13 +246,13 @@ void AbcInvariantParser::parseAigerResultWithGLA(
     unsigned PiCount, good, newFlopCnt;
     unsigned OldGid, NewGid = 0, NewGidTmp;
     fin >> PiCount >> good >> newFlopCnt;
-    ILA_ASSERT(good) << "ABC result: Ro are not consecutive!";
+    ILA_CHECK(good) << "ABC result: Ro are not consecutive!";
     for (unsigned idx = 0; idx < newFlopCnt; ++idx) {
       fin >> OldGid >> NewGidTmp;
-      ILA_ASSERT(NewGidTmp > NewGid) << "ABC result : ff count bug!";
+      ILA_CHECK(NewGidTmp > NewGid) << "ABC result : ff count bug!";
       NewGid = NewGidTmp;
       new_id_to_old_id.push_back(OldGid - PiCount - 1);
-      ILA_ASSERT(OldGid - PiCount - 1 <= aig_state_order.size());
+      ILA_CHECK(OldGid - PiCount - 1 <= aig_state_order.size());
     }
   }
 
@@ -280,7 +280,7 @@ void AbcInvariantParser::parseAigerResultWithGLA(
         int neg = flop & 0x1;
         unsigned long long flopno = flop >> 1;
 
-        ILA_ASSERT(new_id_to_old_id.size() > flopno)
+        ILA_CHECK(new_id_to_old_id.size() > flopno)
             << "Referring #" << flopno
             << " flop, while size of abstract states:"
             << new_id_to_old_id.size();
@@ -367,9 +367,9 @@ static std::string handle_range_ref(const std::string& in) {
   if (pos == in.npos)
     return in;
   auto rpos = in.rfind(']');
-  ILA_ASSERT(pos < rpos) << "Unknown how to handle:" << in;
+  ILA_CHECK(pos < rpos) << "Unknown how to handle:" << in;
   auto idx = in.substr(pos + 1, rpos - (pos + 1));
-  ILA_ASSERT(!S_IN(":", idx));
+  ILA_CHECK(!S_IN(":", idx));
   return in.substr(0, pos) + "[" + idx + ":" + idx + "]";
 }
 
@@ -416,7 +416,7 @@ void AbcInvariantParser::parse(const std::string& blif_name,
         int neg = flop & 0x1;
         unsigned long long flopno = flop >> 1;
         std::string literal;
-        ILA_ASSERT(blif_state_order.size() > flopno)
+        ILA_CHECK(blif_state_order.size() > flopno)
             << "Referring #" << flopno
             << " flop, while size of blifstates:" << blif_state_order.size();
         if (blif_state_init.at(flopno))
@@ -523,13 +523,13 @@ void AbcInvariantParser::parse(const std::string& blif_name,
     unsigned PiCount, good, newFlopCnt;
     unsigned OldGid, NewGid = 0, NewGidTmp;
     fin >> PiCount >> good >> newFlopCnt;
-    ILA_ASSERT(good) << "ABC result: Ro are not consecutive!";
+    ILA_CHECK(good) << "ABC result: Ro are not consecutive!";
     for (unsigned idx = 0; idx < newFlopCnt; ++idx) {
       fin >> OldGid >> NewGidTmp;
-      ILA_ASSERT(NewGidTmp > NewGid) << "ABC result : ff count bug!";
+      ILA_CHECK(NewGidTmp > NewGid) << "ABC result : ff count bug!";
       NewGid = NewGidTmp;
       new_id_to_old_id.push_back(OldGid - PiCount - 1);
-      ILA_ASSERT(OldGid - PiCount - 1 < blif_state_order.size());
+      ILA_CHECK(OldGid - PiCount - 1 < blif_state_order.size());
     }
   }
 
@@ -552,7 +552,7 @@ void AbcInvariantParser::parse(const std::string& blif_name,
       while (ss >> flop) {
         int neg = flop & 0x1;
         unsigned long long flopno = flop >> 1;
-        ILA_ASSERT(new_id_to_old_id.size() > flopno)
+        ILA_CHECK(new_id_to_old_id.size() > flopno)
             << "Referring #" << flopno
             << " flop, while size of abstract states:"
             << new_id_to_old_id.size();
@@ -642,9 +642,9 @@ AbcInvariantParser::AbcInvariantParser(
       replace_outside_var_ref(replace_outside_variable_reference),
       parse_succeed(true) {
 
-  ILA_ASSERT(!blif_name.empty());
+  ILA_CHECK(!blif_name.empty());
   if (useAiger) {
-    ILA_ASSERT(!aiger_map_name.empty())
+    ILA_CHECK(!aiger_map_name.empty())
         << "You must provide aiger name for `useAiger` flag.";
     if (gla_abs_fn.empty())
       parseAigerResultWoGLA(aiger_map_name, abc_result_fn, inv_cnf, ref_cnf,
@@ -653,7 +653,7 @@ AbcInvariantParser::AbcInvariantParser(
       parseAigerResultWithGLA(aiger_map_name, abc_result_fn, gla_abs_fn,
                               inv_cnf, ref_cnf, blif_name);
   } else { // for non-aiger this is the blif file
-    ILA_ASSERT(aiger_map_name.empty());
+    ILA_CHECK(aiger_map_name.empty());
     if (gla_abs_fn.empty())
       parse(blif_name, abc_result_fn);
     else

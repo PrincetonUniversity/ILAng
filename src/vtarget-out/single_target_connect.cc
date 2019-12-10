@@ -56,7 +56,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       target_type == target_type_t::INV_SYN_DESIGN_ONLY)
     return "";
 
-  ILA_ASSERT(vlg_ila.decodeNames.size() == 1)
+  ILA_CHECK(vlg_ila.decodeNames.size() == 1)
       << "Implementation bug: decode condition.";
   vlg_wrapper.add_wire(vlg_ila.validName, 1, true);
   vlg_wrapper.add_wire(vlg_ila.decodeNames[0], 1, true);
@@ -175,7 +175,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     const auto adw = GetMemInfo(ila_name);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 && dw > 0)
+    ILA_CHECK(aw > 0 && dw > 0)
         << "Implementation bug: unable to find mem:" << ila_name;
 
     for (auto&& rport : rports) {
@@ -206,7 +206,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     const auto adw = GetMemInfo(ila_name);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 && dw > 0)
+    ILA_CHECK(aw > 0 && dw > 0)
         << "Implementation bug: unable to find mem:" << ila_name;
 
     for (auto&& wport : wports) {

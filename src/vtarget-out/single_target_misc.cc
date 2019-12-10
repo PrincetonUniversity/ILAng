@@ -202,9 +202,9 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(
       val = ReplExpr(original_val_field, true);
     } else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width") {
       if (cond_val_pair.value().is_string()) {
-        ILA_ASSERT(cond_val_pair.value().get<std::string>() == "auto")
+        ILA_CHECK(cond_val_pair.value().get<std::string>() == "auto")
             << "Expecting width to be unsigned int / auto";
-        ILA_ASSERT(!original_val_field.empty())
+        ILA_CHECK(!original_val_field.empty())
             << "You must first provide `val` field before auto";
         if (original_val_field.find("[") != original_val_field.npos)
           original_val_field =

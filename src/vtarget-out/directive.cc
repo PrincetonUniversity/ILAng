@@ -27,7 +27,7 @@ bool IntefaceDirectiveRecorder::isSpecialInputDir(const std::string& c) {
 // static function
 bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
     const std::string& c, const SignalInfoBase& vlg_sig) {
-  ILA_ASSERT(isSpecialInputDir(c));
+  ILA_CHECK(isSpecialInputDir(c));
   if (c == "**KEEP**")
     return true;
   if (c == "**NC**")
@@ -56,7 +56,7 @@ bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
 // static function
 /*
 bool IntefaceDirectiveRecorder::interfaceDeclareTop(const std::string & c) {
-  ILA_ASSERT(isSpecialInputDir(c));
+  ILA_CHECK(isSpecialInputDir(c));
   if(c == "**KEEP**") return true;
   if(c == "**NC**")   return false;
   if(c == "**SO**")   return true;
@@ -153,7 +153,7 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
         continue;
     }
 
-    ILA_ASSERT(false) << "Connecting signal: " << the_wire_connected_to_the_port
+    ILA_CHECK(false) << "Connecting signal: " << the_wire_connected_to_the_port
                       << " tp: " << conn_tp
                       << " is not declared. Implementation bug!";
   }
@@ -386,7 +386,7 @@ void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
                                            const std::string& ila_state_name,
                                            bool abs_read) {
 
-  ILA_ASSERT(beginsWith(directive, "**"));
+  ILA_CHECK(beginsWith(directive, "**"));
   if (!beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
     return;
@@ -423,7 +423,7 @@ void IntefaceDirectiveRecorder::SetMemNameAndWidth(
     const std::string& directive, const std::string& ila_state_name,
     bool abs_read, int ila_addr_width, int ila_data_width) {
 
-  ILA_ASSERT(beginsWith(directive, "**"));
+  ILA_CHECK(beginsWith(directive, "**"));
   if (!beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
     return;
@@ -455,7 +455,7 @@ void IntefaceDirectiveRecorder::SetMemNameAndWidth(
       << " setting memory abstraction with a different name"
       << " old:" << pos->second.ila_map_name << ", new:" << ila_state_name;
 
-  ILA_ASSERT(ila_addr_width > 0 && ila_data_width > 0);
+  ILA_CHECK(ila_addr_width > 0 && ila_data_width > 0);
   pos->second.SetAddrWidth(ila_addr_width);
   pos->second.SetDataWidth(ila_data_width);
 }
@@ -465,7 +465,7 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
     const std::map<unsigned, rport_t>& rports,
     const std::map<unsigned, wport_t>& wports, int ila_addr_width,
     int ila_data_width, bool abs_read) {
-  ILA_ASSERT(beginsWith(directive, "**"));
+  ILA_CHECK(beginsWith(directive, "**"));
   if (!beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
     return VLG_TRUE;

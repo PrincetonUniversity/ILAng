@@ -36,7 +36,7 @@ bool InvariantObject::AddInvariantFromAbcResultFile(
     const std::string& aiger_map_name, InvariantInCnf& inv_cnf,
     const InvariantInCnf& ref_cnf) {
 
-  ILA_ASSERT(!dut_inst_name.empty())
+  ILA_CHECK(!dut_inst_name.empty())
       << "BUG: duv instance name unknown. "
       << "set_dut_inst_name should be called first!";
 
@@ -63,7 +63,7 @@ bool InvariantObject::AddInvariantFromAbcResultFile(
 
   for (auto&& name : parser.GetNewVarDefs()) {
     if (IN(name, inv_extra_free_vars))
-      ILA_ASSERT(inv_extra_free_vars[name] == 1)
+      ILA_CHECK(inv_extra_free_vars[name] == 1)
           << "Overwriting free var:" << name << " w. width: " << 1
           << " old width:" << inv_extra_free_vars[name];
     inv_extra_free_vars.insert(std::make_pair(name, 1));
@@ -78,7 +78,7 @@ void InvariantObject::AddInvariantFromChcResultFile(
     const std::string& chc_result_fn, bool flatten_datatype,
     bool flatten_hierarchy, bool discourage_outside_var_referral) {
 
-  ILA_ASSERT(!dut_inst_name.empty())
+  ILA_CHECK(!dut_inst_name.empty())
       << "BUG: duv instance name unknown. "
       << "set_dut_inst_name should be called first!";
 
@@ -90,7 +90,7 @@ void InvariantObject::AddInvariantFromChcResultFile(
     ILA_ERROR << "No new invariant has been extracted!";
     return;
   }
-  ILA_ASSERT(!parser.in_bad_state());
+  ILA_CHECK(!parser.in_bad_state());
   inv_vlg_exprs.push_back(parser.GetFinalTranslateResult());
 
   auto raw_smt = parser.GetRawSmtString();
@@ -105,7 +105,7 @@ void InvariantObject::AddInvariantFromChcResultFile(
   }
   for (auto&& name_w_pair : parser.GetFreeVarDefs()) {
     if (IN(name_w_pair.first, inv_extra_free_vars))
-      ILA_ASSERT(inv_extra_free_vars[name_w_pair.first] == name_w_pair.second)
+      ILA_CHECK(inv_extra_free_vars[name_w_pair.first] == name_w_pair.second)
           << "Overwriting free var:" << name_w_pair.first
           << " w. width: " << name_w_pair.second
           << " old width:" << inv_extra_free_vars[name_w_pair.first];
@@ -118,7 +118,7 @@ void InvariantObject::AddInvariantFromGrainResultFile(
     const std::string& chc_result_fn, bool discourage_outside_var_referral,
     bool change_outside_var) {
 
-  ILA_ASSERT(!dut_inst_name.empty())
+  ILA_CHECK(!dut_inst_name.empty())
       << "BUG: duv instance name unknown. "
       << "set_dut_inst_name should be called first!";
 
@@ -130,7 +130,7 @@ void InvariantObject::AddInvariantFromGrainResultFile(
     ILA_ERROR << "No new invariant has been extracted!";
     return;
   }
-  ILA_ASSERT(!parser.in_bad_state());
+  ILA_CHECK(!parser.in_bad_state());
   inv_vlg_exprs.push_back(parser.GetFinalTranslateResult());
 
   auto raw_smt = parser.GetRawSmtString();
@@ -145,7 +145,7 @@ void InvariantObject::AddInvariantFromGrainResultFile(
   }
   for (auto&& name_w_pair : parser.GetFreeVarDefs()) {
     if (IN(name_w_pair.first, inv_extra_free_vars))
-      ILA_ASSERT(inv_extra_free_vars[name_w_pair.first] == name_w_pair.second)
+      ILA_CHECK(inv_extra_free_vars[name_w_pair.first] == name_w_pair.second)
           << "Overwriting free var:" << name_w_pair.first
           << " w. width: " << name_w_pair.second
           << " old width:" << inv_extra_free_vars[name_w_pair.first];
@@ -218,7 +218,7 @@ size_t InvariantObject::NumInvariant() const { return inv_vlg_exprs.size(); }
 /// export invariants to a file
 void InvariantObject::ExportToFile(const std::string& fn,
                                    bool export_smt_encoding) const {
-  ILA_ASSERT(smt_formula_vec.size() == inv_vlg_exprs.size())
+  ILA_CHECK(smt_formula_vec.size() == inv_vlg_exprs.size())
       << "# of smt formulae =/= # of vlg exprs ";
   std::ofstream fout(fn);
   ILA_WARN << "Will not preserve the original smt formula";
@@ -310,7 +310,7 @@ void InvariantObject::ImportFromFile(const std::string& fn) {
 }
 
 void InvariantObject::RemoveInvByIdx(size_t idx) {
-  ILA_ASSERT(idx < inv_vlg_exprs.size()) << "Index out-of-range";
+  ILA_CHECK(idx < inv_vlg_exprs.size()) << "Index out-of-range";
 
   inv_vlg_exprs.erase(inv_vlg_exprs.begin() + idx);
   smt_formula_vec.erase(smt_formula_vec.begin() + idx);

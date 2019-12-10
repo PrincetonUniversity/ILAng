@@ -150,18 +150,18 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
       has_cex(adv_ptr && adv_ptr->_cex_obj_ptr), chc_target(chctarget),
       useGla(useGLA), useCorr(useCORR), useAiger(useAIGER), disallowGla(false) {
 
-  ILA_ASSERT(vbackend == backend_selector::YOSYS)
+  ILA_CHECK(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
 
-  ILA_ASSERT(chctarget == _chc_target_t::CEX) << "Target must be cex";
-  ILA_ASSERT(target_tp == target_type_t::INV_SYN_DESIGN_ONLY)
+  ILA_CHECK(chctarget == _chc_target_t::CEX) << "Target must be cex";
+  ILA_CHECK(target_tp == target_type_t::INV_SYN_DESIGN_ONLY)
       << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
-  ILA_ASSERT(has_cex) << "for cex chc, cex must be provided!";
+  ILA_CHECK(has_cex) << "for cex chc, cex must be provided!";
 
-  ILA_ASSERT(sbackend == synthesis_backend_selector::ABC)
+  ILA_CHECK(sbackend == synthesis_backend_selector::ABC)
       << "Unknown synthesis backend:" << sbackend;
 
-  ILA_ASSERT(_vtg_config.YosysSmtFlattenHierarchy)
+  ILA_CHECK(_vtg_config.YosysSmtFlattenHierarchy)
       << "For ABC, hierarchy must be flattened!";
 }
 
@@ -181,7 +181,7 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
   std::string all_assert_wire_content;
   std::string all_assume_wire_content;
 
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+  ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
   ILA_ERROR_IF(_problems.assertions.size() != 1) << "BUG in cex extract";
 
   // you need to add assumptions as well
@@ -205,13 +205,13 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
     // const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
 
-    // ILA_ASSERT(prbname == "cex_nonreachable_assert")
+    // ILA_CHECK(prbname == "cex_nonreachable_assert")
     //  << "BUG: assertion can only be cex reachability queries.";
     // sanity check, should only be invariant's related asserts
 
     for (auto&& p : prob.exprs) {
       // there should be only one expression (for cex target)
-      // ILA_ASSERT(all_assert_wire_content.empty());
+      // ILA_CHECK(all_assert_wire_content.empty());
       if (first)
         all_assert_wire_content = p;
       else
@@ -221,7 +221,7 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
     } // for expr
   }   // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(!all_assert_wire_content.empty()) << "no property to check!";
+  ILA_CHECK(!all_assert_wire_content.empty()) << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__", 1);
@@ -230,7 +230,7 @@ void VlgSglTgtGen_Abc::PreExportProcess() {
   std::string precond;
   disallowGla = false;
   if (!all_assume_wire_content.empty()) {
-    ILA_ASSERT(
+    ILA_CHECK(
         !(_vtg_config.AbcUseAiger == false &&
           _vtg_config.AbcAssumptionStyle == _vtg_config.AigMiterExtraOutput))
         << "If you don't use aiger, and has assumptions, there is no way to "
@@ -284,7 +284,7 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
   std::string abc_cmd;
   {                 // assemble the abc command
     if (useAiger) { // pass aiger
-      ILA_ASSERT(!(useGla && disallowGla))
+      ILA_CHECK(!(useGla && disallowGla))
           << "Cannot use GLA with assumptions and assumption style chosen as "
              "AigMiterExtraOutput";
       if (useGla)

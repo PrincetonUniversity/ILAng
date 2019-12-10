@@ -191,27 +191,27 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
       s_backend(sbackend), generate_proof(GenerateProof),
       has_cex(adv_ptr && adv_ptr->_cex_obj_ptr), chc_target(chctarget) {
 
-  ILA_ASSERT(vbackend == backend_selector::YOSYS)
+  ILA_CHECK(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
 
-  ILA_ASSERT(chctarget == _chc_target_t::CEX)
+  ILA_CHECK(chctarget == _chc_target_t::CEX)
       << "Bug: VlgSglTgtGen_Chc should only be used for CEX";
 
-  ILA_ASSERT(target_tp == target_type_t::INV_SYN_DESIGN_ONLY)
+  ILA_CHECK(target_tp == target_type_t::INV_SYN_DESIGN_ONLY)
       << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
-  ILA_ASSERT(has_cex) << "for cex chc, cex must be provided!";
-  ILA_ASSERT(_vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
+  ILA_CHECK(has_cex) << "for cex chc, cex must be provided!";
+  ILA_CHECK(_vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
       << "invariant synthesis only supports datatypes state encoding.";
 
-  ILA_ASSERT(sbackend == synthesis_backend_selector::GRAIN or
+  ILA_CHECK(sbackend == synthesis_backend_selector::GRAIN or
              sbackend == synthesis_backend_selector::Z3)
       << "Unknown synthesis backend:" << sbackend;
 
   if (sbackend == synthesis_backend_selector::GRAIN)
-    ILA_ASSERT(vtg_config.YosysSmtFlattenDatatype)
+    ILA_CHECK(vtg_config.YosysSmtFlattenDatatype)
         << "For Grain, datatype must be flattened!";
 
-  ILA_ASSERT(_vtg_config.YosysSmtFlattenHierarchy)
+  ILA_CHECK(_vtg_config.YosysSmtFlattenHierarchy)
       << "Currently implementation only supports extract invariants from "
          "flattened hierarchy.";
 }
@@ -232,7 +232,7 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
   std::string all_assert_wire_content;
   std::string all_assume_wire_content;
 
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+  ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
   ILA_ERROR_IF(_problems.assertions.size() != 1) << "BUG in cex extract";
 
   // you need to add assumptions as well
@@ -257,14 +257,14 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
     const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
 
-    // ILA_ASSERT(prbname == "cex_nonreachable_assert")
+    // ILA_CHECK(prbname == "cex_nonreachable_assert")
     //  << "BUG: assertion can only be cex reachability queries.";
     // sanity check, should only be invariant's related asserts
 
     for (auto&& p : prob.exprs) {
       vlg_wrapper.add_stmt("assert property (" + p + "); //" + prbname + "\n");
       // there should be only one expression (for cex target)
-      // ILA_ASSERT(all_assert_wire_content.empty());
+      // ILA_CHECK(all_assert_wire_content.empty());
       if (first)
         all_assert_wire_content = p;
       else
@@ -274,7 +274,7 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
     } // for expr
   }   // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(!all_assert_wire_content.empty()) << "no property to check!";
+  ILA_CHECK(!all_assert_wire_content.empty()) << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__", 1);
@@ -495,7 +495,7 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(const std::string& smt_name,
     // else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
     //  write_smt2_options += "-stbv ";
     // else
-    //  ILA_ASSERT(false) << "Unsupported smt state sort encoding:" <<
+    //  ILA_CHECK(false) << "Unsupported smt state sort encoding:" <<
     //  _vtg_config.YosysSmtStateSort;
 
     ys_script_fout << "read_verilog -sv "
@@ -748,8 +748,8 @@ static std::string RewriteDatatypeChc(const std::string& tmpl,
                        : st.verilog_name;
     st_name = ReplaceAll(st_name, "|", ""); // remove its ||
     // check no repetition is very important!
-    ILA_ASSERT(!IN(st_name, name_set)) << "Bug: name repetition!";
-    ILA_ASSERT(!st._type.is_datatype());
+    ILA_CHECK(!IN(st_name, name_set)) << "Bug: name repetition!";
+    ILA_CHECK(!st._type.is_datatype());
     name_set.insert(st_name);
     auto type_string = st._type.toString();
     State += "(declare-var |S_" + st_name + "| " + type_string + ")\n";

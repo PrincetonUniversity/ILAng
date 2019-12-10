@@ -24,7 +24,7 @@ void VlgSglTgtGen::add_wire_assign_assumption(const std::string& varname,
   //_problems.assumptions.push_back(varname + " = " +
   //                                convert_expr_to_cosa(expression));
   vlg_wrapper.add_assign_stmt(varname, expression);
-  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify !=
+  ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
                  vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
              expression.find(".") == std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
@@ -44,7 +44,7 @@ void VlgSglTgtGen::add_reg_cassign_assumption(const std::string& varname,
   //                                 " ) | (" + varname + " = " +
   //                                convert_expr_to_cosa(expression) + "))");
 
-  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify !=
+  ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
                  vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
              expression.find(".") == std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
@@ -75,7 +75,7 @@ void VlgSglTgtGen::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_output(assumption_wire_name,
                          1); // I find it is necessary to connect to the output
 
-  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify !=
+  ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
                  vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
              aspt.find(".") == std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
@@ -98,7 +98,7 @@ void VlgSglTgtGen::add_an_assertion(const std::string& asst,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   add_a_direct_assertion(assrt_wire_name + " = 1_1", dspt);
-  ILA_ASSERT(_vtg_config.CosaDotReferenceNotify !=
+  ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
                  vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
              asst.find(".") == std::string::npos)
       << "asst:" << asst << " contains unfriendly dot.";

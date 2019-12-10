@@ -363,6 +363,7 @@ TEST(TestVlgVerifInvSyn, CegarCntAbc) {
   EXPECT_FALSE(vg.in_bad_state());
 
   EXPECT_EQ(vg.GetCandidateInvariants().NumInvariant(), 0);
+  EXPECT_EQ(vg.GetInvariants().NumInvariant(), 1);
   vg.GetInvariants().ExportToFile(os_portable_append_dir(outDir, "inv.txt"));
 
 } // CegarCntAbc
@@ -767,8 +768,9 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
   { // what inv to enhance
     const auto & inv_to_enhance = 
       vg.GetCandidateInvariants();
-    ILA_ASSERT(inv_to_enhance.NumInvariant() == 1);
-    std::cout << "INV to enhance:" << inv_to_enhance.GetVlgConstraints()[0] << std::endl;
+    EXPECT_EQ(inv_to_enhance.NumInvariant(), 1);
+    if (inv_to_enhance.NumInvariant() >= 1)
+      std::cout << "INV to enhance:" << inv_to_enhance.GetVlgConstraints()[0] << std::endl;
   }
   
   // This is the function we need to write
@@ -798,6 +800,6 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
 
 
 
-#endif
+#endif // ILANG_BUILD_INVSYN
 
 }; // namespace ilang

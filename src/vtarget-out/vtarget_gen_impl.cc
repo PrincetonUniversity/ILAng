@@ -367,7 +367,7 @@ static size_t find_comments(const std::string& line) {
         next_state = STR;
     } else if (state == LEFT) {
       if (c == '/') {
-        ILA_ASSERT(ret > 0);
+        ILA_CHECK(ret > 0);
         return ret - 1;
       } else
         next_state = PLAIN;
@@ -407,7 +407,7 @@ void VlgVerifTgtGen::load_json(const std::string& fname, nlohmann::json& j) {
 
 std::shared_ptr<smt::YosysSmtParser>
 VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
-  ILA_ASSERT(_backend == backend_selector::YOSYS)
+  ILA_CHECK(_backend == backend_selector::YOSYS)
       << "All inv-syn relies on yosys!";
 
   if (vlg_info_ptr)

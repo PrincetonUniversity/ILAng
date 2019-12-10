@@ -18,17 +18,17 @@ namespace ilang {
 
 static std::string select_script_to_run(const std::vector<std::string>& scripts,
                                         const std::string& sel) {
-  ILA_ASSERT(!sel.empty()) << "no selection is provided in RunVerifAuto";
+  ILA_CHECK(!sel.empty()) << "no selection is provided in RunVerifAuto";
   std::vector<std::string> sels;
   for (auto&& sc : scripts)
     if (S_IN(sel, sc))
       sels.push_back(sc);
-  ILA_ASSERT(!sels.empty()) << "Auto run: no selection!";
+  ILA_CHECK(!sels.empty()) << "Auto run: no selection!";
   if (sels.size() > 1) {
     ILA_ERROR << "Multi scripts selected!";
     for (auto&& sc : sels)
       ILA_ERROR << sc;
-    ILA_ASSERT(false);
+    ILA_CHECK(false);
   }
   return sels[0];
 }
@@ -271,7 +271,7 @@ void InvariantSynthesizerCegar::MergeCnf(
 void InvariantSynthesizerCegar::ExtractInvariantVarForEnhance(
     size_t inv_idx, InvariantInCnf& incremental_cnf, bool per_clause,
     const std::set<std::string>& vars_to_remove) {
-  ILA_ASSERT(inv_idx < inv_obj.NumInvariant());
+  ILA_CHECK(inv_idx < inv_obj.NumInvariant());
   const auto& inv_vlg = inv_obj.GetVlgConstraints().at(inv_idx);
   VarExtractor vext(
       [](const std::string& s) -> bool { return false; }, // not ila input
@@ -344,7 +344,7 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement(
   // merge the cnfs
   // incremental_cnf.Clear();
 
-  ILA_ASSERT(runnable_scripts.size() == 1)
+  ILA_CHECK(runnable_scripts.size() == 1)
       << "BUG: GenerateInvSynEnhanceTargets should create only 1 target "
          "script ";
   auto synthesis_result_fn =
@@ -372,7 +372,7 @@ bool InvariantSynthesizerCegar::WordLevelEnhancement(
   ILA_ERROR_IF(res.failure != execute_result::NONE)
       << "Running synthesis script " << runnable_scripts[0]
       << " results in error.";
-  ILA_ASSERT(os_portable_chdir(cwd));
+  ILA_CHECK(os_portable_chdir(cwd));
 
   inv_enhance_time += res.seconds;
   // inv_syn_time_series.push_back(res.seconds);
@@ -518,10 +518,10 @@ void InvariantSynthesizerCegar::ExtractAbcSynthesisResultForEnhancement(
     status = cegar_status::FAILED;
     return;
   }
-  ILA_ASSERT(current_inv_type == cur_inv_tp::CEGAR_ABC)
+  ILA_CHECK(current_inv_type == cur_inv_tp::CEGAR_ABC)
       << "Can only work with CEGAR ABC!";
   // the incremental CNF here
-  ILA_ASSERT(inv_candidate.AddInvariantFromAbcResultFile(
+  ILA_CHECK(inv_candidate.AddInvariantFromAbcResultFile(
       _vtg_config.AbcUseAiger
           ? os_portable_append_dir(
                 os_portable_path_from_path(runnable_script_name[0]),
@@ -593,7 +593,7 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(
         *(design_smt_info.get()), "",
         os_portable_append_dir(_output_path, "grain.result"), true, true);
   } else if (current_inv_type == cur_inv_tp::CEGAR_ABC) {
-    ILA_ASSERT(inv_obj.AddInvariantFromAbcResultFile(
+    ILA_CHECK(inv_obj.AddInvariantFromAbcResultFile(
         _vtg_config.AbcUseAiger
             ? os_portable_append_dir(
                   os_portable_path_from_path(runnable_script_name[0]),
@@ -698,7 +698,7 @@ bool InvariantSynthesizerCegar::RunVerifAuto(
 
   ILA_ERROR_IF(res.failure != execute_result::NONE)
       << "Running verification script " << script_sel << " results in error.";
-  ILA_ASSERT(os_portable_chdir(cwd));
+  ILA_CHECK(os_portable_chdir(cwd));
   // the last line contains the result
   // above it you should have *** TRACES ***
   // the vcd file resides within the new dir
@@ -732,7 +732,7 @@ bool InvariantSynthesizerCegar::RunSynAuto(bool under_test) {
   if (check_in_bad_state())
     return true;
 
-  ILA_ASSERT(runnable_script_name.size() == 1)
+  ILA_CHECK(runnable_script_name.size() == 1)
       << "Please run GenerateInvSynTargets function first";
   synthesis_result_fn =
       os_portable_append_dir(_output_path, "__synthesis_result.txt");
@@ -760,7 +760,7 @@ bool InvariantSynthesizerCegar::RunSynAuto(bool under_test) {
   ILA_ERROR_IF(res.failure != execute_result::NONE)
       << "Running synthesis script " << runnable_script_name[0]
       << " results in error.";
-  ILA_ASSERT(os_portable_chdir(cwd));
+  ILA_CHECK(os_portable_chdir(cwd));
 
   inv_syn_time += res.seconds;
   inv_syn_time_series.push_back(res.seconds);

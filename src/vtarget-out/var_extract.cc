@@ -76,7 +76,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
 
   bool is_num = isNumBegin(in.at(0));
   bool is_state = isStateBegin(in.at(0));
-  ILA_ASSERT(!(is_num && is_state)) << "Implementation bug";
+  ILA_CHECK(!(is_num && is_state)) << "Implementation bug";
 
   size_t left = 0;
   size_t idx = 1;
@@ -88,7 +88,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
                         isStateBegin(in.at(idx));
 
     if (is_num && is_state) {
-      ILA_ASSERT(false) << "This should not be possible";
+      ILA_CHECK(false) << "This should not be possible";
     } else if (is_num && !is_state) { // in the num matching
       if (!is_num_new) {              // leave matching
         is_num = false;
@@ -131,7 +131,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
       }
     } else if (!is_state && !is_num) { // not in the matching
       // see if we need to start matching
-      ILA_ASSERT(!(is_num_new && is_state_new))
+      ILA_CHECK(!(is_num_new && is_state_new))
           << "This should not be possible";
       if (is_num_new || is_state_new) {
         _tokens.push_back({token_type::KEEP, in.substr(left, idx - left)});
@@ -148,9 +148,9 @@ void VarExtractor::ParseToExtract(const std::string& in,
       }
 
     } else
-      ILA_ASSERT(false) << "Implementation bug, should not be reachable!";
+      ILA_CHECK(false) << "Implementation bug, should not be reachable!";
   }
-  ILA_ASSERT(!(is_num && is_state)) << "Implementation bug";
+  ILA_CHECK(!(is_num && is_state)) << "Implementation bug";
   // copy the last if necessary
   if (left < idx) {
     auto subs = in.substr(left, idx - left);

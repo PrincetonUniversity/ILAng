@@ -161,12 +161,12 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // __ENDFLUSH__ == (end flush condition ) && ENDED
   // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
 
-  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS);
+  ILA_CHECK(target_type == target_type_t::INSTRUCTIONS);
   // we don't need additional signals, just make reset drives the design
 
   // find the instruction
   auto& instr = get_current_instruction_rf();
-  ILA_ASSERT(!instr.is_null());
+  ILA_CHECK(!instr.is_null());
 
   // __IEND__
   std::string iend_cond = VLG_FALSE;
@@ -250,7 +250,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   }
 
   if (has_flush) {
-    ILA_ASSERT(IN("pre-flush end", instr) &&
+    ILA_CHECK(IN("pre-flush end", instr) &&
                IN("post-flush end", instr)); // there has to be something
 
     std::string issue_cond;

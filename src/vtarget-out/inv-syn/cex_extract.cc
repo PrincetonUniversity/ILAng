@@ -162,7 +162,7 @@ void CexExtractor::parse_from(const std::string& vcd_file_name,
 
   } // for sig
 
-  ILA_ASSERT(!cex.empty()) << "No counterexample is extracted!";
+  ILA_CHECK(!cex.empty()) << "No counterexample is extracted!";
 
 } // parse_from
 
