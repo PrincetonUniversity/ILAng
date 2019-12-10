@@ -70,14 +70,15 @@ jobs:
       sudo apt-get install libboost-all-dev
       sudo apt-get install z3
       sudo apt-get install libz3-dev
+      sudo apt-get install valgrind
     displayName: 'package'
   - script: |
       mkdir -p build 
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release
+      cmake .. -DCMAKE_BUILD_TYPE=Debug
       cmake --build .
       sudo cmake --build . --target install 
-      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
+      valgrind ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
     displayName: 'build'
 
 - job: Windows
