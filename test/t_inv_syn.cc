@@ -59,17 +59,29 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
 
   EXPECT_FALSE(vg.in_bad_state());
 
+  std::cout << 1 << std::endl;
+
   vg.GenerateVerificationTarget({"1==1"});
+  std::cout << 2 << std::endl;
   EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
+  std::cout << 3 << std::endl;
   vg.ExtractVerificationResult();
+  std::cout << 4 << std::endl;
   vg.GenerateSynthesisTarget(); // you will need fp engine
+  std::cout << 5 << std::endl;
   EXPECT_FALSE(vg.RunSynAuto(true));
+  std::cout << 6 << std::endl;
   vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+  std::cout << 7 << std::endl;
   EXPECT_FALSE(vg.in_bad_state());
+  std::cout << 8 << std::endl;
 
   vg.GenerateInvariantVerificationTarget();
+  std::cout << 9 << std::endl;
   auto design_stat = vg.GetDesignStatistics();
+  std::cout << 10 << std::endl;
   design_stat.StoreToFile(os_portable_append_dir(outDir, "design_stat.txt"));
+  std::cout << 11 << std::endl;
   ILA_INFO << "========== Design Info ==========" ;
   ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
   ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
@@ -79,15 +91,21 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
   ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
   ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+  std::cout << 12 << std::endl;
   design_stat.LoadFromFile(os_portable_append_dir(outDir, "design_stat.txt"));
 
+  std::cout << 13 << std::endl;
   vg.LoadPrevStatisticsState(os_portable_append_dir(outDir, "design_stat.txt"));
+  std::cout << 14 << std::endl;
   // test save invariants / load invariants
   vg.GetInvariants().ExportToFile(os_portable_append_dir(outDir, "inv.txt"));
+  std::cout << 15 << std::endl;
   vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+  std::cout << 16 << std::endl;
   EXPECT_EQ(vg.GetCandidateInvariants().NumInvariant(), vg.GetInvariants().NumInvariant());
   vg.RemoveInvariantsByIdx(0);
   EXPECT_EQ(vg.GetInvariants().NumInvariant(),1);
+  std::cout << 17 << std::endl;
 
   {
     InvariantInCnf cnf1;
@@ -95,6 +113,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
     std::ofstream fout(os_portable_append_dir(outDir, "cnf1.txt"));
     cnf1.ExportInCnfFormat(fout);
   }
+  std::cout << 18 << std::endl;
   {
     InvariantInCnf cnf2;
     vg.ExtractInvariantVarForEnhance(0, cnf2,false, {});
@@ -102,19 +121,31 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
     cnf2.ExportInCnfFormat(fout);
   }
 
+  std::cout << 19 << std::endl;
+
   InvariantObject inv_obj;
   inv_obj.InsertFromAnotherInvObj(vg.GetInvariants());
 
+  std::cout << 20 << std::endl;
   vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+  std::cout << 20.1 << std::endl;
   EXPECT_EQ(vg.GetInvariants().NumInvariant(),3);
+  std::cout << 20.2 << std::endl;
   vg.GenerateInvariantVerificationTarget();
 
+  std::cout << 21 << std::endl;
   inv_obj.ClearAllInvariants();
+  std::cout << 21.1 << std::endl;
   vg.SupplyCandidateInvariant("1==1");
+  std::cout << 21.2 << std::endl;
   vg.AcceptAllCandidateInvariant();
+  std::cout << 21.3 << std::endl;
   EXPECT_FALSE(vg.GetRunnableTargetScriptName().empty());
+  std::cout << 21.4 << std::endl;
   vg.CexGeneralizeRemoveStates({});
+  std::cout << 21.5 << std::endl;
   vg.LoadDesignSmtInfo(os_portable_join_dir({outDir, "inv-syn", "__design_smt.smt2"}));
+  std::cout << 22 << std::endl;
 } // CegarPipelineExample
 
 
