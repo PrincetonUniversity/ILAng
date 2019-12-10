@@ -2,6 +2,7 @@
 // --- Hongce Zhang (hongcez@princeton.edu)
 
 #include <ilang/util/log.h>
+#include <ilang/util/fs.h>
 #include <ilang/util/str_util.h>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -910,7 +911,7 @@ void SmtlibInvariantParser::ParseSmtResultFromString(const std::string& text) {
 #else
   #error "No available fmemopen implementation on this platform!"
 #endif
-#endif // 
+#endif //  
 
   ILA_NOT_NULL(fp);
 
