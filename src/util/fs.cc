@@ -438,8 +438,6 @@ execute_result os_portable_execute_shell(
 
     close(pipefd[1]); // close the write end
     auto readlen = read(pipefd[0], (void *) &child_report, sizeof(child_report));
-    if (readlen != sizeof(child_report))
-      child_report = execute_result::PREIO ;
     if(readlen == -1 || readlen != sizeof(child_report)) {
       _ret.failure = execute_result::PREIO ;
       close(pipefd[0]);
@@ -495,7 +493,7 @@ execute_result os_portable_execute_shell(
     // read again, if exec suceeded, it should be EOF (read will fail)
     int sec_read = read(pipefd[0], (void *) &child_report, sizeof(child_report));
     child_report = 0; // to make static analyzer happy
-    if (sec_read != 0) { // not eof
+    if (sec_read != 0 && sec_read != -1) { // not eof
       _ret.failure = execute_result::EXEC;
       close(pipefd[0]);
       return _ret;
