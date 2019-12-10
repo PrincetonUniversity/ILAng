@@ -30,7 +30,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
       cmake --build .
       cmake --build . --target install 
-      ./test/unit_tests
+      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
     displayName: 'build'
 
 - job: macOS_Mojave
@@ -43,6 +43,7 @@ jobs:
       brew install boost
       brew install boost-python
       brew install z3
+      brew install --HEAD https://raw.githubusercontent.com/LouisBrunner/valgrind-macos/master/valgrind.rb
     displayName: 'package'
   - script: | 
       cmake --version
@@ -56,7 +57,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
       cmake --build .
       cmake --build . --target install 
-      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
+      valgrind ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
     displayName: 'build'
 
 - job: Linux
