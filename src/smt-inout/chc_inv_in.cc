@@ -900,7 +900,15 @@ void SmtlibInvariantParser::ParseSmtResultFromString(const std::string& text) {
   strncpy(buffer, text.c_str(), len);
   ILA_ASSERT(buffer[len - 1] == '\0');
   buffer[len - 1] = '\0'; // to make static analysis happy
+
+#if defined(__linux__) 
   std::FILE* fp = fmemopen((void*)buffer, len * sizeof(char), "r");
+#elif ( defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) )
+  std::FILE* fp = fmemopen_osx((void*)buffer, len * sizeof(char), "r");
+#else
+  #error "No available fmemopen implementation on this platform!"
+#endif
+
   ILA_NOT_NULL(fp);
 
   smtlib2_abstract_parser_parse(&(parser_wrapper->parser), fp);
