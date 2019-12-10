@@ -17,33 +17,7 @@ jobs:
       brew install boost
       brew install boost-python
       brew install z3
-    displayName: 'package'
-  - script: | 
-      cmake --version
-      z3 --version
-    displayName: 'printout'
-  - script: |
-      export PATH="/usr/local/opt/bison/bin:$PATH"
-      export LDFLAGS="-L/usr/local/opt/bison/lib"
-      mkdir -p build 
-      cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
-      cmake --build .
-      cmake --build . --target install 
-      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
-    displayName: 'build'
-
-- job: macOS_Mojave
-  pool:
-    vmImage: 'macOS-10.14'
-  steps:
-  - script: |
-      brew update
-      brew install bison
-      brew install boost
-      brew install boost-python
-      brew install z3
-      brew install --HEAD https://raw.githubusercontent.com/LouisBrunner/valgrind-macos/master/valgrind.rb
+      brew install --HEAD valgrind
     displayName: 'package'
   - script: | 
       cmake --version
@@ -58,6 +32,32 @@ jobs:
       cmake --build .
       cmake --build . --target install 
       valgrind ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
+    displayName: 'build'
+
+- job: macOS_Mojave
+  pool:
+    vmImage: 'macOS-10.14'
+  steps:
+  - script: |
+      brew update
+      brew install bison
+      brew install boost
+      brew install boost-python
+      brew install z3
+    displayName: 'package'
+  - script: | 
+      cmake --version
+      z3 --version
+    displayName: 'printout'
+  - script: |
+      export PATH="/usr/local/opt/bison/bin:$PATH"
+      export LDFLAGS="-L/usr/local/opt/bison/lib"
+      mkdir -p build 
+      cd build
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
+      cmake --build .
+      cmake --build . --target install 
+      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
     displayName: 'build'
 
 - job: Linux
