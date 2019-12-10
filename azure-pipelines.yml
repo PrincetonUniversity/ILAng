@@ -17,7 +17,6 @@ jobs:
       brew install boost
       brew install boost-python
       brew install z3
-      brew install --HEAD valgrind
     displayName: 'package'
   - script: | 
       cmake --version
@@ -28,10 +27,10 @@ jobs:
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build 
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DBUILD_INV_SYN=OFF
       cmake --build .
       cmake --build . --target install 
-      valgrind ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
+      cmake --build . --target test
     displayName: 'build'
 
 - job: macOS_Mojave
@@ -54,10 +53,10 @@ jobs:
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build 
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DBUILD_INV_SYN=OFF
       cmake --build .
       cmake --build . --target install 
-      ./test/unit_tests --gtest_filter=TestVlgVerifInvSyn.*
+      cmake --build . --target test
     displayName: 'build'
 
 - job: Linux
@@ -128,7 +127,7 @@ jobs:
       md build
       cd build
       # For building the test, we need CMAKE_MSVC_RUNTIME_LIBRARY (which will be supported in CMake 3.15+)
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
       cmake --build .
       cmake --build . --target install
     displayName: 'build'

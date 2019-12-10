@@ -901,6 +901,8 @@ void SmtlibInvariantParser::ParseSmtResultFromString(const std::string& text) {
   ILA_ASSERT(buffer[len - 1] == '\0');
   buffer[len - 1] = '\0'; // to make static analysis happy
 
+  std::FILE* fp = fmemopen((void*)buffer, len * sizeof(char), "r");
+#if 0
 #if defined(__linux__) 
   std::FILE* fp = fmemopen((void*)buffer, len * sizeof(char), "r");
 #elif ( defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) )
@@ -908,6 +910,7 @@ void SmtlibInvariantParser::ParseSmtResultFromString(const std::string& text) {
 #else
   #error "No available fmemopen implementation on this platform!"
 #endif
+#endif // 
 
   ILA_NOT_NULL(fp);
 
