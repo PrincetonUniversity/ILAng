@@ -50,6 +50,8 @@ TEST(TestSmtParse, Parse) {
   // Expect no error...
 }
 
+#ifdef ILANG_BUILD_INVSYN
+
 TEST(TestSmtParse, ChcParse) {
   auto fn = 
     os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "smt", "aes.smt2"});
@@ -170,6 +172,6 @@ TEST(TestSmtParse, ChcParse) {
   }
 
 }
-
+#endif // ILANG_BUILD_INVSYN
 
 }; // namespace ilang
