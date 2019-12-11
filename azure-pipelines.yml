@@ -30,7 +30,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DILANG_BUILD_INVSYN=OFF
       cmake --build .
       cmake --build . --target install 
-      cmake --build . --target test
+      ./test/unit_tests
     displayName: 'build'
 
 - job: macOS_Mojave
