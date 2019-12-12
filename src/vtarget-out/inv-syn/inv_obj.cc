@@ -73,7 +73,7 @@ bool InvariantObject::AddInvariantFromAbcResultFile(
 }
 
 /// add invariants from smt-like output
-void InvariantObject::AddInvariantFromChcResultFile(
+bool InvariantObject::AddInvariantFromChcResultFile(
     smt::YosysSmtParser& design_info, const std::string& tag,
     const std::string& chc_result_fn, bool flatten_datatype,
     bool flatten_hierarchy, bool discourage_outside_var_referral) {
@@ -88,14 +88,28 @@ void InvariantObject::AddInvariantFromChcResultFile(
 
   if (!parser.ParseInvResultFromFile(chc_result_fn)) {
     ILA_ERROR << "No new invariant has been extracted!";
-    return;
+    return false;
   }
   ILA_CHECK(!parser.in_bad_state());
-  inv_vlg_exprs.push_back(parser.GetFinalTranslateResult());
+  auto inv = parser.GetFinalTranslateResult();
+
+  for (auto&& prev_inv : inv_vlg_exprs) {
+    if (prev_inv == inv) {
+      ILA_ERROR << "Get repeated inv!";
+      ILA_ERROR << inv;
+      return false;
+    }
+  }
+
+  inv_vlg_exprs.push_back(inv);
 
   auto raw_smt = parser.GetRawSmtString();
   ILA_ERROR_IF(raw_smt.empty())
       << "Parser failed to extract raw CHC string, got empty string!";
+
+  if (raw_smt.empty())
+    return false;
+
   smt_formula_vec.push_back(raw_smt);
 
   for (auto&& name_vlg_pair : parser.GetLocalVarDefs()) {
@@ -111,6 +125,7 @@ void InvariantObject::AddInvariantFromChcResultFile(
           << " old width:" << inv_extra_free_vars[name_w_pair.first];
     inv_extra_free_vars.insert(name_w_pair);
   }
+  return true;
 } // AddInvariantFromChcResultFile
 
 void InvariantObject::AddInvariantFromGrainResultFile(

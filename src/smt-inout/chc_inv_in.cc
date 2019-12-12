@@ -808,7 +808,7 @@ DEFINE_OPERATOR(bit2bool) {
   auto bitslice =
       "[" + std::to_string(bitidx) + ":" + std::to_string(bitidx) + "]";
 
-  if (S_IN("(", args[0]->_translate)) { // when we cannot put in one expression
+  if (S_IN("(", args[0]->_translate) || S_IN("[", args[0]->_translate)) { // when we cannot put in one expression
     std::string vlg_expr = "(" + args[0]->_translate + ")" + bitslice;
     std::string search_name = "##bool_" + vlg_expr;
     if (!IN(search_name, term_container)) {
@@ -826,7 +826,7 @@ DEFINE_OPERATOR(bit2bool) {
     }
     return &(term_container[search_name]);
   } // else
-  ILA_ASSERT(!S_IN(')', args[0]->_translate));
+  ILA_ASSERT(!S_IN(')', args[0]->_translate) && !S_IN(']', args[0]->_translate));
 
   std::string vlg_expr = args[0]->_translate + bitslice;
   std::string search_name = "##bool_" + vlg_expr;

@@ -40,7 +40,7 @@ public:
 #ifdef INVSYN_INTERFACE
 
   /// add invariants from smt-like output
-  void AddInvariantFromChcResultFile(
+  bool AddInvariantFromChcResultFile(
       smt::YosysSmtParser& design_info, const std::string& tag,
       const std::string& chc_result_fn, bool flatten_datatype,
       bool flatten_hierarchy, bool discourage_outside_var_referral = true);

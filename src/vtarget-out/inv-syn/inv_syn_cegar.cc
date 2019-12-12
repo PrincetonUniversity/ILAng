@@ -578,10 +578,11 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(
                    "design smt first first.";
       return;
     }
-    inv_obj.AddInvariantFromChcResultFile(*(design_smt_info.get()), "",
-                                          res_file,
-                                          _vtg_config.YosysSmtFlattenDatatype,
-                                          _vtg_config.YosysSmtFlattenHierarchy);
+    ILA_CHECK(inv_obj.AddInvariantFromChcResultFile
+      (*(design_smt_info.get()), "",
+      res_file,
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy));
   } else if (current_inv_type == cur_inv_tp::GRAIN_CHC) {
     if (design_smt_info == nullptr) {
       ILA_ERROR << "Design SMT-LIB2 info is not available. "

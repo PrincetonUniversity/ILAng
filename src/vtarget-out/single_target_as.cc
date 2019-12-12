@@ -86,7 +86,9 @@ void VlgSglTgtGen::add_an_assumption(const std::string& aspt,
       << "aspt:" << aspt << " contains unfriendly dot.";
 
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
-  add_a_direct_assumption(assumption_wire_name + " = 1_1", dspt);
+  add_a_direct_assumption(assumption_wire_name + 
+    (_backend == backend_selector::COSA ? " = 1_1" : ""),
+    dspt);
 } // add_an_assumption
 
 /// Add an assertion
@@ -97,7 +99,9 @@ void VlgSglTgtGen::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_output(assrt_wire_name,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
-  add_a_direct_assertion(assrt_wire_name + " = 1_1", dspt);
+  add_a_direct_assertion(assrt_wire_name + 
+    (_backend == backend_selector::COSA ? " = 1_1" : ""),
+    dspt);
   ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
                  vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
              asst.find(".") == std::string::npos)

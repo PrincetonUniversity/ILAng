@@ -160,9 +160,11 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   rstf << "I: reset_done = 0_1" << std::endl;
 
   unsigned cycle_after_i = 1;
-  for (;
-       cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles;
-       ++cycle_after_i) {
+  unsigned reset_cycle_needed = 
+    (target_type == target_type_t::INSTRUCTIONS) && (!_vtg_config.ForceInstCheckReset )? 1:
+    supplementary_info.cosa_yosys_reset_config.reset_cycles;
+
+  for (; cycle_after_i < reset_cycle_needed; ++cycle_after_i) {
     rstf << "S" << cycle_after_i << ": rst = 1_1" << std::endl;
     rstf << "S" << cycle_after_i << ": reset_done = 0_1" << std::endl;
   }
@@ -170,9 +172,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   rstf << "S" << cycle_after_i << ": reset_done = 1_1" << std::endl;
   rstf << "# TRANS" << std::endl;
   rstf << "I -> S1" << std::endl;
-  for (cycle_after_i = 1;
-       cycle_after_i < supplementary_info.cosa_yosys_reset_config.reset_cycles;
-       ++cycle_after_i)
+  for (cycle_after_i = 1; cycle_after_i < reset_cycle_needed; ++cycle_after_i)
     rstf << "S" << cycle_after_i << " -> S" << (cycle_after_i + 1) << std::endl;
   rstf << "S" << cycle_after_i << " -> S" << cycle_after_i << std::endl;
 

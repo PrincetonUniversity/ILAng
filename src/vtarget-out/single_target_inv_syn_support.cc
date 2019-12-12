@@ -80,6 +80,8 @@ void VlgSglTgtGen::add_inv_obj_as_assertion(InvariantObject* inv_obj) {
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
     auto new_cond = ReplExpr(inv_expr, true);
+    ILA_CHECK( !S_IN("][", new_cond) ) << "Inv translate error: ][ found in:"
+      << new_cond;
     add_an_assertion(new_cond, "invariant_assert");
   }
 } // add_inv_obj_as_assertion
@@ -98,6 +100,8 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
     auto new_cond = ReplExpr(inv_expr, true);
+    ILA_CHECK( !S_IN("][", new_cond) ) << "Inv translate error: ][ found in:"
+      << new_cond;
     add_an_assumption(new_cond, "invariant_assume");
   }
 } // add_inv_obj_as_assumption
