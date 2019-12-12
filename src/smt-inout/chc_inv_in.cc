@@ -21,11 +21,6 @@ namespace smt {
 
 // -------------- SmtlibInvariantParser ---------------- //
 
-// we need to make sure this variable is shared
-// and it is globally unique... so when invoking
-// we can won't have multiple var with the same name
-unsigned SmtlibInvariantParser::local_var_idx = 0;
-
 SmtlibInvariantParser::SmtlibInvariantParser(
     YosysSmtParser* yosys_smt_info, bool _flatten_datatype,
     bool _flatten_hierarchy, const std::set<std::string>& _inv_pred_name,
@@ -170,10 +165,6 @@ bool SmtlibInvariantParser::bad_state_return(void) {
       << "SmtlibInvariantParser is in a bad state, cannot proceed.";
   return _bad_state;
 } // bad_state_return
-
-std::string SmtlibInvariantParser::get_a_new_local_var_name() {
-  return "__INV_EXT_new_local_var_" + std::to_string(local_var_idx++) + "__";
-}
 
 /// this function receives the final assert result
 void SmtlibInvariantParser::assert_formula(SmtTermInfoVlgPtr result) {
@@ -745,14 +736,15 @@ DEFINE_OPERATOR(bvashr) {
 DEFINE_OPERATOR(extract) {
   ILA_ASSERT(idx.size() == 2);
   ILA_ASSERT(args.size() == 1);
-  ILA_ASSERT(args[0]->_type._type == var_type::tp::BV);
+  ILA_ASSERT(args[0]->_type.is_bv());
+  // || (args[0]->_type.is_bool() && idx[0] == 0 && idx[1] == 0 ) smt should ensure it is bv
   ILA_ASSERT(idx[0] >= 0 && idx[1] >= 0);
 
   unsigned left = idx[0];
   unsigned right = idx[1];
   unsigned new_width = std::max(left, right) - std::min(left, right) + 1;
   ILA_ASSERT(new_width <= args[0]->_type._width);
-  ILA_ASSERT(idx[0] >= 0 && left < args[0]->_type._width);  // left >= 0
+  ILA_ASSERT(idx[0] >= 0 && left < args[0]->_type._width);  // left >= 0, always true
   ILA_ASSERT(idx[1] >= 0 && right < args[0]->_type._width); // right >= 0
 
   std::string bitslice =
@@ -761,31 +753,38 @@ DEFINE_OPERATOR(extract) {
   // if (left == right)
   //  bitslice = "[" + std::to_string(left)  + "]";
 
-  if (S_IN("(", args[0]->_translate) ||
-      S_IN("{", args[0]->_translate)) { // when we cannot put in one expression
-    std::string vlg_expr = "(" + args[0]->_translate + ")" + bitslice;
-    std::string search_name =
-        "##bv" + std::to_string(new_width) + "_" + vlg_expr;
-    if (!IN(search_name, term_container)) {
+  std::string before_adding_bitslice = args[0]->_translate;
+
+  if (S_IN("(", before_adding_bitslice) ||
+      S_IN("{", before_adding_bitslice) ||
+      S_IN("[", before_adding_bitslice)
+      ) { // when we cannot put in one expression
+    
+    // search the local var map
+    std::string tp = "##bv" + std::to_string(args[0]->_type._width) + "_";
+    std::string to_replaced_search_name = tp + "(" + args[0]->_translate + ")";
+
+    if (!IN(to_replaced_search_name, local_vars_lookup)) {
+      // insert it 
       auto local_var = get_a_new_local_var_name();
-      // here we need to put the variable
-      term_container.insert(std::make_pair(
-          search_name,
-          SmtTermInfoVerilog(local_var + bitslice,
-                             var_type(var_type::tp::BV, new_width, ""), this)));
       // assign the current expression to a local var
       // and apply to it
       local_vars.insert(std::make_pair(
           local_var, SmtTermInfoVerilog(args[0]->_translate, args[0]->_type,
                                         args[0]->_context)));
+      local_vars_lookup.insert(std::make_pair(
+          to_replaced_search_name, local_var ));
     }
-    return &(term_container[search_name]);
+    before_adding_bitslice = local_vars_lookup[to_replaced_search_name];
   } // else
-  ILA_ASSERT(!S_IN(')', args[0]->_translate) &&
-             !S_IN('}', args[0]->_translate));
+  ILA_ASSERT(!S_IN(')', before_adding_bitslice) &&
+             !S_IN('}', before_adding_bitslice) &&
+             !S_IN(']', before_adding_bitslice)
+             );
 
-  std::string vlg_expr = args[0]->_translate + bitslice;
-  std::string search_name = "##bv" + std::to_string(new_width) + "_" + vlg_expr;
+  std::string vlg_expr = before_adding_bitslice + bitslice;
+  std::string search_name = "##bv" + std::to_string(new_width) +
+    "_(" +  args[0]->_translate + ")" + bitslice; // use the original translation
   if (!IN(search_name, term_container)) {
     // here we need to put the variable
     term_container.insert(std::make_pair(
@@ -799,7 +798,7 @@ DEFINE_OPERATOR(extract) {
 DEFINE_OPERATOR(bit2bool) {
   ILA_ASSERT(idx.size() == 1);
   ILA_ASSERT(args.size() == 1);
-  ILA_ASSERT(args[0]->_type._type == var_type::tp::BV);
+  ILA_ASSERT(args[0]->_type.is_bv());
   ILA_ASSERT(idx[0] >= 0);
 
   unsigned bitidx = idx[0];
@@ -808,28 +807,38 @@ DEFINE_OPERATOR(bit2bool) {
   auto bitslice =
       "[" + std::to_string(bitidx) + ":" + std::to_string(bitidx) + "]";
 
-  if (S_IN("(", args[0]->_translate) || S_IN("[", args[0]->_translate)) { // when we cannot put in one expression
-    std::string vlg_expr = "(" + args[0]->_translate + ")" + bitslice;
-    std::string search_name = "##bool_" + vlg_expr;
-    if (!IN(search_name, term_container)) {
+  std::string before_adding_bitslice = args[0]->_translate;
+  if (S_IN("(", before_adding_bitslice) || 
+      S_IN("[", before_adding_bitslice) ||
+      S_IN("{", before_adding_bitslice)) {
+    // search the local var map
+    std::string tp = // args[0]->_type.is_bool() ? "##bool_" :  // no need
+      "##bv" + std::to_string(args[0]->_type._width) + "_";
+
+    std::string to_replaced_search_name = tp + "(" + args[0]->_translate + ")";
+
+    if (!IN(to_replaced_search_name, local_vars_lookup)){
+      // insert it 
       auto local_var = get_a_new_local_var_name();
-      // here we need to put the variable
-      term_container.insert(std::make_pair(
-          search_name,
-          SmtTermInfoVerilog(local_var + bitslice,
-                             var_type(var_type::tp::Bool, 1, ""), this)));
       // assign the current expression to a local var
       // and apply to it
       local_vars.insert(std::make_pair(
           local_var, SmtTermInfoVerilog(args[0]->_translate, args[0]->_type,
                                         args[0]->_context)));
+      local_vars_lookup.insert(std::make_pair(
+          to_replaced_search_name, local_var ));
     }
-    return &(term_container[search_name]);
-  } // else
-  ILA_ASSERT(!S_IN(')', args[0]->_translate) && !S_IN(']', args[0]->_translate));
+    before_adding_bitslice = local_vars_lookup[to_replaced_search_name];
+  } // if { [ ( in 
+  
+  ILA_ASSERT(
+    !S_IN(')', before_adding_bitslice) && 
+    !S_IN(']', before_adding_bitslice) && 
+    !S_IN('}', before_adding_bitslice)
+    );
 
-  std::string vlg_expr = args[0]->_translate + bitslice;
-  std::string search_name = "##bool_" + vlg_expr;
+  std::string vlg_expr = before_adding_bitslice + bitslice;
+  std::string search_name = "##bool_(" + args[0]->_translate + ")" + bitslice;
   if (!IN(search_name, term_container)) {
     // here we need to put the variable
     term_container.insert(std::make_pair(

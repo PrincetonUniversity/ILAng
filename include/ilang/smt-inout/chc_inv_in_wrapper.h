@@ -42,6 +42,19 @@ public:
   /// return raw_string
   std::string GetRawSmtString() const;
 
+  /// set the counter to a new val when loading
+  static void set_new_local_ctr(unsigned cnt);
+  /// parse the names to set the new counters
+  static void parse_local_var_name_to_set_counter(const std::string & name);
+  /// to check the value of this counter
+  static unsigned get_local_ctr();
+
+protected:
+  /// a counter to get local variable name
+  static std::string get_a_new_local_var_name();
+  /// the idx to it
+  static unsigned local_var_idx;
+
 }; // class SmtlibInvariantParserBase
 
 /// \brief this a base class, should not be instantiated

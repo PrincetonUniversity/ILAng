@@ -70,6 +70,8 @@ public:
   typedef std::map<std::string, var_type> sort_container_t;
   /// the container of temporary variables
   typedef std::map<std::string, SmtTermInfoVerilog> local_vars_t;
+  /// search_string to local var name
+  typedef std::map<std::string, std::string> local_vars_lookup_t;
   /// the container of all the free variables
   typedef std::map<std::string, int> free_vars_t;
 
@@ -122,12 +124,10 @@ protected:
   std::vector<unsigned> quantifier_var_def_idx_stack;
   /// to hold the local variables
   local_vars_t local_vars;
+  /// to hold map for search string -> local variables
+  local_vars_lookup_t local_vars_lookup;
   /// to hold the free variables
   free_vars_t free_vars;
-  /// a counter to get local variable name
-  std::string get_a_new_local_var_name();
-  /// the idx to it
-  static unsigned local_var_idx;
   /// the final translated result
   std::string final_translate_result;
   /// we need to store the right vlog instance name

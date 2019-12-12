@@ -4,6 +4,7 @@
 #include <ilang/util/fs.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
+#include <ilang/smt-inout/chc_inv_in_wrapper.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 
@@ -253,7 +254,6 @@ TEST(TestInvExtract, GrainInvExtract) {
 
 // Current implementation does not support extract invariants
 // from un-flattened hierarchy
-#if 0
 TEST(TestInvExtract, Z3InvExtract) {
   // prepare for ...
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/z3/";
@@ -261,8 +261,8 @@ TEST(TestInvExtract, Z3InvExtract) {
 
   InvariantInCnf inv_cnf;
  
-  bool flatten_datatype = true;
-  bool flatten_hierarchy = false;
+  bool flatten_datatype = false;
+  bool flatten_hierarchy = true;
 
   InvariantObject inv_obj;
   inv_obj.set_dut_inst_name("m1");
@@ -288,7 +288,82 @@ TEST(TestInvExtract, Z3InvExtract) {
     EXPECT_TRUE(inv_obj.GetExtraVarDefs().empty());
   }
 }
-#endif
+
+
+// Test whether it is able to handle [][] in the description
+TEST(TestInvExtract, Z3InvExtractRangeSpec) {
+  // prepare for ...
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/z3-range/";
+  auto smt_file = os_portable_append_dir(dirName, "__design_smt.smt2");
+
+  InvariantInCnf inv_cnf;
+ 
+  bool flatten_datatype = false;
+  bool flatten_hierarchy = true;
+
+
+  std::ifstream fin(smt_file);
+  std::stringstream buffer;
+  buffer << fin.rdbuf();
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "__synthesis_result.txt");
+
+    InvariantObject inv_obj;
+    inv_obj.set_dut_inst_name("m1");
+    inv_obj.AddInvariantFromChcResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file, // result file
+      flatten_datatype,
+      flatten_hierarchy
+      );
+    
+    EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+    std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+    EXPECT_TRUE(inv_obj.GetExtraFreeVarDefs().empty());
+    EXPECT_FALSE(inv_obj.GetExtraVarDefs().empty());
+    for (auto && var_expr_width : inv_obj.GetExtraVarDefs()) {
+      std::cout << "DEF: " << std::get<0>(var_expr_width) << " (width=" << std::get<2>(var_expr_width)
+        <<") := " << std::get<1>(var_expr_width) << std::endl;
+    }
+    EXPECT_TRUE(smt::SmtlibInvariantParserBase::get_local_ctr() >= 2);
+    inv_obj.ExportToFile(os_portable_append_dir(dirName, "inv.txt"));
+  }
+  unsigned ctr_old = smt::SmtlibInvariantParserBase::get_local_ctr();
+  {
+    InvariantObject inv_obj2;
+    inv_obj2.set_dut_inst_name("m1");
+    inv_obj2.ImportFromFile(os_portable_append_dir(dirName, "inv.txt"));
+    unsigned ctr_new = smt::SmtlibInvariantParserBase::get_local_ctr();
+    EXPECT_EQ(ctr_old, ctr_new);
+
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "__synthesis_result.txt");
+
+    inv_obj2.AddInvariantFromChcResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file, // result file
+      flatten_datatype,
+      flatten_hierarchy
+      );
+    
+    EXPECT_EQ(inv_obj2.GetVlgConstraints().size() , 2);
+    std::cout << inv_obj2.GetVlgConstraints().at(0) << std::endl;
+    std::cout << inv_obj2.GetVlgConstraints().at(1) << std::endl;
+    EXPECT_TRUE(inv_obj2.GetExtraFreeVarDefs().empty());
+    EXPECT_FALSE(inv_obj2.GetExtraVarDefs().empty());
+    for (auto && var_expr_width : inv_obj2.GetExtraVarDefs()) {
+      std::cout << "DEF: " << std::get<0>(var_expr_width) << " (width=" << std::get<2>(var_expr_width)
+        <<") := " << std::get<1>(var_expr_width) << std::endl;
+    }
+    EXPECT_TRUE(smt::SmtlibInvariantParserBase::get_local_ctr() >= 4);
+    inv_obj2.ExportToFile(os_portable_append_dir(dirName, "inv.txt"));
+  }
+}
 
 #endif
 

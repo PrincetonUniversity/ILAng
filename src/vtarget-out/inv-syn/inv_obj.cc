@@ -292,6 +292,7 @@ void InvariantObject::ImportFromFile(const std::string& fn) {
     int width;
     std::string expr;
     fin >> vname >> width;
+    smt::SmtlibInvariantParserBase::parse_local_var_name_to_set_counter(vname);
     std::getline(fin, expr);
     inv_extra_vlg_vars.push_back(std::make_tuple(vname, expr, width));
   }
