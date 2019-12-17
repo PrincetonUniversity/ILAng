@@ -435,7 +435,7 @@ execute_result os_portable_execute_shell(
     unsigned char child_report;
     struct sigaction new_act;
     struct sigaction old_act;
-    static_assert(sizeof(child_report) == 1);
+    static_assert(sizeof(child_report) == 1, "Expect child_report to be of 1 byte");
 
     close(pipefd[1]); // close the write end
     auto readlen = read(pipefd[0], (void *) &child_report, sizeof(child_report)); /* Flawfinder: ignore */
