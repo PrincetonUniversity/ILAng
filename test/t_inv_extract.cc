@@ -290,6 +290,41 @@ TEST(TestInvExtract, Z3InvExtract) {
 }
 
 
+TEST(TestInvExtract, Z3InvExtractPipe) {
+  // prepare for ...
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/pipe/z3/";
+  auto smt_file = os_portable_append_dir(dirName, "__design_smt.smt2");
+
+  InvariantInCnf inv_cnf;
+ 
+  bool flatten_datatype = false;
+  bool flatten_hierarchy = true;
+
+  InvariantObject inv_obj;
+  inv_obj.set_dut_inst_name("m1");
+
+  std::ifstream fin(smt_file);
+  std::stringstream buffer;
+  buffer << fin.rdbuf();
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "__synthesis_result.txt");
+    inv_obj.AddInvariantFromChcResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file, // result file
+      flatten_datatype,
+      flatten_hierarchy
+      );
+    
+    EXPECT_EQ(inv_obj.GetVlgConstraints().size() , 1);
+    std::cout << inv_obj.GetVlgConstraints().at(0) << std::endl;
+    EXPECT_TRUE(inv_obj.GetExtraFreeVarDefs().empty());
+    EXPECT_TRUE(inv_obj.GetExtraVarDefs().empty());
+  }
+}
+
 // Test whether it is able to handle [][] in the description
 TEST(TestInvExtract, Z3InvExtractRangeSpec) {
   // prepare for ...

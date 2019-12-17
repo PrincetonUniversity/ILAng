@@ -1,0 +1,8 @@
+unsat
+(forall ((A wrapper_s))
+  (let ((a!1 (not (= ((_ extract 0 0) (|wrapper#39| A)) #b1)))
+        (a!2 (or (not (= (|wrapper#15| A) #b00)) (not (= (|wrapper#21| A) #b1))))
+        (a!3 (or (= ((_ extract 1 1) (|wrapper#18| A)) #b1)
+                 (not ((_ bit2bool 1) (|wrapper#39| A))))))
+  (let ((a!4 (and (or a!1 ((_ bit2bool 1) (|wrapper#8| A))) a!2 a!3)))
+    (= (INV A) a!4))))
