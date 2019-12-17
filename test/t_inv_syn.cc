@@ -200,8 +200,8 @@ TEST(TestVlgVerifInvSyn, LoadInvFromBeginning) {
 
     EXPECT_FALSE(vg.in_bad_state());
 
-    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
-    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
     vg.GenerateInvariantVerificationTarget();
   }
   cfg.ValidateSynthesizedInvariant = cfg.CONFIRMED;
@@ -219,8 +219,8 @@ TEST(TestVlgVerifInvSyn, LoadInvFromBeginning) {
 
     EXPECT_FALSE(vg.in_bad_state());
 
-    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
-    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
     vg.GenerateInvariantVerificationTarget();
   }
   cfg.ValidateSynthesizedInvariant = cfg.NOINV;
@@ -238,15 +238,15 @@ TEST(TestVlgVerifInvSyn, LoadInvFromBeginning) {
 
     EXPECT_FALSE(vg.in_bad_state());
 
-    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
-    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
     vg.GenerateInvariantVerificationTarget();
     vg.GenerateVerificationTarget();
     EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
     vg.ExtractVerificationResult();
     vg.GenerateSynthesisTarget(); // you will need fp engine
     EXPECT_FALSE(vg.RunSynAuto(true));
-    vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+    vg.ExtractSynthesisResult(); 
     EXPECT_FALSE(vg.in_bad_state());
   }
 
@@ -265,15 +265,15 @@ TEST(TestVlgVerifInvSyn, LoadInvFromBeginning) {
 
     EXPECT_FALSE(vg.in_bad_state());
 
-    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
-    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv.txt"));
+    vg.LoadCandidateInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
+    vg.LoadInvariantsFromFile(os_portable_append_dir(outDir, "inv2.txt"));
     vg.GenerateInvariantVerificationTarget();
     vg.GenerateVerificationTarget();
     EXPECT_FALSE(vg.RunVerifAuto("INC", "", true));
     vg.ExtractVerificationResult();
     vg.GenerateSynthesisTarget(); // you will need fp engine
     EXPECT_FALSE(vg.RunSynAuto(true));
-    vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+    vg.ExtractSynthesisResult();
     EXPECT_FALSE(vg.in_bad_state());
   }
 } // CegarPipelineExample
