@@ -12,5 +12,7 @@
 
 #cmakedefine COVERITY
 
+#cmakedefine INVSYN_INTERFACE
+
 #endif // CONFIG_CMAKE_DEFINE_H__
 

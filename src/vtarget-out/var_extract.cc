@@ -33,12 +33,14 @@ std::string VarExtractor::GenString() const {
   return ret;
 }
 
-bool isStateBegin(unsigned char c) { return std::isalpha(c) || c=='#' || c == '_'; }
+bool isStateBegin(unsigned char c) {
+  return std::isalpha(c) || c == '#' || c == '_';
+}
 
 bool isStateCont(unsigned char c, size_t idx, const std::string& s) {
-  if (std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == ']' )
+  if (std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == ']')
     return true;
-  if (! s.empty() && s.front() == '#' && c == '#')
+  if (!s.empty() && s.front() == '#' && c == '#')
     return true;
   else if (c == '[') {
     auto rp = s.find(']', idx);
@@ -74,7 +76,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
 
   bool is_num = isNumBegin(in.at(0));
   bool is_state = isStateBegin(in.at(0));
-  ILA_ASSERT(!(is_num && is_state)) << "Implementation bug";
+  ILA_CHECK(!(is_num && is_state)) << "Implementation bug";
 
   size_t left = 0;
   size_t idx = 1;
@@ -86,7 +88,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
                         isStateBegin(in.at(idx));
 
     if (is_num && is_state) {
-      ILA_ASSERT(false) << "This should not be possible";
+      ILA_CHECK(false) << "This should not be possible";
     } else if (is_num && !is_state) { // in the num matching
       if (!is_num_new) {              // leave matching
         is_num = false;
@@ -100,16 +102,18 @@ void VarExtractor::ParseToExtract(const std::string& in,
         is_state = false;
         auto subs = in.substr(left, idx - left);
         token_type tp;
-        if (! subs.empty() && subs.front() == '#' && subs.find('#',1) != subs.npos) {
-          _tokens.push_back({ KEEP, ReplaceAll(subs,"#","")});
+        if (!subs.empty() && subs.front() == '#' &&
+            subs.find('#', 1) != subs.npos) {
+          _tokens.push_back({KEEP, ReplaceAll(subs, "#", "")});
           left = idx;
           if (is_num_new)
             is_num = true;
-        } // if # # [2:3] .. like this , will not convert at all
+        }      // if # # [2:3] .. like this , will not convert at all
         else { // else normal ones
           // deal with []
           auto left_p = subs.find('[');
-          auto check_s = subs.substr(0, left_p); // the string use to check no []
+          auto check_s =
+              subs.substr(0, left_p); // the string use to check no []
 
           if (_is_ila_state(check_s) && !force_vlg_statename)
             tp = ILA_S;
@@ -123,11 +127,11 @@ void VarExtractor::ParseToExtract(const std::string& in,
           left = idx;
           if (is_num_new)
             is_num = true;
-        } // when no ## 
+        } // when no ##
       }
     } else if (!is_state && !is_num) { // not in the matching
       // see if we need to start matching
-      ILA_ASSERT(!(is_num_new && is_state_new))
+      ILA_CHECK(!(is_num_new && is_state_new))
           << "This should not be possible";
       if (is_num_new || is_state_new) {
         _tokens.push_back({token_type::KEEP, in.substr(left, idx - left)});
@@ -144,17 +148,18 @@ void VarExtractor::ParseToExtract(const std::string& in,
       }
 
     } else
-      ILA_ASSERT(false) << "Implementation bug, should not be reachable!";
+      ILA_CHECK(false) << "Implementation bug, should not be reachable!";
   }
-  ILA_ASSERT(!(is_num && is_state)) << "Implementation bug";
+  ILA_CHECK(!(is_num && is_state)) << "Implementation bug";
   // copy the last if necessary
   if (left < idx) {
     auto subs = in.substr(left, idx - left);
     if (is_num)
       _tokens.push_back({token_type::NUM, subs});
     else if (is_state) {
-      if (! subs.empty() && subs.front() == '#' && subs.find('#',1) != subs.npos)
-          _tokens.push_back({ KEEP, ReplaceAll(subs,"#","")});
+      if (!subs.empty() && subs.front() == '#' &&
+          subs.find('#', 1) != subs.npos)
+        _tokens.push_back({KEEP, ReplaceAll(subs, "#", "")});
       else {
         token_type tp;
         auto left_p = subs.find('[');
@@ -168,7 +173,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
         else
           tp = UNKN_S;
         _tokens.push_back({tp, subs});
-      } // no # 
+      } // no #
     } else {
       _tokens.push_back({token_type::KEEP, subs});
     }

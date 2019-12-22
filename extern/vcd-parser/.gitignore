@@ -1,0 +1,6 @@
+*.swp
+*.vim
+*.o
+*.output
+build/
+

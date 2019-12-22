@@ -150,5 +150,18 @@ Ila MemorySwap::BuildRfAsMemModelRegEntry6() {
   return proc;
 }
 
+Ila MemorySwap::BuildResetterTest() {
+  // build the ila
+  auto proc = Ila("proc");
+  auto v = proc.NewBvState("v",1);
+  proc.SetValid(BoolConst(true));
+  { //
+    auto inst = proc.NewInstr("inst");
+    inst.SetDecode(BoolConst(true));
+    inst.SetUpdate(v, BvConst(1,1));
+  }
+  return proc;
+}
+
 
 } // namespace ilang

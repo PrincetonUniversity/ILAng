@@ -1,0 +1,5 @@
+1 1 1
+m1impAndv 4 m1.imp&m1.v
+m1free 4
+~((m1.imp[0:0] & m1.v[0:0]) | (~m1.imp[0:0] & ~m1.v[0:0]))
+(get-info :name)

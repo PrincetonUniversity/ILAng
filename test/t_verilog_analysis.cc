@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <map>
+#include <string>
 
 #include <ilang/util/container_shortcut.h>
 #include <ilang/verification/abs_knob.h>
@@ -169,6 +171,96 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("wn3", 42);
   } // end of test4
 }
+
+
+TEST(TestVerilogAnalysis, RangeAnalysisOverwriteWidth) {
+
+  { // test 1 -- no error overwrite
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(
+            {std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/"}),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/range4.v"}),
+        "m1");
+
+    {
+      EXPECT_EQ(va.get_signal("m1.i1.sig").get_width(), 2);
+
+      std::map<std::string,int> width_overwrite_map({{"m1.i1.sig", 5}});
+      EXPECT_EQ(va.get_signal("m1.i1.sig", width_overwrite_map).get_width(), 5);
+
+      { // no overwrite case
+        VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
+        auto pos = top_io.find("in1");
+        EXPECT_TRUE( pos != top_io.end() );
+        if (pos != top_io.end()) {
+          EXPECT_EQ(pos->second.get_width(), 4);
+        }
+      }
+
+      { // overwrite case
+        std::map<std::string,int> width_overwrite_map2({{"m1.in1", 10}});
+        VerilogInfo::module_io_vec_t top_io = va.get_top_module_io(width_overwrite_map2);
+        auto pos = top_io.find("in1");
+        EXPECT_TRUE( pos != top_io.end() );
+        if (pos != top_io.end()) {
+          EXPECT_EQ(pos->second.get_width(), 10);
+        }
+      }
+    }
+  } // end of test1
+
+  { // test 2 -- error overwrite
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(
+            {std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/"}),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/range5.v"}),
+        "m1");
+
+    {
+      EXPECT_EQ(va.get_signal("m1.in1").get_width(), 4);
+
+      std::map<std::string,int> width_overwrite_map({{"m1.in1", 5}});
+      EXPECT_EQ(va.get_signal("m1.in1", width_overwrite_map).get_width(), 5);
+
+      { // no overwrite case
+        VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
+        auto pos = top_io.find("in1");
+        EXPECT_TRUE( pos != top_io.end() );
+        if (pos != top_io.end()) {
+          EXPECT_EQ(pos->second.get_width(), 4);
+        }
+      }
+
+      { // overwrite case
+        std::map<std::string,int> width_overwrite_map2({{"m1.in1", 10}});
+        VerilogInfo::module_io_vec_t top_io = va.get_top_module_io(width_overwrite_map2);
+        auto pos = top_io.find("in1");
+        EXPECT_TRUE( pos != top_io.end() );
+        if (pos != top_io.end()) {
+          EXPECT_EQ(pos->second.get_width(), 10);
+        }
+      }
+
+
+      std::map<std::string,int> width_overwrite_map3({{"m1.in2", 128}});
+      EXPECT_EQ(va.get_signal("m1.in2", width_overwrite_map3).get_width(), 128);
+
+
+      { // overwrite case
+        std::map<std::string,int> width_overwrite_map2({{"m1.in2", 256}});
+        VerilogInfo::module_io_vec_t top_io = va.get_top_module_io(width_overwrite_map2);
+        auto pos = top_io.find("in2");
+        EXPECT_TRUE( pos != top_io.end() );
+        if (pos != top_io.end()) {
+          EXPECT_EQ(pos->second.get_width(), 256);
+        }
+      }
+
+    }
+  } // end of test2
+} 
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
   VerilogInfo va(

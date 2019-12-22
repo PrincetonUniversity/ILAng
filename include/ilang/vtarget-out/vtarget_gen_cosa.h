@@ -1,6 +1,5 @@
-/// \file Verilog Verification Target Generator -- for JasperGold
+/// \file Verilog Verification Target Generator -- for CoSA
 /// This file should not be included, as it requires the impl.
-/// Internally, we use the
 // ---Hongce Zhang
 
 #ifndef ILANG_VTARGET_OUT_VTARGET_GEN_COSA_H__
@@ -52,6 +51,8 @@ class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
   using info_t = VerilogModifier::info_t;
   /// filename -> (lineno, varname, is_port_sig) vec
   using fn_l_map_t = VerilogModifier::fn_l_map_t;
+  /// Type of advanced parameter
+  using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -75,13 +76,13 @@ public:
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
       const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _supplementary_info,
-      VerilogInfo* _vlg_info_ptr,
-      const std::string& vlg_mod_inst_name,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _supplementary_info,
+      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
-      const vtg_config_t& vtg_config, backend_selector backend);
+      const vtg_config_t& vtg_config, backend_selector backend,
+      const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
 
 protected:
   /// Cosa problem generate
@@ -90,31 +91,15 @@ protected:
   std::string cosa_prob_fname;
 
 protected:
-  /// Add an assumption
-  virtual void add_an_assumption(const std::string& aspt,
-                                 const std::string& dspt) override;
-  /// Add an assertion
-  virtual void add_an_assertion(const std::string& asst,
-                                const std::string& dspt) override;
   /// Add a direct assumption
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) override;
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
-  /// Add an assignment which in JasperGold could be an assignment, but in CoSA
-  /// has to be an assumption
-  virtual void add_wire_assign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          const std::string& dspt) override;
-  /// Add an assignment to a register which in JasperGold could be an
-  /// assignment, but in CoSA has to be an assumption
-  virtual void add_reg_cassign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          int width,
-                                          const std::string& cond,
-                                          const std::string& dspt) override;
 
+  /// Pre export work : nothing for cosa
+  void virtual PreExportProcess() override {}
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
   /// export extra things (problem)

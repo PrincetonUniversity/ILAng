@@ -1,0 +1,12 @@
+{
+  "global invariants": ["1==1"],
+
+  "instructions": [
+    {
+      "instruction": "INC",
+      "ready signal": [],  
+      "ready bound": 1
+    }
+  ]
+}
+

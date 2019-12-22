@@ -1,0 +1,12 @@
+INC/*
+inv-syn/*
+inv-syn-test/*
+invariants/*
+inv-syn-sygus/*
+design_stat.txt
+inv.txt
+__synthesis_result.txt
+__verification_result.txt
+cnf1.txt
+cnf2.txt
+

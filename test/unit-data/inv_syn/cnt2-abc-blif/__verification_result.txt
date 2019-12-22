@@ -1,0 +1,61 @@
+Parsing file "wrapper.v"... DONE
+Parsing file "rst.ets"... DONE
+Solving "variable_map_assert_0" .. FALSE
+
+*** SUMMARY ***
+
+** Problem variable_map_assert_0 **
+Description: "variable_map_assert"
+Result: FALSE
+Expected: TRUE
+FALSE != TRUE <<<---------| ERROR
+Counterexample:
+---> INIT <---
+  I: __2ndENDED__ = 0_1
+  I: __CYCLE_CNT__ = 3_4
+  I: __ENDED__ = 0_1
+  I: __ILA_I_en = 0_1
+  I: __ILA_SO_v = 0_4
+  I: __RESETED__ = 0_1
+  I: __STARTED__ = 0_1
+  I: __START__ = 0_1
+  I: __m1__ = 1_1
+  I: __m3__ = 1_1
+  I: clk = 0_1
+  I: dummy_reset = 0_1
+  I: invariant_assume__m5__ = 1_1
+  I: issue_decode__m6__ = 1_1
+  I: issue_valid__m7__ = 1_1
+  I: m1__DOT__out = 0_4
+  I: noreset__m0__ = 1_1
+  I: out = 0_4
+  I: reset_done = 0_1
+  I: rst = 1_1
+  I: variable_map_assert__p4__ = 1_1
+  I: variable_map_assume___m2__ = 1_1
+
+---> STATE 1 <---
+  S1: __CYCLE_CNT__ = 0_4
+  S1: __ILA_I_en = 1_1
+  S1: __RESETED__ = 1_1
+  S1: __START__ = 1_1
+  S1: reset_done = 1_1
+  S1: rst = 0_1
+
+---> STATE 2 <---
+  S2: __CYCLE_CNT__ = 1_4
+  S2: __ILA_I_en = 0_1
+  S2: __ILA_SO_v = 1_4
+  S2: __STARTED__ = 1_1
+  S2: __START__ = 0_1
+  S2: __m1__ = 0_1
+  S2: __m3__ = 0_1
+  S2: variable_map_assert__p4__ = 0_1
+Counterexamples: [3], [4]
+Traces (max) length: 3
+
+*** TRACES ***
+
+[1]:	trace[1]-variable_map_assert_0.vcd
+
+WARNING: Verifications with unexpected result

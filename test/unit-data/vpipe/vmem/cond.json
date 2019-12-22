@@ -1,5 +1,5 @@
 {
-  "global invariants": [],
+  "global invariants": [ "1==1"],
 
   "instructions": [
     {

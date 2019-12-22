@@ -61,8 +61,8 @@ wire [1:0] reg_3_w_stage_nxt = {1'b0, reg_3_w_stage[1]};// reg_3_w_stage >> 1;
 wire [7:0] id_rs1_val;
 wire [7:0] id_rs2_val;
 
-wire [2:0] rs1_stage_info;
-wire [2:0] rs2_stage_info;
+wire [1:0] rs1_stage_info;
+wire [1:0] rs2_stage_info;
 wire [7:0] rs1_val;
 wire [7:0] rs2_val;
 

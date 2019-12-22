@@ -56,8 +56,8 @@ bool CheckEqSameMicroArch(const Ila& a, const Ila& b, bool update) {
     }
   }
 
-  auto refinement_a = NULL;
-  auto refinement_b = NULL;
+  auto refinement_a = nullptr;
+  auto refinement_b = nullptr;
 
   auto GetFlatRefinement = [=](InstrLvlAbsPtr m, InstrPtr instr) {
     // target
@@ -69,7 +69,7 @@ bool CheckEqSameMicroArch(const Ila& a, const Ila& b, bool update) {
 
     // flush
     auto has_instr = ExprFuse::BoolConst(false);
-    for (auto i = 0; i < m->instr_num(); i++) {
+    for (unsigned i = 0; i < m->instr_num(); i++) {
       has_instr = ExprFuse::Or(has_instr, m->instr(i)->decode());
     }
     ref->set_flush(ExprFuse::Not(has_instr));

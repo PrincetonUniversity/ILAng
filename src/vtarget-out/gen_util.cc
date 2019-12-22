@@ -132,8 +132,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
         << "In refinement relations: unknown reference to name:" << sname
         << " keep unchanged.";
     return sname;
-  } else if (token_tp == VarExtractor::token_type::KEEP ||
-             token_tp == VarExtractor::token_type::UNKN_S)
+  } else if (token_tp == VarExtractor::token_type::KEEP)
     return sname; // NC
   else if (token_tp == VarExtractor::token_type::NUM) {
     /*
@@ -204,7 +203,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
           _host->state(hierName[1]))
         return quote + "__ILA_SO_" + hierName[1] + quote + range_s;
     // should not reachable
-    ILA_ASSERT(false)
+    ILA_CHECK(false)
         << "Implementation bug: should not be reachable. token_tp: ILA_S";
     return sname;
   } else if (token_tp == VarExtractor::token_type::ILA_IN) {
@@ -225,7 +224,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
           _host->input(hierName[1]))
         return quote + "__ILA_I_" + hierName[1] + quote + range_s;
     // should not reachable
-    ILA_ASSERT(false)
+    ILA_CHECK(false)
         << "Implementation bug: should not be reachable. token_tp: ILA_IN";
     return sname;
   } else if (token_tp == VarExtractor::token_type::VLG_S) {
@@ -259,11 +258,11 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
       return quote + _vlg_mod_inst_name + "__DOT__" + remove_dot_name + quote +
              range_underscore;
     }
-    ILA_ASSERT(false)
+    ILA_CHECK(false)
         << "Implementation bug: should not be reachable. token_type: VLG_S";
     return sname;
   }
-  ILA_ASSERT(false)
+  ILA_CHECK(false)
       << "Implementation bug: should not reachable. Caused by token_type:"
       << token_tp;
   return sname;
@@ -304,7 +303,7 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr& ila_var,
               << ", vlg w:" << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   }
-  ILA_ASSERT(false) << "Implementation bug: unknown sort";
+  ILA_CHECK(false) << "Implementation bug: unknown sort";
   return 0;
 }
 // static function
@@ -371,9 +370,12 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       // MEM directive
       int addr_range = std::pow(2, ila_state->sort()->addr_width()); // 2^N
       int specify_range = ExprFuse::GetMemSize(ila_state);
-      ILA_ERROR_IF (specify_range > addr_range) << "For memory state: " << ila_state_name <<
-        ", its address width is" << ila_state->sort()->addr_width() << " which can hold " <<addr_range << " addrs"
-        << ", but range: " << specify_range << " is specified with SetEntryNum";
+      ILA_ERROR_IF(specify_range > addr_range)
+          << "For memory state: " << ila_state_name << ", its address width is"
+          << ila_state->sort()->addr_width() << " which can hold " << addr_range
+          << " addrs"
+          << ", but range: " << specify_range
+          << " is specified with SetEntryNum";
       if (specify_range != 0)
         addr_range = specify_range;
       // construct expansion expression
@@ -399,9 +401,9 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       return VLG_TRUE;
     }
   }
-  // check for state match
+  // check for state match -- (no '=' inside at this step)
   std::string vlg_state_name = vlg_st_name;
-  if (vlg_state_name.find(".") == std::string::npos && 
+  if (vlg_state_name.find(".") == std::string::npos &&
       vlg_state_name.find("#") == std::string::npos) {
     vlg_state_name = _vlg_mod_inst_name + "." + vlg_state_name;
   } // auto-add module name
@@ -410,22 +412,25 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
     auto pos = vlg_state_name.find('[');
     auto vlg_state_name_wo_idx = vlg_state_name;
     if (pos != vlg_state_name.npos)
-      vlg_state_name_wo_idx = vlg_state_name_wo_idx.substr(0,pos);
-    
-    if (vlg_info_ptr->check_hierarchical_name_type(vlg_state_name_wo_idx) != VerilogInfo::hierarchical_name_type::NONE) {
+      vlg_state_name_wo_idx = vlg_state_name_wo_idx.substr(0, pos);
+
+    if (vlg_info_ptr->check_hierarchical_name_type(vlg_state_name_wo_idx) !=
+        VerilogInfo::hierarchical_name_type::NONE) {
       // if this is truly a state name
-      auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name_wo_idx);
+      auto vlg_sig_info = vlg_info_ptr->get_signal(
+          vlg_state_name_wo_idx, supplementary_info.width_info);
       ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
           << "ila state:" << ila_state_name
           << " has mismatched type w. verilog signal:" << vlg_state_name_wo_idx;
     } else {
-      ILA_INFO_IF(!S_IN('#', vlg_state_name_wo_idx)) << "rfmap: treating: "<< vlg_state_name_wo_idx << " as an expression.";
+      ILA_INFO_IF(!S_IN('#', vlg_state_name_wo_idx))
+          << "rfmap: treating: " << vlg_state_name_wo_idx
+          << " as an expression.";
     }
   }
 
-
   // add signal -- account for jg's bug
-  if (_backend == backend_selector::JASPERGOLD and
+  if (_backend == backend_selector::JASPERGOLD &&
       vlg_state_name.find('[') != vlg_state_name.npos)
     return ReplExpr(vlg_state_name, true) + " == __ILA_SO_" +
            ila_state->name().str();
@@ -448,7 +453,13 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
   if (m.is_null())
     return VLG_TRUE;
   if (m.is_string()) {
-    if (_sdr.isSpecialStateDir(m.get<std::string>())) {
+    std::string rfm = m.get<std::string>();
+    if (_sdr.isSpecialStateDir(rfm)) {
+      // currently we only support **MEM** as state directive
+      if (!_sdr.isSpecialStateDirMem(rfm)) {
+        ILA_ERROR << "Unsupported state directive:" << rfm;
+        return VLG_TRUE;
+      }
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr")
           << "map mem:" << ila_state_name;
 
@@ -461,7 +472,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
           << ila_state_name;
       // may be we need to log them here
       if (is_assert == false) {
-        _idr.SetMemName(m.get<std::string>(), ila_state_name);
+        _idr.SetMemName(rfm, ila_state_name, _vtg_config.MemAbsReadAbstraction);
         return VLG_TRUE; // no need for assumptions on memory
       }
       // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with
@@ -472,23 +483,22 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
         ILA_ERROR << ila_state_name << " does not exist in ILA.";
         return VLG_TRUE;
       }
-      if (not ila_state->sort()->is_mem()) {
+      if (!ila_state->sort()->is_mem()) {
         ILA_ERROR << ila_state_name << " is not memory, not compatible w. "
-                  << m.get<std::string>();
+                  << rfm;
         return VLG_TRUE;
       }
       // if expand memory, it will not reach this point
       // but will on the per_state_map branch
       auto mem_eq_assert = _idr.ConnectMemory(
-          m.get<std::string>(), ila_state_name,
-          vlg_ila.ila_rports[ila_state_name],
+          rfm, ila_state_name, vlg_ila.ila_rports[ila_state_name],
           vlg_ila.ila_wports[ila_state_name], ila_state->sort()->addr_width(),
           ila_state->sort()->data_width(), _vtg_config.MemAbsReadAbstraction);
       // wire will be added by the absmem
       return mem_eq_assert;
     } else {
       // return the mapping variable
-      return PerStateMap(ila_state_name, m.get<std::string>());
+      return PerStateMap(ila_state_name, rfm);
     }
   }                   /* else */
   if (m.is_array()) { // array of string or array of object/array
@@ -556,12 +566,12 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
 } // GetStateVarMapExpr
 
 void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
-  if (not dc.is_array()) {
+  if (!dc.is_array()) {
     ILA_ERROR << " not enforcing start condition: expect an array of strings.";
     return;
   }
   for (auto&& pr : dc.items()) {
-    if (not pr.value().is_string()) {
+    if (!pr.value().is_string()) {
       ILA_ERROR
           << " not enforcing start condition: expect an array of strings.";
       continue;
@@ -576,6 +586,8 @@ void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
 
 // use instruction pointer and the rf_cond to get it (no need to provide)
 nlohmann::json& VlgSglTgtGen::get_current_instruction_rf() {
+  if (_instr_ptr == nullptr)
+    return empty_json;
   auto& instrs = rf_cond["instructions"];
   for (auto&& instr : instrs) {
     if (instr["instruction"] == _instr_ptr->name().str())

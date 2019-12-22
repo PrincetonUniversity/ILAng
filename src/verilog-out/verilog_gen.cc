@@ -116,9 +116,11 @@ VerilogGeneratorBase::ToVlgNum(IlaBvValType value, unsigned width) {
     static_assert(sizeof(IlaBvValUnsignedType) == sizeof(IlaBvValType),
                   "IlaBvValUnsignedType in the header needs update to be sync "
                   "with IlaBvValType!");
+    // if width >= sizeof(IlaBvValType) * 8, then this check is actually no use
+    // because any value representable is within the range.
     IlaBvValType maxpos = (width >= sizeof(IlaBvValType) * 8)
                               ? IlaBvValType(-1)
-                              : (( (IlaBvValType)(1) << width) - 1);
+                              : (((IlaBvValType)(1) << width) - 1);
     IlaBvValType minneg = 0;
     ILA_ASSERT((minneg <= value && maxpos >= value))
         << "value : " << value << " is out-of-range, min:" << minneg
@@ -444,7 +446,7 @@ void VerilogGenerator::insertInput(const ExprPtr& input) {
   ILA_CHECK(input->is_var());
   // we need to consider the case of an input memory
   if (input->is_mem()) {
-    ILA_CHECK(false) << "Cannot set memory as input"; // FIXME: add wires to
+    ILA_CHECK(false) << "Cannot set memory as input"; // add wires to
                                                       // read from external
     // when in expr parse, remember it is (EXTERNAL mem)
     add_external_mem(sanitizeName(input),         // name
@@ -891,7 +893,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
       ILA_NOT_NULL(expr_op_ptr);
 
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVop, leaves-first ";
-      parseArg(e); // FIXME: if not LOAD, leaf-first
+      parseArg(e); // if not LOAD, leaf-first
       // BTW, you cannot cache the LOAD(STORE/ITE/MEMCONST) pattern
       nmap[e] = translateBvOp(expr_op_ptr);
     } else if (e->is_const()) {
@@ -1126,7 +1128,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
 
       portIdx++;
     }
-  } // accumulate the final expression, if it is external, then no need to
+  } // accumulate the final expression, if it is external, then no need to dp
     // anything here
 
   for (unsigned portIdx = 0; portIdx < max_port_no; ++portIdx) {
@@ -1139,7 +1141,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
     add_assign_stmt(enabWireName, enabStmt[portIdx]);
     // add memory updates in the always block
     if (this_mem_external) {
-      // DO NOTHINGls
+      // DO NOTHING
     } else {
       vlg_stmt_t assignment =
           name + " [ " + addrWireName + " ] " + "<= " + dataWireName;

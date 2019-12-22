@@ -37,6 +37,43 @@ endif() # NLOHMANN_JSON_FOUND
 
 
 # ---------------------------------------------------------------------------- #
+# VCD Parser
+# 
+#   TARGET vcdparser::vcdparser
+#   SOURCE https://github.com/zhanghongce/verilog-vcd-parser.git
+#   PATH   extern/vcd-parser
+# ---------------------------------------------------------------------------- #
+# find installed package
+find_package(vcdparser 1.0 QUIET)
+
+# build from embeded subtree (in-source)
+if(NOT VCDPARSER_FOUND)
+
+  set(JSON_BuildTests OFF CACHE INTERNAL "")
+  add_subdirectory(vcd-parser)
+
+endif() # VCDPARSER_FOUND
+
+
+# ---------------------------------------------------------------------------- #
+# SMT Parser
+# 
+#   TARGET smtparser::smtparser
+#   SOURCE https://github.com/zhanghongce/smtlib2parser.git
+#   PATH   extern/smt-parser
+# ---------------------------------------------------------------------------- #
+# find installed package
+find_package(smtparser 1.0 QUIET)
+
+# build from embeded subtree (in-source)
+if(NOT SMTPARSER_FOUND)
+
+  set(JSON_BuildTests OFF CACHE INTERNAL "")
+  add_subdirectory(smt-parser)
+
+endif() # SMTPARSER_FOUND
+
+# ---------------------------------------------------------------------------- #
 # Verilog Parser
 # 
 #   TARGET verilogparser::verilogparser

@@ -1,0 +1,5 @@
+(declare-fun S_m1.v () (_ BitVec 4))
+(declare-fun S_m1.imp () (_ BitVec 4))
+
+(assert (= (concat S_m1.imp S_m1.imp) ((_ repeat 2) S_m1.v)))
+(check-sat)

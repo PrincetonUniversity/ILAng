@@ -36,6 +36,18 @@ long long StrToLong(const std::string& str, int base = 10);
 /// Return the value represented in the string in unsigned long long, e.g. "10".
 unsigned long long StrToULongLong(const std::string& str, int base = 10);
 
+
+
+/// Trim a string from start (in place)
+void StrLeftTrim(std::string& s);
+
+/// Trim a string from end (in place)
+void StrRightTrim(std::string& s);
+
+/// Trim a string from both ends (in place)
+void StrTrim(std::string &s);
+
+
 /// Python-style split , return a vector of splitted strings
 std::vector<std::string> Split(const std::string& str,
                                const std::string& delim);
@@ -45,6 +57,9 @@ std::vector<std::string> SplitSpaceTabEnter(const std::string& str);
 
 /// Python-style join, return a string that joins the list by the delim
 std::string Join(const std::vector<std::string>& in, const std::string& delim);
+
+/// Remove whitespace " \n\t\r\f\v" from the input string
+std::string RemoveWhiteSpace(const std::string & in);
 
 /// Replace all occurrance of substring a by substring b
 std::string ReplaceAll(const std::string& str, const std::string& a,
@@ -61,6 +76,13 @@ std::vector<std::string> ReFindAndDo(const std::string& s,
                                      std::function<std::string(std::string)> f);
 
 bool IsRExprUsable();
+
+/// Finds out if str ends with suffix
+bool StrEndsWith(const std::string& str, const std::string& suffix);
+
+/// Finds out if str starts with prefix
+bool StrStartsWith(const std::string& str, const std::string& prefix);
+
 
 } // namespace ilang
 

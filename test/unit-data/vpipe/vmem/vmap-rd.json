@@ -14,5 +14,12 @@
      "mem_a_rdata":"**MEM**mema.rdata"
   },
 
-  "mapping control" : ["__MEM_mema_0_ren == ((m1.state == 1)?1'b1:1'b0)"]
+  // "mapping control" : ["__MEM_mema_0_ren == ((m1.state == 1)?1'b1:1'b0)"],
+
+
+  "annotation": {
+    "memory-ports" : {
+      "mema.ren":"m1.state == 1"
+    }
+  }
 }

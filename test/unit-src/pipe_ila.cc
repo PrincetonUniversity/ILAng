@@ -16,6 +16,8 @@ namespace ilang {
 Ila SimplePipe::BuildModel() {
   // build the ila
   auto pipe_ila = Ila("simplePipe");
+  pipe_ila.SetValid(BoolConst(true));
+  
   auto inst = pipe_ila.NewBvInput("inst", 8);
   auto r0 = pipe_ila.NewBvState("r0", 8);
   auto r1 = pipe_ila.NewBvState("r1", 8);
@@ -30,7 +32,7 @@ Ila SimplePipe::BuildModel() {
   auto rs1_val = Ite(rs1 == 0, r0, Ite(rs1 == 1, r1, Ite(rs1 == 2, r2, r3)));
 
   auto rs2_val = Ite(rs2 == 0, r0, Ite(rs2 == 1, r1, Ite(rs2 == 2, r2, r3)));
-
+  
   auto NOP = pipe_ila.NewInstr("NOP");
   {
     NOP.SetDecode(op == BvConst(0, 2));
@@ -130,6 +132,18 @@ Ila MonitorTest::BuildModel() {
     INST.SetUpdate(r2, r1 + r2);
   }
 
+  return m;
+}
+
+Ila CntTest::BuildModel() {
+  auto m = Ila("counter");
+  auto en = m.NewBvInput("en", 1);
+  auto v  = m.NewBvState("v" , 4);
+  auto INC = m.NewInstr("INC");
+  {
+    INC.SetDecode(en == 1);
+    INC.SetUpdate(v, v + 1);
+  }
   return m;
 }
 

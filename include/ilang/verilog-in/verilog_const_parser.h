@@ -59,6 +59,8 @@ public:
                                        ast_module_declaration* current_module);
   /// Get the value
   double Eval(ast_expression* _s);
+  /// Get parsing error
+  bool error() const;
 }; // class VerilogConstantExprEval
 
 }; // namespace ilang

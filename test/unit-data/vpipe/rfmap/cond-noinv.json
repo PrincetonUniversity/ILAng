@@ -1,0 +1,30 @@
+{
+  "target ILA": "vlg-gen/pipe.v:simpePipe",
+  "target Verilog": "verilog/simple_pipe.v:pipeline_v",
+
+  "global invariants": [],
+
+  "instructions": [
+    {
+      "instruction": "NOP",
+      "ready signal": [],  
+      "ready bound": 1
+    },
+    {
+      "instruction": "ADD",
+      "ready signal": [],  
+      "ready bound": 1
+    },
+    {
+      "instruction": "SUB",
+      "ready signal": [],  
+      "ready bound": 1
+    },
+    {
+      "instruction": "AND",
+      "ready signal": [],
+      "ready bound": 1
+    }
+  ]
+}
+
