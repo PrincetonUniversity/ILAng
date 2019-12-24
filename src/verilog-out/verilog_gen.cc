@@ -13,6 +13,7 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/mcm/ast_helper.h>
 
 namespace ilang {
 
@@ -1378,6 +1379,21 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
       vlg_name_t result = getVlgFromExpr(update);
       add_ite_stmt(decodeName, sanitizeName(var) + " <= " + result, "");
     } // else
+
+    ExprPtr c, v;
+    if (cfg_.collect_ite_unknown_update && getIteUnknownCondVal(update, c, v)) {
+      auto original_cond_sig = getVlgFromExpr(c);
+      auto sig_name = "__ite_ukn_cond_" + original_cond_sig;
+      auto reg_name = "__ite_ukn_cond_reg_" + original_cond_sig;
+      state_update_ite_unknown.insert(
+        std::make_pair(var->name().str(),
+          state_update_unknown(sig_name)));
+      add_output(sig_name, 1);
+      add_wire(sig_name, 1);
+      add_assign_stmt(sig_name, reg_name);
+      add_ite_stmt(decodeName, reg_name + " <= " + original_cond_sig, "");
+    }
+
   }   // for (size_t idx = 0;  ...
 
   // Func Defs

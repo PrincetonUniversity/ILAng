@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "ilang/ila/instr_lvl_abs.h"
+#include "ilang/vtarget-out/directive.h"
 
 /// \namespace ilang
 namespace ilang {
@@ -73,6 +74,10 @@ private:
   /// The mode whether we are in addr or data AST
   bool InAddrOrData;
 }; // class NestedMemAddrDataAvoider
+
+/// \brief Function to deal with Ite(c, v, apply(__unknown__) );
+bool getIteUnknownCondVal(const ExprPtr & e, ExprPtr & c, ExprPtr & v);
+
 
 /// \brief Class of traversing to find the application of functions in an AST
 class FunctionApplicationFinder {

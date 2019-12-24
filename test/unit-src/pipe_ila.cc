@@ -119,6 +119,27 @@ Ila UndetFunc::BuildModel() {
   return m;
 }
 
+Ila UndetFunc::BuildIteUknModel() {
+  auto m = Ila("undetfunc");
+  m.SetValid(BoolConst(true));
+  auto en = m.NewBvInput("en", 1);
+  auto r0 = m.NewBvState("r0", 8);
+  auto r1 = m.NewBvState("r1", 8);
+  auto r2 = m.NewBvState("r2", 8);
+  auto r3 = m.NewBvState("r3", 8);
+  auto f1 = FuncRef("__unknown__2", SortRef::BV(8));
+
+  auto INST = m.NewInstr("INST");
+  {
+    INST.SetDecode(BoolConst(true));
+    INST.SetUpdate(r0, Ite(en == 1, r1+1, f1() ) );
+    INST.SetUpdate(r1, Ite(en == 1, r0+1, f1() ) );
+    INST.SetUpdate(r2, Ite(en == 1, r0+r1+1, r2 ) );
+    INST.SetUpdate(r3, r0+r1+r2+r3 );
+  }
+  return m;
+}
+
 Ila MonitorTest::BuildModel() {
   auto m = Ila("monitortest");
   auto en = m.NewBvInput("en", 1);

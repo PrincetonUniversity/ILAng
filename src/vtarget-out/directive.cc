@@ -574,4 +574,23 @@ bool StateMappingDirectiveRecorder::isSpecialStateDirMem(const std::string& c) {
   return IntefaceDirectiveRecorder::beginsWith(c, "**MEM**");
 }
 
+bool StateMappingDirectiveRecorder::isSpecialUnknownFunctionName(const std::string &funcname) {
+  if (funcname.length() < 11)
+    return false;
+  if (!StrStartsWith(funcname, "__unknown__"))
+    return false;
+  if (funcname == "__unknown__")
+    return true;
+  for (size_t idx = 11; idx < funcname.length(); ++ idx)
+    if (!isdigit(funcname.at(idx)))
+      return false;
+  return true;
+}
+
+bool StateMappingDirectiveRecorder::isSpecialUnknownFunction(const FuncPtr &func_ptr) {
+  if (func_ptr->arg_num() > 0)
+    return false;
+  return isSpecialUnknownFunctionName(func_ptr->name().str());
+}
+
 } // namespace ilang

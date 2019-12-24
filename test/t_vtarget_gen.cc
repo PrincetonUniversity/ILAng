@@ -527,6 +527,28 @@ TEST(TestVlgTargetGen, UndetFunc) {
   vg.GenerateTargets();
 }
 
+TEST(TestVlgTargetGen, UndetFuncIteUnknown ) {
+  auto ila_model = UndetFunc::BuildIteUknModel();
+  auto vtg_cfg = VerilogVerificationTargetGenerator::vtg_config_t();
+  vtg_cfg.IteUnknownAutoIgnore = true;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/undetf2/";
+  VerilogVerificationTargetGenerator vg(
+      {},                         // no include
+      {dirName + "func.v"},       // vlog files
+      "undetfunc",                // top_module_name
+      dirName + "vmap-func.json", // variable mapping
+      dirName + "cond-func.json", // cond path
+      dirName,                    // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      vtg_cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
 
 
 
