@@ -52,7 +52,8 @@ VlgSglTgtGen::VlgSglTgtGen(
                                              funcOption::External, // function
                                          false,  // no start signal
                                          false,  // no rand init
-                                         false), // no expand memory
+                                         false,  // no expand memory
+                                         false), // no collect ITE unknown
           wrapper_name),
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
@@ -63,7 +64,8 @@ VlgSglTgtGen::VlgSglTgtGen(
               .extMem, // this depends on the given configuration (default case)
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true, // rand init
-          true  // for internal should always expand (probe) memory
+          true, // for internal should always expand (probe) memory
+          vtg_config.IteUnknownAutoIgnore // may collect depends on configuration
           )),
       // interface mapping directive
       // -------- CONTROLLING THE RESET CONNECTION ------------- //
@@ -311,6 +313,9 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     if (_instr_ptr->update(sname)) {
       FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
       for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
+        // handle the IteUnknown function case
+        if (_vtg_config.IteUnknownAutoIgnore && _sdr.isSpecialUnknownFunction(func_ptr))
+          continue;
         ILA_ERROR_IF(!(IN("functions", rf_vmap) &&
                        rf_vmap["functions"].is_object() &&
                        IN(func_ptr->name().str(), rf_vmap["functions"])))
@@ -323,6 +328,11 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     // ISSUE ==> vmap
     std::string precondition =
         has_flush ? "(~ __ENDFLUSH__) || " : "(~ __IEND__) || ";
+    
+    if (IN(sname, vlg_ila.state_update_ite_unknown)) {
+      auto pos = vlg_ila.state_update_ite_unknown.find(sname);
+      precondition += "(~ " + pos->second.condition +") ||";
+    }
 
     std::string problem_name = "variable_map_assert";
     if (_vtg_config.PerVariableProblemCosa &&

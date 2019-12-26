@@ -72,6 +72,18 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   auto retStr = vlg_ila.moduleName + " " + _ila_mod_inst_name + " (\n";
 
   std::set<std::string> func_port_skip_set;
+
+  // ite ( unknown) also use this port
+  for (auto&& sname_cond_pair  : vlg_ila.state_update_ite_unknown) {
+    const auto & port_name = sname_cond_pair.second.condition;
+    func_port_skip_set.insert( port_name );
+    port_connected.insert( port_name );
+    vlg_wrapper.add_wire(port_name, 1, true);
+    vlg_wrapper.add_output(port_name, 1);
+
+    retStr += "   ." + port_name + "(" + port_name + "),\n";
+  }
+
   for (auto&& func_app : vlg_ila.ila_func_app) {
     func_port_skip_set.insert(func_app.result.first);
     port_connected.insert(func_app.result.first);

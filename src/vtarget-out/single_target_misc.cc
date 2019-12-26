@@ -109,8 +109,13 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
   // convert vlg_ila.ila_func_app to  name->list of func_app
   std::map<std::string, VerilogGeneratorBase::function_app_vec_t>
       name_to_fnapp_vec;
-  for (auto&& func_app : vlg_ila.ila_func_app)
+  for (auto&& func_app : vlg_ila.ila_func_app) {
+    if (_vtg_config.IteUnknownAutoIgnore) {
+      if ( func_app.args.empty() && _sdr.isSpecialUnknownFunctionName(func_app.func_name) )
+        continue;
+    }
     name_to_fnapp_vec[func_app.func_name].push_back(func_app);
+  }
 
   for (auto&& it : fm.items()) {
     const auto& funcName = it.key();

@@ -63,6 +63,12 @@ public:
     /// Does not insert assertions of variable mapping
     /// if an instruction does not update that var
     bool OnlyCheckInstUpdatedVars; // true
+    /// A shortcut for SetUpdate(s, Ite(c, v, __unknown__() ))
+    /// will only gnerate map like : ( ila.c => ila.v == vlg.v )
+    /// In this case, you don't need to deal with unknown in func map
+    /// nor do you need to create a special refinement map
+    /// function has to be defined as __unknown__X
+    bool IteUnknownAutoIgnore; // false
     /// whether to remove the extra issue cycle and starts from reset
     bool VerificationSettingAvoidIssueStage;
     /// Configure the behavior of INV target, if false,
@@ -207,6 +213,7 @@ public:
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
+          IteUnknownAutoIgnore(false),
           VerificationSettingAvoidIssueStage(false),
           ValidateSynthesizedInvariant(ALL),
 
