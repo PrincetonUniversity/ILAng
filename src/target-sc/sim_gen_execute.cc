@@ -10,13 +10,13 @@ namespace ilang {
 void IlaSim::execute_init(std::stringstream& execute_kernel,
                           std::string& indent) {
   std::queue<InstrLvlAbsPtr> child_ila_queue;
-  for (int i = 0; i < model_ptr_->child_num(); i++) {
+  for (unsigned int i = 0; i < model_ptr_->child_num(); i++) {
     child_ila_queue.push(model_ptr_->child(i));
   }
   while (!child_ila_queue.empty()) {
     auto current_ila = child_ila_queue.front();
     child_ila_queue.pop();
-    for (int i = 0; i < current_ila->child_num(); i++) {
+    for (unsigned int i = 0; i < current_ila->child_num(); i++) {
       child_ila_queue.push(current_ila->child(i));
     }
     execute_kernel << indent << "init_" << current_ila->name() << "();"

@@ -46,11 +46,17 @@ public:
       mod_inst_item_t;
 
   /// type of an wire assignment modification item
-  typedef std::tuple<long,        // linenoe
+  typedef std::tuple<long,        // lineno
                      std::string, // varname
                      unsigned,    // width
                      std::string> // short_sig_name;
       assign_item_t;
+
+  /// type of an additional statement of an module
+  typedef std::tuple<long,        // lineno
+                     std::string> // stmt
+      add_stmt_t;
+
   /// type of decl modification record
   typedef std::map<std::string, // file name
                    std::vector<mod_decl_item_t>>
@@ -66,6 +72,11 @@ public:
                    std::vector<assign_item_t>>
       assign_map_t;
 
+  /// type of additional stmt modification record
+  typedef std::map<std::string, // filename
+                   std::vector<add_stmt_t>>
+      add_stmt_map_t;
+
   /// type of an wire name w. width
   typedef std::pair<std::string, unsigned> vlg_sig_t;
 
@@ -77,7 +88,8 @@ public:
   /// \param[in] pointer to a verilog info  class
   /// \param[in] the style: 0 auto deteremined, 1 Old, 2 New
   VerilogModifier(VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style,
-                  bool add_keep_or_not); //
+                  bool add_keep_or_not,
+                  const std::map<std::string, int>& _sup_width_info); //
   /// Destructor:
   ~VerilogModifier();
   /// do the work : read from fin and append to fout, fout needs to be open with
@@ -91,6 +103,9 @@ public:
   /// record the name to add related wires
   vlg_sig_t RecordConnectSigName(const std::string& vlg_sig_name,
                                  const std::string& suffix = "");
+  /// record the stmt to be added to a module
+  void RecordAdditionalVlgModuleStmt(const std::string& stmt,
+                                     const std::string& mod_instance_name);
 
 protected:
   // --------------- MEMBERS ---------------------------- //
@@ -102,12 +117,16 @@ protected:
   mod_inst_map_t mod_inst_map;
   /// an wire assignment modification record
   assign_map_t assign_map;
+  /// a additional stmt modification record
+  add_stmt_map_t add_stmt_map;
   /// The pointer object so we can get verilog information of the implementation
   VerilogInfo* vlg_info_ptr;
   /// cache the style
   port_decl_style_t _port_decl_style;
   /// whether to add keep
   bool _add_keep_or_not;
+  /// the supplementary width info
+  const std::map<std::string, int>& sup_width_info;
 
 protected:
   // --------------- HELPERS --------------------------- //

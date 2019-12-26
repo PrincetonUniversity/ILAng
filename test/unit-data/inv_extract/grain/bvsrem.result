@@ -1,0 +1,5 @@
+(declare-fun S_m1.v () (_ BitVec 4))
+(declare-fun S_m1.imp () (_ BitVec 4))
+; should crash
+(assert (= S_m1.imp (bvsrem S_m1.v S_m1.imp)))
+(check-sat)

@@ -20,7 +20,7 @@ void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
   valid_expr->DepthFirstVisit(DfsKernel);
   init_check_valid(init_function, indent, valid_expr, ila);
 
-  for (int i = 0; i < ila->init_num(); i++) {
+  for (unsigned int i = 0; i < ila->init_num(); i++) {
     auto init_expr = ila->init(i);
     if (GetUidExpr(init_expr) != AST_UID_EXPR::OP) {
       ILA_ERROR << "init condition must be a comparison";

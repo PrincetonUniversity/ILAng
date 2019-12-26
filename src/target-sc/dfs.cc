@@ -122,7 +122,7 @@ void IlaSim::dfs_const_node(std::stringstream& dfs_simulator,
                 << "sc_biguint<" << sort->data_width() << "> "
                 << const_mem_array << " = {";
       }
-      for (int i = 0; i < array_size - 1; i++)
+      for (unsigned i = 0; i < array_size - 1; i++)
         header_ << val_map[i] << ", ";
       header_ << val_map[array_size - 1] << "};" << std::endl;
     }

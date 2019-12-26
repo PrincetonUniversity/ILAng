@@ -1,0 +1,46 @@
+=========== GLOBAL CONFIG =============
+Find one and stop: 0
+Find one clause and stop: 0
+CTI till stable: 0
+(1) ==> (1)
+Skip original cnf: 1
+Skip const check: 1
+CTI Prune: 0
+No merge cti: 0
+Not adding cand after cti: 0
+2nd chance: 0
+----------- CONTROL CONFIG -----------
+Max bitwidth considered: 128
+Max bitwidth of constant: 16
+Shift extraction: 0
+Add/sub: 0
+bvnot: 0
+EQ/NEQ across bitwidth: 0
+Force bitselection hints on every var: 0
+----------- DATA CONFIG --------------
+Max bitwidth considered: 128
+Max bitwidth of constant: 16
+Shift extraction: 0
+Add/sub: 0
+bvnot: 1
+EQ/NEQ across bitwidth: 0
+Force bitselection hints on every var: 0
+----------- GRAMMAR --------------
+CSvar.size = 0
+COvar.size = 0
+DIvar.size = 0
+DOvar.size = 0
+Grouping.size = 0
+=========== END CONFIG =============
+Skip sanity check
+Base selection set size: 2
+Ante set size: 2
+Cands : 2
+Status @ iter: 2 @ clause 0 found :1
+Generalizaion:0
+Specialization:0
+Total iter:2, found: 1 learned lemmas: 1
+TotalGen: 0
+TotalSpec: 0
+TotalCand: 2
+proved

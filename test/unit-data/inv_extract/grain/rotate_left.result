@@ -1,0 +1,6 @@
+(declare-fun S_m1.v () (_ BitVec 4))
+(declare-fun S_m1.imp () (_ BitVec 4))
+
+(assert (= S_m1.imp ((_ rotate_left 2) S_m1.v)))
+
+(check-sat)

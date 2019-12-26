@@ -1,0 +1,116 @@
+Parsing file "wrapper.v"... DONE
+Parsing file "rst.ets"... DONE
+Solving "variable_map_assert_0" .. FALSE
+
+*** SUMMARY ***
+
+** Problem variable_map_assert_0 **
+Description: "variable_map_assert"
+Result: FALSE
+Expected: TRUE
+FALSE != TRUE <<<---------| ERROR
+Counterexample:
+---> INIT <---
+  I: __2ndENDED__ = 0_1
+  I: __CYCLE_CNT__ = 1_4
+  I: __ENDED__ = 0_1
+  I: __ILA_I_inst = 195_8
+  I: __ILA_SO_r0 = 152_8
+  I: __ILA_SO_r1 = 185_8
+  I: __ILA_SO_r2 = 184_8
+  I: __ILA_SO_r3 = 48_8
+  I: __RESETED__ = 1_1
+  I: __STARTED__ = 1_1
+  I: __START__ = 0_1
+  I: __VLG_I_dummy_read_rf = 0_2
+  I: __m12__ = 0_1
+  I: __m13__ = 0_1
+  I: __m14__ = 0_1
+  I: __m15__ = 0_1
+  I: __m4__ = 0_1
+  I: __m5__ = 0_1
+  I: __m6__ = 0_1
+  I: __m7__ = 0_1
+  I: additional_mapping_control_assume__m17__ = 1_1
+  I: clk = 0_1
+  I: dummy_reset = 0_1
+  I: dummy_rf_data = 152_8
+  I: issue_decode__m18__ = 1_1
+  I: issue_valid__m19__ = 1_1
+  I: m1__DOT__ex_alu_result = 255_8
+  I: m1__DOT__ex_wb_val = 184_8
+  I: m1__DOT__reg_0_w_stage = 0_2
+  I: m1__DOT__reg_0_w_stage_nxt = 0_2
+  I: m1__DOT__reg_1_w_stage = 2_2
+  I: m1__DOT__reg_2_w_stage = 1_2
+  I: m1__DOT__reg_3_w_stage = 3_2
+  I: m1__DOT__registers_0_ = 152_8
+  I: m1__DOT__registers_1_ = 226_8
+  I: m1__DOT__registers_2_ = 137_8
+  I: m1__DOT__registers_3_ = 254_8
+  I: noreset__m0__ = 1_1
+  I: reset_done = 0_1
+  I: rst = 1_1
+  I: variable_map_assert__p10__ = 0_1
+  I: variable_map_assert__p11__ = 1_1
+  I: variable_map_assert__p16__ = 0_1
+  I: variable_map_assert__p9__ = 1_1
+  I: variable_map_assume___m1__ = 1_1
+  I: variable_map_assume___m2__ = 1_1
+  I: variable_map_assume___m3__ = 1_1
+  I: variable_map_assume___m8__ = 1_1
+
+---> STATE 1 <---
+  S1: __CYCLE_CNT__ = 0_4
+  S1: __ILA_I_inst = 124_8
+  S1: __ILA_SO_r1 = 255_8
+  S1: __ILA_SO_r2 = 137_8
+  S1: __ILA_SO_r3 = 152_8
+  S1: __STARTED__ = 0_1
+  S1: __START__ = 1_1
+  S1: __VLG_I_dummy_read_rf = 2_2
+  S1: __m12__ = 1_1
+  S1: __m13__ = 1_1
+  S1: __m4__ = 1_1
+  S1: __m5__ = 1_1
+  S1: dummy_rf_data = 137_8
+  S1: m1__DOT__ex_alu_result = 152_8
+  S1: m1__DOT__ex_wb_val = 255_8
+  S1: m1__DOT__reg_1_w_stage = 1_2
+  S1: m1__DOT__reg_2_w_stage = 0_2
+  S1: m1__DOT__registers_3_ = 184_8
+  S1: reset_done = 1_1
+  S1: rst = 0_1
+  S1: variable_map_assert__p10__ = 1_1
+  S1: variable_map_assert__p16__ = 1_1
+
+---> STATE 2 <---
+  S2: __CYCLE_CNT__ = 1_4
+  S2: __ILA_I_inst = 25_8
+  S2: __ILA_SO_r0 = 48_8
+  S2: __STARTED__ = 1_1
+  S2: __START__ = 0_1
+  S2: __VLG_I_dummy_read_rf = 0_2
+  S2: __m12__ = 0_1
+  S2: __m13__ = 0_1
+  S2: __m14__ = 1_1
+  S2: __m4__ = 0_1
+  S2: __m5__ = 0_1
+  S2: __m6__ = 1_1
+  S2: dummy_rf_data = 152_8
+  S2: m1__DOT__ex_alu_result = 48_8
+  S2: m1__DOT__ex_wb_val = 152_8
+  S2: m1__DOT__reg_0_w_stage = 2_2
+  S2: m1__DOT__reg_0_w_stage_nxt = 1_2
+  S2: m1__DOT__reg_1_w_stage = 0_2
+  S2: m1__DOT__reg_3_w_stage = 1_2
+  S2: m1__DOT__registers_3_ = 255_8
+  S2: variable_map_assert__p10__ = 0_1
+Counterexamples: [3], [4]
+Traces (max) length: 3
+
+*** TRACES ***
+
+[1]:	trace[1]-variable_map_assert_0.vcd
+
+WARNING: Verifications with unexpected result

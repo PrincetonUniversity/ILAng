@@ -18,6 +18,7 @@ add_subdirectory(verification)
 add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
+add_subdirectory(smt-inout)
 
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(target-itsy)
@@ -121,6 +122,32 @@ else()
 endif()
 
 ##
+## vcd parser
+##
+if(NOT TARGET vcdparser::vcdparser)
+  find_package(vcdparser REQUIRED)
+endif()
+
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC vcdparser::vcdparser)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE vcdparser::vcdparser)
+endif()
+
+##
+## smt parser
+##
+if(NOT TARGET smtparser::smtparser)
+  find_package(smtparser REQUIRED)
+endif()
+
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC smtparser::smtparser)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE smtparser::smtparser)
+endif()
+
+##
 ## template-based synthesis
 ##
 if(${ILANG_BUILD_SYNTH})
@@ -137,6 +164,13 @@ if(${ILANG_BUILD_SYNTH})
   set(SYNTH_INTERFACE TRUE)
 else()
   set(SYNTH_INTERFACE FALSE)
+endif()
+
+
+if(${ILANG_BUILD_INVSYN})
+  set(INVSYN_INTERFACE TRUE)
+else()
+  set(INVSYN_INTERFACE FALSE)
 endif()
 
 ##

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <ilang/util/fs.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
@@ -30,15 +31,15 @@ TEST(TestVerilogMod, Modify) {
   }
   */
 
-  std::string fn = std::string(ILANG_TEST_SRC_ROOT) +
-                   "/unit-data/verilog_sample/t_ana_insta.v";
-  std::string ofn = std::string(ILANG_TEST_SRC_ROOT) +
-                    "/unit-data/verilog_sample/t_ana_insta_mod.v";
+  std::string fn = 
+    os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "verilog_sample", "t_ana_insta.v"});
+  std::string ofn = 
+    os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "verilog_sample", "t_ana_insta_mod.v"});
 
   VerilogInfo va(VerilogInfo::path_vec_t(), VerilogInfo::path_vec_t({fn}),
                  "m1");
 
-  VerilogModifier vm(&va, VerilogModifier::port_decl_style_t::AUTO, true);
+  VerilogModifier vm(&va, VerilogModifier::port_decl_style_t::AUTO, true, {});
 
   vm.RecordKeepSignalName("m1.__COUNTER_start__n3");
   vm.RecordKeepSignalName("m1.__ILA_proc_decode_of_Add__");
@@ -46,6 +47,7 @@ TEST(TestVerilogMod, Modify) {
   vm.RecordConnectSigName("m1.subm4.b");
   vm.RecordConnectSigName("m1.n27");
   vm.RecordConnectSigName("m1.ir");
+  vm.RecordAdditionalVlgModuleStmt("wire abcd; assign abcd = 1'b1;","m1");
   vm.FinishRecording();
 
   std::ifstream fin(fn);

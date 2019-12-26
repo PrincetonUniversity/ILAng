@@ -1,0 +1,195 @@
+ABC command line: "source -x abcCmd.txt".
+
+abc - > 
+abc - >   read_blif wrapper.blif
+Warning: Constant-0 drivers added to 2 non-driven nets in network "wrapper":
+$techmap$techmap$techmap\m1.$sub$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-abc-blif/inv-syn-abc/wrapper.v:75$10.$auto$alumacc.cc:474:replace_alu$135.$xor$?techmap.v?:263$150_Y[4], $techmap$techmap$techmap\m1.$sub$/home/hongce/ila/ila-stable/test/unit-data/inv_syn/cnt2-abc-blif/inv-syn-abc/wrapper.v:78$11.$auto$alumacc.cc:474:replace_alu$138.$xor$?techmap.v?:263$155_Y[4]
+abc - >   &get -n
+ABC collect names: Abc_NtkCiNum(pNtk) = 13
+ABC collect names: Abc_NtkCoNum(pNtk) = 9
+abc - >   &gla -T 500 -F 200 -v
+Running gate-level abstraction (GLA) with the following parameters:
+FrameMax = 200  ConfMax = 0  Timeout = 500  Limit = 0 %  Limit2 = 0 %  RatioMax = 30 %
+LrnStart = 1000  LrnDelta = 200  LrnRatio = 70 %  Skip = 0  SimpleCNF = 0  Dump = 0
+ Frame   %   Abs  PPI   FF   LUT   Confl  Cex   Vars   Clas   Lrns     Time        Mem
+   0 :  10     3    3    1     1       0    1      6      7      0     0.01 sec    0 MB
+   1 :  31     9    6    3     5       0    4     30     54      0     0.01 sec    0 MB
+   2 :  41    12    4    4     7       6    1     48    111      3     0.01 sec    0 MB
+   3 :  55    16    2    4    11      11    2     73    213      8     0.01 sec    0 MB
+  15 :  65    19    4    5    13     125    3    369  1.05k    299     0.01 sec    0 MB
+GLA finished 200 frames and produced a 184-stable abstraction.  Time =     0.08 sec
+Runtime: Initializing =     0.01 sec (  8.62 %)
+Runtime: Solver UNSAT =     0.06 sec ( 83.89 %)
+Runtime: Solver SAT   =     0.00 sec (  0.78 %)
+Runtime: Refinement   =     0.00 sec (  0.25 %)
+Runtime: Other        =     0.00 sec (  6.45 %)
+Runtime: TOTAL        =     0.08 sec (100.00 %)
+Memory: AIG       =     0.002 MB (  0.02 %)
+Memory: SAT       =     1.570 MB ( 12.50 %)
+Memory: Proof     =     0.012 MB (  0.09 %)
+Memory: Map       =     0.030 MB (  0.24 %)
+Memory: Refine    =     0.039 MB (  0.31 %)
+Memory: Hash      =     6.000 MB ( 47.80 %)
+Memory: Other     =     4.901 MB ( 39.04 %)
+Memory: TOTAL     =    12.553 MB (100.00 %)
+SAT solver:  Var = 4601  Cla = 13196  Conf = 8890  Lrn = 2381  Reduce = 11  Cex = 11  ObjsAdded = 29
+Hash hits = 0.  Hash misses = 200.  Hash overs = 0.  Concurrent calls = 0.
+abc - >   &gla_derive
+13 13, 9 9
+PI: 5, PO:1, RO:8
+abc - >   &put
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      43  lev =  10
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      30  lev =   5
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      29  lev =   5
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      29  lev =   5
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      28  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   5
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   5
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   5
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   5
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   5
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   dc2 -v
+Starting:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Refactor:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Balance:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+Rewrite:   wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RefactorZ: wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+RewriteZ:  wrapper         : pi =     5  po =     1  lat =     5  and =      27  lev =   6
+abc - >   pdr
+Invariant F[12] : 2 clauses with 2 flops (out of 5) (cex = 0, ave = 5.00)
+Verification of invariant with 2 clauses was successful.  Time =     0.00 sec
+Property proved.  Time =     0.03 sec
+abc - >   
+abc - >   inv_print -v
+Invariant contains 2 clauses with 4 literals and 2 flops (out of 5).
+01 1
+10 1

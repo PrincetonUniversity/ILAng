@@ -233,10 +233,16 @@ public:
   vlg_loc_t get_endmodule_loc(const std::string& inst_name) const;
   /// Return top module name
   std::string get_top_module_name() const;
-  /// Return top module signal
+  /// Return top module signal with no hint on the width
   module_io_vec_t get_top_module_io() const;
+  /// Return top module signal
+  module_io_vec_t
+  get_top_module_io(const std::map<std::string, int>& width_info) const;
   /// Find a signal
   SignalInfoBase get_signal(const std::string& net_name) const;
+  /// Find a signal (and use the width info, if width is unknown)
+  SignalInfoBase get_signal(const std::string& net_name,
+                            const std::map<std::string, int>& width_info) const;
   /// whether this analyzer is in bad state
   bool in_bad_state() const;
 

@@ -1,0 +1,10 @@
+Parsing file "wrapper.v"... DONE
+Parsing file "rst.ets"... DONE
+Solving "variable_map_assert_0" ... TRUE
+
+*** SUMMARY ***
+
+** Problem variable_map_assert_0 **
+Description: "variable_map_assert"
+Result: TRUE
+Expected: TRUE

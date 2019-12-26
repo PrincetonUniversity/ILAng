@@ -1,0 +1,188 @@
+ABC command line: "source -x abcCmd.txt".
+
+abc - > 
+abc - >   &read wrapper.aig
+abc - >   &gla -T 500 -F 200 -v
+Running gate-level abstraction (GLA) with the following parameters:
+FrameMax = 200  ConfMax = 0  Timeout = 500  Limit = 0 %  Limit2 = 0 %  RatioMax = 30 %
+LrnStart = 1000  LrnDelta = 200  LrnRatio = 70 %  Skip = 0  SimpleCNF = 0  Dump = 0
+ Frame   %   Abs  PPI   FF   LUT   Confl  Cex   Vars   Clas   Lrns     Time        Mem
+   0 :   0     4    6    1     2       0    2     10     12      0     0.01 sec    0 MB
+   1 :   1     6    8    2     3       0    2     28     37      0     0.01 sec    0 MB
+   2 :   1     8    8    3     4       2    3     48     70      0     0.01 sec    0 MB
+   3 :   4    19   16    6    12      19   11    140    267      1     0.01 sec    0 MB
+   4 :   6    29   23   10    18      53   23    260    511      3     0.02 sec    0 MB
+GLA finished 200 frames and produced a 195-stable abstraction.  Time =     0.02 sec
+Runtime: Initializing =     0.01 sec ( 37.81 %)
+Runtime: Solver UNSAT =     0.00 sec (  2.09 %)
+Runtime: Solver SAT   =     0.00 sec ( 12.17 %)
+Runtime: Refinement   =     0.00 sec ( 13.77 %)
+Runtime: Other        =     0.01 sec ( 34.07 %)
+Runtime: TOTAL        =     0.02 sec ( 99.99 %)
+Memory: AIG       =     0.031 MB (  0.23 %)
+Memory: SAT       =     2.159 MB ( 16.31 %)
+Memory: Proof     =     0.036 MB (  0.27 %)
+Memory: Map       =     0.059 MB (  0.44 %)
+Memory: Refine    =     0.041 MB (  0.31 %)
+Memory: Hash      =     6.000 MB ( 45.33 %)
+Memory: Other     =     4.909 MB ( 37.09 %)
+Memory: TOTAL     =    13.235 MB (100.00 %)
+SAT solver:  Var = 10400  Cla = 20791  Conf = 74  Lrn = 3  Reduce = 0  Cex = 41  ObjsAdded = 344
+Hash hits = 0.  Hash misses = 200.  Hash overs = 0.  Concurrent calls = 0.
+abc - >   &gla_derive
+abc - >   &put
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      55  lev =   8
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      48  lev =   8
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      48  lev =   8
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      47  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      47  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   dc2 -v
+Starting:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Refactor:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Balance:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+Rewrite:   wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+RefactorZ: wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   6
+RewriteZ:  wrapper         : pi =    24  po =     1  lat =    10  and =      46  lev =   5
+abc - >   pdr
+Invariant F[2] : 2 clauses with 4 flops (out of 10) (cex = 0, ave = 6.67)
+Verification of invariant with 2 clauses was successful.  Time =     0.00 sec
+Property proved.  Time =     0.01 sec
+abc - >   
+abc - >   inv_print -v
+Invariant contains 2 clauses with 4 literals and 4 flops (out of 10).
+-1-1 1
+1-1- 1

@@ -10,8 +10,8 @@
 
 namespace ilang {
 bool CheckDeterminism(const InstrLvlAbsPtr& model_ptr) {
-  for (int i = 0; i < model_ptr->instr_num(); i++) {
-    for (int j = i + 1; j < model_ptr->instr_num(); j++) {
+  for (unsigned i = 0; i < model_ptr->instr_num(); i++) {
+    for (unsigned j = i + 1; j < model_ptr->instr_num(); j++) {
       auto decode_0 = model_ptr->instr(i)->decode();
       auto decode_1 = model_ptr->instr(j)->decode();
       z3::context ctx;
@@ -42,7 +42,7 @@ bool CheckCompleteness(const InstrLvlAbsPtr& model_ptr) {
     sol.add(z3_valid);
   }
   z3::expr or_decode = ctx.bool_val(false);
-  for (int i = 0; i < model_ptr->instr_num(); i++) {
+  for (unsigned i = 0; i < model_ptr->instr_num(); i++) {
     auto instr = model_ptr->instr(i);
     auto decode = instr->decode();
     or_decode = or_decode || z3_adapter.GetExpr(decode);
@@ -59,7 +59,7 @@ bool CheckCompleteness(const InstrLvlAbsPtr& model_ptr) {
 
 void CompleteModel(const InstrLvlAbsPtr& model_ptr, DEFAULT_UPDATE_METHOD dum) {
   auto or_decode = ExprFuse::BoolConst(false);
-  for (int i = 0; i < model_ptr->instr_num(); i++) {
+  for (unsigned i = 0; i < model_ptr->instr_num(); i++) {
     or_decode = (ExprFuse::Or(or_decode, model_ptr->instr(i)->decode()));
   }
   {
@@ -68,10 +68,10 @@ void CompleteModel(const InstrLvlAbsPtr& model_ptr, DEFAULT_UPDATE_METHOD dum) {
     z3::context ctx;
     Z3ExprAdapter z3_adapter(ctx);
     if (dum == DEFAULT_UPDATE_METHOD::OLD_VALUE) {
-      for (int i = 0; i < model_ptr->state_num(); i++)
+      for (unsigned i = 0; i < model_ptr->state_num(); i++)
         default_instr->set_update(model_ptr->state(i), model_ptr->state(i));
     } else if (dum == DEFAULT_UPDATE_METHOD::NONDET_VALUE) {
-      for (int i = 0; i < model_ptr->state_num(); i++) {
+      for (unsigned i = 0; i < model_ptr->state_num(); i++) {
         auto state = model_ptr->state(i);
         auto state_sort_uid = GetUidSort(state->sort());
         if (state_sort_uid == AST_UID_SORT::BOOL) {

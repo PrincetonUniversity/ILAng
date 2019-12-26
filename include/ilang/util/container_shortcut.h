@@ -24,6 +24,6 @@
 #define IN(e, s) ((s).find(e) != (s).end())
 #define IN_p(e, s) ((s)->find(e) != (s)->end())
 
-#define S_IN(sub, s) (s.find(sub) != s.npos)
+#define S_IN(sub, s) ((s).find(sub) != (s).npos)
 
 #endif // ILANG_UTIL_CONTAINER_SHORTCUT_H__

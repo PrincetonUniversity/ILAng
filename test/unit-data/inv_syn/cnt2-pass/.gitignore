@@ -1,0 +1,9 @@
+INC/*
+inv-syn/*
+inv-syn-test/*
+invariants/*
+inv-syn-sygus/*
+__synthesis_result.txt
+__verification_result.txt
+
+

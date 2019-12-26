@@ -13,6 +13,14 @@
 
 namespace ilang {
 
+TEST(TestApi, LogicShift) {
+  auto c = BvConst(0xFFFFFFFE, 32);
+  //                 01234567   8*4 = 32
+  // there is no guarantee that >> is logic shift
+  // although it is usually implemented as such for
+  // unsigned vars
+}
+
 TEST(TestApi, Construct) {
   Ila ila("top");
 
