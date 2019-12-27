@@ -1,3 +1,4 @@
+`default_nettype none
 
 // Hongce Zhang @ Princeton
 // A simple pipelined processor

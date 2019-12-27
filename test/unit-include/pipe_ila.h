@@ -27,6 +27,7 @@ public:
 class UndetFunc {
 public:
   static Ila BuildModel();
+  static Ila BuildIteUknModel();
 };
 
 /// \brief UndetExample -- building a monitor

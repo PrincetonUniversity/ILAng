@@ -21,6 +21,9 @@ namespace ilang {
 #define VLG_TRUE "`true"
 #define VLG_FALSE "`false"
 
+// hierarchy --> opt may not be useful
+// mux undef may be useful?
+
 // initialize templates
 static std::string chcGenerateSmtScript_wo_Array = R"***(
 hierarchy -check

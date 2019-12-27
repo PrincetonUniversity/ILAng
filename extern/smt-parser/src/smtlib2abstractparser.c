@@ -129,6 +129,36 @@ void smtlib2_abstract_parser_parse(smtlib2_abstract_parser *p, FILE *src)
 }
 
 
+void smtlib2_abstract_parser_parse_string(smtlib2_abstract_parser *p, const char * str)
+{
+    smtlib2_charbuf *buf;
+    smtlib2_sstream *stream;
+    smtlib2_scanner *scanner;
+
+    buf = smtlib2_charbuf_new();
+    smtlib2_charbuf_push_str(buf, str);
+    stream = smtlib2_sstream_new(buf);
+    scanner = smtlib2_scanner_new((smtlib2_stream *)stream);
+
+    smtlib2_abstract_parser_reset_response(p);
+
+    while (!smtlib2_stream_eof((smtlib2_stream *)stream)) {
+        smtlib2_parse(scanner, SMTLIB2_PARSER_INTERFACE(p));
+        if (p->exiting_) {
+            break;
+        }
+        if (!smtlib2_stream_eof((smtlib2_stream *)stream)) {
+            smtlib2_abstract_parser_print_response(p);
+            smtlib2_abstract_parser_reset_response(p);
+        }
+    }
+
+    smtlib2_scanner_delete(scanner);
+    smtlib2_sstream_delete(stream);
+    smtlib2_charbuf_delete(buf);
+}
+
+
 void smtlib2_abstract_parser_set_logic(smtlib2_parser_interface *p,
                                        const char *logic)
 {

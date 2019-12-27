@@ -169,6 +169,44 @@ FunctionApplicationFinder::GetReferredFunc() const {
   return _func_refs;
 }
 
+
+
+bool getIteUnknownCondVal(const ExprPtr & e, ExprPtr & c, ExprPtr & v) {
+  if (!e->is_op())
+    return false;
+  std::shared_ptr<ExprOp> eop = std::dynamic_pointer_cast<ExprOp>(e);
+  if (!(eop && eop->op_name() == "ITE"))
+    return false;
+  ILA_ASSERT(eop->arg_num() == 3);
+  { // test arg 1
+    std::shared_ptr<ExprOp> arg1 = std::dynamic_pointer_cast<ExprOp>(eop->arg(1));
+    if ( (arg1 && arg1->op_name() == "APP") ) {
+      std::shared_ptr<ExprOpAppFunc> apply_op_arg1 =
+        std::dynamic_pointer_cast<ExprOpAppFunc>(arg1);
+      if ( StateMappingDirectiveRecorder::isSpecialUnknownFunction(apply_op_arg1->func())) {
+        c = eop->arg(0);
+        v = eop->arg(2);
+        return true;
+      }
+    }
+  } // end test arg 1
+
+  { // test arg 2
+    std::shared_ptr<ExprOp> arg2 = std::dynamic_pointer_cast<ExprOp>(eop->arg(2));
+    if ( (arg2 && arg2->op_name() == "APP") ) {
+      std::shared_ptr<ExprOpAppFunc> apply_op_arg2 =
+        std::dynamic_pointer_cast<ExprOpAppFunc>(arg2);
+      if ( StateMappingDirectiveRecorder::isSpecialUnknownFunction(apply_op_arg2->func())) {
+        c = eop->arg(0);
+        v = eop->arg(1);
+        return true;
+      }
+    }
+  } // end test arg 2
+  
+  return false;
+}
+
 /******************************************************************************/
 // Helper Class: NestedMemAddrDataAvoider
 /******************************************************************************/

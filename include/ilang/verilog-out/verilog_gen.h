@@ -127,6 +127,15 @@ public:
   }; // struct function_app_t
   typedef std::vector<function_app_t> function_app_vec_t;
 
+  /// Type of ite update unknown 
+  struct state_update_unknown {
+    /// the condition
+    const vlg_name_t condition;
+    // you don't need the value
+    state_update_unknown(const vlg_name_t & c) : condition(c) {}
+  }; // struct state_update_unknown
+  typedef std::map<std::string, state_update_unknown> state_update_ite_unknown_map_t;
+
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
   /// Type for cacheing the constant
@@ -153,22 +162,24 @@ public:
     /// whether to expand the memory and connect everything to the outside
     /// cannot be true the same time as extMem
     bool expand_mem;
+    /// whether to collect the ite(c, v, unknown) thing
+    bool collect_ite_unknown_update;
 
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
         bool ExternalMem = true, funcOption funcOpt = funcOption::Internal,
         bool gen_start = false, bool pass_name = false, bool rand_init = false,
-        bool ExpandMem = false)
+        bool ExpandMem = false, bool CollectIteUnknownUpdate = false)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
           pass_node_name(pass_name), reg_random_init(rand_init),
-          expand_mem(ExpandMem) {}
+          expand_mem(ExpandMem), collect_ite_unknown_update(CollectIteUnknownUpdate) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start, bool rand_init, bool ExpandMem)
+                 bool gen_start, bool rand_init, bool ExpandMem, bool CollectIteUnknownUpdate)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
           pass_node_name(c.pass_node_name), reg_random_init(rand_init),
-          expand_mem(ExpandMem) {}
+          expand_mem(ExpandMem), collect_ite_unknown_update(CollectIteUnknownUpdate) {}
     // set other fields if there are such need (?)
   }; // end of struct VlgGenConfig
 
@@ -268,7 +279,8 @@ protected:
   std::map<std::string, std::map<unsigned, wport_t>> ila_wports;
   /// a collection of all function application
   function_app_vec_t ila_func_app;
-
+  /// a collection of all state update ite unknown
+  state_update_ite_unknown_map_t state_update_ite_unknown;
   // Annotations
   memory_export_annotation_t memory_export_annotation;
 

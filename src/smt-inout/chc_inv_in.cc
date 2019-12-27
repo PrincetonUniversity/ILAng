@@ -911,7 +911,7 @@ void SmtlibInvariantParser::ParseSmtResultFromString(const std::string& text) {
   ILA_ASSERT(buffer[len - 1] == '\0');
   buffer[len - 1] = '\0'; // to make static analysis happy
 
-  std::FILE* fp = fmemopen((void*)buffer, len * sizeof(char), "r");
+  //std::FILE* fp = fmemopen((void*)buffer, len * sizeof(char), "r");
 #if 0
 #if defined(__linux__) 
   std::FILE* fp = fmemopen((void*)buffer, len * sizeof(char), "r");
@@ -922,11 +922,11 @@ void SmtlibInvariantParser::ParseSmtResultFromString(const std::string& text) {
 #endif
 #endif //  
 
-  ILA_NOT_NULL(fp);
+  //ILA_NOT_NULL(fp);
+  smtlib2_abstract_parser_parse_string(&(parser_wrapper->parser), buffer);
+  //smtlib2_abstract_parser_parse(&(parser_wrapper->parser), fp);
 
-  smtlib2_abstract_parser_parse(&(parser_wrapper->parser), fp);
-
-  fclose(fp);
+  //fclose(fp);
   delete[] buffer;
 }
 

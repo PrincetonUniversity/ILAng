@@ -169,7 +169,10 @@ public:
   static bool isSpecialStateDir(const std::string& c);
   /// a function to determine if a state map refstr is special directie (**???)
   static bool isSpecialStateDirMem(const std::string& c);
-
+  /// a function to determine if a function name is an unknown special directive
+  static bool isSpecialUnknownFunctionName(const std::string &funcname);
+  /// a function to determine if a function (no arg) is an unknown special directive
+  static bool isSpecialUnknownFunction(const FuncPtr &func_ptr);
 }; // class StateMappingDirectiveRecorder
 
 }; // namespace ilang
