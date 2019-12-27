@@ -96,7 +96,9 @@ static int smtlib2_sstream_getc(smtlib2_stream *s)
 {
     smtlib2_sstream *stream = (smtlib2_sstream *)s;
     if (stream->nextidx_ < SMTLIB2_VECTOR_SIZE(stream->buf_)) {
-        return smtlib2_charbuf_array(stream->buf_)[stream->nextidx_++];
+        char v = smtlib2_charbuf_array(stream->buf_)[stream->nextidx_++];
+        printf("%c", v);
+        return v;
     } else {
         return EOF;
     }
@@ -106,6 +108,8 @@ static int smtlib2_sstream_getc(smtlib2_stream *s)
 static int smtlib2_sstream_putc(smtlib2_stream *s, char c)
 {
     smtlib2_sstream *stream = (smtlib2_sstream *)s;
+
+    printf("<%c>", c);
     smtlib2_charbuf_push(stream->buf_, c);
     return (int)c;
 }
