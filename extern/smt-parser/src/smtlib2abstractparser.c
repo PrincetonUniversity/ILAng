@@ -132,7 +132,7 @@ void smtlib2_abstract_parser_parse(smtlib2_abstract_parser *p, FILE *src)
 void smtlib2_abstract_parser_parse_string(smtlib2_abstract_parser *p, const char * str)
 {
     smtlib2_charbuf *buf;
-    smtlib2_fstream *stream;
+    smtlib2_sstream *stream;
     smtlib2_scanner *scanner;
 
     buf = smtlib2_charbuf_new();
@@ -154,7 +154,7 @@ void smtlib2_abstract_parser_parse_string(smtlib2_abstract_parser *p, const char
     }
 
     smtlib2_scanner_delete(scanner);
-    smtlib2_fstream_delete(stream);
+    smtlib2_sstream_delete(stream);
     smtlib2_charbuf_delete(buf);
 }
 
