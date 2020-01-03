@@ -304,7 +304,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
   for (auto&& m_rec : monitor_rec.items()) {
     const auto& mname = m_rec.key(); // actually no use
     auto& mdef = m_rec.value();
-    ILA_ERROR_IF(!(mdef.is_object() or mdef.is_array()))
+    ILA_ERROR_IF(!(mdef.is_object() || mdef.is_array()))
         << "Expect verilog-inline-monitors's element to be map/list type";
     std::string vlg_expr;
     std::vector<std::string> repl_list;
