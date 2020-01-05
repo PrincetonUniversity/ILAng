@@ -15,6 +15,7 @@
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
 #include <ilang/vtarget-out/vtarget_gen_jasper.h>
 #include <ilang/vtarget-out/vtarget_gen_yosys.h>
+#include <ilang/vtarget-out/vtarget_gen_relchc.h>
 // for invariant synthesis
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_abc.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
@@ -222,7 +223,21 @@ void VlgVerifTgtGen::GenerateTargets(void) {
 
       target.ExportAll("wrapper.v", "ila.v", "run.sh", design_file, "absmem.v");
       target.do_not_instantiate();
+    } else if (_backend == backend_selector::RELCHC) {
+      // will actually fail : not supported for using relchc for invariant targets
+      auto target = VlgSglTgtGen_Relchc(
+          sub_output_path,
+          NULL, // invariant
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+          _vlg_impl_include_path, _vtg_config, _backend,
+          target_type_t::INVARIANTS, _advanced_param_ptr);
+      target.ConstructWrapper();
+      target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2", "absmem.v");
+      target.do_not_instantiate();
     }
+
+
     if (invariantExists)
       runnable_script_name.push_back(
           os_portable_append_dir(sub_output_path, "run.sh"));
@@ -300,6 +315,18 @@ void VlgVerifTgtGen::GenerateTargets(void) {
 
         target.ExportAll("wrapper.v", "ila.v", "run.sh", design_file,
                          "absmem.v");
+        target.do_not_instantiate();
+      }  else if (_backend == backend_selector::RELCHC) {
+        // will actually fail : not supported for using relchc for invariant targets
+        auto target = VlgSglTgtGen_Relchc(
+            sub_output_path,
+            NULL, // invariant
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INVARIANTS, _advanced_param_ptr);
+        target.ConstructWrapper();
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2", "absmem.v");
         target.do_not_instantiate();
       } // end case backend
       runnable_script_name.push_back(

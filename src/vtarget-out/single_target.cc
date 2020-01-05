@@ -217,6 +217,7 @@ VlgSglTgtGen::VlgSglTgtGen(
 void VlgSglTgtGen::ConstructWrapper_generate_header() {
   vlg_wrapper.add_preheader("\n`define true  1'b1\n");
   vlg_wrapper.add_preheader("\n`define false 1'b0\n");
+  vlg_wrapper.add_preheader("\n" + _vtg_config.WrapperPreheader + "\n" );
 } // ConstructWrapper_generate_header
 
 // for special memory, we don't need to do anything?

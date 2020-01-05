@@ -38,20 +38,23 @@ public:
     ELD_CEGAR = CHC + 2,      // 1001010
     GRAIN_SYGUS = CHC + 4,    // 1001100
     ABCPDR = YOSYS + 16,      // 1010000
-    BTOR_GENERIC = YOSYS + 32 // 1100000
+    BTOR_GENERIC = YOSYS + 32,// 1100000
+    RELCHC = 128             // 10000000
   } backend_selector;
   /// Type of invariant synthesis backend
   typedef enum {
     Z3 = Z3PDR ^ YOSYS,
     GRAIN = GRAIN_SYGUS ^ YOSYS,
-    ABC = ABCPDR ^ YOSYS,
-    ELDERICA = ELD_CEGAR ^ YOSYS,
-    NOSYN = BTOR_GENERIC ^ YOSYS
+    ABC = ABCPDR ^ YOSYS,        
+    ELDERICA = ELD_CEGAR ^ YOSYS,// 0001010
+    NOSYN = BTOR_GENERIC ^ YOSYS // 1000000
   } synthesis_backend_selector;
   /// Type of the chc target
   enum _chc_target_t { CEX, INVCANDIDATE, GENERAL_PROPERTY };
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
+    /// Preheader Content
+    std::string WrapperPreheader;
     /// Set the targets: instructions/invariants/both
     enum { INST, INV, BOTH } target_select;
     /// If not an empty string, then only check for that instruction
@@ -139,6 +142,9 @@ public:
     bool YosysSmtFlattenDatatype;
     /// when used in property verification, show prove?
     bool YosysPropertyCheckShowProof;
+    /// Whether to word-blast array or use SMT Array
+    /// By default will word-blast
+    bool YosysSmtArrayForRegFile;
     /// How to encode Verilog state
     /// DataSort seems to use PDR engine
     typedef enum {
@@ -232,6 +238,7 @@ public:
           // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
           YosysUndrivenNetAsInput(true), YosysSmtFlattenHierarchy(true),
           YosysSmtFlattenDatatype(false), YosysPropertyCheckShowProof(false),
+          YosysSmtArrayForRegFile(false),
           YosysSmtStateSort(Datatypes), InvariantSynthesisKeepMemory(true),
           InvariantCheckKeepMemory(true),
           InvariantSynthesisReachableCheckKeepOldInvariant(false),
