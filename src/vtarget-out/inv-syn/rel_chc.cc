@@ -42,6 +42,8 @@ static std::string dual_ind_inv_reset_start_tmpl = R"***(
 (declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
 (declare-rel fail ())
 
+(declare-var |__SvBI__| |%d%_s|) ; design
+(declare-var |__SvI__|  |%d%_s|) ; design
 (declare-var |__Sv__|   |%d%_s|) ; design
 (declare-var |__Sv'__|  |%d%_s|) ; design
 
@@ -54,11 +56,13 @@ static std::string dual_ind_inv_reset_start_tmpl = R"***(
 ; init => inv1
 (rule (=> 
   (and 
-    ;(not (|%d%_n rst| |__Sv__|))    ; why not removed?
-    (|%d%_i| |__Sv__|)  ; init 
-    (|%d%_h| |__Sv__|)
-    (|__AMC__design| |__Sv__|)
-  ) (INV1 |__Sv__|)))
+    (|%d%_n rst| |__SvBI__|) 
+    (|%d%_t|     |__SvBI__| |__SvI__|)
+    ;(not (|%d%_n rst| |__SvI__|))    ; why not removed?
+    (|%d%_h| |__SvBI__|)
+    (|%d%_h| |__SvI__|)
+    (|__AMC__design| |__SvI__|)
+  ) (INV1 |__SvI__|)))
 
 ; inv1 /\ T => inv1
 (rule (=> 
@@ -150,6 +154,7 @@ static std::string dual_ind_inv_tmpl = R"***(
 (declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
 (declare-rel fail ())
 
+(declare-var |__SvBI__| |%d%_s|) ; design
 (declare-var |__SvI__|  |%d%_s|) ; design
 (declare-var |__Sv__|   |%d%_s|) ; design
 (declare-var |__Sv'__|  |%d%_s|) ; design
@@ -164,11 +169,13 @@ static std::string dual_ind_inv_tmpl = R"***(
 ; init => inv1
 (rule (=> 
   (and 
-    (|%d%_i|     |__Sv__|)
-    ;(not (|%d%_n rst| |__Sv__|))    ; why not removed?
-    (|%d%_h| |__Sv__|)
-    (|__AMC__design| |__Sv__|)
-  ) (INV1 |__Sv__|)))
+    (|%d%_n rst| |__SvBI__|) 
+    (|%d%_t|     |__SvBI__| |__SvI__|)
+    ;(not (|%d%_n rst| |__SvI__|))    ; why not removed?
+    (|%d%_h| |__SvBI__|)
+    (|%d%_h| |__SvI__|)
+    (|__AMC__design| |__SvI__|)
+  ) (INV1 |__SvI__|)))
 
 ; inv1 /\ T => inv1
 (rule (=> 
@@ -418,7 +425,8 @@ bool static extractSigDefFromLine(
               dspt == "issue_decode" ||
               dspt == "issue_valid"  ||
               dspt == "start_condition" ||
-              dspt == "variable_map_assume"
+              dspt == "variable_map_assume" ||
+              dspt == "variable_map_assume_"
             )
               wn_aspt_item.insert(expr);
             else

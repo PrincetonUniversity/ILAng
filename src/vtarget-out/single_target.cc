@@ -489,7 +489,9 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
   std::ofstream fout;
   std::string fn;
   if (_backend == backend_selector::COSA ||
-      (_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
+      (_backend & backend_selector::YOSYS) == backend_selector::YOSYS ||
+      (_backend == backend_selector::RELCHC)
+      ) {
     fn = os_portable_append_dir(_output_path, top_file_name);
     fout.open(fn, std::ios_base::app);
   } else if (_backend == backend_selector::JASPERGOLD) {

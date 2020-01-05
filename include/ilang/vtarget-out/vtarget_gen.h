@@ -32,14 +32,14 @@ public:
     NONE = 0,
     COSA = 1,
     JASPERGOLD = 2,
-    YOSYS = 64,               // 1000000
-    CHC = YOSYS + 8,          // 1001000
-    Z3PDR = CHC + 1,          // 1001001
-    ELD_CEGAR = CHC + 2,      // 1001010
-    GRAIN_SYGUS = CHC + 4,    // 1001100
-    ABCPDR = YOSYS + 16,      // 1010000
-    BTOR_GENERIC = YOSYS + 32,// 1100000
-    RELCHC = 128             // 10000000
+    YOSYS = 128,              // 10000000
+    CHC = YOSYS + 8,          // 10001000
+    Z3PDR = CHC + 1,          // 10001001
+    ELD_CEGAR = CHC + 2,      // 10001010
+    GRAIN_SYGUS = CHC + 4,    // 10001100
+    ABCPDR = YOSYS + 16,      // 10010000
+    BTOR_GENERIC = YOSYS + 32,// 10100000
+    RELCHC = YOSYS + 64       // 11000000
   } backend_selector;
   /// Type of invariant synthesis backend
   typedef enum {

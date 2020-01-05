@@ -17,6 +17,41 @@ namespace ilang {
 #define VLG_TRUE "`true"
 #define VLG_FALSE "`false"
 
+/// template for generating relchc script wo arrays
+static std::string relchcGenerateSmtScript_wo_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+%setundef -undriven -expose%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
+memory -nordff
+proc
+opt;;
+)***";
+/// template for generating relchc script
+static std::string relchcGenerateSmtScript_w_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+%setundef -undriven -expose%
+sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
+memory_dff -wr_only
+memory_collect;
+memory_unpack
+splitnets -driver
+opt;;
+memory_collect;
+pmuxtree
+proc
+opt;;
+)***";
+
 
 VlgSglTgtGen_Relchc::VlgSglTgtGen_Relchc(
     const std::string&
@@ -43,7 +78,7 @@ VlgSglTgtGen_Relchc::VlgSglTgtGen_Relchc(
     
     ILA_ASSERT(
       target_tp == target_type_t::INSTRUCTIONS )
-      << "Only support target type : INSTRUCTIONS" << target_tp;
+      << "Only support target type : INSTRUCTIONS, but get: " << target_tp;
     
     ILA_ASSERT(! vtg_config.YosysSmtFlattenHierarchy) 
       << "Monolithic synthesis requires not to flatten hierarchy";
@@ -51,41 +86,7 @@ VlgSglTgtGen_Relchc::VlgSglTgtGen_Relchc(
     ILA_ASSERT(! vtg_config.YosysSmtFlattenDatatype)
       << "BUG: not implemented, future work.";
 
-// initialize templates
-relchcGenerateSmtScript_wo_Array = R"***(
-hierarchy -check
-proc
-opt
-opt_expr -mux_undef
-opt
-opt
-%setundef -undriven -expose%
-sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
-memory -nordff
-proc
-opt;;
-)***";
-
-relchcGenerateSmtScript_w_Array = R"***(
-hierarchy -check
-proc
-opt
-opt_expr -mux_undef
-opt
-opt
-%setundef -undriven -expose%
-sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
-memory_dff -wr_only
-memory_collect;
-memory_unpack
-splitnets -driver
-opt;;
-memory_collect;
-pmuxtree
-proc
-opt;;
-)***";
-                    }
+    }
 
 
 
@@ -364,7 +365,10 @@ std::string VlgSglTgtGen_Relchc::dual_inv_gen_smt(
   std::vector<std::string> cmd;
   cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
 
-  auto res = os_portable_execute_shell( cmd ); // this does not redirect
+  std::string logfilename = 
+      os_portable_append_dir(_output_path, "yosys_output.log");
+
+  auto res = os_portable_execute_shell( cmd , logfilename); // this does not redirect
     ILA_ERROR_IF( res.failure != res.NONE  )
       << "Executing Yosys failed!";
     ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)

@@ -102,12 +102,6 @@ protected:
   std::vector<std::string> vlg_mod_inv_vec;
 
 protected:
-  /// template for generating relchc script wo arrays
-  std::string relchcGenerateSmtScript_wo_Array;
-  /// template for generating relchc script
-  std::string relchcGenerateSmtScript_w_Array;
-
-protected:
   /// Add a direct assumption -- needed by base class
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) override;

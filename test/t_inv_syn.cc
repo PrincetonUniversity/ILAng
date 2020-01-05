@@ -806,6 +806,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntRelChc) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.CosaAddKeep = false;
+  cfg.YosysSmtFlattenHierarchy = false;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
   VerilogVerificationTargetGenerator vg(
@@ -813,7 +814,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntRelChc) {
       {dirName + "verilog/opposite.v"}, //
       "opposite",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
-      dirName + "rfmap/cond-noinv.json", dirName + "out/", ila_model.get(),
+      dirName + "rfmap/cond-relchc.json", dirName + "out/", ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::RELCHC,
       cfg);
 

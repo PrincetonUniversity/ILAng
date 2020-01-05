@@ -199,6 +199,18 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
       target.do_not_instantiate();
+    } else if (_backend == backend_selector::RELCHC && invariantExists) {
+      // will actually fail : not supported for using relchc for invariant targets
+      auto target = VlgSglTgtGen_Relchc(
+          sub_output_path,
+          NULL, // invariant
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+          _vlg_impl_include_path, _vtg_config, _backend,
+          target_type_t::INVARIANTS, _advanced_param_ptr);
+      target.ConstructWrapper();
+      target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2", "absmem.v");
+      target.do_not_instantiate();
     } else if ((_backend & backend_selector::YOSYS) ==
                    backend_selector::YOSYS &&
                invariantExists) {
@@ -222,18 +234,6 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         design_file = "wrapper.unknfmt";
 
       target.ExportAll("wrapper.v", "ila.v", "run.sh", design_file, "absmem.v");
-      target.do_not_instantiate();
-    } else if (_backend == backend_selector::RELCHC) {
-      // will actually fail : not supported for using relchc for invariant targets
-      auto target = VlgSglTgtGen_Relchc(
-          sub_output_path,
-          NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
-          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
-          _vlg_impl_include_path, _vtg_config, _backend,
-          target_type_t::INVARIANTS, _advanced_param_ptr);
-      target.ConstructWrapper();
-      target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2", "absmem.v");
       target.do_not_instantiate();
     }
 
@@ -287,6 +287,18 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
         target.do_not_instantiate();
+      } else if (_backend == backend_selector::RELCHC) {
+        // will actually fail : not supported for using relchc for invariant targets
+        auto target = VlgSglTgtGen_Relchc(
+            sub_output_path,
+            instr_ptr, // instruction
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INSTRUCTIONS, _advanced_param_ptr);
+        target.ConstructWrapper();
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2", "absmem.v");
+        target.do_not_instantiate();
       } else if ((_backend & backend_selector::YOSYS) ==
                  backend_selector::YOSYS) {
         // in this case we will have two targets to generate
@@ -316,19 +328,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         target.ExportAll("wrapper.v", "ila.v", "run.sh", design_file,
                          "absmem.v");
         target.do_not_instantiate();
-      }  else if (_backend == backend_selector::RELCHC) {
-        // will actually fail : not supported for using relchc for invariant targets
-        auto target = VlgSglTgtGen_Relchc(
-            sub_output_path,
-            NULL, // invariant
-            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
-            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
-            _vlg_impl_include_path, _vtg_config, _backend,
-            target_type_t::INVARIANTS, _advanced_param_ptr);
-        target.ConstructWrapper();
-        target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2", "absmem.v");
-        target.do_not_instantiate();
-      } // end case backend
+      }  // end case backend
       runnable_script_name.push_back(
           os_portable_append_dir(sub_output_path, "run.sh"));
     } // end for instrs
