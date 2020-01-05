@@ -238,6 +238,12 @@ Copyright (c) 2013-2019 Niels Lohmann.
 ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
 Copyright (c) 2016 Ben Marshall.
 
+ILAng uses the [VCD parser](https://github.com/ben-marshall/verilog-vcd-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-vcd-parser/blob/master/LICENSE.txt).
+Copyright (c) 2018 Ben Marshall.
+
+ILAng uses the [SMT parser](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html), which is licensed under the [MIT License](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html).
+Copyright (c) 2010 Alberto Griggio
+
 ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
 Copyright (c) 2016 Princeton University.
 
