@@ -5,11 +5,6 @@ ENV VIRT_ENV ilang-env
 ENV BUILD_ROOT /ibuild
 ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
-  libz3-dev \
-  z3 \
-  && rm -rf /var/lib/apt/lists/*
-
 # root dir
 WORKDIR $BUILD_ROOT
 
@@ -31,7 +26,7 @@ WORKDIR $BUILD_ROOT
 ADD https://api.github.com/repos/PrincetonUniversity/ItSy/git/refs/heads/master itsy_version.json
 RUN git clone https://github.com/PrincetonUniversity/ItSy.git $ITSY_DIR
 WORKDIR $ITSY_DIR
-RUN bjam -j"$(nproc)"
+RUN CPLUS_INCLUDE_PATH=$BUILD_PREF/include LIBRARY_PATH=$BUILD_PREF/lib LD_LIBRARY_PATH=$BUILD_PREF/lib bjam -j"$(nproc)"
 RUN cp build/ila.so $BUILD_PREF/lib
 
 # deploy
