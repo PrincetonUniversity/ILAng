@@ -25,6 +25,7 @@ opt
 opt_expr -mux_undef
 opt
 opt
+flatten
 %setundef -undriven -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
@@ -39,6 +40,7 @@ opt
 opt_expr -mux_undef
 opt
 opt
+flatten
 %setundef -undriven -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory_dff -wr_only
@@ -345,12 +347,12 @@ std::string VlgSglTgtGen_Relchc::dual_inv_gen_smt(
       relchcGenerateSmtScript_wo_Array, 
       "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
       "%module%", top_mod_name),
-      "%rstlen%",
-            std::to_string(
-                supplementary_info.cosa_yosys_reset_config.reset_cycles)),
-      "%cycle%",
-        std::to_string(
-            supplementary_info.cosa_yosys_reset_config.reset_cycles))
+      "%rstlen%", "1" // this is because, the reset analysis is applied on the DUT not the wrapper
+            /*std::to_string(
+                supplementary_info.cosa_yosys_reset_config.reset_cycles)*/),
+      "%cycle%", "1" // this is because, the reset analysis is applied on the DUT not the wrapper
+        /*std::to_string(
+            supplementary_info.cosa_yosys_reset_config.reset_cycles) */)
       ;
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << os_portable_append_dir( _output_path, smt_name );   

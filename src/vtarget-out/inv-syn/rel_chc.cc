@@ -42,7 +42,8 @@ static std::string dual_ind_inv_reset_start_tmpl = R"***(
 (declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
 (declare-rel fail ())
 
-(declare-var |__SvBI__| |%d%_s|) ; design
+%BIn%
+
 (declare-var |__SvI__|  |%d%_s|) ; design
 (declare-var |__Sv__|   |%d%_s|) ; design
 (declare-var |__Sv'__|  |%d%_s|) ; design
@@ -56,10 +57,8 @@ static std::string dual_ind_inv_reset_start_tmpl = R"***(
 ; init => inv1
 (rule (=> 
   (and 
-    (|%d%_n rst| |__SvBI__|) 
-    (|%d%_t|     |__SvBI__| |__SvI__|)
-    ;(not (|%d%_n rst| |__SvI__|))    ; why not removed?
-    (|%d%_h| |__SvBI__|)
+    %rstseq%
+    ; (not (|%d%_n rst| |__SvI__|))    ; why not removed?
     (|%d%_h| |__SvI__|)
     (|__AMC__design| |__SvI__|)
   ) (INV1 |__SvI__|)))
@@ -154,7 +153,7 @@ static std::string dual_ind_inv_tmpl = R"***(
 (declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
 (declare-rel fail ())
 
-(declare-var |__SvBI__| |%d%_s|) ; design
+%BIn%
 (declare-var |__SvI__|  |%d%_s|) ; design
 (declare-var |__Sv__|   |%d%_s|) ; design
 (declare-var |__Sv'__|  |%d%_s|) ; design
@@ -168,11 +167,9 @@ static std::string dual_ind_inv_tmpl = R"***(
 
 ; init => inv1
 (rule (=> 
-  (and 
-    (|%d%_n rst| |__SvBI__|) 
-    (|%d%_t|     |__SvBI__| |__SvI__|)
+  (and
+    %rstseq% 
     ;(not (|%d%_n rst| |__SvI__|))    ; why not removed?
-    (|%d%_h| |__SvBI__|)
     (|%d%_h| |__SvI__|)
     (|__AMC__design| |__SvI__|)
   ) (INV1 |__SvI__|)))
@@ -418,7 +415,8 @@ bool static extractSigDefFromLine(
               dspt == "additional_mapping_control_assume" ||
               dspt == "func_arg" ||
               dspt == "func_result" ||
-              dspt == "post_value_holder"
+              dspt == "post_value_holder" ||
+              dspt == "rfassumptions"
                 )
               wn_amc_wrapper_item.insert(expr);
             else if(
@@ -537,11 +535,56 @@ bool static extractSigDefFromLine(
       } // construct expressions
     } // Construct exprs done
 
+    // %BIn%
+    // %rstseq%
+    std::string BIn;
+    std::string rstseq;
+    { // set BIn and rstseq
+      unsigned rstcycles = supplementary_info.cosa_yosys_reset_config.reset_cycles;
+      std::string rst_sig = "rst";
+      bool rst_neg = false;
+
+      // decide reset signal
+      if(IN("interface mapping", rf_vmap)) {
+        ILA_CHECK(rf_vmap["interface mapping"].is_object());
+        for (auto&& item : rf_vmap["interface mapping"].items()) {
+          if (item.value() == "**RESET**") {
+            rst_sig = item.key();
+            rst_neg = false;
+          } else if (item.value() == "**NRESET**") {
+            rst_sig = item.key();
+            rst_neg = true;
+          }
+        }
+      } // finish deciding reset signal
+
+
+      for (unsigned idx = 0; idx < rstcycles; ++ idx) {
+        std::string st_name = "|__SvBI" + std::to_string(idx) +"__|";
+        std::string next_st_name = idx < rstcycles -1 ?
+          "|__SvBI" + std::to_string(idx+1) +"__|" :
+          "|__SvI__|";
+        BIn += "(declare-var " + st_name + " |%d%_s|)\n";
+
+        if (rst_neg)
+          rstseq += "(not (|%d%_n "+ rst_sig +"| " + st_name + "))\n";
+        else
+          rstseq += "(|%d%_n "+ rst_sig +"| " + st_name + ")\n";
+        rstseq += "(|%d%_t|     " + st_name + " " + next_st_name + ")\n";
+        rstseq += "(|%d%_h| " + st_name + ")\n";
+      }
+    }  // end of setting BIn and rstseq
+
+
     std::string ret_tpl_smt;
     if (_vtg_config.VerificationSettingAvoidIssueStage)
       ret_tpl_smt = dual_ind_inv_reset_start_tmpl;
     else
       ret_tpl_smt = dual_ind_inv_tmpl;
+    { // replacing the init sequence
+      ret_tpl_smt = ReplaceAll(ReplaceAll(ret_tpl_smt, "%BIn%", BIn), "%rstseq%", rstseq);
+    }
+
     { // now create the template 
       // 1. func sub
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%wrapperSmt%", all_smt);

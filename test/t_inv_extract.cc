@@ -330,12 +330,9 @@ TEST(TestInvExtract, Z3InvExtractRangeSpec) {
   // prepare for ...
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/z3-range/";
   auto smt_file = os_portable_append_dir(dirName, "__design_smt.smt2");
-
-  InvariantInCnf inv_cnf;
  
   bool flatten_datatype = false;
   bool flatten_hierarchy = true;
-
 
   std::ifstream fin(smt_file);
   std::stringstream buffer;
@@ -398,6 +395,43 @@ TEST(TestInvExtract, Z3InvExtractRangeSpec) {
     EXPECT_TRUE(smt::SmtlibInvariantParserBase::get_local_ctr() >= 4);
     inv_obj2.ExportToFile(os_portable_append_dir(dirName, "inv.txt"));
   }
+} // Z3InvExtractRangeSpec
+
+
+
+// Test whether it is able to handle [][] in the description
+TEST(TestInvExtract, Z3RelChcExtract) {
+
+  // prepare for ...
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_extract/relchc";
+  auto smt_file = os_portable_append_dir(dirName, "__design_smt.smt2");
+ 
+  bool flatten_datatype = false;
+  bool flatten_hierarchy = false;
+
+  std::ifstream fin(smt_file);
+  std::stringstream buffer;
+  buffer << fin.rdbuf();
+  {
+    smt::YosysSmtParser design_info(buffer.str());
+
+    auto inv_file = os_portable_append_dir(dirName, "result.txt");
+
+    InvariantObject inv_obj;
+    inv_obj.set_dut_inst_name("m1");
+    inv_obj.AddInvariantFromChcResultFile(
+      design_info, // smt
+      "" , // tag
+      inv_file, // result file
+      flatten_datatype,
+      flatten_hierarchy
+      );
+
+    for (auto && inv : inv_obj.GetVlgConstraints()) {
+      std::cout << inv << std::endl;
+    }  
+  } // read inv
+
 }
 
 #endif
