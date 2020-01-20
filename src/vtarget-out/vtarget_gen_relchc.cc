@@ -26,7 +26,7 @@ opt_expr -mux_undef
 opt
 opt
 flatten
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
 proc
@@ -41,7 +41,7 @@ opt_expr -mux_undef
 opt
 opt
 flatten
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory_dff -wr_only
 memory_collect;
@@ -345,7 +345,7 @@ std::string VlgSglTgtGen_Relchc::dual_inv_gen_smt(
       ReplaceAll(
       ReplaceAll(
       relchcGenerateSmtScript_wo_Array, 
-      "%setundef -undriven -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -expose" : ""),
+      "%setundef -undriven -init -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -init -expose" : ""),
       "%module%", top_mod_name),
       "%rstlen%", "1" // this is because, the reset analysis is applied on the DUT not the wrapper
             /*std::to_string(

@@ -250,12 +250,12 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
 
     std::string problem_name = "variable_map_assume_";
     if (_vtg_config.PerVariableProblemCosa &&
-        (_backend & backend_selector::YOSYS) != backend_selector::YOSYS)
+        _backend != backend_selector::RELCHC)
       problem_name += "_" + sname;
     // if we are targeting yosys, we should make sure they have the same
     // problem_name so the it knowns these are the assumptions for varmap
 
-    if ((_backend & backend_selector::YOSYS) == backend_selector::YOSYS) {
+    if ( _backend == backend_selector::RELCHC) {
 
       add_an_assumption(GetStateVarMapExpr(sname, i.value()), problem_name);
       // its signal reference will be replaced, but this should be fine

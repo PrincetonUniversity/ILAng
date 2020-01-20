@@ -115,6 +115,7 @@ public:
     /// Only enforce var eq on updated vars, should not be used
     bool OnlyAssumeUpdatedVarsEq; // should be false
 
+
     // ----------- Options for CoSA script -------------- //
     /// If not empty, the generated script will include the path of Cosa
     std::string CosaPath;
@@ -174,6 +175,9 @@ public:
     bool ChcAssumptionEnd;
 
     // ----------- Options for Btor Output -------------- //
+    /// in the format of "xxxx [options] %btorfile% [options]"
+    /// will replace %btorfile% with the file
+    std::string BtorGenericCmdline;
     /// CHC, whether to turn array into individual registers
     bool BtorSingleProperty;
     /// CHC, whether to force assumption on the init
