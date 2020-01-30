@@ -30,8 +30,8 @@ IlaSimTest::IlaSimTest()
 
     instr.SetUpdate(
         address, Ite(is_status_idle,
-                     Concat(Ite(cmdaddr == ADDR + 1, cmddata, address(15, 8)),
-                            Ite(cmdaddr == ADDR, cmddata, address(7, 0))),
+                     Concat(Ite(cmdaddr == ADDR + 1, cmddata/cmddata, address(15, 8)),
+                            Ite(cmdaddr == ADDR, cmddata * cmddata, address(7, 0))),
                      address));
 
     instr.SetUpdate(flag, Ite(is_status_idle, flag_true, flag_false));

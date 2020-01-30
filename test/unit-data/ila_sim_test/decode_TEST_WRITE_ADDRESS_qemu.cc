@@ -1,17 +1,17 @@
 #include "TEST.h"
 bool TEST::decode_TEST_WRITE_ADDRESS() {
-  c_734 = TEST_cmd == 1;
-  c_730 = TEST_cmd == 2;
-  c_736 = (c_734 | c_730);
-  if (!c_736) {
+  c_1693068 = TEST_cmd == 1;
+  c_1693064 = TEST_cmd == 2;
+  c_1693070 = (c_1693068 | c_1693064);
+  if (!c_1693070) {
     return false;
   }
-  c_759 = TEST_cmd == 2;
-  c_752 = TEST_cmdaddr == 65282;
-  c_754 = TEST_cmdaddr > 65282;
-  c_756 = (c_752 | c_754);
-  c_761 = (c_759 & c_756);
-  c_748 = TEST_cmdaddr < 65284;
-  c_762 = (c_761 & c_748);
-  return c_762;
+  c_1693093 = TEST_cmd == 2;
+  c_1693086 = TEST_cmdaddr == 65282;
+  c_1693088 = TEST_cmdaddr > 65282;
+  c_1693090 = (c_1693086 | c_1693088);
+  c_1693095 = (c_1693093 & c_1693090);
+  c_1693082 = TEST_cmdaddr < 65284;
+  c_1693096 = (c_1693095 & c_1693082);
+  return c_1693096;
 };
