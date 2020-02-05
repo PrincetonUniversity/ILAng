@@ -256,13 +256,18 @@ void IlaSim::dfs_binary_op_non_mem(std::stringstream& dfs_simulator,
                                                                  expr) ==
                                                              AST_UID_EXPR_OP::
                                                                  DIV)
-                                                                ? "/"
+                                                                ? " / "
                                                                 : (GetUidExprOp(
                                                                        expr) ==
                                                                    AST_UID_EXPR_OP::
                                                                        CONCAT)
-                                                                      ? ", "
-                                                                      : "";
+                                                                      ? " , "
+                                                                      : (GetUideExprOp(
+                                                                             expr) ==
+                                                                         AST_UID_EXPR_OP::
+                                                                             UREM)
+                                                                            ? " % "
+                                                                            : "";
   declare_variable_with_id(id, out_type_str, out_str);
   if (qemu_device_) {
     if (GetUidExprOp(expr) == AST_UID_EXPR_OP::CONCAT) {
@@ -568,7 +573,8 @@ void IlaSim::dfs_kernel(std::stringstream& dfs_simulator, std::string& indent,
                               (expr_op_uid == AST_UID_EXPR_OP::ADD) ||
                               (expr_op_uid == AST_UID_EXPR_OP::MUL) ||
                               (expr_op_uid == AST_UID_EXPR_OP::DIV) ||
-                              (expr_op_uid == AST_UID_EXPR_OP::CONCAT));
+                              (expr_op_uid == AST_UID_EXPR_OP::CONCAT) ||
+                              (expr_op_uid == AST_UID_EXPR_OP::UREM));
     bool binary_op_mem = ((expr_op_uid == AST_UID_EXPR_OP::LOAD) ||
                           (expr_op_uid == AST_UID_EXPR_OP::STORE));
     bool extract_op = (expr_op_uid == AST_UID_EXPR_OP::EXTRACT);
