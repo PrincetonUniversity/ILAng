@@ -262,7 +262,7 @@ void IlaSim::dfs_binary_op_non_mem(std::stringstream& dfs_simulator,
                                                                    AST_UID_EXPR_OP::
                                                                        CONCAT)
                                                                       ? " , "
-                                                                      : (GetUideExprOp(
+                                                                      : (GetUidExprOp(
                                                                              expr) ==
                                                                          AST_UID_EXPR_OP::
                                                                              UREM)
