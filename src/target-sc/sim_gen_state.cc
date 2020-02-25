@@ -75,7 +75,7 @@ void IlaSim::create_bv_state(const ExprPtr& expr, bool child) {
       // if (!child) {
       //   header_ << header_indent_ << "sc_out< " << state_type_str << "> "
       //           << state_name_str << "_out;" << std::endl;
-      }
+      // }
       header_ << header_indent_ << state_type_str << state_name_str << ";"
               << std::endl;
     }
