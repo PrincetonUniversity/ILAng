@@ -227,15 +227,15 @@ void IlaSim::execute_write_external_mem(std::stringstream& execute_kernel,
     execute_kernel << indent << "if (" << mem_iterator << " < " << mem_map_size
                    << ") {" << std::endl;
     increase_indent(indent);
-    execute_kernel << indent << mem_write_valid << ".write(1);" << std::endl;
+    execute_kernel << indent << mem_write_valid << " = 1;" << std::endl;
     execute_kernel << indent << "std::map<int, int>::iterator it = " << mem_map
                    << ".begin();" << std::endl;
     execute_kernel << indent << "for (int i = 0; i < " << mem_iterator
                    << "; i++)" << std::endl;
     execute_kernel << indent << "  it++;" << std::endl;
-    execute_kernel << indent << mem_write_address << ".write(it->first);"
+    execute_kernel << indent << mem_write_address << " = it->first;"
                    << std::endl;
-    execute_kernel << indent << mem_write_data << ".write(it->second);"
+    execute_kernel << indent << mem_write_data << " = it->second;"
                    << std::endl;
     decrease_indent(indent);
     execute_kernel << indent << "}" << std::endl;
@@ -271,13 +271,13 @@ void IlaSim::execute_read_external_mem(std::stringstream& execute_kernel,
     execute_kernel << indent << mem_read_ctrl << " = 2;" << std::endl;
     execute_kernel << indent << it->dest_str << " = " << mem_read_data
                    << ".read();" << std::endl;
-    execute_kernel << indent << mem_read_ready << ".write(0);" << std::endl;
+    execute_kernel << indent << mem_read_ready << " = 0;" << std::endl;
     decrease_indent(indent);
     execute_kernel << indent << "} else {" << std::endl;
     increase_indent(indent);
-    execute_kernel << indent << mem_read_address << ".write(" << it->addr_str
-                   << ");" << std::endl;
-    execute_kernel << indent << mem_read_ready << ".write(1);" << std::endl;
+    execute_kernel << indent << mem_read_address << " = " << it->addr_str
+                   << ";" << std::endl;
+    execute_kernel << indent << mem_read_ready << " = 1;" << std::endl;
     execute_kernel << indent << "return;" << std::endl;
     decrease_indent(indent);
     execute_kernel << indent << "}" << std::endl;
@@ -349,9 +349,9 @@ void IlaSim::execute_write_output(std::stringstream& execute_kernel,
                << "doesn't have output port";
     } else
       execute_kernel << indent << model_ptr_->name() << "_"
-                     << model_ptr_->state(i)->name() << "_out.write("
+                     << model_ptr_->state(i)->name() << "_out = "
                      << model_ptr_->name() << "_"
-                     << model_ptr_->state(i)->name() << ");" << std::endl;
+                     << model_ptr_->state(i)->name() << ";" << std::endl;
   }
 }
 
