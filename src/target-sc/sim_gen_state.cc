@@ -50,7 +50,8 @@ void IlaSim::create_bool_state(const ExprPtr& expr, bool child) {
               << std::endl;
     else {
       if (!child) {
-        header_ << header_indent_ << "sc_out<bool> " << state_name_str
+        header_ << header_indent_ << "sc_port< sc_signal_out_if<bool>, 0, SC_ZERO_OR_MORE_BOUND > " 
+                << state_name_str
                 << "_out;" << std::endl;
       }
       header_ << header_indent_ << "bool " << state_name_str << ";"
@@ -73,7 +74,8 @@ void IlaSim::create_bv_state(const ExprPtr& expr, bool child) {
               << state_name_str << ";" << std::endl;
     } else {
       if (!child) {
-        header_ << header_indent_ << "sc_out< " << state_type_str << "> "
+        header_ << header_indent_ << "sc_port< sc_signal_out_if< " << state_type_str << ">, "
+                << " 0, SC_ZERO_OR_MORE_BOUND > "
                 << state_name_str << "_out;" << std::endl;
       }
       header_ << header_indent_ << state_type_str << state_name_str << ";"
@@ -94,20 +96,25 @@ void IlaSim::create_external_mem_port(const ExprPtr& expr) {
     header_ << header_indent_ << "sc_in< sc_biguint<"
             << expr->sort()->data_width() << "> > " << state_name_str
             << "_read_data;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<1> >" << state_name_str
+    header_ << header_indent_ << "sc_port< sc_signal_out_if< sc_biguint<1> >, 0, SC_ZERO_OR_MORE_BOUND> " 
+            << state_name_str
             << "_read_ready;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<"
-            << expr->sort()->addr_width() << "> > " << state_name_str
+    header_ << header_indent_ << "sc_port< sc_signal_out_if< sc_biguint<"
+            << expr->sort()->addr_width() << "> >, 0, SC_ZERO_OR_MORE_BOUND>" 
+            << state_name_str
             << "_read_address;" << std::endl;
     header_ << header_indent_ << "sc_in< sc_biguint<1> > " << state_name_str
             << "_write_ready;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<"
-            << expr->sort()->addr_width() << "> > " << state_name_str
+    header_ << header_indent_ << "sc_port< sc_signal_out_if< sc_biguint<"
+            << expr->sort()->addr_width() << "> >, 0, SC_ZERO_OR_MORE_BOUND> " 
+            << state_name_str
             << "_write_address;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<1> > " << state_name_str
+    header_ << header_indent_ << "sc_port< sc_signal_out_if< sc_biguint<1> >, 0, SC_ZERO_OR_MORE_BOUND> " 
+            << state_name_str
             << "_write_valid;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<"
-            << expr->sort()->data_width() << "> > " << state_name_str
+    header_ << header_indent_ << "sc_port< sc_signal_out_if< sc_biguint<"
+            << expr->sort()->data_width() << "> >, 0, SC_ZERO_OR_MORE_BOUND> " 
+            << state_name_str
             << "_write_data;" << std::endl;
   }
 }
