@@ -53,7 +53,7 @@ public:
   enum _chc_target_t { CEX, INVCANDIDATE, GENERAL_PROPERTY };
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
-    /// Preheader Content
+    /// Preheader Content : will use in all targets
     std::string WrapperPreheader;
     /// Set the targets: instructions/invariants/both
     enum { INST, INV, BOTH } target_select;
