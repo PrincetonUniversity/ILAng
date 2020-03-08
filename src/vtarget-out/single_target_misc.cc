@@ -199,13 +199,13 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(
   std::string original_val_field;
 
   for (auto&& cond_val_pair : pv_cond_val.items()) {
-    if (cond_val_pair.key() == "0" || cond_val_pair.key() == "cond")
+    if (cond_val_pair.key() == "cond")
       cond = ReplExpr(cond_val_pair.value(), true);
-    else if (cond_val_pair.key() == "1" || cond_val_pair.key() == "val") {
+    else if (cond_val_pair.key() == "val") {
       original_val_field = cond_val_pair.value();
       StrTrim(original_val_field);
       val = ReplExpr(original_val_field, true);
-    } else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width") {
+    } else if (cond_val_pair.key() == "width") {
       if (cond_val_pair.value().is_string()) {
         ILA_CHECK(cond_val_pair.value().get<std::string>() == "auto")
             << "Expecting width to be unsigned int / auto";
@@ -304,12 +304,17 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
   for (auto&& m_rec : monitor_rec.items()) {
     const auto& mname = m_rec.key(); // actually no use
     auto& mdef = m_rec.value();
-    ILA_ERROR_IF(!(mdef.is_object() || mdef.is_array()))
-        << "Expect verilog-inline-monitors's element to be map/list type";
+    ILA_ERROR_IF(!(mdef.is_object() ))
+        << "Expect verilog-inline-monitors's element to be map type";
     std::string vlg_expr;
     std::vector<std::string> repl_list;
+    bool keep_for_non_instruction_target = false;
+    if (IN("keep-for-invariants", mdef) && mdef["keep-for-invariants"].get<bool>())
+      keep_for_non_instruction_target = true;
+    if(target_type != target_type_t::INSTRUCTIONS && !keep_for_non_instruction_target )
+      continue;
     for (auto&& vlg_inp_pair : mdef.items()) {
-      if (vlg_inp_pair.key() == "0" || vlg_inp_pair.key() == "verilog") {
+      if (vlg_inp_pair.key() == "verilog") {
         auto& vlg_field = vlg_inp_pair.value();
         if (vlg_field.is_string()) {
           vlg_expr = vlg_field.get<std::string>();
@@ -325,7 +330,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
         } else
           ILA_ERROR << "Expecting string/list-of-string in `verilog` field of "
                        "`verilog-inline-monitors`";
-      } else if (vlg_inp_pair.key() == "1" || vlg_inp_pair.key() == "refs") {
+      } else if (vlg_inp_pair.key() == "refs") {
         auto& ref_field = vlg_inp_pair.value();
         if (ref_field.is_string())
           repl_list.push_back(vlg_inp_pair.value().get<std::string>());
@@ -341,7 +346,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
         } else
           ILA_ERROR << "Expecting string/list-of-string in `refs` field of "
                        "`verilog-inline-monitors`";
-      } else if (vlg_inp_pair.key() == "2" || vlg_inp_pair.key() == "defs") {
+      } else if (vlg_inp_pair.key() == "defs") {
         if (vlg_inp_pair.value().is_array()) {
           auto& defs = vlg_inp_pair.value();
           for (auto&& def : defs.items()) {
@@ -374,10 +379,13 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
         } else
           ILA_ERROR << "Expecting list-of-map in `defs` field of "
                        "`verilog-inline-monitors`";
-      } else
+      } else if (vlg_inp_pair.key() == "keep-for-invariants") {
+        ILA_ASSERT( vlg_inp_pair.value().get<bool>() == keep_for_non_instruction_target );
+      }
+      else
         ILA_ERROR << "Unexpected key: " << vlg_inp_pair.key()
-                  << " in verilog-inline-monitors, expecting 0-2 or "
-                     "verilog/refs/defs";
+                  << " in verilog-inline-monitors, expecting "
+                     "verilog/refs/defs/keep-for-invariants";
     } // for vlg_inp_pair
     for (const auto& w : repl_list) {
       const std::string repl = ReplExpr(w, true);

@@ -57,16 +57,24 @@ VlgVerifTgtGen::VlgVerifTgtGen(
     ILA_ERROR << "ILA should not be none";
     _bad_state = true;
   }
-  // check for json file -- global invariants
-  if (!IN("global invariants", rf_cond)) {
-    ILA_ERROR << "'global invariants' must exist, can be an empty array";
+  // check for json file -- global-invariants
+  if (!IN("global invariants", rf_cond) && !IN("global-invariants", rf_cond)) {
+    ILA_ERROR << "'global-invariants' must exist, can be an empty array";
     _bad_state = true;
-  } else if (!rf_cond["global invariants"].is_array()) {
+  } else if (IN("global invariants", rf_cond) && !rf_cond["global invariants"].is_array()) {
     ILA_ERROR << "'global invariants' must be an array of string";
     _bad_state = true;
-  } else if (rf_cond["global invariants"].size() != 0) {
+  } else if (IN("global-invariants", rf_cond) && !rf_cond["global-invariants"].is_array()) {
+    ILA_ERROR << "'global-invariants' must be an array of string";
+    _bad_state = true;
+  }  else if (IN("global invariants", rf_cond) && rf_cond["global invariants"].size() != 0) {
     if (!rf_cond["global invariants"][0].is_string()) {
       ILA_ERROR << "'global invariants' must be an array of string";
+      _bad_state = true;
+    }
+  } else if (IN("global-invariants", rf_cond) && rf_cond["global-invariants"].size() != 0) {
+    if (!rf_cond["global-invariants"][0].is_string()) {
+      ILA_ERROR << "'global-invariants' must be an array of string";
       _bad_state = true;
     }
   }
@@ -106,8 +114,12 @@ VlgVerifTgtGen::VlgVerifTgtGen(
                  "-> 'instance name' ";
     _bad_state = true;
   }
-  if (!IN("state mapping", rf_vmap) || !rf_vmap["state mapping"].is_object()) {
-    ILA_ERROR << "'state mapping' field must exist in vmap and be a map : "
+  if(!(
+      (IN("state mapping", rf_vmap) && rf_vmap["state mapping"].is_object()) ||
+      (IN("state-mapping", rf_vmap) && rf_vmap["state-mapping"].is_object())
+    ) )
+  {
+    ILA_ERROR << "'state-mapping' field must exist in vmap and be a map : "
                  "ila_var -> impl_var";
     _bad_state = true;
   }
@@ -150,8 +162,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       _vtg_config.target_select == vtg_config_t::INV) {
     // check if there are really invariants:
     bool invariantExists = false;
-    if (IN("global invariants", rf_cond)) {
-      auto& inv = rf_cond["global invariants"];
+    if (IN("global invariants", rf_cond) || IN("global-invariants", rf_cond)) {
+      nlohmann::json & inv = IN("global invariants", rf_cond) ? rf_cond["global invariants"] : rf_cond["global-invariants"];
       if (inv.is_array() && inv.size() != 0)
         invariantExists = true;
       else if (inv.is_string() && inv.get<std::string>() != "")

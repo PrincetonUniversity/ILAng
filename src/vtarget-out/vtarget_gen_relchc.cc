@@ -25,13 +25,14 @@ opt
 opt_expr -mux_undef
 opt
 opt
-flatten
+flatten \%dutmodulename%
 %setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
 proc
 opt;;
 )***";
+// you may want to flatten just 
 /// template for generating relchc script
 static std::string relchcGenerateSmtScript_w_Array = R"***(
 hierarchy -check
@@ -40,7 +41,7 @@ opt
 opt_expr -mux_undef
 opt
 opt
-flatten
+flatten \%dutmodulename%
 %setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory_dff -wr_only
@@ -113,12 +114,10 @@ void VlgSglTgtGen_Relchc::add_a_direct_assertion(const std::string& asst,
 ///      Question: invariant assume? where to put it? Depends on ?
 
 void VlgSglTgtGen_Relchc::PreExportProcess() {
-  // .. ??
-
+/*
   std::string global_assume = "`true";
   std::string start_assume  = "`true";
 
-/*
   for(auto&& dspt_exprs_pair : _problems.assumptions) {
     const auto & dspt = dspt_exprs_pair.first;
     const auto & expr = dspt_exprs_pair.second;
@@ -129,9 +128,8 @@ void VlgSglTgtGen_Relchc::PreExportProcess() {
   }
 
   //std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
-*/
-
   std::string all_assert_wire_content = "`true";
+*/
 
   if(target_type == target_type_t::INSTRUCTIONS) {
     // this is to synthesize invariants
@@ -173,12 +171,12 @@ void VlgSglTgtGen_Relchc::PreExportProcess() {
       } // for expr
     } // for problem
   } // target_type == target_type_t::INVARIANTS
-#endif // Target Type Invariant, we will not handle
-
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
+#endif // Target Type Invariant, we will not handle
+
 } // PreExportProcess
 
 /// export the script to run the verification :
@@ -344,6 +342,7 @@ std::string VlgSglTgtGen_Relchc::dual_inv_gen_smt(
       ReplaceAll(
       ReplaceAll(
       ReplaceAll(
+      ReplaceAll(
       relchcGenerateSmtScript_wo_Array, 
       "%setundef -undriven -init -expose%", _vtg_config.YosysUndrivenNetAsInput ? "setundef -undriven -init -expose" : ""),
       "%module%", top_mod_name),
@@ -352,7 +351,8 @@ std::string VlgSglTgtGen_Relchc::dual_inv_gen_smt(
                 supplementary_info.cosa_yosys_reset_config.reset_cycles)*/),
       "%cycle%", "1" // this is because, the reset analysis is applied on the DUT not the wrapper
         /*std::to_string(
-            supplementary_info.cosa_yosys_reset_config.reset_cycles) */)
+            supplementary_info.cosa_yosys_reset_config.reset_cycles) */),
+      "%dutmodulename%", vlg_info_ptr->get_top_module_name())
       ;
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << os_portable_append_dir( _output_path, smt_name );   

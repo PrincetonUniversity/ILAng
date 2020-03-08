@@ -77,7 +77,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       // but if forced, we do; For the design only thing
       // we do ensure reset also
 
-      // state mapping directive
+      // state-mapping directive
       _sdr(), // currently no
       // verilog info
       vlg_info_ptr(_vlg_info_ptr),
@@ -99,8 +99,11 @@ VlgSglTgtGen::VlgSglTgtGen(
       has_confirmed_synthesized_invariant(
           adv_ptr && adv_ptr->_inv_obj_ptr &&
           !adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
-      has_rf_invariant(IN("global invariants", _rf_cond) &&
-                       rf_cond["global invariants"].size() != 0),
+      has_rf_invariant((IN("global invariants", _rf_cond) &&
+                       rf_cond["global invariants"].size() != 0) ||
+                       (IN("global-invariants", _rf_cond) &&
+                       rf_cond["global-invariants"].size() != 0)
+                       ),
       mapping_counter(0), property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
@@ -117,11 +120,19 @@ VlgSglTgtGen::VlgSglTgtGen(
   // reset absmem's counter
   VlgAbsMem::ClearAbsMemRecord();
 
-  if (has_rf_invariant && !rf_cond["global invariants"].is_array()) {
-    ILA_ERROR << "'global invariants' field in refinement relation has to be a "
-                 "JSON array.";
-    _bad_state = true;
-    return;
+  if (has_rf_invariant) {
+    if (IN("global invariants", rf_cond) && !rf_cond["global invariants"].is_array()) {
+      ILA_ERROR << "'global invariants' field in refinement relation has to be a "
+                  "JSON array.";
+      _bad_state = true;
+      return;
+    }
+    if (IN("global-invariants", rf_cond) && !rf_cond["global-invariants"].is_array()) {
+      ILA_ERROR << "'global-invariants' field in refinement relation has to be a "
+                  "JSON array.";
+      _bad_state = true;
+      return;
+    }
   }
 
   if (target_type == target_type_t::INSTRUCTIONS) {
@@ -230,7 +241,8 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  for (auto& i : (rf_vmap["state mapping"]).items()) {
+  nlohmann::json & state_mapping = IN("state mapping", rf_vmap) ? rf_vmap["state mapping"] : rf_vmap["state-mapping"];
+  for (auto& i : state_mapping.items()) {
     auto sname = i.key();
     if (!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
@@ -269,7 +281,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
                          << "5.2.2";
   // check for unmapped states
   if (!ila_state_names.empty()) {
-    ILA_ERROR << "Refinement relation: missing state mapping for the following "
+    ILA_ERROR << "Refinement relation: missing state-mapping for the following "
                  "state variables:";
     for (auto&& sn : ila_state_names)
       ILA_ERROR << "  " << sn;
@@ -284,12 +296,13 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
          "instructions.";
   std::set<std::string> ila_state_names;
 
-  // put the ila_states to the set, so we can know if state mapping
+  // put the ila_states to the set, so we can know if state-mapping
   // refers to some wrong state names
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  for (auto& i : (rf_vmap["state mapping"]).items()) {
+  nlohmann::json & state_mapping = IN("state mapping", rf_vmap) ? rf_vmap["state mapping"] : rf_vmap["state-mapping"];
+  for (auto& i : state_mapping.items()) {
     auto sname = i.key();
     if (!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
@@ -447,9 +460,10 @@ void VlgSglTgtGen::ConstructWrapper() {
   // post value holder --- ABC cannot work on this
   if (target_type == target_type_t::INSTRUCTIONS) {
     ConstructWrapper_add_post_value_holder();
-    ConstructWrapper_add_vlg_monitor();
   }
-  // add monitor
+  ConstructWrapper_add_vlg_monitor();
+  // add monitor -- inside the monitor, there will be 
+  // disable logic if it is for invariant type target
 
   // 6. helper memory
   ConstructWrapper_add_helper_memory(); // need to decide what is the target

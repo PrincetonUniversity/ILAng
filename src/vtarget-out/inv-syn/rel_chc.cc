@@ -545,9 +545,10 @@ bool static extractSigDefFromLine(
       bool rst_neg = false;
 
       // decide reset signal
-      if(IN("interface mapping", rf_vmap)) {
-        ILA_CHECK(rf_vmap["interface mapping"].is_object());
-        for (auto&& item : rf_vmap["interface mapping"].items()) {
+      if(IN("interface mapping", rf_vmap) || IN("interface-mapping", rf_vmap)) {
+        nlohmann::json & ifmap = IN("interface mapping", rf_vmap) ? rf_vmap["interface mapping"] : rf_vmap["interface-mapping"];
+        ILA_CHECK(ifmap.is_object());
+        for (auto&& item : ifmap.items()) {
           if (item.value() == "**RESET**") {
             rst_sig = item.key();
             rst_neg = false;

@@ -398,7 +398,12 @@ TEST(TestInvExtract, Z3InvExtractRangeSpec) {
 } // Z3InvExtractRangeSpec
 
 
-
+// Parsing back chc invariant is not ready yet
+// You may want to partially flatten. Done in
+// Yosys scripts, and then when parse back the
+// invariant, you only need to handle one-level
+// of hierarchy.
+#if 0
 // Test whether it is able to handle [][] in the description
 TEST(TestInvExtract, Z3RelChcExtract) {
 
@@ -431,8 +436,8 @@ TEST(TestInvExtract, Z3RelChcExtract) {
       std::cout << inv << std::endl;
     }  
   } // read inv
-
-}
+} // Z3RelChcExtract
+#endif
 
 #endif
 
