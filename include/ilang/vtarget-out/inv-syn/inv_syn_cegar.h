@@ -95,7 +95,8 @@ public:
   /// run Verification : returns eq true/false
   bool virtual RunVerifAuto(const std::string& script_selection,
                             const std::string& pid_fname = "",
-                            bool run_test = false);
+                            bool run_test = false,
+                            unsigned timeout = 0);
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto(bool run_test = false);
 

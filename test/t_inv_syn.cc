@@ -801,6 +801,55 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
 
 
 
+TEST(TestVlgVerifInvSyn, SimpleCntRelChc) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.CosaAddKeep = false;
+  cfg.YosysSmtFlattenHierarchy = false;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
+  VerilogVerificationTargetGenerator vg(
+      {},                          // no include
+      {dirName + "verilog/opposite.v"}, //
+      "opposite",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-relchc.json", dirName + "out/", ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::RELCHC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
+
+
+TEST(TestVlgVerifInvSyn, SimpleCntRelChcNoStart) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.CosaAddKeep = false;
+  cfg.YosysSmtFlattenHierarchy = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
+  VerilogVerificationTargetGenerator vg(
+      {},                          // no include
+      {dirName + "verilog/opposite.v"}, //
+      "opposite",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-relchc.json", dirName + "out-no-start/", ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::RELCHC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
 
 #endif // ILANG_BUILD_INVSYN
 

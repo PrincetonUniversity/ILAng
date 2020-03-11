@@ -24,23 +24,24 @@ namespace ilang {
 static std::string abcGenerateSmtScript_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
+flatten
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 miter -assert %module%
-flatten
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 memory -nordff
 techmap; opt -fast
 write_blif %blifname%
 )***";
 
+// flatten before sim to avoid sim's none unique issue
 // yosys template
 static std::string abcGenerateAigerWInit_wo_Array = R"***(
 read_verilog -formal %topfile%
 prep -top %module%
+flatten
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 miter -assert %module%
-flatten
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 memory -nordff
 opt_clean
 techmap
@@ -487,9 +488,9 @@ void VlgSglTgtGen_Abc::generate_blif(const std::string& blif_name,
                                                           top_file_name)),
                         "%module%", top_mod_name),
                     "%blifname%", blif_name),
-                "%setundef -undriven -expose%",
+                "%setundef -undriven -init -expose%",
                 _vtg_config.YosysUndrivenNetAsInput
-                    ? "setundef -undriven -expose"
+                    ? "setundef -undriven -init -expose"
                     : ""),
             "%rstlen%",
             std::to_string(
@@ -541,9 +542,9 @@ void VlgSglTgtGen_Abc::generate_aiger(const std::string& blif_name,
                             "%blifname%", blif_name),
                         "%aigname%", aiger_name),
                     "%mapname%", map_name),
-                "%setundef -undriven -expose%",
+                "%setundef -undriven -init -expose%",
                 _vtg_config.YosysUndrivenNetAsInput
-                    ? "setundef -undriven -expose"
+                    ? "setundef -undriven -init -expose"
                     : ""),
             "%rstlen%",
             std::to_string(
