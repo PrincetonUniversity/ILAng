@@ -379,7 +379,7 @@ void IlaSim::execute_kernel_mk_file() {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
-               << "-c -o "
+               << "-g -c -o "
                << "compute.o compute.cc "
                << "-lsystemc" << std::endl;
   obj_list_ << "compute.o ";
