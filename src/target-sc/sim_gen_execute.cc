@@ -82,6 +82,14 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
     execute_kernel << indent << "schedule_counter++;" << std::endl;
   if (EXTERNAL_MEM_)
     execute_external_mem_load_end(execute_kernel, indent);
+  // print current instruction information to the terminal
+  execute_kernel << indent << "std::cout << @ << sc_time_stamp() << ";
+  execute_kernel <<  "\'t\'" << " << ";  
+  execute_kernel << "\"" << instr_expr->name().str() << "\"" << " << " << "\'t\'" << " << ";
+  execute_kernel << "\"is activated\" << ";
+  execute_kernel <<  "std::endl;" << std::endl;
+
+
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;
 }
