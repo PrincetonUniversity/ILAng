@@ -38,6 +38,9 @@
 # Build directory
 build/*
 
+# other dir
+.vscode/*
+
 # Doxygen output
 #html/
 #latex/
