@@ -1,4 +1,5 @@
 #include <ilang/target-sc/ila_sim.h>
+#include <string>
 
 #include <queue>
 
@@ -27,8 +28,10 @@ void IlaSim::execute_init(std::stringstream& execute_kernel,
 void IlaSim::execute_parent_instructions(std::stringstream& execute_kernel,
                                          std::string& indent) {
   // 04042020: add a file output for the instructions issued.
+  std::string log_name = "instr_log_" + model_ptr_->name().str() + ".txt";
   execute_kernel << indent << "std::ofstream instr_log;" << std::endl;
-  execute_kernel << indent << "instr_log.open(\"./instr_log.txt\", ofstream::out | ofstream::trunc);"
+  execute_kernel << indent << "instr_log.open(\"./" << log_name << "\", ";
+  execute_kernel << "ofstream::out | ofstream::trunc);"
     << std::endl;
   for (unsigned int i = 0; i < model_ptr_->instr_num(); i++) {
     execute_instruction(execute_kernel, indent, model_ptr_->instr(i));
