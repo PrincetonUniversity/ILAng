@@ -24,6 +24,13 @@ void IlaSim::enable_cmake_support() { cmake_support_ = true; }
 
 void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
                      bool qemu_device) {
+
+  if (cmake_support_) {
+    auto res = os_portable_mkdir(export_dir);
+    ILA_INFO_IF(res) << "Create new dir " << export_dir;
+    ILA_WARN_IF(!res) << fmt::format("Dir {} already exists", export_dir);
+  }
+
   sim_gen_init(export_dir, external_mem, readable, qemu_device);
   sim_gen_init_header();
   sim_gen_input();
@@ -272,14 +279,24 @@ void IlaSim::generate_cmake_support() {
   os_portable_mkdir(source_dir);
   os_portable_mkdir(header_dir);
 
-  for (auto src : source_file_list_) {
-    os_portable_move_file_to_dir(os_portable_append_dir(export_dir_, src),
-                                 os_portable_append_dir(source_dir, src));
+  for (auto f : source_file_list_) {
+    auto src = os_portable_append_dir(export_dir_, f);
+    auto dst = os_portable_append_dir(source_dir, f);
+    if (os_portable_compare_file(src, dst)) {
+      os_portable_remove_file(src);
+    } else {
+      os_portable_move_file_to_dir(src, dst);
+    }
   }
 
-  for (auto inc : header_file_list_) {
-    os_portable_move_file_to_dir(os_portable_append_dir(export_dir_, inc),
-                                 os_portable_append_dir(header_dir, inc));
+  for (auto f : header_file_list_) {
+    auto src = os_portable_append_dir(export_dir_, f);
+    auto dst = os_portable_append_dir(header_dir, f);
+    if (os_portable_compare_file(src, dst)) {
+      os_portable_remove_file(src);
+    } else {
+      os_portable_move_file_to_dir(src, dst);
+    }
   }
 
   // gen receipe
@@ -320,8 +337,8 @@ void IlaSim::generate_cmake_support() {
 
   fb << "# source files\n";
   fb << fmt::format("add_executable({}\n", proj);
-  for (auto src : source_file_list_) {
-    fb << fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/src/{}\n", src);
+  for (auto f : source_file_list_) {
+    fb << fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/src/{}\n", f);
   }
   fb << ")\n";
 
