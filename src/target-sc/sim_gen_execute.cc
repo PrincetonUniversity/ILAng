@@ -84,11 +84,14 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
     execute_external_mem_load_end(execute_kernel, indent);
   // print current instruction information to the terminal
   execute_kernel << indent << "std::cout << \"@\" << sc_time_stamp() << ";
-  execute_kernel <<  "\'\\t\'" << " << ";  
-  execute_kernel << "\"" << instr_expr->name().str() << "\"" << " << " << "\'\\t\'" << " << ";
+  execute_kernel << "\'\\t\'"
+                 << " << ";
+  execute_kernel << "\"" << instr_expr->name().str() << "\""
+                 << " << "
+                 << "\'\\t\'"
+                 << " << ";
   execute_kernel << "\"is activated\" << ";
-  execute_kernel <<  "std::endl;" << std::endl;
-
+  execute_kernel << "std::endl;" << std::endl;
 
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;
@@ -383,6 +386,10 @@ void IlaSim::execute_kernel_mk_file() {
                << "compute.o compute.cc "
                << "-lsystemc" << std::endl;
   obj_list_ << "compute.o ";
+
+  if (cmake_support_) {
+    source_file_list_.push_back("compute.cc");
+  }
 }
 
 void IlaSim::execute_kernel_header() {

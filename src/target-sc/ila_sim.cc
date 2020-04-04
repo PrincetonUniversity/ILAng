@@ -1,7 +1,9 @@
 #include <ilang/target-sc/ila_sim.h>
 
+#include <fmt/format.h>
 #include <queue>
 
+#include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -17,6 +19,8 @@ void IlaSim::set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr) {
 void IlaSim::set_systemc_path(std::string systemc_path) {
   systemc_path_ = systemc_path;
 }
+
+void IlaSim::enable_cmake_support() { cmake_support_ = true; }
 
 void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
                      bool qemu_device) {
@@ -53,6 +57,9 @@ void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
   export_dir_ = export_dir;
   readable_ = readable;
   qemu_device_ = qemu_device;
+
+  source_file_list_.clear();
+  header_file_list_.clear();
 }
 
 void IlaSim::sim_gen_init_header() {
@@ -243,9 +250,88 @@ void IlaSim::sim_gen_export() {
     //            << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
     //            << endl;
   }
-  outFile.open(export_dir_ + "mk.sh");
-  outFile << mk_script_.rdbuf();
-  outFile.close();
+
+  if (cmake_support_) {
+    header_file_list_.push_back(fmt::format("{}.h", model_ptr_->name().str()));
+    // source_file_list_.push_back("uninterpreted_func.cc");
+    generate_cmake_support();
+  } else {
+    outFile.open(export_dir_ + "mk.sh");
+    outFile << mk_script_.rdbuf();
+    outFile.close();
+  }
+}
+
+void IlaSim::generate_cmake_support() {
+  auto file = os_portable_append_dir(export_dir_, "CMakeLists.txt");
+  auto proj = model_ptr_->name().str();
+  auto source_dir = os_portable_append_dir(export_dir_, "src");
+  auto header_dir = os_portable_append_dir(export_dir_, "include");
+
+  // move files
+  os_portable_mkdir(source_dir);
+  os_portable_mkdir(header_dir);
+
+  for (auto src : source_file_list_) {
+    os_portable_move_file_to_dir(os_portable_append_dir(export_dir_, src),
+                                 os_portable_append_dir(source_dir, src));
+  }
+
+  for (auto inc : header_file_list_) {
+    os_portable_move_file_to_dir(os_portable_append_dir(export_dir_, inc),
+                                 os_portable_append_dir(header_dir, inc));
+  }
+
+  // gen receipe
+  std::stringstream fb;
+
+  fb << fmt::format("# CMakeLists.txt for {}\n", proj);
+  fb << "cmake_minimum_required(VERSION 3.9.6)\n";
+  fb << fmt::format("project({} LANGUAGES CXX)\n\n", proj);
+  // system c lib searching
+  fb << "# Search for SystemC library\n"
+     << "find_package(PkgConfig)\n"
+     << "pkg_check_modules(PC_SysC QUIET SystemC)\n\n"
+     << "find_path(SysC_INCLUDE_DIR\n"
+     << "  NAMES systemc.h\n"
+     << "  HINTS ${PC_SysC_INCLUDEDIR} ${PC_SysC_INCLUDE_DIRS}\n"
+     << "  PATH_SUFFIXES systemc\n"
+     << ")\n\n"
+     << "find_library(SysC_LIBRARY\n"
+     << "  NAMES systemc libsystemc\n"
+     << "  HINTS ${PC_SysC_LIBDIR} ${PC_SysC_LIBRARY_DIRS}\n"
+     << "  PATH_SUFFIXES lib lib-linux64\n"
+     << ")\n\n"
+     << "mark_as_advanced(SysC_FOUND SysC_INCLUDE_DIR SysC_LIBRARY)\n"
+     << "include(FindPackageHandleStandardArgs)\n\n"
+     << "find_package_handle_standard_args(SysC DEFAULT_MSG\n"
+     << "  SysC_INCLUDE_DIR\n"
+     << "  SysC_LIBRARY\n"
+     << ")\n\n"
+     << "message(STATUS \"SystemC lib dir: ${SysC_LIBRARY}\")\n"
+     << "message(STATUS \"SystemC include dir: ${SysC_INCLUDE_DIR}\")\n\n"
+     << "if(SysC_FOUND AND NOT TARGET systemc::systemc)\n"
+     << "  add_library(systemc::systemc INTERFACE IMPORTED)\n"
+     << "  set_target_properties(systemc::systemc PROPERTIES\n"
+     << "    INTERFACE_INCLUDE_DIRECTORIES \"${SysC_INCLUDE_DIR}\")\n"
+     << "  set_target_properties(systemc::systemc PROPERTIES\n"
+     << "    INTERFACE_LINK_LIBRARIES \"${SysC_LIBRARY}\")\n"
+     << "endif()\n\n";
+
+  fb << "# source files\n";
+  fb << fmt::format("add_executable({}\n", proj);
+  for (auto src : source_file_list_) {
+    fb << fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/src/{}\n", src);
+  }
+  fb << ")\n";
+
+  fb << fmt::format("target_compile_features({} PUBLIC cxx_std_11)\n", proj);
+  fb << fmt::format("target_include_directories({} PRIVATE include)\n", proj);
+  fb << fmt::format("target_link_libraries({} systemc::systemc)\n", proj);
+
+  std::ofstream fw(file);
+  fw << fb.rdbuf();
+  fw.close();
 }
 
 }; // namespace ilang

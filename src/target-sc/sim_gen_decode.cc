@@ -1,5 +1,7 @@
 #include <ilang/target-sc/ila_sim.h>
 
+#include <fmt/format.h>
+
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
 
@@ -104,6 +106,10 @@ void IlaSim::decode_mk_file(std::string& decode_func_name) {
                << ".cc "
                << "-lsystemc" << std::endl;
   obj_list_ << decode_func_name << ".o ";
+
+  if (cmake_support_) {
+    source_file_list_.push_back(fmt::format("{}.cc", decode_func_name));
+  }
 }
 
 } // namespace ilang

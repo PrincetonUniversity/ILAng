@@ -47,6 +47,10 @@ public:
   void set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr);
   /// TODO
   void set_systemc_path(std::string systemc_path);
+
+  /// Generate receipes for CMake build system
+  void enable_cmake_support();
+
   /// TODO
   void sim_gen(std::string export_dir, bool external_mem = false,
                bool readable = false, bool qemu_device = false);
@@ -192,6 +196,9 @@ private:
                                 std::string v_name);
   void int_var_width_scan();
 
+  /// Generate files required by CMake
+  void generate_cmake_support();
+
   std::string export_dir_;
   std::string systemc_path_;
 
@@ -199,6 +206,10 @@ private:
   std::stringstream mk_script_;
   std::stringstream obj_list_;
   std::string header_indent_;
+
+  bool cmake_support_ = false;
+  std::vector<std::string> source_file_list_;
+  std::vector<std::string> header_file_list_;
 
   std::set<size_t> searched_id_set_;
   std::set<size_t> store_ite_set_;
