@@ -6,11 +6,10 @@
 
 #include <ilang/util/fs.h>
 
-#include <fstream>
-#include <iomanip>
-
 #include <cctype>
 #include <cstdlib>
+#include <fstream>
+#include <iomanip>
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -30,6 +29,7 @@
 #include <unistd.h>
 #endif
 
+#include <fmt/format.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
@@ -141,17 +141,30 @@ bool os_portable_copy_file_to_dir(const std::string& src,
   return ret == 0;
 }
 
-/// Move the source file to the destination dir
 bool os_portable_move_file_to_dir(const std::string& src,
                                   const std::string& dst) {
-  int ret;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
-  ret = std::system(("move " + src + " " + dst).c_str());
+  // XXX need test
+  auto cmd = fmt::format("move /y {} {}", src, dst);
 #else
   // on *nix
-  ret = std::system(("mv " + src + " " + dst).c_str());
+  auto cmd = fmt::format("mv {} {}", src, dst);
 #endif
+  int ret = std::system(cmd.c_str());
+  return ret == 0;
+}
+
+bool os_portable_remove_file(const std::string& file) {
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+  // XXX need test
+  auto cmd = fmt::format("del /q {}", file);
+#else
+  // on *nix
+  auto cmd = fmt::format("rm {}", file);
+#endif
+  int ret = std::system(cmd.c_str());
   return ret == 0;
 }
 
@@ -201,6 +214,20 @@ std::string os_portable_remove_file_name_extension(const std::string& fname) {
 
   // /.asdfaf.d -> /.asdfaf  | /.a -> /.
   return fname.substr(0, dot_pos);
+}
+
+bool os_portable_compare_file(const std::string& file1,
+                              const std::string& file2) {
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+  // XXX need test
+  auto cmd = fmt::format("fc /a {} {}", file1, file2);
+#else
+  // on *nix
+  auto cmd = fmt::format("cmp -s {} {}", file1, file2);
+#endif
+  int ret = std::system(cmd.c_str());
+  return ret == 0;
 }
 
 #if defined(__unix__) || defined(unix) || defined(__APPLE__) ||                \
