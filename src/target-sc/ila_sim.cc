@@ -168,6 +168,8 @@ void IlaSim::sim_gen_execute_kernel() {
     execute_kernel << indent << "#include \"systemc.h\"" << std::endl;
   execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\""
                  << std::endl;
+  execute_kernel << indent << "#include <iostream>" << std::endl;
+  execute_kernel << indent << "#include <fstream>" << std::endl;
   execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
                  << std::endl;
   increase_indent(indent);
