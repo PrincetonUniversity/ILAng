@@ -274,10 +274,12 @@ void IlaSim::generate_cmake_support() {
   auto proj = model_ptr_->name().str();
   auto source_dir = os_portable_append_dir(export_dir_, "src");
   auto header_dir = os_portable_append_dir(export_dir_, "include");
+  auto extern_dir = os_portable_append_dir(export_dir_, "extern");
 
   // move files
   os_portable_mkdir(source_dir);
   os_portable_mkdir(header_dir);
+  os_portable_mkdir(extern_dir);
 
   for (auto f : source_file_list_) {
     auto src = os_portable_append_dir(export_dir_, f);
@@ -335,12 +337,12 @@ void IlaSim::generate_cmake_support() {
      << "    INTERFACE_LINK_LIBRARIES \"${SysC_LIBRARY}\")\n"
      << "endif()\n\n";
 
-  fb << "# source files\n";
+  fb << "aux_source_directory(extern extern_src)\n";
   fb << fmt::format("add_executable({}\n", proj);
   for (auto f : source_file_list_) {
     fb << fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/src/{}\n", f);
   }
-  fb << ")\n";
+  fb << "  ${extern_src})\n";
 
   fb << fmt::format("target_compile_features({} PUBLIC cxx_std_11)\n", proj);
   fb << fmt::format("target_include_directories({} PRIVATE include)\n", proj);
