@@ -28,11 +28,13 @@ void IlaSim::execute_init(std::stringstream& execute_kernel,
 void IlaSim::execute_parent_instructions(std::stringstream& execute_kernel,
                                          std::string& indent) {
   // 04042020: add a file output for the instructions issued.
+  std::string log_name = "instr_log_" + model_ptr_->name().str() + ".txt";
+  execute_kernel << indent << "std::ofstream instr_log;" << std::endl;
+  
   execute_kernel << indent << "static bool log_created = false;" << std::endl;
   execute_kernel << indent << "if (!log_created) {" << std::endl;
   execute_kernel << indent << indent << "log_created = true;" << std::endl;
-  std::string log_name = "instr_log_" + model_ptr_->name().str() + ".txt";
-  execute_kernel << indent << indent << "std::ofstream instr_log;" << std::endl;
+
   execute_kernel << indent << indent << "instr_log.open(\"./" << log_name << "\", ";
   execute_kernel << "ofstream::out | ofstream::trunc);"
     << std::endl;
