@@ -37,6 +37,25 @@ endif() # NLOHMANN_JSON_FOUND
 
 
 # ---------------------------------------------------------------------------- #
+# fmt Library
+# 
+#   TARGET fmt::fmt
+#   SOURCE https://github.com/fmtlib/fmt
+#   PATH   extern/fmt
+# ---------------------------------------------------------------------------- #
+# find installed package
+find_package(fmt 6.1.2 QUIET)
+
+# build from embeded subtree (in-source)
+if(NOT FMT_FOUND)
+
+  # set(FMT_INSTALL ON CACHE INTERNAL "")
+  add_subdirectory(fmt)
+
+endif() # FMT_FOUND
+
+
+# ---------------------------------------------------------------------------- #
 # VCD Parser
 # 
 #   TARGET vcdparser::vcdparser
