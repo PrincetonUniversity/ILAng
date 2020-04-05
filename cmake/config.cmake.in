@@ -8,7 +8,6 @@ find_dependency(verilogparser REQUIRED)
 find_dependency(vcdparser REQUIRED)
 find_dependency(smtparser REQUIRED)
 find_dependency(fmt REQUIRED)
-
 find_dependency(Z3 REQUIRED)
 
 if(@ILANG_BUILD_SYNTH@)
