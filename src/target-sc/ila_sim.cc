@@ -75,11 +75,12 @@ void IlaSim::sim_gen_init_header() {
     header_ << header_indent_ << "#include <map>" << std::endl;
     header_ << header_indent_ << "#include <fstream>" << std::endl;
     header_ << header_indent_ << "#include <iostream>" << std::endl;
+    header_ << header_indent_ << "#include <sstream>" << std::endl;
 
     header_ << header_indent_ << "SC_MODULE(" << model_ptr_->name() << ") {"
             << std::endl;
     increase_indent(header_indent_);
-    header_ << header_indent_ << "std::ofstream instr_log;" << std::endl;
+    header_ << header_indent_ << "std::stringstream instr_log;" << std::endl;
   } else {
     header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>"
             << std::endl;
