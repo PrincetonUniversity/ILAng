@@ -84,7 +84,7 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
     execute_kernel << indent << "schedule_counter++;" << std::endl;
   if (EXTERNAL_MEM_)
     execute_external_mem_load_end(execute_kernel, indent);
-  // 04042020: print current instruction information to instr_log
+  // print current instruction information to the terminal
   execute_kernel << indent << "instr_log << \"@\" << sc_time_stamp() << ";
   execute_kernel << "\'\\t\'"
                  << " << ";

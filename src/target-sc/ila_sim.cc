@@ -1,5 +1,5 @@
-#include <ilang/target-sc/ila_sim.h>
 #include <fstream>
+#include <ilang/target-sc/ila_sim.h>
 
 #include <fmt/format.h>
 #include <queue>
@@ -75,14 +75,15 @@ void IlaSim::sim_gen_init_header() {
   if (!qemu_device_) {
     header_ << header_indent_ << "#include \"systemc.h\"" << std::endl;
     header_ << header_indent_ << "#include <map>" << std::endl;
+    header_ << header_indent_ << "#include <fstream>" << std::endl;
+    header_ << header_indent_ << "#include <iostream>" << std::endl;
+    header_ << header_indent_ << "#include <sstream>" << std::endl;
+
     header_ << header_indent_ << "SC_MODULE(" << model_ptr_->name() << ") {"
             << std::endl;
 
     increase_indent(header_indent_);
-    // 04042020, move the instr log declaration here;
-    std::string log_name = "instr_log_" + model_ptr_->name().str() + ".txt";
-    header_ << header_indent_ << "std::ofstream instr_log;" << std::endl;
-    
+    header_ << header_indent_ << "std::stringstream instr_log;" << std::endl;
   } else {
     header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>"
             << std::endl;
