@@ -260,7 +260,6 @@ void IlaSim::sim_gen_export() {
 
   if (cmake_support_) {
     header_file_list_.push_back(fmt::format("{}.h", model_ptr_->name().str()));
-    // source_file_list_.push_back("uninterpreted_func.cc");
     generate_cmake_support();
   } else {
     outFile.open(export_dir_ + "mk.sh");
@@ -275,11 +274,13 @@ void IlaSim::generate_cmake_support() {
   auto source_dir = os_portable_append_dir(export_dir_, "src");
   auto header_dir = os_portable_append_dir(export_dir_, "include");
   auto extern_dir = os_portable_append_dir(export_dir_, "extern");
+  auto scmain_dir = os_portable_append_dir(export_dir_, "app");
 
   // move files
   os_portable_mkdir(source_dir);
   os_portable_mkdir(header_dir);
   os_portable_mkdir(extern_dir);
+  os_portable_mkdir(scmain_dir);
 
   for (auto f : source_file_list_) {
     auto src = os_portable_append_dir(export_dir_, f);
@@ -307,7 +308,9 @@ void IlaSim::generate_cmake_support() {
   fb << fmt::format("# CMakeLists.txt for {}\n", proj);
   fb << "cmake_minimum_required(VERSION 3.9.6)\n";
   fb << fmt::format("project({} LANGUAGES CXX)\n\n", proj);
+
   // system c lib searching
+#if 0
   fb << "# Search for SystemC library\n"
      << "find_package(PkgConfig)\n"
      << "pkg_check_modules(PC_SysC QUIET SystemC)\n\n"
@@ -336,21 +339,43 @@ void IlaSim::generate_cmake_support() {
      << "  set_target_properties(systemc::systemc PROPERTIES\n"
      << "    INTERFACE_LINK_LIBRARIES \"${SysC_LIBRARY}\")\n"
      << "endif()\n\n";
+#else
+  fb << "find_package(SystemCLanguage CONFIG REQUIRED)\n"
+     << "set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})\n\n";
+#endif
 
   fb << "aux_source_directory(extern extern_src)\n";
   fb << fmt::format("add_executable({}\n", proj);
+  fb << "  ${CMAKE_CURRENT_SOURCE_DIR}/app/main.cc\n";
   for (auto f : source_file_list_) {
     fb << fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/src/{}\n", f);
   }
   fb << "  ${extern_src})\n";
 
-  fb << fmt::format("target_compile_features({} PUBLIC cxx_std_11)\n", proj);
   fb << fmt::format("target_include_directories({} PRIVATE include)\n", proj);
-  fb << fmt::format("target_link_libraries({} systemc::systemc)\n", proj);
+  fb << fmt::format("target_link_libraries({} SystemC::systemc)\n", proj);
 
   std::ofstream fw(file);
   fw << fb.rdbuf();
   fw.close();
+
+  // sc_main
+  auto app_template = os_portable_append_dir(scmain_dir, "main.cc");
+  if (!os_portable_compare_file(app_template, app_template)) {
+    // no file exist, create template
+    fb.clear();
+    fb << "#include <systemc.h>\n";
+    fb << fmt::format("#include <{}.h>\n\n", proj);
+    fb << "int sc_main(int argc, char* argv[]) {\n";
+    fb << fmt::format("  {} sim();\n", proj);
+    fb << "  sc_start();\n";
+    fb << "  return (0);\n";
+    fb << "}";
+
+    fw.open(app_template);
+    fw << fb.rdbuf();
+    fw.close();
+  }
 }
 
 }; // namespace ilang
