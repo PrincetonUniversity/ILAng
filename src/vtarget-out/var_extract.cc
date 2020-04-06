@@ -34,11 +34,11 @@ std::string VarExtractor::GenString() const {
 }
 
 bool isStateBegin(unsigned char c) {
-  return std::isalpha(c) || c == '#' || c == '_';
+  return std::isalpha(c) || c == '#' || c == '_' || c == '$' ;
 }
 
 bool isStateCont(unsigned char c, size_t idx, const std::string& s) {
-  if (std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == ']')
+  if (std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == ']' || c == '$')
     return true;
   if (!s.empty() && s.front() == '#' && c == '#')
     return true;

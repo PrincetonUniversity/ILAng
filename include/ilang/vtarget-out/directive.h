@@ -159,7 +159,7 @@ protected:
 **MEM**.?
 */
 
-/// \brief a class to handle state mapping directives in the refinement
+/// \brief a class to handle state-mapping directives in the refinement
 /// relations
 class StateMappingDirectiveRecorder {
 public:

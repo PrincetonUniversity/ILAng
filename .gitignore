@@ -65,3 +65,5 @@ tags
 *.cubin
 *.fatbin
 
+# Project files
+.vscode/*

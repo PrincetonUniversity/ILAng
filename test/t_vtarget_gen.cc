@@ -62,7 +62,7 @@ TEST(TestVlgTargetGen, PipeExample) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify"),          // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::COSA, // engine
@@ -89,7 +89,7 @@ TEST(TestVlgTargetGen, PipeExampleZ3) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify-z3"),       // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::Z3PDR, // engine
@@ -120,7 +120,7 @@ TEST(TestVlgTargetGen, PipeExampleGrain) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify-grain"),       // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::GRAIN_SYGUS, // engine
@@ -149,7 +149,7 @@ TEST(TestVlgTargetGen, PipeExampleGrainDeath) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify-grain"),       // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::GRAIN_SYGUS, // engine
@@ -177,7 +177,7 @@ TEST(TestVlgTargetGen, PipeExampleEldaricaDeath) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify-grain"),       // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::ELD_CEGAR, // engine
@@ -205,7 +205,7 @@ TEST(TestVlgTargetGen, PipeExampleBtor) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify-btor"),       // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::BTOR_GENERIC, // engine
@@ -233,7 +233,7 @@ TEST(TestVlgTargetGen, PipeExampleAbc) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify-abc"),       // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::ABCPDR, // engine
@@ -256,7 +256,7 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir, "vmap-rfmap-pvholder.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond-rfmap-pvholder.json"),         // instruction mapping
+      os_portable_append_dir(rfDir, "cond-rfmap-pvholder.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify_pvholder"),          // verification dir
       ila_model.get(),                                    // ILA model
       VerilogVerificationTargetGenerator::backend_selector::COSA // engine

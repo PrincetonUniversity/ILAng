@@ -129,6 +129,7 @@ void VerilogAnalyzer::invoke_parser() {
       _bad_state = true;
       return;
     }
+    fclose(fhandler);
   }
   // derive the hierarchy.
   verilog_resolve_modules(yy_verilog_source_tree);
