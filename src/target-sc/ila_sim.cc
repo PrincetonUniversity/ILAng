@@ -1,7 +1,9 @@
 #include <ilang/target-sc/ila_sim.h>
+#include <fstream>
 
 #include <fmt/format.h>
 #include <queue>
+#include <string>
 
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
@@ -75,7 +77,12 @@ void IlaSim::sim_gen_init_header() {
     header_ << header_indent_ << "#include <map>" << std::endl;
     header_ << header_indent_ << "SC_MODULE(" << model_ptr_->name() << ") {"
             << std::endl;
+
     increase_indent(header_indent_);
+    // 04042020, move the instr log declaration here;
+    std::string log_name = "instr_log_" + model_ptr_->name().str() + ".txt";
+    header_ << header_indent_ << "std::ofstream instr_log;" << std::endl;
+    
   } else {
     header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>"
             << std::endl;
@@ -182,6 +189,8 @@ void IlaSim::sim_gen_execute_kernel() {
     execute_kernel << indent << "#include \"systemc.h\"" << std::endl;
   execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\""
                  << std::endl;
+  execute_kernel << indent << "#include <iostream>" << std::endl;
+  execute_kernel << indent << "#include <fstream>" << std::endl;
   execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
                  << std::endl;
   increase_indent(indent);
@@ -239,7 +248,7 @@ void IlaSim::sim_gen_export() {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
-               << "-c -o "
+               << "-g -c -o "
                << "uninterpreted_func.o "
                << "../../uninterpreted_func/uninterpreted_func.cc "
                << "-lsystemc" << std::endl;

@@ -106,7 +106,7 @@ void IlaSim::state_update_mk_file(std::string& state_update_func_name) {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
-               << "-c -o " << state_update_func_name << ".o "
+               << "-g -c -o " << state_update_func_name << ".o "
                << state_update_func_name << ".cc "
                << "-lsystemc" << std::endl;
   obj_list_ << state_update_func_name << ".o ";

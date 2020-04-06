@@ -1,4 +1,5 @@
 #include <ilang/target-sc/ila_sim.h>
+#include <string>
 
 #include <queue>
 
@@ -26,6 +27,7 @@ void IlaSim::execute_init(std::stringstream& execute_kernel,
 
 void IlaSim::execute_parent_instructions(std::stringstream& execute_kernel,
                                          std::string& indent) {
+  // 04042020: add a file output for the instructions issued.
   for (unsigned int i = 0; i < model_ptr_->instr_num(); i++) {
     execute_instruction(execute_kernel, indent, model_ptr_->instr(i));
   }
@@ -82,8 +84,8 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
     execute_kernel << indent << "schedule_counter++;" << std::endl;
   if (EXTERNAL_MEM_)
     execute_external_mem_load_end(execute_kernel, indent);
-  // print current instruction information to the terminal
-  execute_kernel << indent << "std::cout << \"@\" << sc_time_stamp() << ";
+  // 04042020: print current instruction information to instr_log
+  execute_kernel << indent << "instr_log << \"@\" << sc_time_stamp() << ";
   execute_kernel << "\'\\t\'"
                  << " << ";
   execute_kernel << "\"" << instr_expr->name().str() << "\""
@@ -382,7 +384,7 @@ void IlaSim::execute_kernel_mk_file() {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
-               << "-c -o "
+               << "-g -c -o "
                << "compute.o compute.cc "
                << "-lsystemc" << std::endl;
   obj_list_ << "compute.o ";
