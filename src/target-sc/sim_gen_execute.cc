@@ -85,7 +85,7 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
   if (EXTERNAL_MEM_)
     execute_external_mem_load_end(execute_kernel, indent);
   // print current instruction information to the terminal
-  execute_kernel << indent << "instr_log << \"@\" << sc_time_stamp() << ";
+  execute_kernel << indent << "instr_log << " << "\"Instr NO.\" << " << "std::to_string(instr_cntr) << ";
   execute_kernel << "\'\\t\'"
                  << " << ";
   execute_kernel << "\"" << instr_expr->name().str() << "\""
@@ -94,6 +94,8 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
                  << " << ";
   execute_kernel << "\"is activated\" << ";
   execute_kernel << "std::endl;" << std::endl;
+  execute_kernel << indent << "instr_cntr++;";
+  execute_kernel << std::endl;
 
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;

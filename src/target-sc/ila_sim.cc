@@ -195,6 +195,7 @@ void IlaSim::sim_gen_execute_kernel() {
   execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
                  << std::endl;
   increase_indent(indent);
+  execute_kernel << indent << "static int instr_cntr = 0;" << std::endl;
   if (EXTERNAL_MEM_) {
     execute_write_external_mem(execute_kernel, indent);
     execute_read_external_mem(execute_kernel, indent);
