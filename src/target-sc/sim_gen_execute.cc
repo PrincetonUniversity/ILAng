@@ -92,8 +92,7 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
                  << " << "
                  << "\'\\t\'"
                  << " << ";
-  execute_kernel << "\"is activated\" << ";
-  execute_kernel << "std::endl;" << std::endl;
+  execute_kernel << "\"is activated\\n\"; \n";
   execute_kernel << indent << "instr_cntr++;";
   execute_kernel << std::endl;
 

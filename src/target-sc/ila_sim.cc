@@ -378,9 +378,10 @@ void IlaSim::generate_cmake_support() {
     fb << "#include <systemc.h>\n";
     fb << fmt::format("#include <{}.h>\n\n", proj);
     fb << "int sc_main(int argc, char* argv[]) {\n";
-    fb << fmt::format("  {} sim();\n", proj);
-    fb << "  sc_start();\n";
-    fb << "  return (0);\n";
+    // fb << fmt::format("  {} sim();\n", proj);
+    // fb << "  sc_start();\n";
+    // fb << "  return (0);\n";
+    fb << "return 0; \n";
     fb << "}";
 
     fw.open(app_template);
