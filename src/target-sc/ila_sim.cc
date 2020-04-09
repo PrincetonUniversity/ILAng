@@ -83,7 +83,8 @@ void IlaSim::sim_gen_init_header() {
             << std::endl;
 
     increase_indent(header_indent_);
-    header_ << header_indent_ << "std::stringstream instr_log;" << std::endl;
+    header_ << header_indent_ << "std::stringstream instr_log_ss;" << std::endl;
+    header_ << header_indent_ << "std::ofstream instr_log;" << std::endl;
   } else {
     header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>"
             << std::endl;
