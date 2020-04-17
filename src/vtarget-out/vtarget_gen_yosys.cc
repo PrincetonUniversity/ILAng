@@ -26,7 +26,7 @@ opt_expr -mux_undef
 opt
 opt
 %flatten%
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
 proc
@@ -42,7 +42,7 @@ opt_expr -mux_undef
 opt
 opt
 %flatten%
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory_dff -wr_only
 memory_collect;
@@ -165,7 +165,7 @@ prep -top %module%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 miter -assert %module%
 flatten
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 memory -nordff
 opt_clean
 techmap
@@ -570,8 +570,14 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
   } else if (s_backend == synthesis_backend_selector::ELDERICA) {
     ILA_CHECK(false) << "Not implemented.";
   } else if (s_backend == synthesis_backend_selector::NOSYN) {
-    runnable = "echo";
-    options = " \"btor file is available as: " + prob_fname + "\"";
+    if (!_vtg_config.BtorGenericCmdline.empty()) {
+      runnable = ReplaceAll(_vtg_config.BtorGenericCmdline, "%btorfile%", prob_fname);
+      options = "";
+    }
+    else{
+      runnable = "echo";
+      options = " \"btor file is available as: " + prob_fname + "\"";
+    }
   }
 
   if (prob_fname != "") {
@@ -681,9 +687,9 @@ void VlgSglTgtGen_Yosys::design_only_gen_btor(
                                       _vtg_config.YosysSmtFlattenHierarchy
                                           ? "flatten;"
                                           : ""),
-                           "%setundef -undriven -expose%",
+                           "%setundef -undriven -init -expose%",
                            _vtg_config.YosysUndrivenNetAsInput
-                               ? "setundef -undriven -expose"
+                               ? "setundef -undriven -init -expose"
                                : ""),
                 "%rstlen%",
                 std::to_string(
@@ -693,6 +699,9 @@ void VlgSglTgtGen_Yosys::design_only_gen_btor(
                 supplementary_info.cosa_yosys_reset_config.reset_cycles)),
         "%module%", top_mod_name);
 
+    // this is for cosa2, I don't know why it is unhappy, but we need fix this
+    // in the long run
+    ys_script_fout << "setundef -undriven -zero\n";
     ys_script_fout << "write_btor " << write_btor_options << " " << btor_name;
   } // finish writing
 
@@ -747,9 +756,9 @@ void VlgSglTgtGen_Yosys::design_only_gen_smt(
                                       _vtg_config.YosysSmtFlattenHierarchy
                                           ? "flatten;"
                                           : ""),
-                           "%setundef -undriven -expose%",
+                           "%setundef -undriven -init -expose%",
                            _vtg_config.YosysUndrivenNetAsInput
-                               ? "setundef -undriven -expose"
+                               ? "setundef -undriven -init -expose"
                                : ""),
                 "%rstlen%",
                 std::to_string(
@@ -983,9 +992,9 @@ void VlgSglTgtGen_Yosys::generate_aiger(const std::string& blif_name,
                             "%blifname%", blif_name),
                         "%aigname%", aiger_name),
                     "%mapname%", map_name),
-                "%setundef -undriven -expose%",
+                "%setundef -undriven -init -expose%",
                 _vtg_config.YosysUndrivenNetAsInput
-                    ? "setundef -undriven -expose"
+                    ? "setundef -undriven -init -expose"
                     : ""),
             "%rstlen%",
             std::to_string(

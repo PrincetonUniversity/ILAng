@@ -65,7 +65,8 @@ std::map<char, std::string> sanitizeTable(
      {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
      {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
      {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
-     {'8', "__EIGHT__"}, {'9', "__NINE__"},  {'$', "__DOLLAR__"}});
+     {'8', "__EIGHT__"}, {'9', "__NINE__"}//,  {'$', "__DOLLAR__"}
+     });
 
 unsigned symbol_cnt = 0;
 static std::string get_symbol_new() {
@@ -83,7 +84,7 @@ VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
       continue;
     }
 
-    if (isalnum(c) || c == '_') {
+    if (isalnum(c) || c == '_' || c == '$') {
       outStr += c;
       continue;
     }

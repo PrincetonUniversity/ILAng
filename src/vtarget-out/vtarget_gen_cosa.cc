@@ -116,6 +116,10 @@ void VlgSglTgtGen_Cosa::Export_jg_tester_script(const std::string& extra_name) {
 
   decltype(_problems.assumptions) local_assumpt;
   for (auto&& p : _problems.assumptions) {
+    if (p == "reset_done = 1_1 -> rst = 0_1")
+      continue ; // must match with single_target_cond.cc
+    if (p == "reset_done = 1_1 -> next( reset_done ) = 1_1")
+      continue ; // must match with single_target_cond.cc
     auto eq_idx = p.find('=');
     auto rm_eq_p = p.substr(0, eq_idx);
     local_assumpt.push_back(rm_eq_p);

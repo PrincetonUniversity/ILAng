@@ -669,7 +669,7 @@ bool static has_verify_tool_unknown_cosa(const std::string& fn) {
 /// run Verification
 bool InvariantSynthesizerCegar::RunVerifAuto(
     const std::string& script_selection, const std::string& pid_fname,
-    bool under_test) {
+    bool under_test, unsigned timeout) {
   auto script_sel =
       select_script_to_run(runnable_script_name, script_selection);
   if (check_in_bad_state())
@@ -694,7 +694,7 @@ bool InvariantSynthesizerCegar::RunVerifAuto(
   } else {
     res = os_portable_execute_shell(
         {"bash", os_portable_file_name_from_path(script_sel)}, redirect_fn,
-        redirect_t::BOTH, 0, pid_fname);
+        redirect_t::BOTH, timeout, pid_fname);
   }
 
   ILA_ERROR_IF(res.failure != execute_result::NONE)

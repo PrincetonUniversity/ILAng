@@ -273,7 +273,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
   auto vlg_inputs =
       vlg_info_ptr->get_top_module_io(supplementary_info.width_info);
-  auto& io_map = rf_vmap["interface mapping"];
+  auto& io_map = IN("interface mapping",rf_vmap) ? rf_vmap["interface mapping"] : rf_vmap["interface-mapping"] ;
   for (auto&& name_siginfo_pair : vlg_inputs) {
     std::string refstr =
         IN(name_siginfo_pair.first, io_map)

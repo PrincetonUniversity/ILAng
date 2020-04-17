@@ -108,7 +108,8 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
 
 void VlgSglTgtGen::add_rf_inv_as_assumption() {
   if (has_rf_invariant) {
-    for (auto& cond : rf_cond["global invariants"]) {
+    nlohmann::json & inv = IN("global invariants", rf_cond) ? rf_cond["global invariants"] : rf_cond["global-invariants"];
+    for (auto& cond : inv) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
       add_an_assumption(new_cond, "invariant_assume"); // without new var added
     } // for inv in global invariants field
@@ -117,12 +118,14 @@ void VlgSglTgtGen::add_rf_inv_as_assumption() {
 
 void VlgSglTgtGen::add_rf_inv_as_assertion() {
   // the provided invariants
-  if (has_rf_invariant)
-    for (auto& cond : rf_cond["global invariants"]) {
+  if (has_rf_invariant) {
+    nlohmann::json & inv = IN("global invariants", rf_cond) ? rf_cond["global invariants"] : rf_cond["global-invariants"];
+    for (auto& cond : inv) {
       auto new_cond =
           ReplExpr(cond.get<std::string>(), true); // force vlg state
       add_an_assertion("(" + new_cond + ")", "invariant_assert");
     }
+  } // has_rf_invariant
 } // add_rf_inv_as_assertion
 
 // this is for cosa
@@ -255,8 +258,8 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
                              _host->state(state_idx)->sort()->addr_width(),
                              _host->state(state_idx)->sort()->data_width())));
   }
-
-  for (auto& i : (rf_vmap["state mapping"]).items()) {
+  nlohmann::json & state_mapping = IN("state mapping", rf_vmap) ? rf_vmap["state mapping"] : rf_vmap["state-mapping"];
+  for (auto& i : state_mapping.items()) {
     auto sname = i.key(); // ila state name
     if (!IN(sname, ila_mem_state_names))
       continue; // we only care about the mem states
