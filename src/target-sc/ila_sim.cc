@@ -179,6 +179,9 @@ void IlaSim::sim_gen_state_update() {
       ila_queue.push(current_ila->child(i));
     }
     for (unsigned int i = 0; i < current_ila->instr_num(); i++) {
+      auto info_instr_num = current_ila->instr_num();
+      ILA_INFO << "(" << i << "/" << info_instr_num << ")";
+      ILA_INFO << "Generating state update for instr " << current_ila->instr(i)->name();
       create_state_update(current_ila->instr(i));
     }
   }
