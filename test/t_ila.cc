@@ -160,12 +160,16 @@ TEST(TestInstrLvlAbs, Fetch) {
 #endif
 
   ila->SetFetch(fetch);
+
 #ifndef NDEBUG
   EXPECT_DEATH(ila->SetFetch(new_f), ".*");
 #endif
-
   EXPECT_EQ(fetch, ila->fetch());
   EXPECT_NE(new_f, ila->fetch());
+
+  ila->ForceSetFetch(new_f);
+  EXPECT_NE(fetch, ila->fetch());
+  EXPECT_EQ(new_f, ila->fetch());
 }
 
 TEST(TestInstrLvlAbs, Valid) {
@@ -188,9 +192,12 @@ TEST(TestInstrLvlAbs, Valid) {
 #ifndef NDEBUG
   EXPECT_DEATH(ila->SetValid(new_v), ".*");
 #endif
-
   EXPECT_EQ(valid, ila->valid());
   EXPECT_NE(new_v, ila->valid());
+
+  ila->ForceSetValid(new_v);
+  EXPECT_NE(valid, ila->valid());
+  EXPECT_EQ(new_v, ila->valid());
 }
 
 TEST(TestInstrLvlAbs, Instr) {

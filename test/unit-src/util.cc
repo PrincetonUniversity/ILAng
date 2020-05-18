@@ -5,7 +5,7 @@
 
 #include <cstdio>
 
-#include <ilang/verification/legacy_bmc.h>
+#include <ilang/ila-mngr/v_eq_check_legacy_bmc.h>
 
 namespace ilang {
 
