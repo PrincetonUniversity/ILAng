@@ -108,6 +108,15 @@ else()
 endif()
 
 ##
+## fmt lib
+##
+if(NOT TARGET fmt::fmt)
+  find_package(fmt REQUIRED)
+endif()
+
+target_link_libraries(${ILANG_LIB_NAME} PRIVATE fmt::fmt)
+
+##
 ## verilog parser
 ##
 if(NOT TARGET verilogparser::verilogparser)
