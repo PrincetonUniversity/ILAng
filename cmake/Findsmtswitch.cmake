@@ -116,6 +116,9 @@ if(SMTSWITCH_FOUND AND NOT TARGET smt-switch::smt-switch)
   set_target_properties(smt-switch::smt-switch PROPERTIES
     INTERFACE_LINK_LIBRARIES "${SMTSWITCH_LIBRARY}")
 
+  # XXX seems like smt-switch needs to be build as static type
+  # XXX at smt-switch config time, set SMT_SWITCH_LIB_TYPE to STATIC
+
   if(SMTSWITCH_BTOR_LIBRARY)
     set_target_properties(smt-switch::smt-switch PROPERTIES
       INTERFACE_LINK_LIBRARIES "${SMTSWITCH_BTOR_LIBRARY}")
