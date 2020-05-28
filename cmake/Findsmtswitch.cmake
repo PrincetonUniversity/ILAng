@@ -24,7 +24,7 @@ pkg_check_modules(PC_SMTSWITCH QUIET SMTSWITCH)
 ## core smt-switch
 ##
 find_path(SMTSWITCH_INCLUDE_DIR
-  NAMES smt.h
+  NAMES "smt-switch/smt.h"
   HINTS ${PC_SMTSWITCH_INCLUDEDIR} ${PC_SMTSWITCH_INCLUDE_DIRS}
   PATH_SUFFIXES smt-switch
 )
@@ -110,14 +110,17 @@ mark_as_advanced(SMTSWITCH_YICES2_FOUND)
 
 # create imported target smt-switch::smt-switch
 if(SMTSWITCH_FOUND AND NOT TARGET smt-switch::smt-switch)
+
   add_library(smt-switch::smt-switch INTERFACE IMPORTED)
+
   set_target_properties(smt-switch::smt-switch PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${SMTSWITCH_INCLUDE_DIR}")
+
   set_target_properties(smt-switch::smt-switch PROPERTIES
     INTERFACE_LINK_LIBRARIES "${SMTSWITCH_LIBRARY}")
 
-  # XXX seems like smt-switch needs to be build as static type
-  # XXX at smt-switch config time, set SMT_SWITCH_LIB_TYPE to STATIC
+  # XXX smt-switch needs to be built with static type
+  # XXX @smt-switch config time, set SMT_SWITCH_LIB_TYPE to STATIC
 
   if(SMTSWITCH_BTOR_LIBRARY)
     set_target_properties(smt-switch::smt-switch PROPERTIES
