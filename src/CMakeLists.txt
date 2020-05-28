@@ -165,11 +165,53 @@ else()
   set(SYNTH_INTERFACE FALSE)
 endif()
 
-
+##
+## invariant synthesis
+##
 if(${ILANG_BUILD_INVSYN})
   set(INVSYN_INTERFACE TRUE)
 else()
   set(INVSYN_INTERFACE FALSE)
+endif()
+
+##
+## smt-switch
+##
+if(${ILANG_BUILD_SWITCH})
+  find_package(smtswitch REQUIRED)
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE smt-switch::smt-switch)
+endif()
+
+if(${ILANG_BUILD_SWITCH})
+
+  set(SMTSWITCH_INTERFACE TRUE)
+
+  if(${SMTSWITCH_BTOR_FOUND})
+    set(SMTSWITCH_BTOR TRUE)
+  else()
+    set(SMTSWITCH_BTOR FALSE)
+  endif()
+
+  if(${SMTSWITCH_CVC4_FOUND})
+    set(SMTSWITCH_CVC4 TRUE)
+  else()
+    set(SMTSWITCH_CVC4 FALSE)
+  endif()
+
+  if(${SMTSWITCH_MSAT_FOUND})
+    set(SMTSWITCH_MSAT TRUE)
+  else()
+    set(SMTSWITCH_MSAT FALSE)
+  endif()
+
+  if(${SMTSWITCH_YICES2_FOUND})
+    set(SMTSWITCH_YICES2 TRUE)
+  else()
+    set(SMTSWITCH_YICES2 FALSE)
+  endif()
+
+else()
+  set(SMTSWITCH_INTERFACE FALSE)
 endif()
 
 ##
