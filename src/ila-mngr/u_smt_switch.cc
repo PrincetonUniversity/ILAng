@@ -91,34 +91,12 @@ smt::Term SmtSwitchItf::Expr2Term(const ExprPtr expr,
 }
 
 smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr expr) {
-  // for compatibility to z3
+  // for z3 compatibility
   auto prefix = (expr->host()) ? expr->host()->GetRootName() : "";
   auto e_name = expr->name().format_str(prefix, suffix_);
 
-  auto sort_uid = GetUidSort(expr->sort());
-
-  switch (sort_uid) {
-  case AST_UID_SORT::BOOL: {
-    return solver_->make_symbol(e_name, solver_->make_sort(smt::BOOL));
-  }
-  case AST_UID_SORT::BV: {
-    auto bw = expr->sort()->bit_width();
-    return solver_->make_symbol(e_name, solver_->make_sort(smt::BV, bw));
-  }
-  case AST_UID_SORT::MEM: {
-    auto aw = expr->sort()->addr_width();
-    auto dw = expr->sort()->data_width();
-    return solver_->make_symbol(
-        e_name, solver_->make_sort(smt::ARRAY,
-                                   solver_->make_sort(smt::BV, aw), // address
-                                   solver_->make_sort(smt::BV, dw)  // data
-                                   ));
-  }
-  default: {
-    ILA_CHECK(false) << fmt::format("Unknown sort {} for ", sort_uid) << expr;
-    return solver_->make_term(true);
-  }
-  }; // switch sort_uid
+  auto smt_sort = IlaSort2SmtSort(expr->sort());
+  return solver_->make_symbol(e_name, smt_sort);
 }
 
 smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
@@ -167,8 +145,193 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
 
 smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
                                     const smt::TermVec& arg_terms) {
-  // TODO
-  return solver_->make_term(true);
+
+  auto param_sort = solver_->make_sort(smt::INT);
+  auto expr_op_uid = GetUidExprOp(expr);
+
+  switch (expr_op_uid) {
+  case AST_UID_EXPR_OP::NEG: {
+    return solver_->make_term(smt::PrimOp::Negate, arg_terms.at(0));
+  }
+  case AST_UID_EXPR_OP::NOT: {
+    return solver_->make_term(smt::PrimOp::Not, arg_terms.at(0));
+  }
+  case AST_UID_EXPR_OP::COMPL: {
+    return solver_->make_term(smt::PrimOp::BVComp, arg_terms.at(0));
+  }
+  case AST_UID_EXPR_OP::AND: {
+    auto op = expr->is_bool() ? smt::PrimOp::And : smt::PrimOp::BVAnd;
+    return solver_->make_term(op, arg_terms.at(0), arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::OR: {
+    auto op = expr->is_bool() ? smt::PrimOp::Or : smt::PrimOp::BVOr;
+    return solver_->make_term(op, arg_terms.at(0), arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::XOR: {
+    auto op = expr->is_bool() ? smt::PrimOp::Xor : smt::PrimOp::BVXor;
+    return solver_->make_term(op, arg_terms.at(0), arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::SHL: {
+    return solver_->make_term(smt::PrimOp::BVShl, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::ASHR: {
+    return solver_->make_term(smt::PrimOp::BVAshr, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::LSHR: {
+    return solver_->make_term(smt::PrimOp::BVLshr, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::ADD: {
+    return solver_->make_term(smt::PrimOp::BVAdd, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::SUB: {
+    return solver_->make_term(smt::PrimOp::BVSub, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::DIV: {
+    // signed bv div (not int, not real)
+    return solver_->make_term(smt::PrimOp::BVSdiv, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::SREM: {
+    return solver_->make_term(smt::PrimOp::BVSrem, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::UREM: {
+    return solver_->make_term(smt::PrimOp::BVUrem, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::SMOD: {
+    return solver_->make_term(smt::PrimOp::BVSmod, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::MUL: {
+    // bv mul (not int, not real)
+    return solver_->make_term(smt::PrimOp::BVMul, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::EQ: {
+    return solver_->make_term(smt::PrimOp::Equal, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::LT: {
+    // bv signed lt (not unsigned, not real)
+    return solver_->make_term(smt::PrimOp::BVSlt, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::GT: {
+    // bv signed gt (not unsigned, not real)
+    return solver_->make_term(smt::PrimOp::BVSgt, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::ULT: {
+    // bv unsigned lt (not real)
+    return solver_->make_term(smt::PrimOp::BVUlt, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::UGT: {
+    // bv unsigned gt (not real)
+    return solver_->make_term(smt::PrimOp::BVUgt, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::LOAD: {
+    return solver_->make_term(smt::PrimOp::Select, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::STORE: {
+    return solver_->make_term(smt::PrimOp::Store, arg_terms.at(0),
+                              arg_terms.at(1), arg_terms.at(2));
+  }
+  case AST_UID_EXPR_OP::CONCAT: {
+    return solver_->make_term(smt::PrimOp::Concat, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::EXTRACT: {
+    auto p0 = solver_->make_term(expr->param(0), param_sort);
+    auto p1 = solver_->make_term(expr->param(1), param_sort);
+    return solver_->make_term(smt::PrimOp::Extract, arg_terms.at(0), p0, p1);
+  }
+  case AST_UID_EXPR_OP::ZEXT: {
+    auto p0 = solver_->make_term(expr->param(0), param_sort);
+    return solver_->make_term(smt::PrimOp::Zero_Extend, arg_terms.at(0), p0);
+  }
+  case AST_UID_EXPR_OP::SEXT: {
+    auto p0 = solver_->make_term(expr->param(0), param_sort);
+    return solver_->make_term(smt::PrimOp::Sign_Extend, arg_terms.at(0), p0);
+  }
+  case AST_UID_EXPR_OP::LROTATE: {
+    auto p0 = solver_->make_term(expr->param(0), param_sort);
+    return solver_->make_term(smt::PrimOp::Rotate_Left, arg_terms.at(0), p0);
+  }
+  case AST_UID_EXPR_OP::RROTATE: {
+    auto p0 = solver_->make_term(expr->param(0), param_sort);
+    return solver_->make_term(smt::PrimOp::Rotate_Right, arg_terms.at(0), p0);
+  }
+  case AST_UID_EXPR_OP::IMPLY: {
+    return solver_->make_term(smt::PrimOp::Implies, arg_terms.at(0),
+                              arg_terms.at(1));
+  }
+  case AST_UID_EXPR_OP::ITE: {
+    return solver_->make_term(smt::PrimOp::Ite, arg_terms.at(0),
+                              arg_terms.at(1), arg_terms.at(2));
+  }
+  case AST_UID_EXPR_OP::APP_FUNC: {
+    auto expr_appfunc = std::static_pointer_cast<ExprOpAppFunc>(expr);
+    auto func = expr_appfunc->func();
+
+    // func name (for z3 compatibility)
+    auto prefix = (func->host()) ? func->host()->GetRootName() : "";
+    auto f_name = func->name().format_str(prefix, suffix_);
+
+    // func sort
+    auto arg_sorts = smt::SortVec();
+    for (size_t i = 0; i != func->arg_num(); i++) {
+      arg_sorts.push_back(IlaSort2SmtSort(func->arg(i)));
+    }
+    arg_sorts.push_back(IlaSort2SmtSort(func->out())); // return is the last
+    auto func_sort = solver_->make_sort(smt::FUNCTION, arg_sorts);
+
+    // func term
+    auto func_term = solver_->make_term(f_name, func_sort);
+
+    // apply func
+    // XXX check this is the right order (no doc available)
+    smt::TermVec all_terms;
+    all_terms.push_back(func_term);
+    for (size_t i = 0; i != arg_terms.size(); i++) {
+      all_terms.push_back(arg_terms.at(i));
+    }
+    return solver_->make_term(smt::PrimOp::Apply, all_terms);
+  }
+  default: {
+    ILA_CHECK(false) << "Op " << expr_op_uid << " not supported in smt-switch";
+    return solver_->make_term(true);
+  }
+  }; // switch expr_op_uid
+}
+
+smt::Sort SmtSwitchItf::IlaSort2SmtSort(const SortPtr s) {
+  auto sort_uid = GetUidSort(s);
+  switch (sort_uid) {
+  case AST_UID_SORT::BOOL: {
+    return solver_->make_sort(smt::BOOL);
+  }
+  case AST_UID_SORT::BV: {
+    return solver_->make_sort(smt::BV, s->bit_width());
+  }
+  case AST_UID_SORT::MEM: {
+    return solver_->make_sort(smt::ARRAY,
+                              solver_->make_sort(smt::BV, s->addr_width()),
+                              solver_->make_sort(smt::BV, s->data_width()));
+  }
+  default: {
+    ILA_CHECK(false) << "Unknown sort " << sort_uid;
+    return solver_->make_sort(smt::BOOL);
+  }
+  }; // switch sort uid @ lambda Sort2Term
 }
 
 }; // namespace ilang

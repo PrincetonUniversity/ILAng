@@ -57,6 +57,8 @@ private:
   smt::Term ExprConst2Term(const ExprPtr expr);
   /// Make Term of expr operator.
   smt::Term ExprOp2Term(const ExprPtr expr, const smt::TermVec& arg_terms);
+  /// Make smt::Sort of ilang::SortPtr.
+  smt::Sort IlaSort2SmtSort(const SortPtr s);
 
 }; // class SmtSwitchItf
 
