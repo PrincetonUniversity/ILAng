@@ -97,6 +97,20 @@ if(${ILANG_BUILD_SYNTH})
   )
 endif()
 
+if(${ILANG_BUILD_SWITCH})
+
+  find_package(smtswitch REQUIRED)
+  target_link_libraries(${ILANG_TEST_MAIN} smt-switch::smt-switch)
+
+  if(${SMTSWITCH_BTOR_FOUND})
+    target_sources(${ILANG_TEST_MAIN} PRIVATE
+      t_smt_switch_itf.cc
+    )
+    target_link_libraries(${ILANG_TEST_MAIN} ${SMTSWITCH_BTOR_LIBRARY})
+  endif()
+
+endif()
+
 set(ILANG_TEST_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(ILANG_TEST_BIN_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 

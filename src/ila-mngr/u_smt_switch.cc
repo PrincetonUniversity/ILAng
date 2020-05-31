@@ -12,6 +12,8 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 
+#define PARAM_BIT_WIDTH 8
+
 namespace ilang {
 
 SmtSwitchItf::SmtSwitchItf(smt::SmtSolver& solver) : solver_(solver) {}
@@ -42,6 +44,7 @@ void SmtSwitchItf::operator()(const ExprPtr expr) {
   try {
     PopulateExprMap(expr);
   } catch (SmtException& e) {
+    ILA_ERROR << "Error while processing " << expr;
     ILA_ERROR << e.what();
   }
 }
@@ -146,17 +149,21 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
 smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
                                     const smt::TermVec& arg_terms) {
 
-  auto param_sort = solver_->make_sort(smt::INT);
+  // XXX Boolector (maybe also others) doesn't accept INT sort for param.
+  // auto param_sort = solver_->make_sort(smt::INT);
+  auto param_sort = solver_->make_sort(smt::BV, PARAM_BIT_WIDTH);
   auto expr_op_uid = GetUidExprOp(expr);
 
   switch (expr_op_uid) {
   case AST_UID_EXPR_OP::NEG: {
+    ILA_WARN << "Negate not fully supported in smt-switch.";
     return solver_->make_term(smt::PrimOp::Negate, arg_terms.at(0));
   }
   case AST_UID_EXPR_OP::NOT: {
     return solver_->make_term(smt::PrimOp::Not, arg_terms.at(0));
   }
   case AST_UID_EXPR_OP::COMPL: {
+    ILA_WARN << "Complement not fully supported in smt-switch.";
     return solver_->make_term(smt::PrimOp::BVComp, arg_terms.at(0));
   }
   case AST_UID_EXPR_OP::AND: {
@@ -250,23 +257,28 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
                               arg_terms.at(1));
   }
   case AST_UID_EXPR_OP::EXTRACT: {
+    ILA_WARN << "Extract not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     auto p1 = solver_->make_term(expr->param(1), param_sort);
     return solver_->make_term(smt::PrimOp::Extract, arg_terms.at(0), p0, p1);
   }
   case AST_UID_EXPR_OP::ZEXT: {
+    ILA_WARN << "Zero_Extend not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Zero_Extend, arg_terms.at(0), p0);
   }
   case AST_UID_EXPR_OP::SEXT: {
+    ILA_WARN << "Sign_Extend not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Sign_Extend, arg_terms.at(0), p0);
   }
   case AST_UID_EXPR_OP::LROTATE: {
+    ILA_WARN << "Rotate_Left not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Rotate_Left, arg_terms.at(0), p0);
   }
   case AST_UID_EXPR_OP::RROTATE: {
+    ILA_WARN << "Rotate_Right not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Rotate_Right, arg_terms.at(0), p0);
   }

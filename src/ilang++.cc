@@ -4,6 +4,7 @@
 #include <ilang/ilang++.h>
 
 #include <ilang/config.h>
+#include <ilang/ila-mngr/u_smt_switch.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
@@ -11,6 +12,10 @@
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/unroller.h>
 #include <ilang/verilog-out/verilog_gen.h>
+
+#ifdef SMTSWITCH_INTERFACE
+#include <smt-switch/smt.h>
+#endif // SMTSWITCH_INTERFACE
 
 namespace ilang {
 
@@ -816,5 +821,15 @@ void LogToErr(bool to_err) {
 void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
 
 void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
+
+#ifdef SMTSWITCH_INTERFACE
+
+smt::Term GetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
+                     const std::string& suffix) {
+  auto itf = SmtSwitchItf(solver);
+  return itf.GetSmtTerm(expr.get(), suffix);
+}
+
+#endif // SMTSWITCH_INTERFACE
 
 } // namespace ilang

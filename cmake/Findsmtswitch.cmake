@@ -8,14 +8,21 @@
 #   SMTSWITCH_LIBRARY
 #
 #   SMTSWITCH_BTOR_FOUND
+#   SMTSWITCH_BTOR_LIBRARY
 #   SMTSWITCH_CVC4_FOUND
+#   SMTSWITCH_CVC4_LIBRARY
 #   SMTSWITCH_MSAT_FOUND
+#   SMTSWITCH_MSAT_LIBRARY
 #   SMTSWITCH_YICES2_FOUND
+#   SMTSWITCH_YICES2_LIBRARY
 #
 # and the following imported targets
 #
 #   smt-switch::smt-switch
 # 
+
+# XXX smt-switch needs to be built with static type
+# XXX @smt-switch config time, set SMT_SWITCH_LIB_TYPE to STATIC
 
 find_package(PkgConfig)
 pkg_check_modules(PC_SMTSWITCH QUIET SMTSWITCH)
@@ -61,7 +68,7 @@ else()
   set(SMTSWITCH_BTOR_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_BTOR_FOUND)
+mark_as_advanced(SMTSWITCH_BTOR_FOUND SMTSWITCH_BTOR_LIBRARY)
 
 # cvc4
 find_library(SMTSWITCH_CVC4_LIBRARY
@@ -76,7 +83,7 @@ else()
   set(SMTSWITCH_CVC4_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_CVC4_FOUND)
+mark_as_advanced(SMTSWITCH_CVC4_FOUND SMTSWITCH_CVC4_LIBRARY)
 
 # math SAT
 find_library(SMTSWITCH_MSAT_LIBRARY
@@ -91,7 +98,7 @@ else()
   set(SMTSWITCH_MSAT_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_MSAT_FOUND)
+mark_as_advanced(SMTSWITCH_MSAT_FOUND SMTSWITCH_MSAT_LIBRARY)
 
 # yices2
 find_library(SMTSWITCH_YICES2_LIBRARY
@@ -106,7 +113,7 @@ else()
   set(SMTSWITCH_YICES2_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_YICES2_FOUND)
+mark_as_advanced(SMTSWITCH_YICES2_FOUND SMTSWITCH_YICES2_LIBRARY)
 
 # create imported target smt-switch::smt-switch
 if(SMTSWITCH_FOUND AND NOT TARGET smt-switch::smt-switch)
@@ -118,33 +125,6 @@ if(SMTSWITCH_FOUND AND NOT TARGET smt-switch::smt-switch)
 
   set_target_properties(smt-switch::smt-switch PROPERTIES
     INTERFACE_LINK_LIBRARIES "${SMTSWITCH_LIBRARY}")
-
-  # XXX smt-switch needs to be built with static type
-  # XXX @smt-switch config time, set SMT_SWITCH_LIB_TYPE to STATIC
-
-  if(SMTSWITCH_BTOR_LIBRARY)
-    set_target_properties(smt-switch::smt-switch PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${SMTSWITCH_BTOR_LIBRARY}")
-    message(STATUS "Found smt-switch-btor: ${SMTSWITCH_BTOR_LIBRARY}")
-  endif()
-
-  if(SMTSWITCH_CVC4_LIBRARY)
-    set_target_properties(smt-switch::smt-switch PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${SMTSWITCH_CVC4_LIBRARY}")
-    message(STATUS "Found smt-switch-cvc4: ${SMTSWITCH_CVC4_LIBRARY}")
-  endif()
-
-  if(SMTSWITCH_MSAT_LIBRARY)
-    set_target_properties(smt-switch::smt-switch PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${SMTSWITCH_MSAT_LIBRARY}")
-    message(STATUS "Found smt-switch-msat: ${SMTSWITCH_MSAT_LIBRARY}")
-  endif()
-
-  if(SMTSWITCH_YICES2_LIBRARY)
-    set_target_properties(smt-switch::smt-switch PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${SMTSWITCH_YICES2_LIBRARY}")
-    message(STATUS "Found smt-switch-yices2: ${SMTSWITCH_YICES2_LIBRARY}")
-  endif()
 
 endif()
 
