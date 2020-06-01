@@ -1,12 +1,12 @@
+# File: azure-pipelines.yml
+
+jobs:
 trigger:
 - master
 
 pr:
 - master
 
-# File: azure-pipelines.yml
-
-jobs:
 - job: macOS_Mojave
   pool:
     vmImage: 'macOS-10.14'
@@ -18,18 +18,18 @@ jobs:
       brew install boost-python
       brew install z3
     displayName: 'package'
-  - script: | 
+  - script: |
       cmake --version
       z3 --version
     displayName: 'printout'
   - script: |
       export PATH="/usr/local/opt/bison/bin:$PATH"
       export LDFLAGS="-L/usr/local/opt/bison/lib"
-      mkdir -p build 
+      mkdir -p build
       cd build
       cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DILANG_BUILD_INVSYN=OFF
       cmake --build .
-      cmake --build . --target install 
+      cmake --build . --target install
       cmake --build . --target test
     displayName: 'build'
 
@@ -44,14 +44,14 @@ jobs:
       brew install boost-python
       brew install z3
     displayName: 'package'
-  - script: | 
+  - script: |
       cmake --version
       z3 --version
     displayName: 'printout'
   - script: |
       export PATH="/usr/local/opt/bison/bin:$PATH"
       export LDFLAGS="-L/usr/local/opt/bison/lib"
-      mkdir -p build 
+      mkdir -p build
       cd build
       cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DILANG_BUILD_INVSYN=OFF
       cmake --build .
@@ -93,7 +93,7 @@ jobs:
       sudo apt-get install libz3-dev
     displayName: 'package'
   - script: |
-      mkdir -p build 
+      mkdir -p build
       cd build
       cmake .. -DCMAKE_BUILD_TYPE=Release
       cmake --build .
@@ -118,29 +118,38 @@ jobs:
     displayName: 'z3'
 
   - script: |
-      cd extern 
+      cd extern
       cd glog
-      md build 
+      md build
       cd build
-      cmake .. 
+      cmake ..
       cmake --build . --target install
     displayName: 'glog'
 
   - script: |
-      cd extern 
+      cd extern
       cd json
-      md build 
+      md build
       cd build
       cmake .. -DJSON_BuildTests=OFF
       cmake --build . --target install
     displayName: 'json'
 
   - script: |
-      cd extern 
-      cd vlog-parser
-      md build 
+      cd extern
+      cd fmt
+      md build
       cd build
-      cmake .. 
+      cmake ..
+      cmake --build . --target install
+    displayName: 'fmt'
+
+  - script: |
+      cd extern
+      cd vlog-parser
+      md build
+      cd build
+      cmake ..
       cmake --build . --target install
     displayName: 'vlog-parser'
 
@@ -194,6 +203,15 @@ jobs:
       cmake .. -DJSON_BuildTests=OFF
       cmake --build . --target install
     displayName: 'json'
+
+  - script: |
+      cd extern 
+      cd fmt
+      md build 
+      cd build
+      cmake .. 
+      cmake --build . --target install
+    displayName: 'fmt'
 
   - script: |
       cd extern 

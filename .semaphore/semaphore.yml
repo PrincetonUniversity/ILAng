@@ -1,5 +1,5 @@
 version: v1.0
-name: First pipeline
+name: ILAng default build
 agent:
   machine:
     type: e1-standard-2
@@ -11,13 +11,18 @@ blocks:
         commands:
           - checkout
       jobs:
-        - name: compile
+        - name: dependency
           commands:
             - sudo apt-get update
             - sudo apt-get install -y bison flex libboost-all-dev z3 libz3-dev
+        - name: build
+          commands:
             - mkdir build
             - cd build
             - cmake ..
             - make -j$(nproc)
             - sudo make install
-            - make test
+        - name: unit test
+          commands:
+            - make run_test
+            - ctest -R ExampleCMakeBuild
