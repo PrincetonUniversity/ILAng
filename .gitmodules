@@ -4,3 +4,6 @@
 [submodule "extern/tmpl-synth"]
 	path = extern/tmpl-synth
 	url = https://github.com/PrincetonUniversity/ILA-Synthesis-Python.git
+[submodule "extern/smt-switch"]
+	path = extern/smt-switch
+	url = https://github.com/makaimann/smt-switch.git
