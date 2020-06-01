@@ -187,9 +187,27 @@ endif()
 ## smt-switch
 ##
 if(${ILANG_BUILD_SWITCH})
+
   find_package(smtswitch REQUIRED)
   target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch)
   set(SMTSWITCH_INTERFACE TRUE)
+
+  if(${SMTSWITCH_BTOR_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-btor)
+  endif()
+
+  if(${SMTSWITCH_CVC4_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-cvc4)
+  endif()
+
+  if(${SMTSWITCH_MSAT_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-msat)
+  endif()
+
+  if(${SMTSWITCH_YICES2_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-yices2)
+  endif()
+
 else()
   set(SMTSWITCH_INTERFACE FALSE)
 endif()
@@ -236,6 +254,11 @@ else()
 
   install(
     FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
+  )
+
+  install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/config.h
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
   )
 
