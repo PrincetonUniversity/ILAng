@@ -1,11 +1,11 @@
-# File: azure-pipelines.yml
-
 jobs:
 trigger:
 - master
 
 pr:
 - master
+
+# File: azure-pipelines.yml
 
 - job: macOS_Mojave
   pool:
