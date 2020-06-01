@@ -28,11 +28,15 @@ public:
   ~SmtSwitchItf();
 
   /// Type for cacheing the generated expressions.
-  typedef std::unordered_map<const ExprPtr, smt::Term, ExprHash> ExprMap;
+  typedef std::unordered_map<const ExprPtr, smt::Term, ExprHash> ExprTermMap;
+  /// Type for cacheing the generated functions.
+  typedef std::unordered_map<const FuncPtr, smt::Term, FuncHash> FuncTermMap;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Get the SMT Term of the AST node.
   smt::Term GetSmtTerm(const ExprPtr expr, const std::string& suffix = "");
+  /// Reset the solver and the interface.
+  void Reset();
 
   /// Function object for getting SMT Term.
   void operator()(const ExprPtr expr);
@@ -41,8 +45,10 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying SMT solver.
   smt::SmtSolver& solver_;
-  /// Container for cacheing intermediate expressions.
-  ExprMap expr_map_;
+  /// Container for cacheing expression Terms.
+  ExprTermMap expr_map_;
+  /// Container for cacheing function Terms.
+  FuncTermMap func_map_;
   /// Name suffix for each expression generation (e.g., time step).
   std::string suffix_ = "";
 

@@ -824,8 +824,9 @@ void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
 
 #ifdef SMTSWITCH_INTERFACE
 
-smt::Term GetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
-                     const std::string& suffix) {
+smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
+                             const std::string& suffix) {
+  solver->reset();
   auto itf = SmtSwitchItf(solver);
   return itf.GetSmtTerm(expr.get(), suffix);
 }

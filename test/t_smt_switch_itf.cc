@@ -6,6 +6,7 @@
 
 #include "unit-include/util.h"
 #include <ilang/config.h>
+#include <ilang/ila-mngr/u_smt_switch.h>
 #include <ilang/ilang++.h>
 
 #define BV_SIZE 4
@@ -35,7 +36,8 @@ public:
   }
 
   void CheckUnsat(const ExprRef& e) {
-    s->assert_formula(GetSmtTerm(s, e));
+    auto term = ResetAndGetSmtTerm(s, e);
+    s->assert_formula(term);
     auto res = s->check_sat();
     EXPECT_TRUE(res.is_unsat());
   }
@@ -59,7 +61,7 @@ TEST_F(TestSmtSwitch, OpBvNeg) {
   EXPECT_DEATH(CheckUnsat(prop), ".*");
 }
 
-TEST_F(TestSmtSwitch, OpBvNot) {
+TEST_F(TestSmtSwitch, OpBoolNot) {
   auto not_a = !var_bool_a;
   auto not_not_a = !not_a;
   auto prop = not_not_a != var_bool_a;
@@ -294,18 +296,68 @@ TEST_F(TestSmtSwitch, OpBvIte) {
   CheckUnsat(prop);
 }
 
-TEST_F(TestSmtSwitch, DISABLED_IncrementalGen) {
+TEST_F(TestSmtSwitch, OpApplyFunc) {
+  auto func = FuncRef("func", SortRef::BOOL(), SortRef::BV(BV_SIZE));
+  auto out1 = func(var_bv_a);
+  auto out2 = func(var_bv_b);
+  auto prop = (var_bv_a == var_bv_b) & (out1 != out2);
+  CheckUnsat(prop);
+}
+
+TEST_F(TestSmtSwitch, ConstBool) {
+  auto a_is_0 = var_bool_a == BoolConst(false);
+  auto b_is_1 = var_bool_b == BoolConst(true);
+  auto prop = a_is_0 & b_is_1 & (var_bool_a == var_bool_b);
+  CheckUnsat(prop);
+}
+
+TEST_F(TestSmtSwitch, ConstBv) {
+  auto a_is_0 = var_bv_a == BvConst(0, BV_SIZE);
+  auto b_is_1 = var_bv_b == BvConst(1, BV_SIZE);
+  auto prop = a_is_0 & b_is_1 & (var_bv_a == var_bv_b);
+  CheckUnsat(prop);
+}
+
+TEST_F(TestSmtSwitch, ConstMem) {
+  std::map<NumericType, NumericType> data_pair;
+  data_pair[0] = 0;
+  data_pair[1] = 1;
+  data_pair[2] = 2;
+  data_pair[3] = 3;
+  auto const_mem = MemConst(0, data_pair, BV_SIZE, BV_SIZE);
+  auto save_addr = (var_bv_a > 3) & (var_bv_b > 3);
+  auto same_data = Load(const_mem, var_bv_a) == Load(const_mem, var_bv_b);
+  auto prop = !Imply(save_addr, same_data);
+  CheckUnsat(prop);
+}
+
+TEST_F(TestSmtSwitch, DiscreteUsage) {
   auto a_ult_b = Ult(var_bv_a, var_bv_b);
   auto a_ugt_b = Ugt(var_bv_a, var_bv_b);
   auto a_eq_b = var_bv_a == var_bv_b;
 
-  // FIXME require bookkeeping
-  s->assert_formula(GetSmtTerm(s, a_ult_b));
-  s->assert_formula(GetSmtTerm(s, a_ugt_b));
-  s->assert_formula(GetSmtTerm(s, a_eq_b));
+  auto itf = SmtSwitchItf(s);
+  s->assert_formula(itf.GetSmtTerm(a_ult_b.get()));
+  s->assert_formula(itf.GetSmtTerm(a_ugt_b.get()));
+  s->assert_formula(itf.GetSmtTerm(a_eq_b.get()));
 
   auto res = s->check_sat();
   EXPECT_TRUE(res.is_unsat());
+}
+
+TEST_F(TestSmtSwitch, DISABLED_MultiIssue) {
+  auto itf = SmtSwitchItf(s);
+
+  auto a_and_not_a = var_bool_a & !var_bool_a;
+  s->assert_formula(itf.GetSmtTerm(a_and_not_a.get()));
+  auto res = s->check_sat();
+  EXPECT_TRUE(res.is_unsat());
+
+  itf.Reset(); // XXX solver not properly reseted
+
+  auto a_or_b = var_bool_a | var_bool_b;
+  s->assert_formula(itf.GetSmtTerm(a_or_b.get()));
+  EXPECT_TRUE(res.is_sat());
 }
 
 }; // namespace ilang

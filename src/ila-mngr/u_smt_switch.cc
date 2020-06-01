@@ -20,9 +20,15 @@ SmtSwitchItf::SmtSwitchItf(smt::SmtSolver& solver) : solver_(solver) {}
 
 SmtSwitchItf::~SmtSwitchItf() {}
 
+void SmtSwitchItf::Reset() {
+  ILA_WARN << "Solver reset is not fully supported in smt-switch";
+  solver_->reset();
+  expr_map_.clear();
+  func_map_.clear();
+}
+
 smt::Term SmtSwitchItf::GetSmtTerm(const ExprPtr expr,
                                    const std::string& suffix) {
-  expr_map_.clear();
   suffix_ = suffix;
 
   expr->DepthFirstVisit(*this);
@@ -116,28 +122,26 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
                               solver_->make_sort(smt::BV, bw));
   }
   case AST_UID_SORT::MEM: {
-    auto aw = expr->sort()->addr_width();
-    auto dw = expr->sort()->data_width();
-    auto addr_sort = solver_->make_sort(smt::BV, aw);
-    auto data_sort = solver_->make_sort(smt::BV, dw);
+    auto addr_sort = solver_->make_sort(smt::BV, expr->sort()->addr_width());
+    auto data_sort = solver_->make_sort(smt::BV, expr->sort()->data_width());
+    auto mem_sort = solver_->make_sort(smt::ARRAY, addr_sort, data_sort);
 
-    auto memory_term = solver_->make_symbol(
-        expr->name().str(),
-        solver_->make_sort(smt::ARRAY, addr_sort, data_sort));
-
-    ILA_WARN << "Ignoring default value of constant memory " << expr;
+    // create const memory with default value
     auto memory_value = expr_const->val_mem();
+    auto def_val_term = solver_->make_term(memory_value->def_val(), data_sort);
+    auto const_memory = solver_->make_term(def_val_term, mem_sort);
+
+    // write in non-default addr-data pairs
     auto& value_map = memory_value->val_map();
     for (auto p : value_map) {
       auto addr_term = solver_->make_term(p.first, addr_sort);
       auto data_term = solver_->make_term(p.second, data_sort);
-      auto new_memory = solver_->make_term(smt::PrimOp::Store, memory_term,
-                                           addr_term, data_term);
-      memory_term = new_memory;
+      auto memory_wr = solver_->make_term(smt::PrimOp::Store, const_memory,
+                                          addr_term, data_term);
+      const_memory = memory_wr;
     }
 
-    return solver_->make_term(
-        memory_term, solver_->make_sort(smt::ARRAY, addr_sort, data_sort));
+    return const_memory;
   }
   default: {
     ILA_CHECK(false) << fmt::format("Unknown sort {} for ", sort_uid) << expr;
@@ -294,29 +298,39 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
     auto expr_appfunc = std::static_pointer_cast<ExprOpAppFunc>(expr);
     auto func = expr_appfunc->func();
 
-    // func name (for z3 compatibility)
-    auto prefix = (func->host()) ? func->host()->GetRootName() : "";
-    auto f_name = func->name().format_str(prefix, suffix_);
+    // term placeholder for the solver
+    smt::TermVec func_arg_terms;
 
-    // func sort
-    auto arg_sorts = smt::SortVec();
-    for (size_t i = 0; i != func->arg_num(); i++) {
-      arg_sorts.push_back(IlaSort2SmtSort(func->arg(i)));
+    // check if the func has been visited
+    auto pos = func_map_.find(func);
+    if (pos != func_map_.end()) {
+      func_arg_terms.push_back(pos->second);
+    } else { // fist visit - create new term
+      // func name (for z3 compatibility)
+      auto prefix = (func->host()) ? func->host()->GetRootName() : "";
+      auto f_name = func->name().format_str(prefix, suffix_);
+
+      // func sort
+      auto arg_sorts = smt::SortVec();
+      for (size_t i = 0; i != func->arg_num(); i++) {
+        arg_sorts.push_back(IlaSort2SmtSort(func->arg(i)));
+      }
+      arg_sorts.push_back(IlaSort2SmtSort(func->out())); // return is the last
+      auto func_sort = solver_->make_sort(smt::FUNCTION, arg_sorts);
+
+      // func term
+      auto func_term = solver_->make_symbol(f_name, func_sort);
+      func_arg_terms.push_back(func_term);
+
+      // update cache
+      func_map_[func] = func_term;
     }
-    arg_sorts.push_back(IlaSort2SmtSort(func->out())); // return is the last
-    auto func_sort = solver_->make_sort(smt::FUNCTION, arg_sorts);
-
-    // func term
-    auto func_term = solver_->make_term(f_name, func_sort);
 
     // apply func
-    // XXX check this is the right order (no doc available)
-    smt::TermVec all_terms;
-    all_terms.push_back(func_term);
     for (size_t i = 0; i != arg_terms.size(); i++) {
-      all_terms.push_back(arg_terms.at(i));
+      func_arg_terms.push_back(arg_terms.at(i));
     }
-    return solver_->make_term(smt::PrimOp::Apply, all_terms);
+    return solver_->make_term(smt::PrimOp::Apply, func_arg_terms);
   }
   default: {
     ILA_CHECK(false) << "Op " << expr_op_uid << " not supported in smt-switch";
