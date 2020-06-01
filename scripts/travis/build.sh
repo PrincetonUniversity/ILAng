@@ -27,7 +27,7 @@
 CI_BUILD_DIR=$1
 
 # smt-switch with Boolector
-git submodule update extern/smt-switch
+git submodule update --init extern/smt-switch
 cd $CI_BUILD_DIR/extern/smt-switch
 source contrib/setup-btor.sh
 mkdir -p $CI_BUILD_DIR/extern/smt-switch/build
