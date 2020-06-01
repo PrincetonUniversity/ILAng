@@ -137,15 +137,6 @@ pr:
 
   - script: |
       cd extern
-      cd fmt
-      md build
-      cd build
-      cmake ..
-      cmake --build . --target install
-    displayName: 'fmt'
-
-  - script: |
-      cd extern
       cd vlog-parser
       md build
       cd build
@@ -203,15 +194,6 @@ pr:
       cmake .. -DJSON_BuildTests=OFF
       cmake --build . --target install
     displayName: 'json'
-
-  - script: |
-      cd extern 
-      cd fmt
-      md build 
-      cd build
-      cmake .. 
-      cmake --build . --target install
-    displayName: 'fmt'
 
   - script: |
       cd extern 
