@@ -32,7 +32,8 @@ cd $CI_BUILD_DIR/extern/smt-switch
 source contrib/setup-btor.sh
 mkdir -p $CI_BUILD_DIR/extern/smt-switch/build
 cmake .. -DBUILD_BTOR=ON
-sudo cmake --build . --target install
+make -j$(nproc)
+sudo make install
 
 cd $CI_BUILD_DIR
 mkdir -p build

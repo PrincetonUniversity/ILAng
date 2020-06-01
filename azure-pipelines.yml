@@ -1,4 +1,3 @@
-jobs:
 trigger:
 - master
 
@@ -7,6 +6,7 @@ pr:
 
 # File: azure-pipelines.yml
 
+jobs:
 - job: macOS_Mojave
   pool:
     vmImage: 'macOS-10.14'
