@@ -325,9 +325,9 @@ TEST_F(TestSmtSwitch, ConstMem) {
   data_pair[2] = 2;
   data_pair[3] = 3;
   auto const_mem = MemConst(0, data_pair, BV_SIZE, BV_SIZE);
-  auto save_addr = (var_bv_a > 3) & (var_bv_b > 3);
-  auto same_data = Load(const_mem, var_bv_a) == Load(const_mem, var_bv_b);
-  auto prop = !Imply(save_addr, same_data);
+  auto save_addr = (var_bv_a <= 3) & (var_bv_a >= 0);
+  auto is_linear = Load(const_mem, var_bv_a) == var_bv_a;
+  auto prop = !Imply(save_addr, is_linear);
   CheckUnsat(prop);
 }
 
