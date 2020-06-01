@@ -27,10 +27,11 @@
 CI_BUILD_DIR=$1
 
 # smt-switch with Boolector
+git submodule update extern/smt-switch
 cd $CI_BUILD_DIR/extern/smt-switch
 source contrib/setup-btor.sh
 mkdir -p $CI_BUILD_DIR/extern/smt-switch/build
-cmake .. -DCMAKE_INSTALL_PREFIX=$CI_BUILD_DIR/local -DBUILD_BTOR=ON
+cmake .. -DBUILD_BTOR=ON
 cmake --build . --target install
 
 cd $CI_BUILD_DIR
