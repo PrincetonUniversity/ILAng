@@ -8,17 +8,17 @@
 #   SMTSWITCH_LIBRARY
 #
 #   SMTSWITCH_BTOR_FOUND
-#   SMTSWITCH_BTOR_LIBRARY
 #   SMTSWITCH_CVC4_FOUND
-#   SMTSWITCH_CVC4_LIBRARY
 #   SMTSWITCH_MSAT_FOUND
-#   SMTSWITCH_MSAT_LIBRARY
 #   SMTSWITCH_YICES2_FOUND
-#   SMTSWITCH_YICES2_LIBRARY
 #
 # and the following imported targets
 #
 #   smt-switch::smt-switch
+#   smt-switch::smt-switch-btor
+#   smt-switch::smt-switch-cvc4
+#   smt-switch::smt-switch-msat
+#   smt-switch::smt-switch-yices2
 # 
 
 # XXX smt-switch needs to be built with static type
@@ -52,7 +52,7 @@ find_package_handle_standard_args(smtswitch DEFAULT_MSG
 )
 
 ##
-## individual solvers
+## solver backends
 ##
 
 # boolector
@@ -68,7 +68,7 @@ else()
   set(SMTSWITCH_BTOR_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_BTOR_FOUND SMTSWITCH_BTOR_LIBRARY)
+mark_as_advanced(SMTSWITCH_BTOR_FOUND)
 
 # cvc4
 find_library(SMTSWITCH_CVC4_LIBRARY
@@ -83,7 +83,7 @@ else()
   set(SMTSWITCH_CVC4_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_CVC4_FOUND SMTSWITCH_CVC4_LIBRARY)
+mark_as_advanced(SMTSWITCH_CVC4_FOUND)
 
 # math SAT
 find_library(SMTSWITCH_MSAT_LIBRARY
@@ -98,7 +98,7 @@ else()
   set(SMTSWITCH_MSAT_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_MSAT_FOUND SMTSWITCH_MSAT_LIBRARY)
+mark_as_advanced(SMTSWITCH_MSAT_FOUND)
 
 # yices2
 find_library(SMTSWITCH_YICES2_LIBRARY
@@ -113,18 +113,70 @@ else()
   set(SMTSWITCH_YICES2_FOUND FALSE)
 endif()
 
-mark_as_advanced(SMTSWITCH_YICES2_FOUND SMTSWITCH_YICES2_LIBRARY)
+mark_as_advanced(SMTSWITCH_YICES2_FOUND)
 
 # create imported target smt-switch::smt-switch
 if(SMTSWITCH_FOUND AND NOT TARGET smt-switch::smt-switch)
-
   add_library(smt-switch::smt-switch INTERFACE IMPORTED)
+  set_property(
+    TARGET smt-switch::smt-switch
+    PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SMTSWITCH_INCLUDE_DIR}
+  )
+  set_property(
+    TARGET smt-switch::smt-switch
+    PROPERTY INTERFACE_LINK_LIBRARIES ${SMTSWITCH_LIBRARY}
+  )
+endif()
 
-  set_target_properties(smt-switch::smt-switch PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${SMTSWITCH_INCLUDE_DIR}")
+# create imported target smt-switch::smt-switch-btor
+if(SMTSWITCH_BTOR_FOUND AND NOT TARGET smt-switch::smt-switch-btor)
+  add_library(smt-switch::smt-switch-btor INTERFACE IMPORTED)
+  set_property(
+    TARGET smt-switch::smt-switch-btor
+    PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SMTSWITCH_INCLUDE_DIR}
+  )
+  set_property(
+    TARGET smt-switch::smt-switch-btor
+    PROPERTY INTERFACE_LINK_LIBRARIES ${SMTSWITCH_BTOR_LIBRARY}
+  )
+endif()
 
-  set_target_properties(smt-switch::smt-switch PROPERTIES
-    INTERFACE_LINK_LIBRARIES "${SMTSWITCH_LIBRARY}")
+# create imported target smt-switch::smt-switch-cvc4
+if(SMTSWITCH_CVC4_FOUND AND NOT TARGET smt-switch::smt-switch-cvc4)
+  add_library(smt-switch::smt-switch-cvc4 INTERFACE IMPORTED)
+  set_property(
+    TARGET smt-switch::smt-switch-cvc4
+    PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SMTSWITCH_INCLUDE_DIR}
+  )
+  set_property(
+    TARGET smt-switch::smt-switch-cvc4
+    PROPERTY INTERFACE_LINK_LIBRARIES ${SMTSWITCH_CVC4_LIBRARY}
+  )
+endif()
 
+# create imported target smt-switch::smt-switch-msat
+if(SMTSWITCH_MSAT_FOUND AND NOT TARGET smt-switch::smt-switch-msat)
+  add_library(smt-switch::smt-switch-msat INTERFACE IMPORTED)
+  set_property(
+    TARGET smt-switch::smt-switch-msat
+    PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SMTSWITCH_INCLUDE_DIR}
+  )
+  set_property(
+    TARGET smt-switch::smt-switch-msat
+    PROPERTY INTERFACE_LINK_LIBRARIES ${SMTSWITCH_MSAT_LIBRARY}
+  )
+endif()
+
+# create imported target smt-switch::smt-switch-yices2
+if(SMTSWITCH_YICES2_FOUND AND NOT TARGET smt-switch::smt-switch-yices2)
+  add_library(smt-switch::smt-switch-yices2 INTERFACE IMPORTED)
+  set_property(
+    TARGET smt-switch::smt-switch-yices2
+    PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SMTSWITCH_INCLUDE_DIR}
+  )
+  set_property(
+    TARGET smt-switch::smt-switch-yices2
+    PROPERTY INTERFACE_LINK_LIBRARIES ${SMTSWITCH_YICES2_LIBRARY}
+  )
 endif()
 

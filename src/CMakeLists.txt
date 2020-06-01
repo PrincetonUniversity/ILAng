@@ -189,38 +189,9 @@ endif()
 if(${ILANG_BUILD_SWITCH})
   find_package(smtswitch REQUIRED)
   target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch)
-
-
   set(SMTSWITCH_INTERFACE TRUE)
-
-  if(${SMTSWITCH_BTOR_FOUND})
-    set(SMTSWITCH_BTOR TRUE)
-    target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${SMTSWITCH_BTOR_LIBRARY})
-  endif()
-
-  if(${SMTSWITCH_CVC4_FOUND})
-    set(SMTSWITCH_CVC4 TRUE)
-    target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${SMTSWITCH_CVC4_LIBRARY})
-  endif()
-
-  if(${SMTSWITCH_MSAT_FOUND})
-    set(SMTSWITCH_MSAT TRUE)
-    target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${SMTSWITCH_MSAT_LIBRARY})
-  endif()
-
-  if(${SMTSWITCH_YICES2_FOUND})
-    set(SMTSWITCH_YICES2 TRUE)
-    target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${SMTSWITCH_YICES2_LIBRARY})
-  endif()
-
 else()
-
   set(SMTSWITCH_INTERFACE FALSE)
-  set(SMTSWITCH_BTOR FALSE)
-  set(SMTSWITCH_CVC4 FALSE)
-  set(SMTSWITCH_MSAT FALSE)
-  set(SMTSWITCH_YICES2 FALSE)
-
 endif()
 
 ##

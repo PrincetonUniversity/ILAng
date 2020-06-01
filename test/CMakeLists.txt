@@ -106,7 +106,7 @@ if(${ILANG_BUILD_SWITCH})
     target_sources(${ILANG_TEST_MAIN} PRIVATE
       t_smt_switch_itf.cc
     )
-    target_link_libraries(${ILANG_TEST_MAIN} ${SMTSWITCH_BTOR_LIBRARY})
+    target_link_libraries(${ILANG_TEST_MAIN} smt-switch::smt-switch-btor)
   endif()
 
 endif()
