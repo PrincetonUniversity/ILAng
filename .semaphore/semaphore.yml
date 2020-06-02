@@ -15,9 +15,11 @@ blocks:
           commands:
             - sudo apt-get update
             - sudo apt-get install -y bison flex libboost-all-dev z3 libz3-dev
+            - export CC=gcc-8
+            - export GCC=g++-8
             - mkdir build
             - cd build
-            - cmake .. -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8
+            - cmake ..
             - make -j$(nproc)
             - sudo make install
             - make run_test
