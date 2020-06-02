@@ -102,10 +102,6 @@ public:
   typedef InstrTranEdge::ItEdgePtr ItEdgePtr;
   /// Pointer type for passing around InstrTranNode.
   typedef InstrTranNode::ItNodePtr ItNodePtr;
-  /// Type for the sorted index key-vector.
-  typedef KeyVec<InstrPtr, size_t> InstrIdxKeyVec;
-  /// Pointer type for the sorted index key-vector.
-  typedef std::shared_ptr<InstrIdxKeyVec> InstrIdxKeyVecPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -125,21 +121,20 @@ public:
   /// Add one transition to the set.
   void AddTran(const InstrPtr src, const InstrPtr dst, const ExprPtr cnd);
 
-  /// Check the transition condition for each edge is valid.
-  bool CheckTransition() const;
+  /// Set the root node (entry instruction).
+  void set_root(const InstrPtr& i);
 
-  /// Sort the instructions based on the control flow.
-  InstrIdxKeyVecPtr Sort();
+  /// Return the root node (entry instruction).
+  InstrPtr root() const { return root_; }
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// The root node (instruction).
+  InstrPtr root_ = NULL;
   /// The set of transition relations (edges).
   std::set<ItEdgePtr> edges_;
   /// The instruction to node mapping.
   std::map<InstrPtr, ItNodePtr> nodes_;
-
-  /// The sorted instruction index.
-  InstrIdxKeyVecPtr sorted_ = std::make_shared<InstrIdxKeyVec>();
 
 }; // class InstrSeq
 

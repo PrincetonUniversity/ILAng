@@ -113,16 +113,4 @@ TEST_F(TestInstrSeq, ItNode) {
 
 TEST_F(TestInstrSeq, AddTran) { auto seq = InitSeq(); }
 
-TEST_F(TestInstrSeq, CheckTran) {
-  auto seq = InitSeq();
-  // TODO
-  EXPECT_TRUE(seq->CheckTransition());
-}
-
-TEST_F(TestInstrSeq, Sort) {
-  auto seq = InitSeq();
-  // TODO
-  auto sorted_seq = seq->Sort();
-}
-
 } // namespace ilang
