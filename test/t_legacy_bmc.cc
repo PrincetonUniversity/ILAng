@@ -1,10 +1,12 @@
 /// \file
 /// Unit test for legacy BMC
 
+#include <ilang/ila-mngr/v_eq_check_legacy_bmc.h>
+
+#include <iostream>
+
 #include "unit-include/eq_ilas.h"
 #include "unit-include/util.h"
-#include <ilang/verification/legacy_bmc.h>
-#include <iostream>
 
 namespace ilang {
 

@@ -123,10 +123,10 @@ private:
   ExprPtrMap updates_;
 
   /// The host ILA.
-  InstrLvlAbsPtr host_;
+  InstrLvlAbsPtr host_ = NULL;
 
   /// The child-program (child-ILA being triggered).
-  InstrLvlAbsPtr prog_;
+  InstrLvlAbsPtr prog_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.
