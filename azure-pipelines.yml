@@ -1,10 +1,10 @@
+# File: azure-pipelines.yml
+
 trigger:
 - master
 
 pr:
 - master
-
-# File: azure-pipelines.yml
 
 jobs:
 - job: macOS_Mojave
@@ -141,66 +141,6 @@ jobs:
       md build
       cd build
       cmake ..
-      cmake --build . --target install
-    displayName: 'vlog-parser'
-
-  - script: |
-      md build
-      cd build
-      # For building the test, we need CMAKE_MSVC_RUNTIME_LIBRARY (which will be supported in CMake 3.15+)
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
-      cmake --build .
-      cmake --build . --target install
-    displayName: 'build'
-
-  - script: |
-      cd starter
-      md build
-      cd build
-      cmake .. -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
-      cmake --build . 
-    displayName: 'starter'
-
-- job: Windows_2019
-  pool:
-    vmImage: 'windows-2019'
-  steps:
-  - script: |
-      choco install winflexbison3
-      choco install wget
-      git submodule update --init --recursive
-    displayName: 'package'
-
-  - script: |
-      wget https://github.com/Z3Prover/z3/releases/download/z3-4.8.8/z3-4.8.8-x86-win.zip
-      unzip z3-4.8.8-x86-win.zip
-      move z3-4.8.8-x86-win z3
-    displayName: 'z3'
-
-  - script: |
-      cd extern 
-      cd glog
-      md build 
-      cd build
-      cmake .. 
-      cmake --build . --target install
-    displayName: 'glog'
-
-  - script: |
-      cd extern 
-      cd json
-      md build 
-      cd build
-      cmake .. -DJSON_BuildTests=OFF
-      cmake --build . --target install
-    displayName: 'json'
-
-  - script: |
-      cd extern 
-      cd vlog-parser
-      md build 
-      cd build
-      cmake .. 
       cmake --build . --target install
     displayName: 'vlog-parser'
 
