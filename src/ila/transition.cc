@@ -56,8 +56,6 @@ void InstrTranNode::AddNext(const ItNodePtr next) { next_.push_back(next); }
 void InstrTranNode::AddPrev(const ItNodePtr prev) { prev_.push_back(prev); }
 
 // ------------------------- InstrSeq --------------------------------------- //
-typedef InstrSeq::InstrIdxKeyVec InstrIdxKeyVec;
-typedef InstrSeq::InstrIdxKeyVecPtr InstrIdxKeyVecPtr;
 
 InstrSeq::InstrSeq() { clear(); }
 
@@ -66,7 +64,6 @@ InstrSeq::~InstrSeq() { clear(); }
 void InstrSeq::clear() {
   edges_.clear();
   nodes_.clear();
-  sorted_->clear();
 }
 
 InstrSeqPtr InstrSeq::New() { return std::make_shared<InstrSeq>(); }
@@ -101,14 +98,9 @@ void InstrSeq::AddTran(const InstrPtr src, const InstrPtr dst,
   dst_node->AddPrev(src_node);
 }
 
-bool InstrSeq::CheckTransition() const {
-  // TODO
-  return true;
-}
-
-InstrIdxKeyVecPtr InstrSeq::Sort() {
-  // TODO
-  return sorted_;
+void InstrSeq::set_root(const InstrPtr& i) {
+  ILA_WARN_IF(root_) << "Overwriting root node " << root_ << " to " << i;
+  root_ = i;
 }
 
 } // namespace ilang
