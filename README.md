@@ -33,7 +33,7 @@
 
 ### Prerequisites
 
-ILAng requires CMake (3.9.6 or above) and compilers with CXX11 support.
+ILAng requires CMake (3.9.6 or above) and compilers with C++17 support.
 To install dependencies on Debian-based Linux:
 
 ```bash
@@ -62,6 +62,7 @@ brew install bison flex boost boost-python z3
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.17.0 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Release |
+| Ubuntu 18.04 (Bionic)     | clang 6.0.0  | 3.10.2 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Debug   |
 | Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Debug   |
 | Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |
 | Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |

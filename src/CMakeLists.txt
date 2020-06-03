@@ -26,7 +26,7 @@ endif()
 ##
 ## compile features/options
 ##
-target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
+target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_17)
 
 set_property(
   TARGET ${ILANG_LIB_NAME}
