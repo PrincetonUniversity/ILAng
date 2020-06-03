@@ -2,7 +2,7 @@
 
 [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)
 [![Build Status](https://travis-ci.com/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.com/Bo-Yuan-Huang/ILAng)
-[![Build Status](https://ilang.semaphoreci.com/badges/ilang.svg)](https://ilang.semaphoreci.com/projects/ILAng)
+[![Build Status](https://ilang.semaphoreci.com/badges/ILAng.svg)](https://ilang.semaphoreci.com/projects/ILAng)
 [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17719/badge.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ilang)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
@@ -101,8 +101,8 @@ sudo make install
 -   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
 -   Use `-DILANG_BUILD_SYNTH=OFF` to disable building the synthesis engine. 
 -   Use `-DILANG_BUILD_INVSYN=ON` to enable building invariant synthesis feature.
--   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) support. 
--   Use `-DILANG_INSTALL_DEV=ON` to enable installing working features. 
+-   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) interface support. 
+-   Use `-DILANG_INSTALL_DEV=ON` to install working features. 
 
 ## CMake Integration
 
