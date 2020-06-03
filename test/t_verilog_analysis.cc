@@ -6,8 +6,8 @@
 #include <map>
 #include <string>
 
+#include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/util/container_shortcut.h>
-#include <ilang/verification/abs_knob.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-out/verilog_gen.h>
@@ -137,7 +137,7 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r34", 8);
     IS_WIDTH("r44", 8);
   } // end of test2
-  
+
   { // test 3 -- parameters
     VerilogInfo va(
         VerilogInfo::path_vec_t(
