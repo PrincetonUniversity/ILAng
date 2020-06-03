@@ -14,5 +14,15 @@
 
 #cmakedefine INVSYN_INTERFACE
 
+#cmakedefine SMTSWITCH_INTERFACE
+
+#cmakedefine SMTSWITCH_BTOR_FOUND
+
+#cmakedefine SMTSWITCH_CVC4_FOUND
+
+#cmakedefine SMTSWITCH_MSAT_FOUND
+
+#cmakedefine SMTSWITCH_YICES2_FOUND
+
 #endif // CONFIG_CMAKE_DEFINE_H__
 

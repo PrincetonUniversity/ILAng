@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
-#include <ilang/verification/abs_knob.h>
 #include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-out/verilog_gen.h>
 

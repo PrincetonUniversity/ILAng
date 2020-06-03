@@ -78,6 +78,14 @@ private:
 /// Pointer type for normal use of Func.
 typedef Func::FuncPtr FuncPtr;
 
+/// \brief The function object for hashing Func. The hash value is the id of the
+/// symbol, which is supposed to be unique.
+class FuncHash {
+public:
+  /// Function object for hashing
+  size_t operator()(const FuncPtr func) const { return func->name().id(); }
+}; // class FuncHash
+
 } // namespace ilang
 
 #endif // ILANG_ILA_AST_FUNC_H__
