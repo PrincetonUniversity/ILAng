@@ -249,15 +249,25 @@ void IlaSim::dfs_binary_op_non_mem(std::stringstream& dfs_simulator,
                                               : (GetUidExprOp(expr) ==
                                                  AST_UID_EXPR_OP::SUB)
                                                     ? " - "
-                                                    /*TODO(yuex) check in the
-                                                    MUL_op
                                                     : (GetUidExprOp(expr) ==
                                                        AST_UID_EXPR_OP::MUL)
-                                                          ? " * "*/
-                                                    : (GetUidExprOp(expr) ==
-                                                       AST_UID_EXPR_OP::CONCAT)
-                                                          ? ", "
-                                                          : "";
+                                                          ? " * "
+                                                          : (GetUidExprOp(
+                                                                 expr) ==
+                                                             AST_UID_EXPR_OP::
+                                                                 DIV)
+                                                                ? " / "
+                                                                : (GetUidExprOp(
+                                                                       expr) ==
+                                                                   AST_UID_EXPR_OP::
+                                                                       CONCAT)
+                                                                      ? " , "
+                                                                      : (GetUidExprOp(
+                                                                             expr) ==
+                                                                         AST_UID_EXPR_OP::
+                                                                             UREM)
+                                                                            ? " % "
+                                                                            : "";
   declare_variable_with_id(id, out_type_str, out_str);
   if (qemu_device_) {
     if (GetUidExprOp(expr) == AST_UID_EXPR_OP::CONCAT) {
@@ -287,9 +297,9 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
     arg1_str =
         (arg1_str == "true") ? "1" : (arg1_str == "false") ? "0" : arg1_str;
   else
-    arg1_str = (arg1_str == "true") ? "1" : (arg1_str == "false")
-                                                ? "0"
-                                                : arg1_str + ".to_int()";
+    arg1_str = (arg1_str == "true")
+                   ? "1"
+                   : (arg1_str == "false") ? "0" : arg1_str + ".to_int()";
 
   std::string out_str = "c_" + std::to_string(expr->name().id());
   std::string out_type_str =
@@ -347,9 +357,9 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
       arg2_str =
           (arg2_str == "true") ? "1" : (arg2_str == "false") ? "0" : arg2_str;
     else
-      arg2_str = (arg2_str == "true") ? "1" : (arg2_str == "false")
-                                                  ? "0"
-                                                  : arg2_str + ".to_int()";
+      arg2_str = (arg2_str == "true")
+                     ? "1"
+                     : (arg2_str == "false") ? "0" : arg2_str + ".to_int()";
     dfs_simulator << indent << "mem_update_map[" << arg1_str
                   << "] = " << arg2_str << ";" << std::endl;
   }
@@ -561,9 +571,10 @@ void IlaSim::dfs_kernel(std::stringstream& dfs_simulator, std::string& indent,
                               (expr_op_uid == AST_UID_EXPR_OP::ASHR) ||
                               (expr_op_uid == AST_UID_EXPR_OP::LSHR) ||
                               (expr_op_uid == AST_UID_EXPR_OP::ADD) ||
-                              /*TODO(yuex): check in MUL op.
-                              (expr_op_uid == AST_UID_EXPR_OP::MUL) ||*/
-                              (expr_op_uid == AST_UID_EXPR_OP::CONCAT));
+                              (expr_op_uid == AST_UID_EXPR_OP::MUL) ||
+                              (expr_op_uid == AST_UID_EXPR_OP::DIV) ||
+                              (expr_op_uid == AST_UID_EXPR_OP::CONCAT) ||
+                              (expr_op_uid == AST_UID_EXPR_OP::UREM));
     bool binary_op_mem = ((expr_op_uid == AST_UID_EXPR_OP::LOAD) ||
                           (expr_op_uid == AST_UID_EXPR_OP::STORE));
     bool extract_op = (expr_op_uid == AST_UID_EXPR_OP::EXTRACT);

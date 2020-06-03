@@ -50,8 +50,8 @@ void IlaSim::create_bool_state(const ExprPtr& expr, bool child) {
               << std::endl;
     else {
       if (!child) {
-        header_ << header_indent_ << "sc_out<bool> " << state_name_str
-                << "_out;" << std::endl;
+        // header_ << header_indent_ << "sc_out<bool> " << state_name_str
+        //         << "_out;" << std::endl;
       }
       header_ << header_indent_ << "bool " << state_name_str << ";"
               << std::endl;
@@ -72,10 +72,10 @@ void IlaSim::create_bv_state(const ExprPtr& expr, bool child) {
       header_ << header_indent_ << "uint" << expr->sort()->bit_width() << "_t "
               << state_name_str << ";" << std::endl;
     } else {
-      if (!child) {
-        header_ << header_indent_ << "sc_out< " << state_type_str << "> "
-                << state_name_str << "_out;" << std::endl;
-      }
+      // if (!child) {
+      //   header_ << header_indent_ << "sc_out< " << state_type_str << "> "
+      //           << state_name_str << "_out;" << std::endl;
+      // }
       header_ << header_indent_ << state_type_str << state_name_str << ";"
               << std::endl;
     }

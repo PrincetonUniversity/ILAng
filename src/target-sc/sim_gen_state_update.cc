@@ -1,5 +1,7 @@
 #include <ilang/target-sc/ila_sim.h>
 
+#include <fmt/format.h>
+
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
 
@@ -104,10 +106,14 @@ void IlaSim::state_update_mk_file(std::string& state_update_func_name) {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
-               << "-c -o " << state_update_func_name << ".o "
+               << "-g -c -o " << state_update_func_name << ".o "
                << state_update_func_name << ".cc "
                << "-lsystemc" << std::endl;
   obj_list_ << state_update_func_name << ".o ";
+
+  if (cmake_support_) {
+    source_file_list_.push_back(fmt::format("{}.cc", state_update_func_name));
+  }
 }
 
 void IlaSim::state_update_decl(std::stringstream& state_update_function,
