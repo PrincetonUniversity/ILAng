@@ -62,6 +62,11 @@ target_include_directories(${ILANG_LIB_NAME}
 # external dependencies
 # ---------------------------------------------------------------------------- #
 ##
+## std::filesystem
+##
+target_link_libraries(${ILANG_LIB_NAME} PRIVATE stdc++fs)
+
+##
 ## gcov 
 ##
 if(${ILANG_BUILD_COV})

@@ -8,6 +8,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 
@@ -37,6 +38,8 @@ namespace ilang {
 
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir) {
+  return std::filesystem::create_directory(dir);
+#if 0
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
   return _mkdir(dir.c_str()) == 0;
@@ -50,11 +53,14 @@ bool os_portable_mkdir(const std::string& dir) {
   }
   return false;
 #endif
+#endif
 }
 
 /// Append two path (you have to decide whether it is / or \)
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::string& dir2) {
+  return std::filesystem::path(dir1) / std::filesystem::path(dir2);
+#if 0
   std::string sep;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -72,16 +78,24 @@ std::string os_portable_append_dir(const std::string& dir1,
     str2 = dir2.substr(1);
   }
   return str1 + str2;
+#endif
 }
 
 /// Append two path (you have to decide whether it is / or \)
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::vector<std::string>& dirs) {
+  auto ret = std::filesystem::path(dir1);
+  for (auto&& d : dirs) {
+    ret /= d;
+  }
+  return ret;
+#if 0
   std::string ret = dir1;
   for (auto&& d : dirs) {
     ret = os_portable_append_dir(ret, d);
   }
   return ret;
+#endif
 }
 
 /// Append two path (you have to decide whether it is / or \)
@@ -98,6 +112,8 @@ std::string os_portable_join_dir(const std::vector<std::string>& dirs) {
 /// C:\a\b\c.txt -> c.txt
 /// d/e/ghi  -> ghi
 std::string os_portable_file_name_from_path(const std::string& path) {
+  return std::filesystem::path(path).filename();
+#if 0
   std::string sep;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -110,10 +126,15 @@ std::string os_portable_file_name_from_path(const std::string& path) {
   ILA_ERROR_IF(path.back() == sep[0])
       << "Extracting file name from path:" << path << " that ends with:" << sep;
   return Split(path, sep).back();
+#endif
 }
 
 /// Copy all file from a source dir to the destination dir
 bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
+  auto ret = std::filesystem::exists(src) && std::filesystem::exists(dst);
+  std::filesystem::copy(src, dst);
+  return ret;
+#if 0
   int ret;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -125,11 +146,16 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
       ("cp " + os_portable_append_dir(src, "*") + " " + dst).c_str());
 #endif
   return ret == 0;
+#endif
 }
 
 /// Copy the source file to the destination dir
 bool os_portable_copy_file_to_dir(const std::string& src,
                                   const std::string& dst) {
+  auto ret = std::filesystem::exists(src) && std::filesystem::exists(dst);
+  std::filesystem::copy(src, dst);
+  return ret;
+#if 0
   int ret;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -139,10 +165,15 @@ bool os_portable_copy_file_to_dir(const std::string& src,
   ret = std::system(("cp " + src + " " + dst).c_str());
 #endif
   return ret == 0;
+#endif
 }
 
 bool os_portable_move_file_to_dir(const std::string& src,
                                   const std::string& dst) {
+  auto ret = std::filesystem::exists(src) && std::filesystem::exists(dst);
+  std::filesystem::rename(src, dst);
+  return ret;
+#if 0
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
   // XXX need test
@@ -153,9 +184,12 @@ bool os_portable_move_file_to_dir(const std::string& src,
 #endif
   int ret = std::system(cmd.c_str());
   return ret == 0;
+#endif
 }
 
 bool os_portable_remove_file(const std::string& file) {
+  return std::filesystem::remove(file);
+#if 0
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
   // XXX need test
@@ -166,6 +200,7 @@ bool os_portable_remove_file(const std::string& file) {
 #endif
   int ret = std::system(cmd.c_str());
   return ret == 0;
+#endif
 }
 
 /// Extract path from path
@@ -173,7 +208,8 @@ bool os_portable_remove_file(const std::string& file) {
 /// C:\a\b\c -> C:\a\b
 /// d/e/ghi  -> d/e/
 std::string os_portable_path_from_path(const std::string& path) {
-
+  return std::filesystem::path(path).parent_path();
+#if 0
   std::string sep;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -187,10 +223,15 @@ std::string os_portable_path_from_path(const std::string& path) {
   auto pos = path.rfind(sep);
   ILA_ASSERT(pos != path.npos);
   return path.substr(0, pos + 1); // include sep
+#endif
 }
 
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
 std::string os_portable_remove_file_name_extension(const std::string& fname) {
+  auto ret = std::filesystem::path(fname);
+  ret.replace_extension();
+  return ret;
+#if 0
   std::string sep;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -214,6 +255,7 @@ std::string os_portable_remove_file_name_extension(const std::string& fname) {
 
   // /.asdfaf.d -> /.asdfaf  | /.a -> /.
   return fname.substr(0, dot_pos);
+#endif
 }
 
 bool os_portable_compare_file(const std::string& file1,
@@ -622,6 +664,8 @@ bool os_portable_chdir(const std::string& dirname) {
 
 /// Get the current directory
 std::string os_portable_getcwd() {
+  return std::filesystem::current_path();
+#if 0
 #if defined(_WIN32) || defined(_WIN64)
   // windows
   size_t len = GetCurrentDirectory(0, NULL);
@@ -646,6 +690,7 @@ std::string os_portable_getcwd() {
   std::string ret(buffer);
   delete[] buffer;
   return ret;
+#endif
 #endif
 } // os_portable_getcwd
 
