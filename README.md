@@ -64,7 +64,7 @@ brew install bison flex boost boost-python z3
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.17.0 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Release |
 | Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Debug   |
 | Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |
-| Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.8.8 | 1.65  | 3.0.4 | 2.6.4  | Release |
+| Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |
 | OSX 10.13.6 (High Sierra) | Xcode 9.4.1  | 3.15.5 | 4.8.8 | 1.72  | 3.6.2 | 2.5.35 | Release |
 | OSX 10.14.6 (Mojave)      | Xcode 11.3.1 | 3.17.2 | 4.8.8 | 1.72  | 3.6.2 | 2.5.35 | Release |
 | OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 1.72  | 3.6.2 | 2.5.35 | Release |
