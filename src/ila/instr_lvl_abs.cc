@@ -108,27 +108,13 @@ void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
 }
 
 void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
-  // sanity check
-  ILA_NOT_NULL(fetch_expr);
-  ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.";
-  // should be the first
-  ILA_ASSERT(!fetch_) << "Fetch function has been assigned.";
-  // simplify
-  auto fetch = Unify(fetch_expr);
-  // set as fetch function
-  fetch_ = fetch;
+  ILA_ASSERT(!fetch_) << "Fetch alraedy defined";
+  ForceSetFetch(fetch_expr);
 }
 
 void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
-  // sanity check
-  ILA_NOT_NULL(valid_expr);
-  ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.";
-  // should be the first
-  ILA_ASSERT(!valid_) << "Valid function has been assigned.";
-  // simplify
-  auto valid = Unify(valid_expr);
-  // set as valid function
-  valid_ = valid;
+  ILA_ASSERT(!valid_) << "Valid already defined";
+  ForceSetValid(valid_expr);
 }
 
 void InstrLvlAbs::AddInstr(const InstrPtr instr) {
@@ -255,6 +241,26 @@ const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
   return child;
 }
 
+void InstrLvlAbs::ForceSetFetch(const ExprPtr fetch_expr) {
+  // sanity check
+  ILA_NOT_NULL(fetch_expr);
+  ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.";
+  // simplify
+  auto fetch = Unify(fetch_expr);
+  // set as fetch function
+  fetch_ = fetch;
+}
+
+void InstrLvlAbs::ForceSetValid(const ExprPtr valid_expr) {
+  // sanity check
+  ILA_NOT_NULL(valid_expr);
+  ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.";
+  // simplify
+  auto valid = Unify(valid_expr);
+  // set as valid function
+  valid_ = valid;
+}
+
 bool InstrLvlAbs::Check() const {
   ILA_WARN << "Check in InstrLvlAbs not implemented.";
   // TODO
@@ -287,7 +293,10 @@ void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
                              const ExprPtr cnd) {
   // XXX src, dst should already registered.
   auto cnd_simplified = Unify(cnd);
-  instr_seq_.AddTran(src, dst, cnd_simplified);
+  if (!instr_seq_) {
+    instr_seq_ = InstrSeq::New();
+  }
+  instr_seq_->AddTran(src, dst, cnd_simplified);
 }
 
 std::string InstrLvlAbs::GetRootName() const {
@@ -326,7 +335,6 @@ void InstrLvlAbs::InitObject() {
   inits_.clear();
   instrs_.clear();
   childs_.clear();
-  instr_seq_.clear();
   // shared
   if (parent_) {
     expr_mngr_ = parent_->expr_mngr();

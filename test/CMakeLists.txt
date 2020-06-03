@@ -70,6 +70,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mapset.cc
   t_mcm.cc
   t_op_sanity.cc
+  t_pass.cc
   t_portable.cc
   t_sort.cc
   t_symbol.cc
@@ -94,6 +95,18 @@ if(${ILANG_BUILD_SYNTH})
   target_sources(${ILANG_TEST_MAIN} PRIVATE
     t_synth_import.cc
   )
+endif()
+
+if(${ILANG_BUILD_SWITCH})
+
+  find_package(smtswitch REQUIRED)
+
+  if(${SMTSWITCH_BTOR_FOUND})
+    target_sources(${ILANG_TEST_MAIN} PRIVATE
+      t_smt_switch_itf.cc
+    )
+  endif()
+
 endif()
 
 set(ILANG_TEST_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
