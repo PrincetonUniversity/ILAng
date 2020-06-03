@@ -1,9 +1,10 @@
 /// \file
 /// Unit test for compositional refinement relation.
 
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
+
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
-#include <ilang/ila/comp_ref_rel.h>
 
 namespace ilang {
 

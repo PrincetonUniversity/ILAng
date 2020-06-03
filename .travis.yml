@@ -46,27 +46,6 @@ matrix:
       script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR
 
-    - name: "gcc49"
-      os: linux
-      dist: xenial
-      addons:
-        apt: 
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-            - flex
-            - bison
-            - libboost-all-dev
-            - z3
-            - libz3-dev
-      env:
-        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-      before_install:
-        - eval "${MATRIX_EVAL}"
-      script:
-        - source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR
-
     - name: "osx"
       os: osx
       before_install:

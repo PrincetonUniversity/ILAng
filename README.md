@@ -1,8 +1,8 @@
 [![ILAng](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png)](https://bo-yuan-huang.gitbook.io/ilang/)
 
 [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)
-[![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)
-[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)
+[![Build Status](https://travis-ci.com/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.com/Bo-Yuan-Huang/ILAng)
+[![Build Status](https://ilang.semaphoreci.com/badges/ILAng.svg)](https://ilang.semaphoreci.com/projects/ILAng)
 [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17719/badge.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ilang)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
@@ -59,15 +59,16 @@ brew install bison flex boost boost-python z3
 
 | OS                        | Compiler     | CMake  | z3    | Boost | Bison | Flex   | Build   |
 | ------------------------- | ------------ | ------ | ----- | ----- | ----- | ------ | ------- |
-| Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.8.6 | 1.54  | 3.0.4 | 2.5.25 | Release |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Release |
-| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.15.2 | 4.8.6 | 1.65  | 3.0.4 | 2.6.4  | Release |
-| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Debug   |
-| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.16.2 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Release |
-| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.16.2 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Release |
-| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.6 | -     | 3.3.2 | 2.6.4  | Release |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.17.0 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Release |
+| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Debug   |
+| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |
+| Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |
+| OSX 10.13.6 (High Sierra) | Xcode 9.4.1  | 3.15.5 | 4.8.8 | 1.72  | 3.6.2 | 2.5.35 | Release |
+| OSX 10.14.6 (Mojave)      | Xcode 11.3.1 | 3.17.2 | 4.8.8 | 1.72  | 3.6.2 | 2.5.35 | Release |
+| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 1.72  | 3.6.2 | 2.5.35 | Release |
+| Windows Server 2016       | VS 2017      | 3.17.2 | 4.8.8 | -     | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
 
@@ -99,7 +100,9 @@ sudo make install
 -   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time updating submodules for in-source dependencies.
 -   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
 -   Use `-DILANG_BUILD_SYNTH=OFF` to disable building the synthesis engine. 
--   Use `-DILANG_INSTALL_DEV=ON` to enable installing working features. 
+-   Use `-DILANG_BUILD_INVSYN=ON` to enable building invariant synthesis feature.
+-   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) interface support. 
+-   Use `-DILANG_INSTALL_DEV=ON` to install working features. 
 
 ## CMake Integration
 
@@ -196,7 +199,7 @@ source init.sh
 ```
 
 to initialize the environment settings. 
-This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3).
+This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solver [z3](https://github.com/Z3Prover/z3).
 
 ## License
 
@@ -235,6 +238,9 @@ Copyright 2008, Google Inc.
 ILAng contains the [JSON library](https://github.com/nlohmann/json), which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
 Copyright (c) 2013-2019 Niels Lohmann.
 
+ILAng contains the [fmt](https://github.com/fmtlib/fmt.git), which is licensed under [License](https://github.com/fmtlib/fmt/blob/master/LICENSE.rst).
+Copyright (c) 2012-present, Victor Zverovich.
+
 ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
 Copyright (c) 2016 Ben Marshall.
 
@@ -243,6 +249,9 @@ Copyright (c) 2018 Ben Marshall.
 
 ILAng uses the [SMT parser](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html), which is licensed under the [MIT License](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html).
 Copyright (c) 2010 Alberto Griggio.
+
+ILAng uses the [smt-switch](https://github.com/makaimann/smt-switch.git), which is licensed under the [BSD 3-Clause License](https://github.com/makaimann/smt-switch/blob/master/LICENSE).
+Copyright (c) 2019-2020 the authors.
 
 ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
 Copyright (c) 2016 Princeton University.

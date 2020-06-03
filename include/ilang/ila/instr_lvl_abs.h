@@ -123,6 +123,8 @@ public:
   /// Return the named child-ILA; return NULL if not registered.
   const InstrLvlAbsPtr find_child(const Symbol& name) const;
 
+  const InstrSeqPtr& instr_seq() const { return instr_seq_; }
+
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
   /// \param[in] input_var pointer to the input variable being added.
@@ -225,6 +227,14 @@ public:
   /// \return pointer to the child-ILA.
   const InstrLvlAbsPtr NewChild(const std::string& name);
 
+  /// \brief Set the fetch function no matter if is already set.
+  /// \param[in] fetch_expr pointer to the fetch function (as an expression).
+  void ForceSetFetch(const ExprPtr fetch_expr);
+
+  /// \brief Set the valid function no matter if is already set.
+  /// \param[in] valid_expr pointer to the valid function (as an expression).
+  void ForceSetValid(const ExprPtr valid_expr);
+
   /// \brief Sanity check for the ILA (e.g. sort marching).
   /// \return True if check pass.
   bool Check() const;
@@ -302,7 +312,7 @@ private:
   /// The set of child-ILAs.
   InstrLvlAbsMap childs_;
   // child-instr sequencing
-  InstrSeq instr_seq_;
+  InstrSeqPtr instr_seq_ = NULL;
 
   /// Specification/implementation.
   bool is_spec_ = true;
