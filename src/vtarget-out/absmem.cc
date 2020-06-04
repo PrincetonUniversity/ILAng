@@ -68,8 +68,14 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
   if (read_abstract)
     moduleName += "_ra";
   ret << moduleName << " #( \n    .AW(" << addr_width << "),\n";
-  ret << "    .DW(" << data_width << "),\n";
-  ret << "    .TTS(" << (long long)(std::pow(2, addr_width)) << ") )\n";
+  if (read_abstract) {
+    ret << "    .DW(" << data_width << ") )\n";
+    // will not have TTS, because not used
+    // and will create problem for jg
+  } else {
+    ret << "    .DW(" << data_width << "),\n";
+    ret << "    .TTS(" << (long long)(std::pow(2, addr_width)) << ") )\n";
+  }
   ret << inst_name << "(\n";
   ret << "    .clk(clk),\n";
   ret << "    .rst(rst),\n";

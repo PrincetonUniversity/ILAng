@@ -26,10 +26,19 @@
 
 CI_BUILD_DIR=$1
 
+# smt-switch with Boolector
+git submodule update --init extern/smt-switch
+cd $CI_BUILD_DIR/extern/smt-switch
+source contrib/setup-btor.sh
+mkdir -p $CI_BUILD_DIR/extern/smt-switch/build
+cmake .. -DBUILD_BTOR=ON
+make -j$(nproc)
+sudo make install
+
 cd $CI_BUILD_DIR
 mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DILANG_BUILD_COV=ON
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DILANG_BUILD_COV=ON -DILANG_BUILD_SWITCH=ON
 make -j$(nproc)
 sudo make install
 make run_test

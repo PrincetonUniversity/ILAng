@@ -14,6 +14,10 @@ if(@ILANG_BUILD_SYNTH@)
   find_dependency(ilasynth REQUIRED)
 endif()
 
+if(@ILANG_BUILD_SWITCH@)
+  find_dependency(smtswitch REQUIRED)
+endif()
+
 if(@ILANG_BUILD_PYAPI@)
   find_dependency(Boost 1.50 REQUIRED COMPONENTS python)
 

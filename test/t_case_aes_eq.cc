@@ -1,15 +1,13 @@
 /// file
 /// Unit test for the AES Verlog vs C equivalence checking.
 
-#include <ilang/ilang++.h>
-#include <ilang/verification/abs_knob.h>
-#include <ilang/verification/eq_check_crr.h>
-
-#include <ilang/util/fs.h>
-#include <z3++.h>
-
 #include "unit-include/config.h"
 #include "unit-include/util.h"
+#include <ilang/ila-mngr/u_abs_knob.h>
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
+#include <ilang/ilang++.h>
+#include <ilang/util/fs.h>
+#include <z3++.h>
 
 namespace ilang {
 

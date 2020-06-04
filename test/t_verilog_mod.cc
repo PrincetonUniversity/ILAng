@@ -5,9 +5,9 @@
 #include <fstream>
 #include <iostream>
 
+#include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/container_shortcut.h>
-#include <ilang/verification/abs_knob.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/vlg_mod.h>
