@@ -1,4 +1,5 @@
 #include <ilang/target-sc/ila_sim.h>
+#include <string>
 
 #include <queue>
 
@@ -26,6 +27,7 @@ void IlaSim::execute_init(std::stringstream& execute_kernel,
 
 void IlaSim::execute_parent_instructions(std::stringstream& execute_kernel,
                                          std::string& indent) {
+  // 04042020: add a file output for the instructions issued.
   for (unsigned int i = 0; i < model_ptr_->instr_num(); i++) {
     execute_instruction(execute_kernel, indent, model_ptr_->instr(i));
   }
@@ -82,6 +84,18 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
     execute_kernel << indent << "schedule_counter++;" << std::endl;
   if (EXTERNAL_MEM_)
     execute_external_mem_load_end(execute_kernel, indent);
+  // print current instruction information to the terminal
+  execute_kernel << indent << "instr_log << " << "\"Instr NO.\" << " << "std::to_string(instr_cntr) << ";
+  execute_kernel << "\'\\t\'"
+                 << " << ";
+  execute_kernel << "\"" << instr_expr->name().str() << "\""
+                 << " << "
+                 << "\'\\t\'"
+                 << " << ";
+  execute_kernel << "\"is activated\\n\"; \n";
+  execute_kernel << indent << "instr_cntr++;";
+  execute_kernel << std::endl;
+
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;
 }
@@ -342,17 +356,17 @@ void IlaSim::execute_external_mem_return(std::stringstream& execute_kernel,
 
 void IlaSim::execute_write_output(std::stringstream& execute_kernel,
                                   std::string& indent) {
-  for (unsigned int i = 0; i < model_ptr_->state_num(); i++) {
-    auto state = model_ptr_->state(i);
-    if (GetUidSort(state->sort()) == AST_UID_SORT::MEM) {
-      ILA_WARN << "internal mem state " << state->name().str()
-               << "doesn't have output port";
-    } else
-      execute_kernel << indent << model_ptr_->name() << "_"
-                     << model_ptr_->state(i)->name() << "_out.write("
-                     << model_ptr_->name() << "_"
-                     << model_ptr_->state(i)->name() << ");" << std::endl;
-  }
+  // for (unsigned int i = 0; i < model_ptr_->state_num(); i++) {
+  //   auto state = model_ptr_->state(i);
+  //   if (GetUidSort(state->sort()) == AST_UID_SORT::MEM) {
+  //     ILA_WARN << "internal mem state " << state->name().str()
+  //              << "doesn't have output port";
+  //   } else
+  //     execute_kernel << indent << model_ptr_->name() << "_"
+  //                    << model_ptr_->state(i)->name() << "_out.write("
+  //                    << model_ptr_->name() << "_"
+  //                    << model_ptr_->state(i)->name() << ");" << std::endl;
+  // }
 }
 
 void IlaSim::execute_kernel_export(std::stringstream& execute_kernel) {
@@ -371,10 +385,14 @@ void IlaSim::execute_kernel_mk_file() {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
-               << "-c -o "
+               << "-g -c -o "
                << "compute.o compute.cc "
                << "-lsystemc" << std::endl;
   obj_list_ << "compute.o ";
+
+  if (cmake_support_) {
+    source_file_list_.push_back("compute.cc");
+  }
 }
 
 void IlaSim::execute_kernel_header() {
