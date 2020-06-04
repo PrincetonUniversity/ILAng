@@ -2,12 +2,13 @@
 /// Unit test for Verilog analyzer.
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
 #include <ilang/ila-mngr/u_abs_knob.h>
-#include <ilang/util/fs.h>
 #include <ilang/util/container_shortcut.h>
+#include <ilang/util/fs.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/vlg_mod.h>
@@ -16,7 +17,6 @@
 #include "unit-include/util.h"
 
 namespace ilang {
-
 
 TEST(TestVerilogMod, Modify) {
 
@@ -31,10 +31,9 @@ TEST(TestVerilogMod, Modify) {
   }
   */
 
-  std::string fn = 
-    os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "verilog_sample", "t_ana_insta.v"});
-  std::string ofn = 
-    os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "verilog_sample", "t_ana_insta_mod.v"});
+  std::string fn = os_portable_join_dir(
+      {ILANG_TEST_SRC_ROOT, "unit-data", "verilog_sample", "t_ana_insta.v"});
+  auto ofn = GetRandomFileName(std::filesystem::temp_directory_path());
 
   VerilogInfo va(VerilogInfo::path_vec_t(), VerilogInfo::path_vec_t({fn}),
                  "m1");
@@ -47,7 +46,7 @@ TEST(TestVerilogMod, Modify) {
   vm.RecordConnectSigName("m1.subm4.b");
   vm.RecordConnectSigName("m1.n27");
   vm.RecordConnectSigName("m1.ir");
-  vm.RecordAdditionalVlgModuleStmt("wire abcd; assign abcd = 1'b1;","m1");
+  vm.RecordAdditionalVlgModuleStmt("wire abcd; assign abcd = 1'b1;", "m1");
   vm.FinishRecording();
 
   std::ifstream fin(fn);
@@ -64,6 +63,10 @@ TEST(TestVerilogMod, Modify) {
   }
 
   vm.ReadModifyWrite(fn, fin, fout);
+
+  fin.close();
+  fout.close();
+  os_portable_remove_file(ofn);
 }
 
-};     // namespace ilang
+}; // namespace ilang

@@ -1,8 +1,9 @@
 /// \file Utility to deal with filesystem
 /// This could be possible OS dependent so we want to provide a portable layer
-/// C++17 and after should support something like experimental/filesystem, but
-/// we don't rely on it
+// C++17 and after should support something like experimental/filesystem, but
+// we don't rely on it
 // --- Hongce Zhang
+// Now that ILAng require C++17, we can utilize some of the supports.
 
 #include <ilang/util/fs.h>
 
@@ -13,7 +14,6 @@
 #include <iomanip>
 
 #if defined(_WIN32) || defined(_WIN64)
-
 // windows
 #include <direct.h>
 #include <windows.h>
@@ -36,66 +36,36 @@
 
 namespace ilang {
 
+namespace fs = std::filesystem;
+
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir) {
-  return std::filesystem::create_directory(dir);
-#if 0
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  return _mkdir(dir.c_str()) == 0;
-#else
-  // on *nix
-  auto res = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != -1;
-
-  struct stat statbuff;
-  if (stat(dir.c_str(), &statbuff) != -1) {
-    return res || S_ISDIR(statbuff.st_mode);
+  if (fs::is_directory(dir)) {
+    return true;
   }
-  return false;
-#endif
-#endif
+
+  try {
+    return fs::create_directory(dir);
+  } catch (fs::filesystem_error& e) {
+    ILA_ERROR << e.what();
+    return false;
+  }
 }
 
 /// Append two path (you have to decide whether it is / or \)
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::string& dir2) {
-  return std::filesystem::path(dir1) / std::filesystem::path(dir2);
-#if 0
-  std::string sep;
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  sep = "\\";
-#else
-  // on *nix
-  sep = "/";
-#endif
-  auto str1 = dir1;
-  auto str2 = dir2;
-  if (!StrEndsWith(str1, sep))
-    str1 += sep;
-  if (StrStartsWith(dir2, sep)) {
-    ILA_ERROR << "appending root path:" << dir2 << " to " << dir1;
-    str2 = dir2.substr(1);
-  }
-  return str1 + str2;
-#endif
+  return (fs::path(dir1) / fs::path(dir2)).string();
 }
 
 /// Append two path (you have to decide whether it is / or \)
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::vector<std::string>& dirs) {
-  auto ret = std::filesystem::path(dir1);
+  auto acc = fs::path(dir1);
   for (auto&& d : dirs) {
-    ret /= d;
+    acc /= fs::path(d);
   }
-  return ret;
-#if 0
-  std::string ret = dir1;
-  for (auto&& d : dirs) {
-    ret = os_portable_append_dir(ret, d);
-  }
-  return ret;
-#endif
+  return acc.string();
 }
 
 /// Append two path (you have to decide whether it is / or \)
@@ -112,95 +82,65 @@ std::string os_portable_join_dir(const std::vector<std::string>& dirs) {
 /// C:\a\b\c.txt -> c.txt
 /// d/e/ghi  -> ghi
 std::string os_portable_file_name_from_path(const std::string& path) {
-  return std::filesystem::path(path).filename();
-#if 0
-  std::string sep;
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  sep = "\\";
-#else
-  // on *nix
-  sep = "/";
-#endif
-
-  ILA_ERROR_IF(path.back() == sep[0])
-      << "Extracting file name from path:" << path << " that ends with:" << sep;
-  return Split(path, sep).back();
-#endif
+  return fs::path(path).filename();
 }
 
 /// Copy all file from a source dir to the destination dir
 bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
-  auto ret = std::filesystem::exists(src) && std::filesystem::exists(dst);
-  std::filesystem::copy(src, dst);
-  return ret;
-#if 0
-  int ret;
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  ret = std::system(
-      ("xcopy " + os_portable_append_dir(src, "*") + " " + dst).c_str());
-#else
-  // on *nix
-  ret = std::system(
-      ("cp " + os_portable_append_dir(src, "*") + " " + dst).c_str());
-#endif
-  return ret == 0;
-#endif
+  ILA_ASSERT(fs::is_directory(src) && fs::is_directory(dst));
+  // fs::copy can only have one copy_options,
+  // either recursive or overwrite_existing
+  // therefore, we explicitly iterate through the hierarchy
+  for (auto& p : fs::recursive_directory_iterator(src)) {
+    if (fs::is_regular_file(p.path())) {
+      auto dst_p = fs::path(dst) / p.path().filename();
+      try {
+        fs::copy_file(p.path(), dst_p, fs::copy_options::overwrite_existing);
+      } catch (fs::filesystem_error& e) {
+        ILA_ERROR << fmt::format("Fail copying file {} to {}",
+                                 p.path().string(), dst_p.string(), e.what());
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 /// Copy the source file to the destination dir
 bool os_portable_copy_file_to_dir(const std::string& src,
                                   const std::string& dst) {
-  auto ret = std::filesystem::exists(src) && std::filesystem::exists(dst);
-  std::filesystem::copy(src, dst);
-  return ret;
-#if 0
-  int ret;
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  ret = std::system(("xcopy " + src + " " + dst).c_str());
-#else
-  // on *nix
-  ret = std::system(("cp " + src + " " + dst).c_str());
-#endif
-  return ret == 0;
-#endif
+  ILA_ASSERT(fs::is_regular_file(src) && fs::is_directory(dst));
+
+  try {
+    fs::copy(src, dst, fs::copy_options::overwrite_existing);
+  } catch (fs::filesystem_error& e) {
+    ILA_ERROR << e.what();
+    return false;
+  }
+
+  return true;
 }
 
 bool os_portable_move_file_to_dir(const std::string& src,
                                   const std::string& dst) {
-  auto ret = std::filesystem::exists(src) && std::filesystem::exists(dst);
-  std::filesystem::rename(src, dst);
-  return ret;
-#if 0
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  // XXX need test
-  auto cmd = fmt::format("move /y {} {}", src, dst);
-#else
-  // on *nix
-  auto cmd = fmt::format("mv {} {}", src, dst);
-#endif
-  int ret = std::system(cmd.c_str());
-  return ret == 0;
-#endif
+  ILA_ASSERT(fs::is_regular_file(src) && fs::is_directory(dst));
+  try {
+    fs::rename(src, dst);
+  } catch (fs::filesystem_error& e) {
+    ILA_ERROR << e.what();
+    return false;
+  }
+  return true;
 }
 
 bool os_portable_remove_file(const std::string& file) {
-  return std::filesystem::remove(file);
-#if 0
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  // XXX need test
-  auto cmd = fmt::format("del /q {}", file);
-#else
-  // on *nix
-  auto cmd = fmt::format("rm {}", file);
-#endif
-  int ret = std::system(cmd.c_str());
-  return ret == 0;
-#endif
+  ILA_ASSERT(fs::exists(file));
+  try {
+    return fs::remove(file);
+  } catch (fs::filesystem_error& e) {
+    ILA_ERROR << e.what();
+    return false;
+  }
 }
 
 /// Extract path from path
@@ -208,61 +148,31 @@ bool os_portable_remove_file(const std::string& file) {
 /// C:\a\b\c -> C:\a\b
 /// d/e/ghi  -> d/e/
 std::string os_portable_path_from_path(const std::string& path) {
-  return std::filesystem::path(path).parent_path();
-#if 0
-  std::string sep;
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  sep = "\\";
-#else
-  // on *nix
-  sep = "/";
+  auto p = fs::path(path).parent_path().string();
+
+  // for backward compatibility
+  if (p.empty()) {
+#if defined(_WIN32) || defined(_WIN64) // on windows
+    return ".\\";
+#else // on *nix
+    return "./";
 #endif
-  if (path.find(sep) == path.npos)
-    return "." + sep;
-  auto pos = path.rfind(sep);
-  ILA_ASSERT(pos != path.npos);
-  return path.substr(0, pos + 1); // include sep
-#endif
+  }
+
+  return p;
 }
 
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
 std::string os_portable_remove_file_name_extension(const std::string& fname) {
-  auto ret = std::filesystem::path(fname);
-  ret.replace_extension();
-  return ret;
-#if 0
-  std::string sep;
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  sep = "\\";
-#else
-  // on *nix
-  sep = "/";
-#endif
-  auto dot_pos = fname.rfind('.');
-  if (dot_pos == std::string::npos)
-    return fname; // no dot
-
-  auto sep_pos = fname.rfind(sep);
-
-  if (sep_pos == std::string::npos)  // no sep and only dot
-    return fname.substr(0, dot_pos); // remove after dot
-
-  // no change ./../a -> ./../a
-  if (dot_pos < sep_pos)
-    return fname;
-
-  // /.asdfaf.d -> /.asdfaf  | /.a -> /.
-  return fname.substr(0, dot_pos);
-#endif
+  auto name = fs::path(fname);
+  name.replace_extension();
+  return name.string();
 }
 
 bool os_portable_compare_file(const std::string& file1,
                               const std::string& file2) {
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
-  // XXX need test
   auto cmd = fmt::format("fc /a {} {}", file1, file2);
 #else
   // on *nix
@@ -664,34 +574,7 @@ bool os_portable_chdir(const std::string& dirname) {
 
 /// Get the current directory
 std::string os_portable_getcwd() {
-  return std::filesystem::current_path();
-#if 0
-#if defined(_WIN32) || defined(_WIN64)
-  // windows
-  size_t len = GetCurrentDirectory(0, NULL);
-  char* buffer = new char[len + 1];
-  if (GetCurrentDirectory(len, buffer) == 0) {
-    ILA_ERROR << "Unable to get the current working directory.";
-    delete[] buffer;
-    return "";
-  }
-  std::string ret(buffer);
-  delete[] buffer;
-  return ret;
-#else
-  // *nix
-  size_t buff_size = 128;
-  char* buffer = new char[buff_size];
-  while (getcwd(buffer, buff_size) == NULL) {
-    delete[] buffer;
-    buff_size *= 2;
-    buffer = new char[buff_size]; // resize
-  }
-  std::string ret(buffer);
-  delete[] buffer;
-  return ret;
-#endif
-#endif
+  return fs::current_path().string();
 } // os_portable_getcwd
 
 #if (defined(__unix__) || defined(unix) || defined(__APPLE__) ||               \

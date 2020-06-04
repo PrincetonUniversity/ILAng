@@ -4,32 +4,40 @@
 #include "../unit-include/util.h"
 
 #include <cstdio>
+#include <filesystem>
+#include <random>
 
 #include <ilang/ila-mngr/v_eq_check_legacy_bmc.h>
 
 namespace ilang {
 
-std::string GetRandomFileName(char* file_name_template) {
-  ILA_NOT_NULL(file_name_template);
+namespace fs = std::filesystem;
 
-#ifdef __unix__
-  auto res = mkstemp(file_name_template);
-  ILA_CHECK(res != -1) << "Fail creating file";
-  close(res); // avoid resource exhaustion - not thread safe
-  return static_cast<std::string>(file_name_template);
+static const std::string CHARACTERS =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-#elif __APPLE__
-  auto res = mkstemp(file_name_template);
-  ILA_CHECK(res != -1) << "Fail creating file";
-  close(res); // avoid resource exhaustion - not thread safe
-  return static_cast<std::string>(file_name_template);
+std::string random_string(std::size_t length) {
+  std::random_device random_device;
+  std::mt19937 generator(random_device());
+  std::uniform_int_distribution<> distribution(0, CHARACTERS.size() - 1);
 
-#else
-  ILA_WARN << "tmpnam may be deprecated -- find alternatives";
-  auto fn = std::tmpnam(NULL);
-  return static_cast<std::string>(fn);
+  std::string random_string;
 
-#endif
+  for (std::size_t i = 0; i < length; ++i) {
+    random_string += CHARACTERS[distribution(generator)];
+  }
+
+  return random_string;
+}
+
+std::string GetRandomFileName(const std::string& dir) {
+  ILA_ASSERT(fs::is_directory(dir)) << dir << " doesn't exist";
+
+  auto file_name = fs::path(random_string(6));
+  while (fs::exists(fs::path(dir) / file_name)) {
+    file_name = fs::path(random_string(6));
+  }
+  return (dir / file_name).string();
 }
 
 void CheckIlaEqLegacy(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b) {
