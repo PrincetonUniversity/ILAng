@@ -324,8 +324,8 @@ TEST(TestVlgTargetGen, Memory) {
   vg.GenerateTargets();
 }
 
-TEST(TestVlgTargetGen,
-     DISABLED_MemoryInternal) { // test the expansion of memory
+TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
+
   auto ila_model = MemorySwap::BuildSimpleSwapModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t
