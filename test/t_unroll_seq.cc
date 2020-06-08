@@ -26,7 +26,7 @@ public:
     init_mem = MemConst(init_mem_val, 8, 8);
   }
   void TearDown() {
-    SetToStdErr(0);
+    // SetToStdErr(0);
     DebugLog::Disable("Unroller");
   }
 
@@ -72,7 +72,7 @@ TEST_F(TestUnroll, InstrSeqFlatNone) {
 }
 
 TEST_F(TestUnroll, InstrSeqSolve) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
   auto m0 = SimpleCpu("m0");
   auto m1 = SimpleCpu("m1");
 
@@ -170,7 +170,7 @@ TEST_F(TestUnroll, MonoFlatNone) {
 }
 
 TEST_F(TestUnroll, MonoSolve) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
   auto m0 = SimpleCpu("m0");
   auto m1 = SimpleCpu("m1");
 
@@ -245,7 +245,7 @@ TEST_F(TestUnroll, MonoSolve) {
 }
 
 TEST_F(TestUnroll, PathMonoSolve) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
   auto m0 = SimpleCpu("m0");
   auto m1 = SimpleCpu("m1");
 

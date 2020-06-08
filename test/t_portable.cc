@@ -21,8 +21,6 @@ void SerDes(const std::string& dir, const std::string& file,
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file);
 
-  // char tmp_file_template[] = "/tmp/ila_XXXXXX";
-  // auto tmp_file_name = GetRandomFileName(tmp_file_template);
   auto tmp_file = GetRandomFileName(std::filesystem::temp_directory_path());
 
   ExportIlaPortable(ila, tmp_file);

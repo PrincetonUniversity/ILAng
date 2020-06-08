@@ -76,8 +76,4 @@ TEST(TestZ3Adapter, Suffix) {
   DebugLog::Disable("z3_adapter");
 }
 
-// TODO simplify
-// TODO change context
-// TODO Clear
-
 } // namespace ilang

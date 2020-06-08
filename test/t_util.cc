@@ -14,20 +14,24 @@ namespace ilang {
 
 void RecordLog() {
   // precondition for log test
+#if 0
   SetLogLevel(0); // log all
   SetLogPath(""); // log to /tmp
   SetToStdErr(1); // log to stderr for easy catching
+#endif
 }
 
 void EndRecordLog() {
-  // reset to default condition
+// reset to default condition
+#if 0
   SetLogLevel(0); // log all
   SetLogPath(""); // log to /tmp
 #ifndef NDEBUG
   SetToStdErr(0); // still log to stderr
-#else             // NDEBUG
+#else  // NDEBUG
   SetToStdErr(0); // not log to stderr
-#endif            // NDEBUG
+#endif // NDEBUG
+#endif
 }
 
 #define EXPECT_ERROR(m)                                                        \
