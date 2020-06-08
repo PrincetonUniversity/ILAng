@@ -283,8 +283,16 @@ void IlaSim::dfs_binary_op_non_mem(std::stringstream& dfs_simulator,
                     << arg1_str << ");" << std::endl;
     }
   } else {
-    dfs_simulator << indent << out_str << " = (" << arg0_str << op_str
-                  << arg1_str << ");" << std::endl;
+    if (GetUidExprOp(expr) == AST_UID_EXPR_OP::CONCAT) {
+      auto arg0_width = expr->arg(0)->sort()->bit_width();
+      auto arg1_width = expr->arg(1)->sort()->bit_width();
+      dfs_simulator << indent << out_str << " = (sc_biguint<" << arg0_width
+                    << ">(" << arg0_str << ")" << op_str << "sc_biguint<"
+                    << arg1_width << ">(" << arg1_str << "));" << std::endl;
+    } else {
+      dfs_simulator << indent << out_str << " = (" << arg0_str << op_str
+                    << arg1_str << ");" << std::endl;
+    }
   }
 }
 
@@ -299,7 +307,11 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
   else
     arg1_str = (arg1_str == "true")
                    ? "1"
-                   : (arg1_str == "false") ? "0" : arg1_str + ".to_int()";
+                   : (arg1_str == "false")
+                         ? "0"
+                         : (GetUidExpr(expr->arg(1)) == AST_UID_EXPR::CONST)
+                               ? arg1_str
+                               : arg1_str + ".to_int()";
 
   std::string out_str = "c_" + std::to_string(expr->name().id());
   std::string out_type_str =
@@ -359,7 +371,11 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
     else
       arg2_str = (arg2_str == "true")
                      ? "1"
-                     : (arg2_str == "false") ? "0" : arg2_str + ".to_int()";
+                     : (arg2_str == "false")
+                           ? "0"
+                           : (GetUidExpr(expr->arg(2)) == AST_UID_EXPR::CONST)
+                                 ? arg2_str
+                                 : arg2_str + ".to_int()";
     dfs_simulator << indent << "mem_update_map[" << arg1_str
                   << "] = " << arg2_str << ";" << std::endl;
   }
