@@ -2,6 +2,7 @@
 /// Unit test for Verilog parser.
 #include <cstdio>
 #include <cstdlib>
+#include <experimental/filesystem>
 #include <iostream>
 
 #include <ilang/ila-mngr/u_abs_knob.h>
@@ -18,62 +19,69 @@
 
 namespace ilang {
 
-void parseable(const std::string& fname, VerilogGenerator& vgen) {
-  std::ofstream fout(fname);
-  if (fout.is_open()) {
-    vgen.DumpToFile(fout);
-    fout.close();
-  } else
-    ILA_WARN << "Cannot write tmpfile:" << fname << " for vlog-gen test.";
+namespace fs = std::experimental::filesystem;
 
-  int result = TestParseVerilogFrom(fname);
-  EXPECT_EQ(result, 0);
-  if (result != 0)
-    ILA_INFO << "ParseErrorFileName = " << fname;
-}
+class TestVerilogGen : public ::testing::Test {
+public:
+  TestVerilogGen() { working_dir = fs::temp_directory_path(); }
+  ~TestVerilogGen() {}
 
-void ParseIla(const InstrLvlAbsPtr& ila) {
-  // test 1 gen all : internal mem
-  {
-    SetLogLevel(2);
-    auto vgen = VerilogGenerator();
-    vgen.ExportIla(ila);
+  void SetUp() {}
 
-    char tmp_file_template[] = "/tmp/vlog_XXXXXX";
-    auto tmp_file_name = GetRandomFileName(tmp_file_template);
-    parseable(tmp_file_name, vgen);
+  void TearDown() {}
+
+  fs::path working_dir;
+
+  void Parseable(VerilogGenerator& vgen) {
+    auto fname = GetRandomFileName(working_dir);
+    std::ofstream fout(fname);
+    if (fout.is_open()) {
+      vgen.DumpToFile(fout);
+      fout.close();
+    } else {
+      ILA_ERROR << "Fail writing file:" << fname;
+    }
+
+    int result = TestParseVerilogFrom(fname);
+    EXPECT_EQ(result, 0);
+
+    os_portable_remove_file(fname);
   }
-  // test 2 gen all : external mem
-  {
-    auto config = VerilogGenerator::VlgGenConfig(
-        true, VerilogGenerator::VlgGenConfig::funcOption::Internal);
-    auto vgen = VerilogGenerator(config);
-    vgen.ExportIla(ila);
 
-    char tmp_file_template[] = "/tmp/vlog_ext_XXXXXX";
-    auto tmp_file_name = GetRandomFileName(tmp_file_template);
-    parseable(tmp_file_name, vgen);
+  void ParseIla(const InstrLvlAbsPtr& ila) {
+    // test 1 gen all : internal mem
+    {
+      SetLogLevel(2);
+      auto vgen = VerilogGenerator();
+      vgen.ExportIla(ila);
+      Parseable(vgen);
+    }
+    // test 2 gen all : external mem
+    {
+      auto config = VerilogGenerator::VlgGenConfig(
+          true, VerilogGenerator::VlgGenConfig::funcOption::Internal);
+      auto vgen = VerilogGenerator(config);
+      vgen.ExportIla(ila);
+      Parseable(vgen);
+    }
   }
-}
 
-void FlattenIla(const InstrLvlAbsPtr& ila) {
+  void FlattenIla(const InstrLvlAbsPtr& ila) {
+    for (auto i = 0; i < ila->instr_num(); i++) {
+      auto dep_ila = AbsKnob::ExtrDeptModl(ila->instr(i), "Flatten");
+      AbsKnob::FlattenIla(dep_ila);
 
-  for (auto i = 0; i < ila->instr_num(); i++) {
-    auto dep_ila = AbsKnob::ExtrDeptModl(ila->instr(i), "Flatten");
-    AbsKnob::FlattenIla(dep_ila);
-
-    auto vgen = VerilogGenerator();
-    vgen.ExportIla(dep_ila);
-
-    char tmp_file_template[] = "/tmp/vlog_flat_XXXXXX";
-    auto tmp_file_name = GetRandomFileName(tmp_file_template);
-    parseable(tmp_file_name, vgen);
+      auto vgen = VerilogGenerator();
+      vgen.ExportIla(dep_ila);
+      Parseable(vgen);
+    }
   }
-}
 
-TEST(TestVerilogGen, Init) { VerilogGenerator(); }
+}; // TestVerilogGen
 
-TEST(TestVerilogGen, VlgCnst) {
+TEST_F(TestVerilogGen, Init) { VerilogGenerator(); }
+
+TEST_F(TestVerilogGen, VlgCnst) {
   EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(1, 8), "8'h1");
   EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(255, 8), "8'hff");
   EXPECT_EQ(VerilogGeneratorBase::ToVlgNum(0, 8), "8'h0");
@@ -112,7 +120,7 @@ TEST(TestVerilogGen, VlgCnst) {
 #endif
 }
 
-TEST(TestVerilogGen, ParseInst) {
+TEST_F(TestVerilogGen, ParseInst) {
   auto ila_ptr_ = SimpleCpu("proc");
   // test 1 gen Add : internal mem
   {
@@ -121,7 +129,7 @@ TEST(TestVerilogGen, ParseInst) {
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
 
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Add.v", vgen);
+    Parseable(vgen);
   }
   // test 2 gen Add : external mem
   {
@@ -132,21 +140,21 @@ TEST(TestVerilogGen, ParseInst) {
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
 
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Add_extmem.v", vgen);
+    Parseable(vgen);
   }
   // test 3 gen Load : internal mem
   {
     auto vgen = VerilogGenerator();
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Load"));
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Load.v", vgen);
+    Parseable(vgen);
   }
   // test 4 gen Store : internal mem
   {
     auto vgen = VerilogGenerator();
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Store"));
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Store.v", vgen);
+    Parseable(vgen);
   }
   // test 5 gen Load : external mem
   {
@@ -155,7 +163,7 @@ TEST(TestVerilogGen, ParseInst) {
     auto vgen = VerilogGenerator(config);
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Load"));
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Load_extmem.v", vgen);
+    Parseable(vgen);
   }
   // test 6 gen Store : external mem
   {
@@ -164,25 +172,24 @@ TEST(TestVerilogGen, ParseInst) {
     auto vgen = VerilogGenerator(config);
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Store"));
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Store_extmem.v",
-              vgen);
+    Parseable(vgen);
   }
 } // TEST (ParseInst)
 
-TEST(TestVerilogGen, CpReg) {
+TEST_F(TestVerilogGen, CpReg) {
   EqIlaGen ila_gen;
   auto ila = ila_gen.GetIlaHier1("CpReg");
   ParseIla(ila);
   FlattenIla(ila);
 }
 
-TEST(TestVerilogGen, SimpleProc) {
+TEST_F(TestVerilogGen, SimpleProc) {
   auto ila = SimpleCpu("proc");
   ParseIla(ila);
   FlattenIla(ila);
 }
 
-TEST(TestVerilogGen, AES_V) {
+TEST_F(TestVerilogGen, AES_V) {
   auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
   auto file = os_portable_append_dir(dir, "aes_v.json");
   auto ila = ImportIlaPortable(file);
@@ -190,7 +197,7 @@ TEST(TestVerilogGen, AES_V) {
   FlattenIla(ila.get());
 }
 
-TEST(TestVerilogGen, AES_C) {
+TEST_F(TestVerilogGen, AES_C) {
   auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
   auto file = os_portable_append_dir(dir, "aes_c.json");
   auto ila = ImportIlaPortable(file);
@@ -198,7 +205,7 @@ TEST(TestVerilogGen, AES_C) {
   FlattenIla(ila.get());
 }
 
-TEST(TestVerilogGen, GB_Low) {
+TEST_F(TestVerilogGen, GB_Low) {
   auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "gb");
   auto file = os_portable_append_dir(dir, "gb_low.json");
   auto ila = ImportIlaPortable(file);
@@ -206,7 +213,7 @@ TEST(TestVerilogGen, GB_Low) {
   FlattenIla(ila.get());
 }
 
-TEST(TestVerilogGen, RBM) {
+TEST_F(TestVerilogGen, RBM) {
   auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "rbm");
   auto file = os_portable_append_dir(dir, "rbm.json");
   auto ila = ImportIlaPortable(file);
@@ -214,7 +221,7 @@ TEST(TestVerilogGen, RBM) {
   FlattenIla(ila.get());
 }
 
-TEST(TestVerilogGen, OC) {
+TEST_F(TestVerilogGen, OC) {
   auto dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "oc");
   auto file = os_portable_append_dir(dir, "oc.json");
   auto ila = ImportIlaPortable(file);
