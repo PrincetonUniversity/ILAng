@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for utility functions
 
-#include <filesystem>
+#include <experimental/filesystem>
 #include <vector>
 
 #include <ilang/util/fs.h>
@@ -11,6 +11,8 @@
 #include "unit-include/util.h"
 
 namespace ilang {
+
+namespace fs = std::experimental::filesystem;
 
 void RecordLog() {
   // precondition for log test
@@ -89,12 +91,12 @@ TEST(TestUtil, CopyDir) {
   EXPECT_TRUE(os_portable_mkdir(dst_dir));
 
   EXPECT_TRUE(os_portable_copy_dir(src_dir, dst_dir));
-  EXPECT_TRUE(std::filesystem::exists(dummy_path));
-  EXPECT_FALSE(std::filesystem::is_directory(dummy_path));
+  EXPECT_TRUE(fs::exists(dummy_path));
+  EXPECT_FALSE(fs::is_directory(dummy_path));
 
   EXPECT_FALSE(os_portable_mkdir(dummy_path));
-  EXPECT_TRUE(std::filesystem::exists(dummy_path));
-  EXPECT_FALSE(std::filesystem::is_directory(dummy_path));
+  EXPECT_TRUE(fs::exists(dummy_path));
+  EXPECT_FALSE(fs::is_directory(dummy_path));
 }
 
 #if defined(_WIN32) || defined(_WIN64)

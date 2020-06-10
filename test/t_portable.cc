@@ -1,7 +1,7 @@
 /// \file
 /// Unit tests for exporting and importing ILA portables.
 
-#include <filesystem>
+#include <experimental/filesystem>
 
 #include <ilang/ilang++.h>
 #include <ilang/target-json/interface.h>
@@ -13,6 +13,8 @@
 
 namespace ilang {
 
+namespace fs = std::experimental::filesystem;
+
 void Check(Ila& a, Ila& b) { CheckIlaEqLegacy(a.get(), b.get()); }
 
 void SerDes(const std::string& dir, const std::string& file,
@@ -21,7 +23,7 @@ void SerDes(const std::string& dir, const std::string& file,
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file);
 
-  auto tmp_file = GetRandomFileName(std::filesystem::temp_directory_path());
+  auto tmp_file = GetRandomFileName(fs::temp_directory_path());
 
   ExportIlaPortable(ila, tmp_file);
   auto des = ImportIlaPortable(tmp_file);

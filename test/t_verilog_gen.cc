@@ -2,7 +2,7 @@
 /// Unit test for Verilog parser.
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
+#include <experimental/filesystem>
 #include <iostream>
 
 #include <ilang/ila-mngr/u_abs_knob.h>
@@ -19,16 +19,18 @@
 
 namespace ilang {
 
+namespace fs = std::experimental::filesystem;
+
 class TestVerilogGen : public ::testing::Test {
 public:
-  TestVerilogGen() { working_dir = std::filesystem::temp_directory_path(); }
+  TestVerilogGen() { working_dir = fs::temp_directory_path(); }
   ~TestVerilogGen() {}
 
   void SetUp() {}
 
   void TearDown() {}
 
-  std::filesystem::path working_dir;
+  fs::path working_dir;
 
   void Parseable(VerilogGenerator& vgen) {
     auto fname = GetRandomFileName(working_dir);
