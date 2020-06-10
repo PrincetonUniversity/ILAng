@@ -22,7 +22,7 @@ project(ilang VERSION     1.0.4
 # ---------------------------------------------------------------------------- #
 option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
-option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
+option(ILANG_BUILD_SYNTH "Build the synthesis engine."                      OFF)
 option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
 option(ILANG_COVERITY    "Build for Coverity static analysis."              OFF)

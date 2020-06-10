@@ -29,7 +29,7 @@ CI_BUILD_DIR=$1
 cd $CI_BUILD_DIR
 mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
 sudo make install
 make run_test
