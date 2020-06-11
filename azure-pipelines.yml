@@ -52,7 +52,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release
       cmake --build .
       cmake --build . --target install 
-      cmake --build . --target test
+      ./test/unit_tests
     displayName: 'build'
 
 - job: Ubuntu_1604_LTS
