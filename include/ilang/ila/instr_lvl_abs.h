@@ -235,16 +235,6 @@ public:
   /// \param[in] valid_expr pointer to the valid function (as an expression).
   void ForceSetValid(const ExprPtr valid_expr);
 
-  /// \brief Sanity check for the ILA (e.g. sort marching).
-  /// \return True if check pass.
-  bool Check() const;
-
-  /// \brief Merge child-ILAs, including variables, simplifier, etc.
-  void MergeChild();
-
-  /// \brief Sort instructions based on the sequencing, if any.
-  void SortInstr();
-
   /// \brief Define instruction sequencing by adding a transition edge.
   /// \param[in] src source instruction
   /// \param[in] dst target instruction (destination)

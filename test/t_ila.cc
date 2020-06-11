@@ -273,23 +273,6 @@ TEST(TestInstrLvlAbs, Child) {
   EXPECT_ANY_THROW(ila->child(3));
 }
 
-TEST(TestInstrLvlAbs, CheckAll) {
-  auto ila = InstrLvlAbs::New("ila");
-  EXPECT_TRUE(ila->Check());
-}
-
-TEST(TestInstrLvlAbs, MergeAll) {
-  auto ila = InstrLvlAbs::New("ila");
-  ila->MergeChild();
-  // TODO
-}
-
-TEST(TestInstrLvlAbs, SortInstr) {
-  auto ila = InstrLvlAbs::New("ila");
-  ila->SortInstr();
-  // TODO
-}
-
 TEST(TestInstrLvlAbs, SeqTran) {
   auto ila = InstrLvlAbs::New("ila");
 

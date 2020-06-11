@@ -48,6 +48,7 @@ matrix:
 
     - name: "osx"
       os: osx
+      osx_image: xcode11.5
       before_install:
         - brew install bison
         - export PATH="/usr/local/opt/bison/bin:$PATH"
@@ -73,7 +74,6 @@ matrix:
           packages:
             - flex
             - bison
-            - libboost-all-dev
             - z3
             - libz3-dev
       before_install:
@@ -98,8 +98,6 @@ addons:
     packages:
       - flex
       - python
-      - boost
-      - boost-python
       - z3
 
 notifications:
