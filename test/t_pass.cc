@@ -12,7 +12,7 @@ namespace ilang {
 
 void ApplyPass(const std::string& dir, const std::string& file,
                bool simplify = true) {
-  SetToStdErr(true);
+  // SetToStdErr(true);
 
   EnableDebug("PassSimpInstrUpdate");
   EnableDebug("PassRewrCondStore");

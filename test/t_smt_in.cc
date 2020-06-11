@@ -1,11 +1,11 @@
 /// \file
 /// Unit test SMT parser
 
+#include <ilang/smt-inout/chc_inv_in_wrapper.h>
+#include <ilang/smt-inout/smt_ast.h>
+#include <ilang/util/fs.h>
 #include <iostream>
 #include <sstream>
-#include <ilang/util/fs.h>
-#include <ilang/smt-inout/smt_ast.h>
-#include <ilang/smt-inout/chc_inv_in_wrapper.h>
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
@@ -13,30 +13,31 @@
 namespace ilang {
 
 TEST(TestSmtParse, Type) {
-  smt::var_type t1,t2;
+  smt::var_type t1, t2;
   t1._type = smt::var_type::tp::Bool;
   t2._type = smt::var_type::tp::BV;
-  EXPECT_FALSE(smt::var_type::eqtype(t1,t2));
+  EXPECT_FALSE(smt::var_type::eqtype(t1, t2));
   t1._type = smt::var_type::tp::Datatype;
   t1.module_name = "m1";
-  EXPECT_FALSE(smt::var_type::eqtype(t1,t2));
-  EXPECT_EQ(t1.toString(),"|m1_s|");
+  EXPECT_FALSE(smt::var_type::eqtype(t1, t2));
+  EXPECT_EQ(t1.toString(), "|m1_s|");
 
-  EXPECT_EQ(smt::convert_to_binary(5,4), "#b0101");
-  EXPECT_EQ(smt::convert_to_binary("0011",2,4), "#b0011");
-  EXPECT_EQ(smt::convert_to_binary("0011",2,5), "#b00011");
-  EXPECT_EQ(smt::convert_to_binary("0011",2,3), "#b011");
+  EXPECT_EQ(smt::convert_to_binary(5, 4), "#b0101");
+  EXPECT_EQ(smt::convert_to_binary("0011", 2, 4), "#b0011");
+  EXPECT_EQ(smt::convert_to_binary("0011", 2, 5), "#b00011");
+  EXPECT_EQ(smt::convert_to_binary("0011", 2, 3), "#b011");
 }
 
 TEST(TestSmtParse, Parse) {
-  auto fn = 
-    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "smt", "pipeline_design.smt2"});
-  auto fo = 
-    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data","smt","smt-out.smt2"});
-  
+  auto fn = os_portable_append_dir(
+      ILANG_TEST_SRC_ROOT, {"unit-data", "smt", "pipeline_design.smt2"});
+  auto fo = os_portable_append_dir(ILANG_TEST_SRC_ROOT,
+                                   {"unit-data", "smt", "smt-out.smt2"});
+
   std::ifstream fin(fn);
   std::stringstream buffer;
   buffer << fin.rdbuf();
+  fin.close();
 
   smt::smt_file smtinfo;
   smt::str_iterator smt_string_iterator(buffer.str());
@@ -44,8 +45,10 @@ TEST(TestSmtParse, Parse) {
 
   {
     std::ofstream fout(fo);
-    ILA_ERROR_IF(! fout.is_open()) << "Error writing to: " << fo;
+    ILA_ERROR_IF(!fout.is_open()) << "Error writing to: " << fo;
     fout << smtinfo.toString();
+    fout.close();
+    os_portable_remove_file(fo);
   }
   // Expect no error...
 }
@@ -53,24 +56,23 @@ TEST(TestSmtParse, Parse) {
 #ifdef ILANG_BUILD_INVSYN
 
 TEST(TestSmtParse, ChcParse) {
-  auto fn = 
-    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data", "smt", "aes.smt2"});
-  auto chc_fn = 
-    os_portable_append_dir(ILANG_TEST_SRC_ROOT, {"unit-data","smt","aes-chc.chc"});
+  auto fn = os_portable_append_dir(ILANG_TEST_SRC_ROOT,
+                                   {"unit-data", "smt", "aes.smt2"});
+  auto chc_fn = os_portable_append_dir(ILANG_TEST_SRC_ROOT,
+                                       {"unit-data", "smt", "aes-chc.chc"});
   bool flatten_datatype = false;
   bool flatten_hierarchy = true;
-  
+
   std::ifstream fin(fn);
   std::stringstream buffer;
   buffer << fin.rdbuf();
+  fin.close();
   {
     smt::YosysSmtParser design_info(buffer.str());
     smt::SmtlibInvariantParserInstance chc_parser(
-      &design_info,flatten_datatype,flatten_hierarchy,{"INV"},
-      "m1");
+        &design_info, flatten_datatype, flatten_hierarchy, {"INV"}, "m1");
     chc_parser.ParseInvResultFromFile(chc_fn);
-    std::cout
-      << chc_parser.GetFinalTranslateResult() << std::endl;
+    ILA_INFO << chc_parser.GetFinalTranslateResult();
   }
   {
     std::string test_inv(R"##(
@@ -162,15 +164,11 @@ TEST(TestSmtParse, ChcParse) {
 
     smt::YosysSmtParser design_info(buffer.str());
     smt::SmtlibInvariantParserInstance chc_parser(
-      &design_info,flatten_datatype,flatten_hierarchy,{"INV"},
-      "m1");
-    
-    chc_parser.ParseSmtResultFromString(
-      "(assert " + test_inv + ")");
-    std::cout
-      << chc_parser.GetFinalTranslateResult() << std::endl;
-  }
+        &design_info, flatten_datatype, flatten_hierarchy, {"INV"}, "m1");
 
+    chc_parser.ParseSmtResultFromString("(assert " + test_inv + ")");
+    ILA_INFO << chc_parser.GetFinalTranslateResult();
+  }
 }
 #endif // ILANG_BUILD_INVSYN
 
