@@ -48,6 +48,7 @@ matrix:
 
     - name: "osx"
       os: osx
+      osx_image: xcode11.5
       before_install:
         - brew install bison
         - export PATH="/usr/local/opt/bison/bin:$PATH"
