@@ -2,7 +2,6 @@
 /// Unit test for Verilog parser.
 #include <cstdio>
 #include <cstdlib>
-#include <experimental/filesystem>
 #include <iostream>
 
 #include <ilang/ila-mngr/u_abs_knob.h>
@@ -18,8 +17,6 @@
 #include "unit-include/util.h"
 
 namespace ilang {
-
-namespace fs = std::experimental::filesystem;
 
 class TestVerilogGen : public ::testing::Test {
 public:

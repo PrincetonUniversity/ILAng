@@ -2,7 +2,6 @@
 /// Unit test for Verilog analyzer.
 #include <cstdio>
 #include <cstdlib>
-#include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -17,8 +16,6 @@
 #include "unit-include/util.h"
 
 namespace ilang {
-
-namespace fs = std::experimental::filesystem;
 
 TEST(TestVerilogMod, Modify) {
 

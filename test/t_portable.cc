@@ -1,8 +1,6 @@
 /// \file
 /// Unit tests for exporting and importing ILA portables.
 
-#include <experimental/filesystem>
-
 #include <ilang/ilang++.h>
 #include <ilang/target-json/interface.h>
 #include <ilang/util/fs.h>
@@ -12,8 +10,6 @@
 #include "unit-include/util.h"
 
 namespace ilang {
-
-namespace fs = std::experimental::filesystem;
 
 void Check(Ila& a, Ila& b) { CheckIlaEqLegacy(a.get(), b.get()); }
 

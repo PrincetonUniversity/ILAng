@@ -1,7 +1,6 @@
 /// \file
 /// Unit test for utility functions
 
-#include <experimental/filesystem>
 #include <vector>
 
 #include <ilang/util/fs.h>
@@ -11,8 +10,6 @@
 #include "unit-include/util.h"
 
 namespace ilang {
-
-namespace fs = std::experimental::filesystem;
 
 void RecordLog() {
   // precondition for log test

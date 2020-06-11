@@ -9,9 +9,15 @@
 
 #include <cctype>
 #include <cstdlib>
-#include <experimental/filesystem>
 #include <fstream>
 #include <iomanip>
+
+#include <ilang/config.h>
+#ifdef FS_INCLUDE
+#include <filesystem>
+#else // FS_INCLUDE
+#include <experimental/filesystem>
+#endif // FS_INCLUDE
 
 #if defined(_WIN32) || defined(_WIN64)
 // windows
@@ -36,7 +42,11 @@
 
 namespace ilang {
 
+#ifdef FS_INCLUDE
+namespace fs = std::filesystem;
+#else  // FS_INCLUDE
 namespace fs = std::experimental::filesystem;
+#endif // FS_INCLUDE
 
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir) {
