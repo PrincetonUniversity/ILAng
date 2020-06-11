@@ -92,7 +92,7 @@ std::string os_portable_join_dir(const std::vector<std::string>& dirs) {
 /// C:\a\b\c.txt -> c.txt
 /// d/e/ghi  -> ghi
 std::string os_portable_file_name_from_path(const std::string& path) {
-  return fs::path(path).filename();
+  return fs::path(path).filename().string();
 }
 
 /// Copy all file from a source dir to the destination dir
