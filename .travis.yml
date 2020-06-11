@@ -37,25 +37,6 @@ matrix:
       after_success:
         - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build
 
-    - name: "linux-clang"
-      os: linux
-      dist: xenial
-      compiler: clang
-      before_install:
-        - export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH
-      script:
-        - source $TRAVIS_BUILD_DIR/scripts/travis/build.sh $TRAVIS_BUILD_DIR
-
-    - name: "osx"
-      os: osx
-      osx_image: xcode11.5
-      before_install:
-        - brew install bison
-        - export PATH="/usr/local/opt/bison/bin:$PATH"
-        - export LDFLAGS="-L/usr/local/opt/bison/lib"
-      script:
-        - source $TRAVIS_BUILD_DIR/scripts/travis/build-osx.sh $TRAVIS_BUILD_DIR
-
     - name: "coverity"
       os: linux
       dist: xenial
@@ -93,12 +74,6 @@ addons:
       - libboost-all-dev
       - z3
       - libz3-dev
-  homebrew:
-    update: true
-    packages:
-      - flex
-      - python
-      - z3
 
 notifications:
     email: false

@@ -7,9 +7,9 @@ pr:
 - master
 
 jobs:
-- job: macOS_Mojave
+- job: macOS_Catalina_Debug
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-10.15'
   steps:
   - script: |
       brew update
@@ -25,13 +25,13 @@ jobs:
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release
+      cmake .. -DCMAKE_BUILD_TYPE=Debug
       cmake --build .
       cmake --build . --target install
       cmake --build . --target test
     displayName: 'build'
 
-- job: macOS_Catalina
+- job: macOS_Catalina_Release
   pool:
     vmImage: 'macOS-10.15'
   steps:
