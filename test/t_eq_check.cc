@@ -23,7 +23,6 @@ public:
     DebugLog::Enable("Verbose-CrrEqCheck");
   }
   void TearDown() {
-    SetToStdErr(0);
     DebugLog::Disable("EqCheck");
     DebugLog::Disable("Verbose-CrrEqCheck");
   }
@@ -36,7 +35,6 @@ public:
   InstrLvlAbsPtr f1 = ila_gen.GetIlaFlat1("f1");
   InstrLvlAbsPtr f2 = ila_gen.GetIlaFlat2("f2");
   InstrLvlAbsPtr h1 = ila_gen.GetIlaHier1("h1");
-  // InstrLvlAbsPtr h2 = ila_gen.GetIlaHier2("h2");
 
   RefPtr GetRefine(const InstrLvlAbsPtr top, const int& instr_idx, bool comp,
                    bool flat);
@@ -48,7 +46,6 @@ public:
 };
 
 TEST_F(TestEqCheck, FF_Mono) {
-  SetToStdErr(0);
   for (auto instr_idx : {0, 1, 2, 3}) {
     // refinement
     auto ref1 = GetRefine(f1, instr_idx, false, true);
@@ -68,7 +65,6 @@ TEST_F(TestEqCheck, FF_Mono) {
 }
 
 TEST_F(TestEqCheck, CommDiag_HF) {
-  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -84,12 +80,10 @@ TEST_F(TestEqCheck, CommDiag_HF) {
     CustH1(ref2);
 
     EXPECT_TRUE(cd.EqCheck(100));
-    // EXPECT_TRUE(cd.EqCheck(20));
   }
 }
 
 TEST_F(TestEqCheck, IncCommDiag_HF) {
-  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -104,13 +98,11 @@ TEST_F(TestEqCheck, IncCommDiag_HF) {
     CustF1(ref1);
     CustH1(ref2);
 
-    // EXPECT_TRUE(cd.IncEqCheck(0, 20));
     EXPECT_TRUE(cd.IncEqCheck(0, 90, 10));
   }
 }
 
 TEST_F(TestEqCheck, NewIncCommDiag_HF) {
-  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -128,17 +120,6 @@ TEST_F(TestEqCheck, NewIncCommDiag_HF) {
     // EXPECT_TRUE(cd.IncCheck(0, 90, 10));
     EXPECT_TRUE(cd.IncCheck(10, 90, 10));
   }
-}
-
-TEST_F(TestEqCheck, CommDiag_HH) {
-  // TODO
-  // with and without completion
-}
-
-TEST_F(TestEqCheck, CommDiag_Pipeline) {
-  ExmpStrmBuff sb;
-  auto m = sb.GetStrmBuffSpecRaw("spec");
-  // TODO
 }
 
 RefPtr TestEqCheck::GetRefine(const InstrLvlAbsPtr top, const int& instr_idx,

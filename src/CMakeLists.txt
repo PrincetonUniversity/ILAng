@@ -26,7 +26,7 @@ endif()
 ##
 ## compile features/options
 ##
-target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
+target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_17)
 
 set_property(
   TARGET ${ILANG_LIB_NAME}
@@ -57,10 +57,20 @@ target_include_directories(${ILANG_LIB_NAME}
     $<BUILD_INTERFACE:${ILANG_INCLUDE_BUILD_DIR}>
 )
 
+# check if c++17 filesystem is available
+CHECK_INCLUDE_FILE_CXX(filesystem FS_INCLUDE)
+
 # ---------------------------------------------------------------------------- #
 # LINK LIBRARIES
 # external dependencies
 # ---------------------------------------------------------------------------- #
+##
+## std::filesystem
+##
+if(NOT APPLE)
+target_link_libraries(${ILANG_LIB_NAME} PRIVATE stdc++fs)
+endif()
+
 ##
 ## gcov 
 ##

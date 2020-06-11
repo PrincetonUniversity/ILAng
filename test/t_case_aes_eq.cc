@@ -13,9 +13,11 @@ namespace ilang {
 
 TEST(TestCase, AES_V_C_EQ) {
   SetToStdErr(0);
+#if 0
   DebugLog::Enable("CaseAesEq");
   DebugLog::Enable("EqCheck");
   DebugLog::Enable("Verbose-CrrEqCheck");
+#endif
 
   // get the ILA model
   auto aes_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
@@ -110,8 +112,6 @@ TEST(TestCase, AES_V_C_EQ) {
   auto refinement_v = DefaultRefinement(m_v, start_v);
   auto refinement_c = DefaultRefinement(m_c, start_c);
 
-  // invariant TODO
-
   // check
   auto crr = CompRefRel::New(refinement_v, refinement_c, relation);
   z3::context ctx;
@@ -119,7 +119,7 @@ TEST(TestCase, AES_V_C_EQ) {
 
   cd.IncCheck(10, 50, 50);
 
-  SetToStdErr(0);
+  // SetToStdErr(0);
   DebugLog::Disable("CaseAesEq");
   DebugLog::Disable("EqCheck");
   DebugLog::Disable("Verbose-CrrEqCheck");
