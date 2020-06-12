@@ -101,9 +101,9 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
   // fs::copy can only have one copy_options,
   // either recursive or overwrite_existing
   // therefore, we explicitly iterate through the hierarchy
-  for (auto& p : fs::recursive_directory_iterator(src)) {
-    if (fs::is_regular_file(p.path())) {
-      auto dst_p = fs::path(dst) / p.path().filename();
+  for (auto& p : fs::directory_iterator(src)) {
+    auto dst_p = fs::path(dst) / p.path().filename();
+    if (p.is_regular_file()) {
       try {
         fs::copy_file(p.path(), dst_p, fs::copy_options::overwrite_existing);
       } catch (fs::filesystem_error& e) {
@@ -111,6 +111,9 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
                                  p.path().string(), dst_p.string(), e.what());
         return false;
       }
+    } else if (p.is_directory()) {
+      fs::create_directory(dst_p);
+      os_portable_copy_dir(p.path().string(), dst_p.string());
     }
   }
   return true;
