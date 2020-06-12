@@ -31,7 +31,7 @@ public:
 
   void TearDown() {
     DisableDebug(DBG_TAG);
-    fs::remove_all(outDir);
+    os_portable_remove_directory(outDir);
   }
 
   typedef std::vector<std::string> P;

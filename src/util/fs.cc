@@ -109,7 +109,8 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
         fs::copy_file(p.path(), dst_p, fs::copy_options::overwrite_existing);
       } catch (fs::filesystem_error& e) {
         ILA_ERROR << fmt::format("Fail copying file {} to {}",
-                                 p.path().string(), dst_p.string(), e.what());
+                                 p.path().string(), dst_p.string())
+                  << e.what();
         return false;
       }
     } else if (fs::is_directory(p.path())) {
@@ -148,13 +149,27 @@ bool os_portable_move_file_to_dir(const std::string& src,
 }
 
 bool os_portable_remove_file(const std::string& file) {
-  ILA_ASSERT(fs::exists(file));
+  ILA_ASSERT(fs::is_regular_file(file));
   try {
     return fs::remove(file);
   } catch (fs::filesystem_error& e) {
     ILA_ERROR << e.what();
     return false;
   }
+}
+
+bool os_portable_remove_directory(const std::string& dir) {
+  ILA_ASSERT(fs::is_directory(dir));
+  // A bug in g++5 will throw exception:
+  // - cannot remove all: Directory not empty
+  // - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71313
+  try {
+    fs::remove_all(fs::path(dir));
+  } catch (fs::filesystem_error& e) {
+    ILA_ERROR << e.what();
+    return false;
+  }
+  return true;
 }
 
 /// Extract path from path
