@@ -24,5 +24,7 @@
 
 #cmakedefine SMTSWITCH_YICES2_FOUND
 
+#cmakedefine FS_INCLUDE
+
 #endif // CONFIG_CMAKE_DEFINE_H__
 
