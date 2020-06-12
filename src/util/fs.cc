@@ -103,7 +103,8 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
   // therefore, we explicitly iterate through the hierarchy
   for (auto& p : fs::directory_iterator(src)) {
     auto dst_p = fs::path(dst) / p.path().filename();
-    if (p.is_regular_file()) {
+    // directory_entry::is_regular_file not supported in experimental
+    if (fs::is_regular_file(p.path())) {
       try {
         fs::copy_file(p.path(), dst_p, fs::copy_options::overwrite_existing);
       } catch (fs::filesystem_error& e) {
@@ -111,7 +112,7 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
                                  p.path().string(), dst_p.string(), e.what());
         return false;
       }
-    } else if (p.is_directory()) {
+    } else if (fs::is_directory(p.path())) {
       fs::create_directory(dst_p);
       os_portable_copy_dir(p.path().string(), dst_p.string());
     }
