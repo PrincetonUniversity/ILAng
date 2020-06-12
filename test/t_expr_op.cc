@@ -14,12 +14,12 @@ public:
 
   void SetUp() {
     s.reset();
-    SetToStdErr(1);
+    // SetToStdErr(1);
     DebugLog::Enable("TestExprOp");
   }
 
   void TearDown() {
-    SetToStdErr(0);
+    // SetToStdErr(0);
     DebugLog::Disable("TestExprOp");
   }
 

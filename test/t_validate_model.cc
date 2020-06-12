@@ -15,7 +15,9 @@ public:
   TestValidateModel() {}
   ~TestValidateModel() {}
 
-  void SetUp() { SetToStdErr(1); }
+  void SetUp() {
+    // SetToStdErr(1);
+  }
 
   void TearDown() {}
 

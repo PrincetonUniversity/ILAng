@@ -4,10 +4,10 @@
 #include <ilang/ilang++.h>
 #include <ilang/target-json/interface.h>
 #include <ilang/util/fs.h>
+#include <z3++.h>
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
-#include <z3++.h>
 
 namespace ilang {
 
@@ -19,15 +19,16 @@ void SerDes(const std::string& dir, const std::string& file,
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file);
 
-  char tmp_file_template[] = "/tmp/ila_XXXXXX";
-  auto tmp_file_name = GetRandomFileName(tmp_file_template);
+  auto tmp_file = GetRandomFileName(fs::temp_directory_path());
 
-  ExportIlaPortable(ila, tmp_file_name);
-  auto des = ImportIlaPortable(tmp_file_name);
+  ExportIlaPortable(ila, tmp_file);
+  auto des = ImportIlaPortable(tmp_file);
 
   if (check) {
     Check(ila, des);
   }
+
+  os_portable_remove_file(tmp_file);
 }
 
 TEST(TestPortable, AES_V_TOP) { SerDes("aes", "aes_v_top.json"); }
