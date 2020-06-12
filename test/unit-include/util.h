@@ -11,11 +11,23 @@
 #include <string>
 
 #include <ilang/config.h>
+#ifdef FS_INCLUDE
+#include <filesystem>
+#else // FS_INCLUDE
+#include <experimental/filesystem>
+#endif // FS_INCLUDE
+
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
+
+#ifdef FS_INCLUDE
+namespace fs = std::filesystem;
+#else  // FS_INCLUDE
+namespace fs = std::experimental::filesystem;
+#endif // FS_INCLUDE
 
 /// \def Start to capture the log to stderr
 void RecordLog();
@@ -34,7 +46,7 @@ void EndRecordLog();
   cmd;                                                                         \
   msg = ::testing::internal::GetCapturedStderr();
 
-std::string GetRandomFileName(char* file_name_template);
+std::string GetRandomFileName(const std::string& dir);
 
 void CheckIlaEqLegacy(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b);
 
