@@ -53,7 +53,7 @@ brew install bison flex boost boost-python z3
 ```
 
 -   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
--   The [Boost](https://www.boost.org) package is required only if you want to build the synthesis engine.
+-   The [Boost](https://www.boost.org) package is required only if you want to build the synthesis engine (default `OFF`).
 
 #### Regression Environments
 
@@ -66,8 +66,7 @@ brew install bison flex boost boost-python z3
 | Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Debug   |
 | Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |
 | Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.4.1 | -     | 3.0.4 | 2.6.4  | Release |
-| OSX 10.13.6 (High Sierra) | Xcode 9.4.1  | 3.15.5 | 4.8.8 | -     | 3.6.2 | 2.5.35 | Release |
-| OSX 10.14.6 (Mojave)      | Xcode 11.3.1 | 3.17.2 | 4.8.8 | -     | 3.6.2 | 2.5.35 | Release |
+| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | -     | 3.6.2 | 2.5.35 | Debug   |
 | OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | -     | 3.6.2 | 2.5.35 | Release |
 | Windows Server 2016       | VS 2017      | 3.17.2 | 4.8.8 | -     | 3.3.2 | 2.6.4  | Release |
 
@@ -101,7 +100,7 @@ sudo make install
 -   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time updating submodules for in-source dependencies.
 -   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
 -   Use `-DILANG_BUILD_SYNTH=ON` to enable building the synthesis engine. 
--   Use `-DILANG_BUILD_INVSYN=ON` to enable building invariant synthesis feature.
+-   Use `-DILANG_BUILD_INVSYN=OFF` to disable building invariant synthesis feature.
 -   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) interface support. 
 -   Use `-DILANG_INSTALL_DEV=ON` to install working features. 
 
