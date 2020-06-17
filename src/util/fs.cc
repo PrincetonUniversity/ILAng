@@ -108,13 +108,15 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
       try {
         fs::copy_file(p.path(), dst_p, fs::copy_options::overwrite_existing);
       } catch (fs::filesystem_error& e) {
-        ILA_ERROR << fmt::format("Fail copying file {} to {}",
-                                 p.path().string(), dst_p.string())
-                  << e.what();
+        ILA_ERROR << e.what();
         return false;
       }
     } else if (fs::is_directory(p.path())) {
-      fs::create_directory(dst_p);
+      try {
+        fs::create_directory(dst_p);
+      } catch (fs::filesystem_error& e) {
+        ILA_ERROR << e.what();
+      }
       os_portable_copy_dir(p.path().string(), dst_p.string());
     }
   }
