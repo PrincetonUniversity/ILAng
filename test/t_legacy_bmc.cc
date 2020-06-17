@@ -11,7 +11,7 @@
 namespace ilang {
 
 TEST(TestLegacyBmc, FF) {
-  SetToStdErr(0);
+  // SetToStdErr(0);
 
   DebugLog::Enable("Bmc.Legacy");
   DebugLog::Enable("ModelGen.IlaOneHotFlat");
@@ -52,7 +52,7 @@ TEST(TestLegacyBmc, FF) {
   DebugLog::Disable("ModelGen.IlaOneHotFlat");
   DebugLog::Disable("ModelGen.Instr");
 
-  SetToStdErr(0);
+  // SetToStdErr(0);
 }
 
 } // namespace ilang

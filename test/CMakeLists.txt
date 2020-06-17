@@ -69,7 +69,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_main.cc
   t_mapset.cc
   t_mcm.cc
-  t_op_sanity.cc
   t_pass.cc
   t_portable.cc
   t_sort.cc

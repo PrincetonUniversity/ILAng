@@ -30,6 +30,9 @@ bool os_portable_move_file_to_dir(const std::string& src,
 /// Remove one file
 bool os_portable_remove_file(const std::string& file);
 
+/// Remove one directory
+bool os_portable_remove_directory(const std::string& dir);
+
 /// Append two paths
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::string& dir2);
