@@ -261,34 +261,6 @@ void InstrLvlAbs::ForceSetValid(const ExprPtr valid_expr) {
   valid_ = valid;
 }
 
-bool InstrLvlAbs::Check() const {
-  ILA_WARN << "Check in InstrLvlAbs not implemented.";
-  // TODO
-  // check input
-  // check state
-  // check init
-  // check fetch
-  // check valid
-  // check instr
-  // check child-ILA?
-  // check sequencing
-  return true;
-}
-
-void InstrLvlAbs::MergeChild() {
-  ILA_WARN << "MergeChild in InstrLvlAbs not implemented.";
-  // TODO
-  // merge shared states
-  // merge simplifier
-}
-
-void InstrLvlAbs::SortInstr() {
-  ILA_WARN << "SortInstr in InstrLvlAbs not implemented.";
-  // TODO
-  // check this is a micro-ILA and has sequencing
-  // sort instructions based on the sequencing
-}
-
 void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
                              const ExprPtr cnd) {
   // XXX src, dst should already registered.

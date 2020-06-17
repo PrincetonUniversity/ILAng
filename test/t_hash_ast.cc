@@ -27,12 +27,12 @@ public:
 
   void SetUp() {
     DebugLog::Enable("HashApi");
-    SetToStdErr(1);
+    // SetToStdErr(1);
   }
 
   void TearDown() {
     DebugLog::Disable("HashApi");
-    SetToStdErr(0);
+    // SetToStdErr(0);
   }
 
   InstrLvlAbsPtr ila = NULL;

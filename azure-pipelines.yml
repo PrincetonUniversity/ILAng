@@ -7,41 +7,13 @@ pr:
 - master
 
 jobs:
-- job: macOS_Mojave
-  pool:
-    vmImage: 'macOS-10.14'
-  steps:
-  - script: |
-      brew update
-      brew install bison
-      brew install boost
-      brew install boost-python
-      brew install z3
-    displayName: 'package'
-  - script: |
-      cmake --version
-      z3 --version
-    displayName: 'printout'
-  - script: |
-      export PATH="/usr/local/opt/bison/bin:$PATH"
-      export LDFLAGS="-L/usr/local/opt/bison/lib"
-      mkdir -p build
-      cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DILANG_BUILD_INVSYN=OFF
-      cmake --build .
-      cmake --build . --target install
-      cmake --build . --target test
-    displayName: 'build'
-
-- job: macOS_Catalina
+- job: macOS_Catalina_Debug
   pool:
     vmImage: 'macOS-10.15'
   steps:
   - script: |
       brew update
       brew install bison
-      brew install boost
-      brew install boost-python
       brew install z3
     displayName: 'package'
   - script: |
@@ -53,10 +25,34 @@ jobs:
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DILANG_BUILD_INVSYN=OFF
+      cmake .. -DCMAKE_BUILD_TYPE=Debug
+      cmake --build .
+      cmake --build . --target install
+      cmake --build . --target test
+    displayName: 'build'
+
+- job: macOS_Catalina_Release
+  pool:
+    vmImage: 'macOS-10.15'
+  steps:
+  - script: |
+      brew update
+      brew install bison
+      brew install z3
+    displayName: 'package'
+  - script: |
+      cmake --version
+      z3 --version
+    displayName: 'printout'
+  - script: |
+      export PATH="/usr/local/opt/bison/bin:$PATH"
+      export LDFLAGS="-L/usr/local/opt/bison/lib"
+      mkdir -p build
+      cd build
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DILANG_BUILD_INVSYN=OFF 
       cmake --build .
       cmake --build . --target install 
-      cmake --build . --target test
+      ./test/unit_tests
     displayName: 'build'
 
 - job: Ubuntu_1604_LTS
@@ -74,7 +70,7 @@ jobs:
   - script: |
       mkdir -p build 
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DILANG_BUILD_SYNTH=ON
       cmake --build .
       sudo cmake --build . --target install 
       cmake --build . --target test
@@ -95,7 +91,7 @@ jobs:
   - script: |
       mkdir -p build
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DILANG_BUILD_SYNTH=ON
       cmake --build .
       sudo cmake --build . --target install 
       cmake --build . --target test
@@ -148,7 +144,7 @@ jobs:
       md build
       cd build
       # For building the test, we need CMAKE_MSVC_RUNTIME_LIBRARY (which will be supported in CMake 3.15+)
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
+      cmake .. -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
       cmake --build .
       cmake --build . --target install
     displayName: 'build'

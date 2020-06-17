@@ -22,11 +22,7 @@ public:
     // reset to default condition
     SetLogLevel(0); // log all
     SetLogPath(""); // log to /tmp
-#ifndef NDEBUG
-    SetToStdErr(0); // still log to stderr
-#else               // NDEBUG
     SetToStdErr(0); // not log to stderr
-#endif              // NDEBUG
   }
 
 }; // Log test fixture
