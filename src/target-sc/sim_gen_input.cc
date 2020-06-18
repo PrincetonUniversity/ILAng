@@ -1,6 +1,5 @@
-#include <ilang/target-sc/ila_sim.h>
-
 #include <ilang/ila/ast_fuse.h>
+#include <ilang/target-sc/ila_sim.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -26,12 +25,11 @@ void IlaSim::create_input(const ExprPtr& input_expr) {
 void IlaSim::create_bool_input(const ExprPtr& expr) {
   if (qemu_device_) {
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
-    header_ << header_indent_ << "bool " << input_name_str << ";" << std::endl;
+    header_ << header_indent_ << "bool " << input_name_str << ";\n";
   } else {
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
-    header_ << header_indent_ << "sc_in<bool> " << input_name_str << "_in;"
-            << std::endl;
-    header_ << header_indent_ << "bool " << input_name_str << ";" << std::endl;
+    header_ << header_indent_ << "sc_in<bool> " << input_name_str << "_in;\n";
+    header_ << header_indent_ << "bool " << input_name_str << ";\n";
   }
 }
 
@@ -40,16 +38,14 @@ void IlaSim::create_bv_input(const ExprPtr& expr) {
     auto bit_width = expr->sort()->bit_width();
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
     auto input_type_str = "uint" + std::to_string(bit_width) + "_t ";
-    header_ << header_indent_ << input_type_str << input_name_str << ";"
-            << std::endl;
+    header_ << header_indent_ << input_type_str << input_name_str << ";\n";
   } else {
     auto bit_width = expr->sort()->bit_width();
     auto input_name_str = expr->host()->name().str() + "_" + expr->name().str();
     auto input_type_str = "sc_biguint<" + std::to_string(bit_width) + "> ";
     header_ << header_indent_ << "sc_in< " << input_type_str << "> "
-            << input_name_str << "_in;" << std::endl;
-    header_ << header_indent_ << input_type_str << input_name_str << ";"
-            << std::endl;
+            << input_name_str << "_in;\n";
+    header_ << header_indent_ << input_type_str << input_name_str << ";\n";
   }
 }
 
