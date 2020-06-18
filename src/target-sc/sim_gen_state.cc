@@ -94,6 +94,7 @@ void IlaSim::create_external_mem_port(const ExprPtr& expr) {
   if (state_not_defined) {
     defined_state_set_.insert(id);
 
+    // FIXME sc_in only works in non-qemu mode
     header_ << fmt::format("{0}sc_in<sc_biguint<1>> {1}_read_valid;\n"
                            "{0}sc_in<sc_biguint<{2}>> {1}_read_data;\n"
                            "{0}sc_out<sc_biguint<1>> {1}_read_ready;\n"

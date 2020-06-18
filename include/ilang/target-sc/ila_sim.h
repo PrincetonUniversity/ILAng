@@ -39,19 +39,19 @@ public:
     std::string mem_map;
   } st_info;
 
-  /// TODO
+  /// Default constructor.
   IlaSim();
-  /// TODO
+  /// Construct with the target ILA model.
   IlaSim(const InstrLvlAbsPtr& model_ptr);
-  /// TODO
+  /// Set the target ILA model.
   void set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr);
-  /// TODO
+  /// (To be deprecated) set the path to SystemC library.
   void set_systemc_path(std::string systemc_path);
 
-  /// Generate receipes for CMake build system
+  /// Set to CMake build mode.
   void enable_cmake_support();
 
-  /// TODO
+  /// Generate the simulator.
   void sim_gen(std::string export_dir, bool external_mem = false,
                bool readable = false, bool qemu_device = false);
 
@@ -186,7 +186,7 @@ private:
   void dfs_func_op_check(const ExprPtr& expr);
   void dfs_ite_op(std::stringstream& dfs_simulator, std::string& indent,
                   const ExprPtr& expr);
-  std::string get_out_type_str(const ExprPtr& expr);
+  std::string get_type_str(const ExprPtr& expr);
 
   std::string get_arg_str(const ExprPtr& arg);
   void increase_indent(std::string& indent);

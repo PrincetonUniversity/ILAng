@@ -30,7 +30,7 @@ int get_word_number(std::string& s) {
   return count;
 }
 
-TEST(TestIlaSimSC, hashed_file_name) {
+TEST(DISABLED_TestIlaSimSC, hashed_file_name) {
   // This test should be muted, if the basic structure of ILA is changed,
   // such as how state/decode/state_update are changed.
   // Specifically, the test on "decode_stream" and "update_stream".
@@ -114,7 +114,7 @@ TEST(TestIlaSimSC, hashed_file_name) {
   }
 }
 
-TEST(TestIlaSimSC, readable_file_name) {
+TEST(DISABLED_TestIlaSimSC, readable_file_name) {
   IlaSimTest ila_sim_test;
   IlaSim ila_sim;
   ila_sim.set_instr_lvl_abs(ila_sim_test.model.get());
@@ -197,7 +197,7 @@ TEST(TestIlaSimSC, readable_file_name) {
   }
 }
 
-TEST(TestIlaSimSC, external_mem) {
+TEST(DISABLED_TestIlaSimSC, external_mem) {
   IlaSimTest ila_sim_test;
   IlaSim ila_sim(ila_sim_test.model.get());
   ila_sim.set_systemc_path("/home/yuex/bin/systemc-2.3.1/");
@@ -260,7 +260,7 @@ TEST(TestIlaSimSC, external_mem) {
   }
 }
 
-TEST(TestIlaSimQemu, hashed_file_name) {
+TEST(DISABLED_TestIlaSimQemu, hashed_file_name) {
   // This test should be muted, if the basic structure of ILA is changed,
   // such as how state/decode/state_update are changed.
   // Specifically, the test on "decode_stream" and "update_stream".
@@ -310,7 +310,7 @@ TEST(TestIlaSimQemu, hashed_file_name) {
   }
 }
 
-TEST(TestIlaSimQemu, readable_file_name) {
+TEST(DISABLED_TestIlaSimQemu, readable_file_name) {
   IlaSimTest ila_sim_test;
   IlaSim ila_sim;
   ila_sim.set_instr_lvl_abs(ila_sim_test.model.get());

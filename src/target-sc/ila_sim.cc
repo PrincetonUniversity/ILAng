@@ -33,6 +33,16 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
   if (cmake_support_) {
     auto res = os_portable_mkdir(export_dir);
     ILA_INFO_IF(res) << "Create new dir " << export_dir;
+
+    auto source_dir = os_portable_append_dir(export_dir, "src");
+    auto header_dir = os_portable_append_dir(export_dir, "include");
+    auto extern_dir = os_portable_append_dir(export_dir, "extern");
+    auto scmain_dir = os_portable_append_dir(export_dir, "app");
+
+    os_portable_mkdir(source_dir);
+    os_portable_mkdir(header_dir);
+    os_portable_mkdir(extern_dir);
+    os_portable_mkdir(scmain_dir);
   }
 
   sim_gen_init(export_dir, external_mem, readable, qemu_device);
@@ -102,7 +112,7 @@ void IlaSim::sim_gen_init_header() {
       header_ << header_indent_
               << fmt::format(
                      "typedef number<cpp_int_backend<{0}, {0}, "
-                     "unsigned_magnitude, unchecked, void> > uint{0}_t;\n",
+                     "unsigned_magnitude, unchecked, void>> uint{0}_t;\n",
                      std::to_string(*int_width));
     }
     header_ << header_indent_ << "#include <map>\n";
@@ -167,7 +177,7 @@ void IlaSim::sim_gen_decode() {
       ILA_INFO << "current_ila_instr:" << current_ila->instr(i)->name();
       create_decode(current_ila->instr(i));
     }
-    ILA_INFO << std::endl;
+    ILA_INFO << "\n";
   }
   DebugLog::Disable("ILA hierarchy");
 }
@@ -237,8 +247,6 @@ void IlaSim::sim_gen_execute_invoke() {
     header_ << header_indent_ << "SC_METHOD(compute);\n";
     header_ << header_indent_ << "sensitive";
     for (unsigned int i = 0; i < model_ptr_->input_num(); i++) {
-      header_ << " << " << model_ptr_->name() << "_"
-              << model_ptr_->input(i)->name() << "_in";
       header_ << fmt::format(" << {}_{}_in", model_ptr_->name().str(),
                              model_ptr_->input(i)->name().str());
     }
@@ -254,6 +262,11 @@ void IlaSim::sim_gen_execute_invoke() {
 void IlaSim::sim_gen_export() {
   std::ofstream outFile;
   auto file_name = fmt::format("{}.h", model_ptr_->name().str());
+
+  if (cmake_support_) {
+    file_name = os_portable_append_dir("include", file_name);
+  }
+
   outFile.open(os_portable_append_dir(export_dir_, file_name));
   outFile << header_.rdbuf();
   outFile.close();
@@ -301,38 +314,13 @@ void IlaSim::generate_cmake_support() {
   auto extern_dir = os_portable_append_dir(export_dir_, "extern");
   auto scmain_dir = os_portable_append_dir(export_dir_, "app");
 
-  // move files
-  os_portable_mkdir(source_dir);
-  os_portable_mkdir(header_dir);
-  os_portable_mkdir(extern_dir);
-  os_portable_mkdir(scmain_dir);
-
-  for (auto f : source_file_list_) {
-    auto src = os_portable_append_dir(export_dir_, f);
-    auto dst = os_portable_append_dir(source_dir, f);
-    if (os_portable_compare_file(src, dst)) {
-      os_portable_remove_file(src);
-    } else {
-      os_portable_move_file_to_dir(src, dst);
-    }
-  }
-
-  for (auto f : header_file_list_) {
-    auto src = os_portable_append_dir(export_dir_, f);
-    auto dst = os_portable_append_dir(header_dir, f);
-    if (os_portable_compare_file(src, dst)) {
-      os_portable_remove_file(src);
-    } else {
-      os_portable_move_file_to_dir(src, dst);
-    }
-  }
-
   // gen recipe
   std::stringstream fb;
 
-  fb << fmt::format("# CMakeLists.txt for {}\n", proj);
-  fb << "cmake_minimum_required(VERSION 3.9.6)\n";
-  fb << fmt::format("project({} LANGUAGES CXX)\n\n", proj);
+  fb << fmt::format("# CMakeLists.txt for {0}\n"
+                    "cmake_minimum_required(VERSION 3.9.6)\n"
+                    "project({0} LANGUAGES CXX)\n\n",
+                    proj);
 
   // system c lib searching
 #if 0
@@ -369,16 +357,18 @@ void IlaSim::generate_cmake_support() {
      << "set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})\n\n";
 #endif
 
-  fb << "aux_source_directory(extern extern_src)\n";
-  fb << fmt::format("add_executable({}\n", proj);
-  fb << "  ${CMAKE_CURRENT_SOURCE_DIR}/app/main.cc\n";
+  fb << fmt::format("aux_source_directory(extern extern_src)\n"
+                    "add_executable({}\n"
+                    "  ${{CMAKE_CURRENT_SOURCE_DIR}}/app/main.cc\n",
+                    proj);
   for (auto f : source_file_list_) {
     fb << fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/src/{}\n", f);
   }
   fb << "  ${extern_src})\n";
 
-  fb << fmt::format("target_include_directories({} PRIVATE include)\n", proj);
-  fb << fmt::format("target_link_libraries({} SystemC::systemc)\n", proj);
+  fb << fmt::format("target_include_directories({0} PRIVATE include)\n"
+                    "target_link_libraries({0} SystemC::systemc)\n",
+                    proj);
 
   std::ofstream fw(file);
   fw << fb.rdbuf();
@@ -389,14 +379,13 @@ void IlaSim::generate_cmake_support() {
   if (!os_portable_compare_file(app_template, app_template)) {
     // no file exist, create template
     fb.clear();
-    fb << "#include <systemc.h>\n";
-    fb << fmt::format("#include <{}.h>\n\n", proj);
-    fb << "int sc_main(int argc, char* argv[]) {\n";
-    // fb << fmt::format("  {} sim();\n", proj);
-    // fb << "  sc_start();\n";
-    // fb << "  return (0);\n";
-    fb << "return 0; \n";
-    fb << "}";
+
+    fb << fmt::format("#include <systemc.h>\n"
+                      "#include <{0}.h>\n\n"
+                      "int sc_main(int argc, char* argv[]) {{\n"
+                      "  return 0; \n"
+                      "}}\n",
+                      proj);
 
     fw.open(app_template);
     fw << fb.rdbuf();

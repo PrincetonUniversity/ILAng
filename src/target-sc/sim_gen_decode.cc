@@ -88,8 +88,13 @@ void IlaSim::decode_return(std::stringstream& decode_function,
 void IlaSim::decode_export(std::stringstream& decode_function,
                            std::string& decode_func_name) {
   std::ofstream outFile;
-  std::stringstream out_file; // FIXME not used?
-  outFile.open(os_portable_append_dir(export_dir_, decode_func_name + ".cc"));
+
+  auto file_name = fmt::format("{}.cc", decode_func_name);
+  if (cmake_support_) {
+    file_name = os_portable_append_dir("src", file_name);
+  }
+
+  outFile.open(os_portable_append_dir(export_dir_, file_name));
   outFile << decode_function.rdbuf();
   outFile.close();
 }

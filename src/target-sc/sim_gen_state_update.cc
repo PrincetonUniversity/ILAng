@@ -93,10 +93,13 @@ void IlaSim::mem_state_update_decl(std::stringstream& state_update_function,
 void IlaSim::state_update_export(std::stringstream& state_update_function,
                                  std::string& state_update_func_name) {
   std::ofstream outFile;
-  // FIXME what use?
-  std::stringstream out_file;
-  outFile.open(
-      os_portable_append_dir(export_dir_, state_update_func_name + ".cc"));
+
+  auto file_name = fmt::format("{}.cc", state_update_func_name);
+  if (cmake_support_) {
+    file_name = os_portable_append_dir("src", file_name);
+  }
+
+  outFile.open(os_portable_append_dir(export_dir_, file_name));
   outFile << state_update_function.rdbuf();
   outFile.close();
 }
@@ -176,7 +179,7 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
                          state_update_func_name, arg_list);
 
   if ((updated_state->is_mem()) && (EXTERNAL_MEM_)) {
-    header_ << header_indent_ << "int " << state_update_func_name << "_iter\n";
+    header_ << header_indent_ << "int " << state_update_func_name << "_iter;\n";
     auto mem_map_str = state_update_func_name;
     auto mem_str =
         updated_state->host()->name().str() + "_" + updated_state->name().str();

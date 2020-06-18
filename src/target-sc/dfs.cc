@@ -8,7 +8,7 @@
 
 namespace ilang {
 
-std::string IlaSim::get_out_type_str(const ExprPtr& expr) {
+std::string IlaSim::get_type_str(const ExprPtr& expr) {
   if (expr->is_bv()) {
     return (qemu_device_)
                ? fmt::format("uint{}_t", expr->sort()->bit_width())
@@ -65,29 +65,20 @@ void IlaSim::dfs_external_mem_load(const ExprPtr& expr) {
 void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
   auto func_name = func->name().str();
   auto func_out_sort = func->out();
+
   header_ << header_indent_;
+
   if (func_out_sort->is_bool()) {
-    header_ << "bool " << func_name << "(";
-  } else if (func_out_sort->is_bv()) {
-    if (qemu_device_) {
-      header_ << fmt::format("uint{}_t {} (",
-                             std::to_string(func_out_sort->bit_width()),
-                             func_name);
-    } else {
-      header_ << fmt::format("sc_biguint<{}> {} (",
-                             std::to_string(func_out_sort->bit_width()),
-                             func_name);
-    }
-  } else if (func_out_sort->is_mem()) {
-    ILA_WARN << "Warning: 2d array might have trouble as function output";
-    if (qemu_device_) {
-      header_ << fmt::format("uint{}_t* {} (",
-                             std::to_string(func_out_sort->bit_width()),
-                             func_name);
-    } else {
-      header_ << fmt::format("sc_biguint<{}>* {} (",
-                             std::to_string(func_out_sort->data_width()),
-                             func_name);
+    header_ << fmt::format("bool {} (", func_name);
+  } else {
+    auto out_width = func_out_sort->is_bv() ? func_out_sort->bit_width()
+                                            : func_out_sort->data_width();
+    auto out_type = (qemu_device_) ? fmt::format("uint{}_t", out_width)
+                                   : fmt::format("sc_biguint<{}>", out_width);
+    if (func_out_sort->is_bv()) {
+      header_ << fmt::format("{} {} (", out_type, func_name);
+    } else { // is_mem()
+      header_ << fmt::format("{}* {} (", out_type, func_name);
     }
   }
 
@@ -95,26 +86,15 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
     if (i != 0) {
       header_ << ", ";
     }
-    auto arg_sort = func->arg(i);
-    if (arg_sort->is_bool()) {
-      header_ << "bool arg_" << i;
-    } else if (arg_sort->is_bv()) {
-      if (qemu_device_) {
-        header_ << fmt::format("uint{}_t arg_{}",
-                               std::to_string(arg_sort->bit_width()), i);
-      } else {
-        header_ << fmt::format("sc_biguint<{}> arg_{}",
-                               std::to_string(arg_sort->bit_width()), i);
-      }
+
+    auto arg_i = func->arg(i);
+    if (arg_i->is_bool()) {
+      header_ << fmt::format("bool arg_{}", i);
     } else {
-      // TODO(yuex): add func_decl with memory arg.
-      if (qemu_device_) {
-        header_ << fmt::format("uint{}_t arg_{}",
-                               std::to_string(arg_sort->data_width()), i);
-      } else {
-        header_ << fmt::format("sc_biguint<{}> arg_{}",
-                               std::to_string(arg_sort->data_width()), i);
-      }
+      auto width = arg_i->is_bv() ? arg_i->bit_width() : arg_i->data_width();
+      auto type = (qemu_device_) ? fmt::format("uint{}_t", width)
+                                 : fmt::format("sc_biguint<{}>", width);
+      header_ << fmt::format("{} arg_{}", type, i);
     }
   }
   header_ << ");\n";
@@ -187,7 +167,7 @@ void IlaSim::dfs_unary_op(std::stringstream& dfs_simulator, std::string& indent,
   }; // siwtch GetUidExprOp(expr)
 
   // TODO(yuex): be careful with the diff between NEG and COMPL
-  auto out_type_str = get_out_type_str(expr);
+  auto out_type_str = get_type_str(expr);
 
   declare_variable_with_id(id, out_type_str, out_str);
   dfs_simulator << indent << out_str << " = " << op_str << arg_str << ";\n";
@@ -261,7 +241,7 @@ void IlaSim::dfs_binary_op_non_mem(std::stringstream& dfs_simulator,
   std::string arg1_str = get_arg_str(expr->arg(1));
   std::string out_str = "c_" + std::to_string(expr->name().id());
 
-  auto out_type_str = get_out_type_str(expr);
+  auto out_type_str = get_type_str(expr);
 
   std::string op_str = "";
   auto uid = GetUidExprOp(expr);
@@ -364,7 +344,7 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
 
   std::string out_str = "c_" + std::to_string(expr->name().id());
 
-  auto out_type_str = get_out_type_str(expr);
+  auto out_type_str = get_type_str(expr);
 
   bool is_load = GetUidExprOp(expr) == AST_UID_EXPR_OP::LOAD;
   auto arg0_uid = GetUidExpr(expr->arg(0));
@@ -385,19 +365,23 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
   }
   if (is_load) {
     if ((EXTERNAL_MEM_) && (arg0_uid == AST_UID_EXPR::VAR)) {
-      std::string buff = "";
-      buff += indent + fmt::format("if ({}_ctrl == 0) {{\n", out_str);
-      buff += indent + fmt::format("  {}_ctrl = 1;\n", out_str);
-      buff += indent + "  return 0;\n";
-      buff += indent + fmt::format("}} else if ({}_ctrl == 1) {{\n", out_str);
-      buff += indent + "  return 0;\n";
-      buff += indent + fmt::format("}} else if ({}_ctrl != 2) {{\n", out_str);
-      buff += indent + "  cout << \"Error: Load wrong\" << endl;\n";
-      dfs_simulator << buff << indent << "}\n";
-    } else
+
+      dfs_simulator << fmt::format(
+          "{0}if ({1}_ctrl == 0) {{\n"
+          "{0}  {1}_ctrl = 1;\n"
+          "{0}  return 0;\n"
+          "{0}}} else if ({1}_ctrl == 1) {{\n"
+          "{0}  return 0;\n"
+          "{0}}} else if ({1}_ctrl != 2) {{\n"
+          "{0}  cout << \"Error: Load wrong\" << endl;\n"
+          "{0}}}\n",
+          indent, out_str);
+
+    } else {
       dfs_simulator << indent
                     << fmt::format("{} = {}[{}];\n", out_str, arg0_str,
                                    arg1_str);
+    }
   } else {
     std::string arg2_str = get_arg_str(expr->arg(2));
     if (qemu_device_) {
@@ -412,6 +396,7 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
                                  ? arg2_str
                                  : arg2_str + ".to_int()";
     }
+
     dfs_simulator << indent
                   << fmt::format("mem_update_map[{}] = {};\n", arg1_str,
                                  arg2_str);
@@ -426,26 +411,32 @@ void IlaSim::dfs_extract_op(std::stringstream& dfs_simulator,
   auto param1 = static_cast<unsigned>(expr->param(1));
   auto out_str = "c_" + std::to_string(expr->name().id());
 
-  auto out_type_str = get_out_type_str(expr);
+  auto out_type_str = get_type_str(expr);
 
   declare_variable_with_id(id, out_type_str, out_str);
 
   if (qemu_device_) {
-    std::string tmp_str = "tmp_" + std::to_string(expr->name().id());
+    auto tmp_str = fmt::format("tmp_{}", expr->name().id());
     int cast_length = param0 - param1 + 1;
 
-    std::string buff = "";
-    buff +=
-        indent + fmt::format("uint{}_t {} = 0 - 1;\n", cast_length, tmp_str);
-    buff +=
-        indent + fmt::format("{} = static_cast<uint{}_t> (({} >> {}) & {});\n",
-                             out_str, cast_length, arg_str, param1, tmp_str);
-    dfs_simulator << buff;
-
+    dfs_simulator << fmt::format(
+        "{0}uint{1}_t {2} = 0 - 1;\n"
+        "{0}{3} = static_cast<uint{1}_t> (({4} >> {5}) & {2});\n",
+        indent,      // 0
+        cast_length, // 1
+        tmp_str,     // 2
+        out_str,     // 3
+        arg_str,     // 4
+        param1       // 5
+    );
   } else {
-    dfs_simulator << indent
-                  << fmt::format("{} = {}.range({}, {});\n", out_str, arg_str,
-                                 param0, param1);
+    dfs_simulator << fmt::format("{0}{1} = {2}.range({3}, {4});\n",
+                                 indent,  // 0
+                                 out_str, // 1
+                                 arg_str, // 2
+                                 param0,  // 3
+                                 param1   // 4
+    );
   }
 }
 
@@ -455,7 +446,7 @@ void IlaSim::dfs_ext_op(std::stringstream& dfs_simulator, std::string& indent,
   auto arg = expr->arg(0);
   std::string arg_str = get_arg_str(arg);
   auto out_str = "c_" + std::to_string(expr->name().id());
-  auto out_type_str = get_out_type_str(expr);
+  auto out_type_str = get_type_str(expr);
 
   declare_variable_with_id(id, out_type_str, out_str);
 
@@ -470,29 +461,25 @@ void IlaSim::dfs_ext_op(std::stringstream& dfs_simulator, std::string& indent,
     }
   } else {
     if (qemu_device_) {
-      std::string buff = "";
-      buff += indent;
-      buff += fmt::format("{} = static_cast<uint{}_t>({});\n", out_str,
-                          expr->sort()->bit_width(), arg_str);
-      buff += indent;
-      buff += fmt::format("{0} = ({1} >> {2}) ? static_cast<uint{3}_t>(~{1}) : "
-                          "static_cast<uint{3}_t>({1});\n",
-                          out_str, arg_str, (arg->sort()->bit_width() - 1),
-                          expr->sort()->bit_width());
-      buff += indent;
-      buff += fmt::format("{0} = ({1} >> {2}) ? (~{0}) : {0};\n", out_str,
-                          arg_str, (arg->sort()->bit_width() - 1));
-      dfs_simulator << buff;
+      dfs_simulator << fmt::format(
+          "{0}{1} = static_cast<uint{3}_t>({2});\n"
+          "{0}{1} = ({2} >> {4}) ? static_cast<uint{3}_t>(~{2})\n"
+          "{0}                   : static_cast<uint{3}_t>({2});\n"
+          "{0}{1} = ({2} >> {4}) ? (~{1}) : {1};\n",
+          indent,                        // 0
+          out_str,                       // 1
+          arg_str,                       // 2
+          expr->sort()->bit_width(),     // 3
+          (arg->sort()->bit_width() - 1) // 4
+      );
     } else {
-      // FIXME why? this seems redundant...
-      std::string buff = "";
-      buff += indent;
-      buff += fmt::format("{0} = ({1}[{2}] == 1) ? (~{1}): {1};\n", out_str,
-                          arg_str, (arg->sort()->bit_width() - 1));
-      buff += indent;
-      buff += fmt::format("{0} = ({1}[{2}] == 1) ? (~{0}) : {0};\n", out_str,
-                          arg_str, (arg->sort()->bit_width() - 1));
-      dfs_simulator << buff;
+      dfs_simulator << fmt::format("{0}{1} = ({2}[{3}] == 1) ? (~{2}) : {2};\n"
+                                   "{0}{1} = ({2}[{3}] == 1) ? (~{1}) : {1};\n",
+                                   indent,                        // 0
+                                   out_str,                       // 1
+                                   arg_str,                       // 2
+                                   (arg->sort()->bit_width() - 1) // 3
+      );
     }
   }
 }
@@ -514,7 +501,7 @@ void IlaSim::dfs_func_op(std::stringstream& dfs_simulator, std::string& indent,
     dfs_uninterpreted_func_decl(func);
   }
   auto out_str = "c_" + std::to_string(expr->name().id());
-  auto out_type_str = get_out_type_str(expr);
+  auto out_type_str = get_type_str(expr);
 
   declare_variable_with_id(id, out_type_str, out_str);
   dfs_simulator << indent << out_str << " = " << func_name << "(";
@@ -533,7 +520,7 @@ void IlaSim::dfs_ite_op(std::stringstream& dfs_simulator, std::string& indent,
   auto true_str = get_arg_str(expr->arg(1));
   auto false_str = get_arg_str(expr->arg(2));
   auto out_str = "c_" + std::to_string(expr->name().id());
-  auto out_type_str = get_out_type_str(expr);
+  auto out_type_str = get_type_str(expr);
 
   if (!expr->is_mem()) {
     declare_variable_with_id(id, out_type_str, out_str);

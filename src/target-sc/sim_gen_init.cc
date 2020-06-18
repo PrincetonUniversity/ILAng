@@ -92,9 +92,13 @@ void IlaSim::init_return(std::stringstream& init_function,
 void IlaSim::init_export(std::stringstream& init_function,
                          std::string& init_func_name) {
   std::ofstream outFile;
-  // FIXME no use?
-  std::stringstream out_file;
-  outFile.open(os_portable_append_dir(export_dir_, init_func_name + ".cc"));
+
+  auto file_name = fmt::format("{}.cc", init_func_name);
+  if (cmake_support_) {
+    file_name = os_portable_append_dir("src", file_name);
+  }
+
+  outFile.open(os_portable_append_dir(export_dir_, file_name));
   outFile << init_function.rdbuf();
   outFile.close();
 }

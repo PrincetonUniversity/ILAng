@@ -94,7 +94,10 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
   if (EXTERNAL_MEM_) {
     execute_external_mem_load_end(execute_kernel, indent);
   }
+
   // print current instruction information to the terminal
+  execute_kernel << "#ifdef ILATOR_VERBOSE\n";
+
   execute_kernel << indent << "instr_log << "
                  << "\"Instr NO.\" << "
                  << "std::to_string(instr_cntr) << ";
@@ -106,6 +109,8 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
                  << " << ";
   execute_kernel << "\"is activated\\n\"; \n";
   execute_kernel << indent << "instr_cntr++;\n";
+
+  execute_kernel << "#endif // ILATOR_VERBOSE\n";
 
   decrease_indent(indent);
   execute_kernel << indent << "}\n";
@@ -132,29 +137,34 @@ void IlaSim::execute_state_update_func(std::stringstream& execute_kernel,
                                        std::string& indent,
                                        const InstrPtr& instr_expr,
                                        const ExprPtr& updated_state) {
-  auto updated_state_type = get_out_type_str(updated_state);
+  auto updated_state_type = get_type_str(updated_state);
 
-  std::string updated_state_name =
-      updated_state->host()->name().str() + "_" + updated_state->name().str();
+  auto updated_state_name =
+      fmt::format("{}_{}", updated_state->host()->name().str(),
+                  updated_state->name().str());
 
-  std::string decode_func_name;
-  if (readable_) {
-    decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
-                       instr_expr->name().str();
-  } else {
-    decode_func_name =
-        "decode_" + std::to_string(instr_expr->decode()->name().id());
-  }
-  std::string state_update_func_name =
-      decode_func_name + "_update_" + updated_state_name;
-  std::string mem_update_map = state_update_func_name + "_map";
+  auto decode_func_name =
+      (readable_)
+          ? fmt::format("decode_{}_{}", instr_expr->host()->name().str(),
+                        instr_expr->name().str())
+          : fmt::format("decode_{}", instr_expr->decode()->name().id());
+
+  auto state_update_func_name =
+      fmt::format("{}_update_{}", decode_func_name, updated_state_name);
+
+  auto mem_update_map = state_update_func_name + "_map";
 
   if (updated_state->is_mem()) {
-    execute_kernel << indent << state_update_func_name << "(" << mem_update_map
-                   << ");\n";
+    execute_kernel << fmt::format("{0}{1}({2});\n", indent, // 0
+                                  state_update_func_name,   // 1
+                                  mem_update_map            // 2
+    );
   } else {
-    execute_kernel << indent << updated_state_type << updated_state_name
-                   << "_next = " << state_update_func_name << "();\n";
+    execute_kernel << fmt::format("{0}{1} {2}_next = {3}();\n", indent, // 0
+                                  updated_state_type,                   // 1
+                                  updated_state_name,                   // 2
+                                  state_update_func_name                // 3
+    );
   }
 }
 
@@ -162,37 +172,35 @@ void IlaSim::execute_update_state(std::stringstream& execute_kernel,
                                   std::string& indent,
                                   const InstrPtr& instr_expr,
                                   const ExprPtr& updated_state) {
-  std::string updated_state_name =
-      updated_state->host()->name().str() + "_" + updated_state->name().str();
-  std::string decode_func_name;
-  if (readable_) {
-    decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
-                       instr_expr->name().str();
-  } else {
-    decode_func_name =
-        "decode_" + std::to_string(instr_expr->decode()->name().id());
-  }
-  std::string state_update_func_name =
-      decode_func_name + "_update_" + updated_state_name;
-  std::string mem_update_map = state_update_func_name + "_map";
+  auto updated_state_name =
+      fmt::format("{}_{}", updated_state->host()->name().str(),
+                  updated_state->name().str());
+
+  auto decode_func_name =
+      (readable_)
+          ? fmt::format("decode_{}_{}", instr_expr->host()->name().str(),
+                        instr_expr->name().str())
+          : fmt::format("decode_{}", instr_expr->decode()->name().id());
+
+  auto state_update_func_name =
+      fmt::format("{}_update_{}", decode_func_name, updated_state_name);
+
+  auto mem_update_map = state_update_func_name + "_map";
 
   if (updated_state->is_mem()) {
     if (EXTERNAL_MEM_) {
       return;
     }
 
-    execute_kernel << indent;
     execute_kernel << fmt::format(
-        "for (auto it = {0}.begin(); it != {0}.end(); it++) {{\n",
-        mem_update_map);
+        "{0}for (auto it = {1}.begin(); it != {1}.end(); it++) {{\n"
+        "{0}  {2}[it->first] = it->second;\n"
+        "{0}}}\n",
+        indent,            // 0
+        mem_update_map,    // 1
+        updated_state_name // 2
+    );
 
-    increase_indent(indent);
-
-    execute_kernel << indent;
-    execute_kernel << fmt::format("{}[it->first] = it->second;\n",
-                                  updated_state_name);
-    decrease_indent(indent);
-    execute_kernel << indent << "}\n";
   } else {
     execute_kernel << indent;
     execute_kernel << fmt::format("{0} = {0}_next;\n", updated_state_name);
@@ -218,11 +226,12 @@ void IlaSim::execute_external_mem_load_begin(std::stringstream& execute_kernel,
   }
   if (!dfs_ld_search_set_.empty()) {
     execute_kernel << indent << "if (";
-    for (auto iter = dfs_ld_search_set_.begin();
-         iter != dfs_ld_search_set_.end(); iter++) {
-      execute_kernel << "((c_" << (*iter) << "_ctrl == 0) | "
-                     << "(c_" << (*iter) << "_ctrl == 2)) & ";
+
+    for (auto& elem : dfs_ld_search_set_) {
+      execute_kernel << fmt::format(
+          "((c_{0}_ctrl == 0) | (c_{0}_ctrl == 2)) & ", elem);
     }
+
     execute_kernel << "1) {\n";
     increase_indent(indent);
   }
@@ -242,56 +251,37 @@ void IlaSim::execute_write_external_mem(std::stringstream& execute_kernel,
   for (auto it = external_st_set_.begin(); it != external_st_set_.end(); it++) {
     std::string mem_iterator = it->mem_map + "_iter";
     std::string mem_map = it->mem_map + "_map";
-    std::string mem_map_size = mem_map + ".size()";
     std::string mem_write_valid = it->mem_str + "_write_valid";
     std::string mem_write_ready = it->mem_str + "_write_ready";
     std::string mem_write_address = it->mem_str + "_write_address";
     std::string mem_write_data = it->mem_str + "_write_data";
 
-    std::string buff = "";
+    execute_kernel << fmt::format("{0}if ({1} < {2}.size()) {{\n"
+                                  "{0}  {3}.write(1);\n"
+                                  "{0}  auto it = {2}.begin();\n"
+                                  "{0}  for (int i = 0; i < {1}; i++)\n"
+                                  "{0}    it++;\n"
+                                  "{0}  {4}.write(it->first);\n"
+                                  "{0}  {5}.write(it->second);\n"
+                                  "{0}}}\n",
+                                  indent,            // 0
+                                  mem_iterator,      // 1
+                                  mem_map,           // 2
+                                  mem_write_valid,   // 3
+                                  mem_write_address, // 4
+                                  mem_write_data     // 5
+    );
 
-    buff += indent;
-    buff += fmt::format("if ({} < {}) {{\n", mem_iterator, mem_map_size);
-
-    increase_indent(indent);
-
-    buff += indent;
-    buff += fmt::format("{}.write(1);\n", mem_write_valid);
-    buff += indent;
-    buff += fmt::format("auto it = {}.begin();\n", mem_map);
-    buff += indent;
-    buff += fmt::format("for (int i = 0; i < {}; i++)\n", mem_iterator);
-    buff += indent + "  it++;\n";
-    buff += indent;
-    buff += fmt::format("{}.write(it->first);\n", mem_write_address);
-    buff += indent;
-    buff += fmt::format("{}.write(it->second);\n", mem_write_data);
-
-    decrease_indent(indent);
-
-    buff += indent + "}\n";
-    buff += indent;
-    buff += fmt::format("if ({} < {}.size()) {{\n", mem_iterator, mem_map);
-
-    increase_indent(indent);
-
-    buff += indent;
-    buff += fmt::format("if ({}.read() == 1)\n", mem_write_ready);
-
-    increase_indent(indent);
-
-    buff += indent;
-    buff += fmt::format("{}++;\n", mem_iterator);
-
-    decrease_indent(indent);
-
-    buff += indent + "return;\n";
-
-    decrease_indent(indent);
-
-    buff += indent + "}\n";
-
-    execute_kernel << buff;
+    execute_kernel << fmt::format("{0}if ({1} < {2}.size()) {{\n"
+                                  "{0}  if ({3}.read() == 1)\n"
+                                  "{0}    {1}++;\n"
+                                  "{0}  return;\n"
+                                  "{0}}}\n",
+                                  indent,         // 0
+                                  mem_iterator,   // 1
+                                  mem_map,        // 2
+                                  mem_write_ready // 3
+    );
   }
 }
 
@@ -304,33 +294,35 @@ void IlaSim::execute_read_external_mem(std::stringstream& execute_kernel,
     auto mem_read_address = it->mem_str + "_read_address";
     auto mem_read_data = it->mem_str + "_data";
 
-    execute_kernel << indent << "if (" << mem_read_ctrl << " == 1) {\n";
-    increase_indent(indent);
-    execute_kernel << indent << "if (" << mem_read_valid << ".read() == 1) {\n";
-    increase_indent(indent);
-    execute_kernel << indent << mem_read_ctrl << " = 2;\n";
-    execute_kernel << indent << it->dest_str << " = " << mem_read_data
-                   << ".read();\n";
-    execute_kernel << indent << mem_read_ready << ".write(0);\n";
-    decrease_indent(indent);
-    execute_kernel << indent << "} else {\n";
-    increase_indent(indent);
-    execute_kernel << indent << mem_read_address << ".write(" << it->addr_str
-                   << ");\n";
-    execute_kernel << indent << mem_read_ready << ".write(1);\n";
-    execute_kernel << indent << "return;\n";
-    decrease_indent(indent);
-    execute_kernel << indent << "}\n";
-    decrease_indent(indent);
-    execute_kernel << indent << "}\n";
+    execute_kernel << fmt::format("{0}if ({1} == 1) {{\n"
+                                  "{0}  if ({2}.read() == 1) {{\n"
+                                  "{0}    {1} = 2;\n"
+                                  "{0}    {3} = {4}.read();\n"
+                                  "{0}    {5}.write(0);\n"
+                                  "{0}  }} else {{\n"
+                                  "{0}    {6}.write({7});\n"
+                                  "{0}    {5}.write(1);\n"
+                                  "{0}    return;\n"
+                                  "{0}  }}\n"
+                                  "{0}}}\n",
+                                  indent,           // 0
+                                  mem_read_ctrl,    // 1
+                                  mem_read_valid,   // 2
+                                  it->dest_str,     // 3
+                                  mem_read_data,    // 4
+                                  mem_read_ready,   // 5
+                                  mem_read_address, // 6
+                                  it->addr_str      // 7
+    );
   }
 }
 
 void IlaSim::execute_external_mem_before_input(
     std::stringstream& execute_kernel, std::string& indent) {
   execute_kernel << indent << "if (";
-  for (auto it = external_ld_set_.begin(); it != external_ld_set_.end(); it++)
-    execute_kernel << "(" << it->dest_str << "_ctrl == 0) & ";
+  for (auto it = external_ld_set_.begin(); it != external_ld_set_.end(); it++) {
+    execute_kernel << fmt::format("({}_ctrl == 0) & ", it->dest_str);
+  }
   execute_kernel << "1) {\n";
   increase_indent(indent);
 }
@@ -401,7 +393,13 @@ void IlaSim::execute_write_output(std::stringstream& execute_kernel,
 
 void IlaSim::execute_kernel_export(std::stringstream& execute_kernel) {
   std::ofstream outFile;
-  outFile.open(os_portable_append_dir(export_dir_, "compute.cc"));
+
+  std::string file_name = "compute.cc";
+  if (cmake_support_) {
+    file_name = os_portable_append_dir("src", file_name);
+  }
+
+  outFile.open(os_portable_append_dir(export_dir_, file_name));
   outFile << execute_kernel.rdbuf();
   outFile.close();
 }
