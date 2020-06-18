@@ -1,6 +1,7 @@
-#include <ilang/target-sc/ila_sim.h>
+#include <fmt/format.h>
 
 #include <ilang/ila/ast_fuse.h>
+#include <ilang/target-sc/ila_sim.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -18,21 +19,23 @@ void IlaSim::create_mem_state(const ExprPtr& expr) {
       defined_state_set_.insert(id);
       auto array_size = (1 << mem_addr_width);
       if (qemu_device_) {
-        header_ << header_indent_ << "uint" << mem_data_width << "_t "
-                << state_name_str << "[" << array_size << "];" << std::endl;
+        header_ << header_indent_;
+        header_ << fmt::format("uint{}_t {}[{}];\n", mem_data_width,
+                               state_name_str, array_size);
       } else {
-        header_ << header_indent_ << "sc_biguint<" << mem_data_width << "> "
-                << state_name_str << "[" << array_size << "];" << std::endl;
+        header_ << header_indent_;
+        header_ << fmt::format("sc_biguint<{}> {}[{}];\n", mem_data_width,
+                               state_name_str, array_size);
       }
     } else {
       if (qemu_device_) {
-        header_ << header_indent_ << "std::map<uint" << mem_addr_width
-                << "_t, uint" << mem_data_width << "_t>" << state_name_str
-                << ";" << std::endl;
+        header_ << header_indent_;
+        header_ << fmt::format("std::map<uint{}_t, uint{}_t> {};\n",
+                               mem_addr_width, mem_data_width, state_name_str);
       } else {
-        header_ << header_indent_ << "std::map< sc_biguint<" << mem_addr_width
-                << ">, sc_biguint<" << mem_data_width << "> > "
-                << state_name_str << ";" << std::endl;
+        header_ << header_indent_;
+        header_ << fmt::format("std::map<sc_biguint<{}>, sc_biguint<{}>> {};\n",
+                               mem_addr_width, mem_data_width, state_name_str);
       }
     }
   }
@@ -46,15 +49,15 @@ void IlaSim::create_bool_state(const ExprPtr& expr, bool child) {
   if (state_not_defined) {
     defined_state_set_.insert(id);
     if (qemu_device_)
-      header_ << header_indent_ << "bool " << state_name_str << ";"
-              << std::endl;
+      header_ << header_indent_ << "bool " << state_name_str << ";\n";
     else {
       if (!child) {
-        // header_ << header_indent_ << "sc_out<bool> " << state_name_str
-        //         << "_out;" << std::endl;
+#if 0
+        header_ << header_indent_ << "sc_out<bool> " << state_name_str
+                << "_out;\n";
+#endif
       }
-      header_ << header_indent_ << "bool " << state_name_str << ";"
-              << std::endl;
+      header_ << header_indent_ << "bool " << state_name_str << ";\n";
     }
   }
 }
@@ -70,14 +73,15 @@ void IlaSim::create_bv_state(const ExprPtr& expr, bool child) {
     defined_state_set_.insert(id);
     if (qemu_device_) {
       header_ << header_indent_ << "uint" << expr->sort()->bit_width() << "_t "
-              << state_name_str << ";" << std::endl;
+              << state_name_str << ";\n";
     } else {
-      // if (!child) {
-      //   header_ << header_indent_ << "sc_out< " << state_type_str << "> "
-      //           << state_name_str << "_out;" << std::endl;
-      // }
-      header_ << header_indent_ << state_type_str << state_name_str << ";"
-              << std::endl;
+#if 0
+      if (!child) {
+        header_ << header_indent_ << "sc_out< " << state_type_str << "> "
+                << state_name_str << "_out;\n";
+      }
+#endif
+      header_ << header_indent_ << state_type_str << state_name_str << ";\n";
     }
   }
 }
@@ -89,26 +93,19 @@ void IlaSim::create_external_mem_port(const ExprPtr& expr) {
   bool state_not_defined = (pos == defined_state_set_.end());
   if (state_not_defined) {
     defined_state_set_.insert(id);
-    header_ << header_indent_ << "sc_in< sc_biguint<1> > " << state_name_str
-            << "_read_valid;" << std::endl;
-    header_ << header_indent_ << "sc_in< sc_biguint<"
-            << expr->sort()->data_width() << "> > " << state_name_str
-            << "_read_data;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<1> >" << state_name_str
-            << "_read_ready;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<"
-            << expr->sort()->addr_width() << "> > " << state_name_str
-            << "_read_address;" << std::endl;
-    header_ << header_indent_ << "sc_in< sc_biguint<1> > " << state_name_str
-            << "_write_ready;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<"
-            << expr->sort()->addr_width() << "> > " << state_name_str
-            << "_write_address;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<1> > " << state_name_str
-            << "_write_valid;" << std::endl;
-    header_ << header_indent_ << "sc_out< sc_biguint<"
-            << expr->sort()->data_width() << "> > " << state_name_str
-            << "_write_data;" << std::endl;
+
+    header_ << fmt::format("{0}sc_in<sc_biguint<1>> {1}_read_valid;\n"
+                           "{0}sc_in<sc_biguint<{2}>> {1}_read_data;\n"
+                           "{0}sc_out<sc_biguint<1>> {1}_read_ready;\n"
+                           "{0}sc_out<sc_biguint<{3}>> {1}_read_address;\n"
+                           "{0}sc_in<sc_biguint<1>> {1}_write_ready;\n"
+                           "{0}sc_out<sc_biguint<{3}>> {1}_write_address;\n"
+                           "{0}sc_out<sc_biguint<1>> {1}_write_valid;\n"
+                           "{0}sc_out<sc_biguint<{2}>> {1}_write_data;\n",
+                           header_indent_,              // 0
+                           state_name_str,              // 1
+                           expr->sort()->data_width(),  // 2
+                           expr->sort()->addr_width()); // 3
   }
 }
 

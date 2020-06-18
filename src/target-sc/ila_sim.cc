@@ -1,10 +1,13 @@
-#include <fstream>
-#include <ilang/target-sc/ila_sim.h>
+/// \file
+/// The source for IlaSim
 
-#include <fmt/format.h>
+#include <fstream>
 #include <queue>
 #include <string>
 
+#include <fmt/format.h>
+
+#include <ilang/target-sc/ila_sim.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 
@@ -30,7 +33,6 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
   if (cmake_support_) {
     auto res = os_portable_mkdir(export_dir);
     ILA_INFO_IF(res) << "Create new dir " << export_dir;
-    ILA_WARN_IF(!res) << fmt::format("Dir {} already exists", export_dir);
   }
 
   sim_gen_init(export_dir, external_mem, readable, qemu_device);
@@ -73,23 +75,23 @@ void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
 
 void IlaSim::sim_gen_init_header() {
   if (!qemu_device_) {
-    header_ << header_indent_ << "#include \"systemc.h\"" << std::endl;
-    header_ << header_indent_ << "#include <map>" << std::endl;
-    header_ << header_indent_ << "#include <fstream>" << std::endl;
-    header_ << header_indent_ << "#include <iostream>" << std::endl;
-    header_ << header_indent_ << "#include <sstream>" << std::endl;
+    header_ << header_indent_ << "#include \"systemc.h\"\n";
+    header_ << header_indent_ << "#include <map>\n";
+    header_ << header_indent_ << "#include <fstream>\n";
+    header_ << header_indent_ << "#include <iostream>\n";
+    header_ << header_indent_ << "#include <sstream>\n";
 
-    header_ << header_indent_ << "SC_MODULE(" << model_ptr_->name() << ") {"
-            << std::endl;
+    header_ << header_indent_
+            << fmt::format("SC_MODULE({}) {{\n", model_ptr_->name().str());
 
     increase_indent(header_indent_);
-    header_ << header_indent_ << "std::stringstream instr_log_ss;" << std::endl;
-    header_ << header_indent_ << "std::ofstream instr_log;" << std::endl;
+
+    header_ << header_indent_ << "std::stringstream instr_log_ss;\n";
+    header_ << header_indent_ << "std::ofstream instr_log;\n";
   } else {
-    header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>"
-            << std::endl;
-    header_ << header_indent_ << "using namespace boost::multiprecision;"
-            << std::endl;
+    header_ << header_indent_
+            << "#include <boost/multiprecision/cpp_int.hpp>\n";
+    header_ << header_indent_ << "using namespace boost::multiprecision;\n";
     int_var_width_scan();
     for (auto int_width = int_var_width_set_.begin();
          int_width != int_var_width_set_.end(); int_width++) {
@@ -97,15 +99,16 @@ void IlaSim::sim_gen_init_header() {
           (*int_width == 64) || (*int_width == 128) || (*int_width == 256) ||
           (*int_width == 512) || (*int_width == 1024))
         continue;
-      header_ << header_indent_ << "typedef number<cpp_int_backend<"
-              << *int_width << ", " << *int_width
-              << ", unsigned_magnitude, unchecked, void> > uint" << *int_width
-              << "_t;" << std::endl;
+      header_ << header_indent_
+              << fmt::format(
+                     "typedef number<cpp_int_backend<{0}, {0}, "
+                     "unsigned_magnitude, unchecked, void> > uint{0}_t;\n",
+                     std::to_string(*int_width));
     }
-    header_ << header_indent_ << "#include <map>" << std::endl;
-    header_ << header_indent_ << "class " << model_ptr_->name() << " {"
-            << std::endl;
-    header_ << "public:" << std::endl;
+    header_ << header_indent_ << "#include <map>\n";
+    header_ << header_indent_
+            << fmt::format("class {} {{\n", model_ptr_->name().str());
+    header_ << "public:\n";
     increase_indent(header_indent_);
   }
 }
@@ -181,7 +184,8 @@ void IlaSim::sim_gen_state_update() {
     for (unsigned int i = 0; i < current_ila->instr_num(); i++) {
       auto info_instr_num = current_ila->instr_num();
       ILA_INFO << "(" << i << "/" << info_instr_num << ")";
-      ILA_INFO << "Generating state update for instr " << current_ila->instr(i)->name();
+      ILA_INFO << "Generating state update for instr "
+               << current_ila->instr(i)->name();
       create_state_update(current_ila->instr(i));
     }
   }
@@ -191,15 +195,15 @@ void IlaSim::sim_gen_execute_kernel() {
   std::stringstream execute_kernel;
   std::string indent = "";
   if (!qemu_device_)
-    execute_kernel << indent << "#include \"systemc.h\"" << std::endl;
-  execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\""
-                 << std::endl;
-  execute_kernel << indent << "#include <iostream>" << std::endl;
-  execute_kernel << indent << "#include <fstream>" << std::endl;
-  execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
-                 << std::endl;
+    execute_kernel << indent << "#include \"systemc.h\"\n";
+  execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\"\n";
+  execute_kernel << indent << "#include <iostream>\n";
+  execute_kernel << indent << "#include <fstream>\n";
+  execute_kernel << indent
+                 << fmt::format("void {}::compute() {{\n",
+                                model_ptr_->name().str());
   increase_indent(indent);
-  execute_kernel << indent << "static int instr_cntr = 0;" << std::endl;
+  execute_kernel << indent << "static int instr_cntr = 0;\n";
   if (EXTERNAL_MEM_) {
     execute_write_external_mem(execute_kernel, indent);
     execute_read_external_mem(execute_kernel, indent);
@@ -217,7 +221,7 @@ void IlaSim::sim_gen_execute_kernel() {
   if (!qemu_device_)
     execute_write_output(execute_kernel, indent);
   decrease_indent(indent);
-  execute_kernel << indent << "};" << std::endl;
+  execute_kernel << indent << "};\n";
   execute_kernel_export(execute_kernel);
   execute_kernel_mk_file();
   execute_kernel_header();
@@ -225,29 +229,32 @@ void IlaSim::sim_gen_execute_kernel() {
 
 void IlaSim::sim_gen_execute_invoke() {
   if (!qemu_device_) {
-    header_ << header_indent_ << "SC_HAS_PROCESS(" << model_ptr_->name() << ");"
-            << std::endl;
+    header_ << header_indent_
+            << fmt::format("SC_HAS_PROCESS({});\n", model_ptr_->name().str());
     header_ << header_indent_ << model_ptr_->name()
-            << "(sc_module_name name_) : sc_module(name_) {" << std::endl;
+            << "(sc_module_name name_) : sc_module(name_) {\n";
     increase_indent(header_indent_);
-    header_ << header_indent_ << "SC_METHOD(compute);" << std::endl;
+    header_ << header_indent_ << "SC_METHOD(compute);\n";
     header_ << header_indent_ << "sensitive";
     for (unsigned int i = 0; i < model_ptr_->input_num(); i++) {
       header_ << " << " << model_ptr_->name() << "_"
               << model_ptr_->input(i)->name() << "_in";
+      header_ << fmt::format(" << {}_{}_in", model_ptr_->name().str(),
+                             model_ptr_->input(i)->name().str());
     }
-    header_ << ";" << std::endl;
+    header_ << ";\n";
     decrease_indent(header_indent_);
-    header_ << header_indent_ << "}" << std::endl;
+    header_ << header_indent_ << "}\n";
   }
 
   decrease_indent(header_indent_);
-  header_ << header_indent_ << "};" << std::endl;
+  header_ << header_indent_ << "};\n";
 }
 
 void IlaSim::sim_gen_export() {
   std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + ".h");
+  auto file_name = fmt::format("{}.h", model_ptr_->name().str());
+  outFile.open(os_portable_append_dir(export_dir_, file_name));
   outFile << header_.rdbuf();
   outFile.close();
   if (!qemu_device_) {
@@ -257,27 +264,30 @@ void IlaSim::sim_gen_export() {
                << "-g -c -o "
                << "uninterpreted_func.o "
                << "../../uninterpreted_func/uninterpreted_func.cc "
-               << "-lsystemc" << std::endl;
-    // mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-    //           << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-    //           << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-    //           << "-c -o "
-    //           << "test_tb.o test_tb.cc "
-    //           << "-lsystemc" << std::endl;
+               << "-lsystemc\n";
+#if 0
+    mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+               << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-c -o "
+               << "test_tb.o test_tb.cc "
+               << "-lsystemc\n";
+#endif
 
-    // mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-    //            << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-    //            << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-    //            << "-o "
-    //            << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
-    //            << endl;
+#if 0
+    mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+               << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-o "
+               << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc\n";
+#endif
   }
 
   if (cmake_support_) {
-    header_file_list_.push_back(fmt::format("{}.h", model_ptr_->name().str()));
+    header_file_list_.push_back(file_name);
     generate_cmake_support();
   } else {
-    outFile.open(export_dir_ + "mk.sh");
+    outFile.open(os_portable_append_dir(export_dir_, "mk.sh"));
     outFile << mk_script_.rdbuf();
     outFile.close();
   }
@@ -317,7 +327,7 @@ void IlaSim::generate_cmake_support() {
     }
   }
 
-  // gen receipe
+  // gen recipe
   std::stringstream fb;
 
   fb << fmt::format("# CMakeLists.txt for {}\n", proj);

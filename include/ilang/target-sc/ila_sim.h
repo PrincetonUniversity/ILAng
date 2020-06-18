@@ -186,14 +186,15 @@ private:
   void dfs_func_op_check(const ExprPtr& expr);
   void dfs_ite_op(std::stringstream& dfs_simulator, std::string& indent,
                   const ExprPtr& expr);
+  std::string get_out_type_str(const ExprPtr& expr);
 
   std::string get_arg_str(const ExprPtr& arg);
   void increase_indent(std::string& indent);
   void decrease_indent(std::string& indent);
   int get_update_state_num(const InstrPtr& instr_expr);
   bool load_from_store_analysis(const ExprPtr& expr);
-  void declare_variable_with_id(size_t id, std::string v_type,
-                                std::string v_name);
+  void declare_variable_with_id(size_t id, const std::string& v_type,
+                                const std::string& v_name);
   void int_var_width_scan();
 
   /// Generate files required by CMake
