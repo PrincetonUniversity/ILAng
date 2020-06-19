@@ -4,13 +4,13 @@
 #include <ilang/ilang++.h>
 
 #include <ilang/config.h>
+#include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila-mngr/u_smt_switch.h>
+#include <ilang/ila-mngr/u_unroller.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
 #include <ilang/util/log.h>
-#include <ilang/verification/abs_knob.h>
-#include <ilang/verification/unroller.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
 #ifdef SMTSWITCH_INTERFACE
