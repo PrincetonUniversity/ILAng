@@ -112,6 +112,8 @@ public:
   int addr_width() const;
   /// Return the data bit-width if is memory; return -1 otherwise.
   int data_width() const;
+  /// Return the expression name as std::string.
+  std::string name() const;
 
   // ------------------------- METHODS -------------------------------------- //
   /****************************************************************************/
@@ -393,6 +395,10 @@ public:
   /// Default destructor.
   ~FuncRef();
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the function name as std::string.
+  std::string name() const;
+
   // ------------------------- METHODS -------------------------------------- //
   /// Apply the function with no argument.
   ExprRef operator()() const;
@@ -460,6 +466,9 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped ILA pointer.
   inline InstrPtr get() const { return ptr_; }
+
+  /// Return the instruction name as std::string.
+  std::string name() const;
 
 }; // class InstrRef
 

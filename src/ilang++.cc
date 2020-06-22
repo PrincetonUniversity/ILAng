@@ -67,6 +67,8 @@ int ExprRef::data_width() const {
   return ptr_->is_mem() ? ptr_->sort()->data_width() : -1;
 }
 
+std::string ExprRef::name() const { return ptr_->name().str(); }
+
 ExprRef ExprRef::Load(const ExprRef& addr) const {
   auto v = ExprFuse::Load(get(), addr.get());
   return ExprRef(v);
@@ -522,6 +524,8 @@ FuncRef::FuncRef(const std::string& name, const SortRef& range,
   ptr_ = Func::New(name, range.get(), args);
 }
 
+std::string FuncRef::name() const { return ptr_->name().str(); }
+
 FuncRef::~FuncRef() {}
 
 ExprRef FuncRef::operator()() const {
@@ -586,6 +590,8 @@ void InstrRef::ExportToVerilogWithChild(std::ostream& fout) const {
   vgen.ExportIla(dept_ila_ptr);
   vgen.DumpToFile(fout);
 }
+
+std::string InstrRef::name() const { return ptr_->name().str(); }
 
 /******************************************************************************/
 // Ila
