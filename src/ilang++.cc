@@ -691,6 +691,8 @@ void Ila::ExportToVerilog(std::ostream& fout) const {
   vgen.DumpToFile(fout);
 }
 
+void Ila::FlattenHierarchy() { AbsKnob::FlattenIla(ptr_); }
+
 std::ostream& operator<<(std::ostream& out, const ExprRef& expr) {
   return out << expr.get();
 }

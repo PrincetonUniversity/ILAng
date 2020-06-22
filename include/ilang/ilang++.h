@@ -532,11 +532,6 @@ public:
   /// \param[in] name child-ILA name.
   Ila NewChild(const std::string& name);
 
-  // ------------------------- GENERATORS --------------------------------- //
-  /// \brief Export an ILA as Verilog
-  /// \param[in] fout the output stream of the generated Verilog source.
-  void ExportToVerilog(std::ostream& fout) const;
-
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the number of input variables.
   size_t input_num() const;
@@ -578,6 +573,15 @@ public:
 
   /// Return the wrapped ILA pointer.
   inline IlaPtr get() const { return ptr_; }
+
+  // ------------------------- UTILITIES ------------------------------------ //
+  /// \brief Export an ILA as Verilog
+  /// \param[in] fout the output stream of the generated Verilog source.
+  void ExportToVerilog(std::ostream& fout) const;
+
+  /// \brief Flatten the hierarchy by lifting child-instructions as the
+  /// top-level parent instructions.
+  void FlattenHierarchy();
 
 }; // class Ila
 
