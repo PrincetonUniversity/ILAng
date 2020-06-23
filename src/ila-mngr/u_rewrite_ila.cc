@@ -6,6 +6,10 @@
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/util/log.h>
 
+// enforce parent valid condition on child-decode
+#define VALID_STACK
+#undef VALID_STACK
+
 namespace ilang {
 
 InstrLvlAbsPtr FuncObjRewrIla::get(const InstrLvlAbsCnstPtr m) const {
@@ -58,13 +62,13 @@ void FuncObjRewrIla::post(const InstrLvlAbsCnstPtr src) const {
   // nothing
 }
 
-// -----------------------------------------------------------------------------------------
-
 /// Constructor.
 FuncObjFlatIla::FuncObjFlatIla(const InstrLvlAbsCnstPtr& top_,
                                const IlaMap& ila_map, const ExprMap& expr_map)
     : ila_map_(ila_map), expr_map_(expr_map), top_ila_(top_) {
+#ifdef VALID_STACK
   valid_cond_stack_.push(ExprFuse::BoolConst(true));
+#endif // VALID_STACK
 }
 
 bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
@@ -79,14 +83,20 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
     ILA_WARN << "valid condition for " << src << " is unset";
     valid_cond_ = ExprFuse::BoolConst(true);
   }
+#ifdef VALID_STACK
+  valid_cond_ = AbsKnob::Rewrite(valid_cond_, expr_map_);
   valid_cond_stack_.push(ExprFuse::And(valid_cond_stack_.top(), valid_cond_));
   const auto& hierarchical_valid_cond = valid_cond_stack_.top();
+#endif // VALID_STACK
 
   // instruction && child-program
   for (decltype(src->instr_num()) i = 0; i != src->instr_num(); i++) {
     auto i_src = src->instr(i);
     auto i_dst = AbsKnob::DuplInstr(i_src, dst, expr_map_, ila_map_);
+#ifdef VALID_STACK
     auto new_decode = ExprFuse::And(i_dst->decode(), hierarchical_valid_cond);
+    i_dst->ForceSetDecode(new_decode);
+#endif // VALID_STACK
   }
 
   // sequence - do we need to do this?
@@ -97,7 +107,9 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
 
 void FuncObjFlatIla::post(const InstrLvlAbsCnstPtr src) {
   // pop the stack
+#ifdef VALID_STACK
   valid_cond_stack_.pop();
+#endif // VALID_STACK
 }
 
 } // namespace ilang
