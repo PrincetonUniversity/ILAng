@@ -783,6 +783,17 @@ z3::expr IlaZ3Unroller::UnrollPathConn(const std::vector<InstrRef>& path,
   return u->PathAssn(seq, init);
 }
 
+z3::expr IlaZ3Unroller::UnrollPathSubs(const std::vector<InstrRef>& path,
+                                       const int& init) {
+  auto u = std::make_shared<PathUnroll>(ctx_, extra_suff_);
+  InitializeUnroller(u);
+  std::vector<InstrPtr> seq;
+  for (auto& instr : path) {
+    seq.push_back(instr.get());
+  }
+  return u->PathSubs(seq, init);
+}
+
 z3::expr IlaZ3Unroller::UnrollPathFree(const std::vector<InstrRef>& path,
                                        const int& init) {
   auto u = std::make_shared<PathUnroll>(ctx_, extra_suff_);

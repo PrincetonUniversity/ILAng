@@ -667,6 +667,12 @@ public:
   z3::expr UnrollPathConn(const std::vector<InstrRef>& path,
                           const int& init = 0);
 
+  /// \brief Unroll a path with each step connected with rewriting.
+  /// \param[in] path the sequence of instructions.
+  /// \param[in] init the starting time frame.
+  z3::expr UnrollPathSubs(const std::vector<InstrRef>& path,
+                          const int& init = 0);
+
   /// \brief Unroll a path with each step freely defined.
   /// \param[in] path the sequence of instructions.
   /// \param[in] init the starting time frame.

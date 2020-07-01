@@ -383,7 +383,7 @@ TEST(TestApi, Unroll) {
     unroller.AddInitPred(m1.init(i));
   }
   unroller.AddInitPred(init_mem == m1.state("ir"));
-  auto cstr11 = unroller.UnrollPathConn(path);
+  auto cstr11 = unroller.UnrollPathSubs(path);
 
   z3::solver s(c);
   s.add(cstr00);
