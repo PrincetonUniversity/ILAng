@@ -62,6 +62,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_ila.cc
   t_ila_sim.cc
   t_ila_sim_cmake.cc
+  t_ilator.cc
   t_instr.cc
   t_instr_seq.cc
   t_keyvec.cc

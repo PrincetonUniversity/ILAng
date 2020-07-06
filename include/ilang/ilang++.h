@@ -621,6 +621,9 @@ Ila ImportSynthAbstraction(const std::string& file_name,
 void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name);
 
+/// \brief Generate the SystemC simulator.
+void ExportSysCSim(const Ila& ila, const std::string& dir_path);
+
 /******************************************************************************/
 // Verification.
 /******************************************************************************/

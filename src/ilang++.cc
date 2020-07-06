@@ -10,6 +10,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
+#include <ilang/target-sc/ilator.h>
 #include <ilang/util/log.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
@@ -737,6 +738,11 @@ void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
   ILA_ERROR << "Synthesis interface not built.";
   ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
 #endif
+}
+
+void ExportSysCSim(const Ila& ila, const std::string& dir_path) {
+  auto ilator = Ilator(ila.get());
+  ilator.Generate(dir_path);
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
