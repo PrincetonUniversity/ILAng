@@ -38,7 +38,7 @@ size_t GetPivotalId(const size_t& id) {
 
 void WriteFile(const std::string& file_path, const fmt::memory_buffer& buff) {
   std::ofstream fw(file_path);
-  ILA_ASSERT(fw.is_open()) << "Fail openning file " << file_path;
+  ILA_ASSERT(fw.is_open()) << "Fail opening file " << file_path;
   fw << to_string(buff);
   fw.close();
 }
@@ -156,8 +156,8 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
   fmt::memory_buffer buff;
   ExprVarMap lut;
 
-  fmt::format_to( // include headers
-      buff, "#include <{project}.h>\n", fmt::arg("project", GetProjectName()));
+  // include headers
+  fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
 
   // decode function
   auto decode_expr = instr->decode();
@@ -282,29 +282,26 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
 
 bool Ilator::GenerateConstantMemory(const std::string& dir) {
   fmt::memory_buffer buff;
-  fmt::format_to(buff, "#include <{project}.h>\n",
-                 fmt::arg("project", GetProjectName()));
+  fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
 
   for (auto& mem : const_mems_) {
-    fmt::format_to(buff, "{var_type} {project}::{var_name} = {{\n",
-                   fmt::arg("var_type", GetCxxType(mem)),
-                   fmt::arg("project", GetProjectName()),
-                   fmt::arg("var_name", GetCxxName(mem)));
-    // val
     auto const_mem = std::dynamic_pointer_cast<ExprConst>(mem);
     const auto& val_map = const_mem->val_mem()->val_map();
-    for (auto it = val_map.begin(); it != val_map.end(); it++) {
-      if (it != val_map.begin()) {
-        fmt::format_to(buff, ",\n  {{{addr}, {data}}}",
-                       fmt::arg("addr", it->first),
-                       fmt::arg("data", it->second));
-      } else {
-        fmt::format_to(buff, "  {{{addr}, {data}}}",
-                       fmt::arg("addr", it->first),
-                       fmt::arg("data", it->second));
-      }
+    std::vector<std::string> addr_data_pairs;
+    for (auto& it : val_map) {
+      addr_data_pairs.push_back(fmt::format("  {{{addr}, {data}}}",
+                                            fmt::arg("addr", it.first),
+                                            fmt::arg("data", it.second)));
     }
-    fmt::format_to(buff, "}};\n");
+    fmt::format_to(
+        buff,
+        "{var_type} {project}::{var_name} = {{\n"
+        "{addr_data_pairs}\n"
+        "}};\n",
+        fmt::arg("var_type", GetCxxType(mem)),
+        fmt::arg("project", GetProjectName()),
+        fmt::arg("var_name", GetCxxName(mem)),
+        fmt::arg("addr_data_pairs", fmt::join(addr_data_pairs, ",\n")));
   }
 
   CommitSource("constant_memory_def.cc", dir, buff);
@@ -469,6 +466,12 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
   fmt::memory_buffer buff;
 
   // CMakeLists.txt
+  std::vector<std::string> src_files;
+  for (auto& f : source_files_) {
+    src_files.push_back(
+        fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/{dir}/{file}",
+                    fmt::arg("dir", dir_src), fmt::arg("file", f)));
+  }
   fmt::format_to(
       buff,
       "# CMakeLists.txt for {project}\n"
@@ -476,30 +479,36 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "project({project} LANGUAGES CXX)\n"
       "\n"
       "option(ILATOR_VERBOSE \"Enable instruction sequence logging\" OFF)\n"
+      "option(JSON_SUPPORT \"Build JSON parser support\" OFF)\n"
       "\n"
       "find_package(SystemCLanguage CONFIG REQUIRED)\n"
       "set(CMAKE_CXX_STANDARD ${{SystemC_CXX_STANDARD}})\n"
       "\n"
       "aux_source_directory(extern extern_src)\n"
       "add_executable({project}\n"
-      "  ${{CMAKE_CURRENT_SOURCE_DIR}}/{dir_app}/main.cc\n",
-      fmt::arg("project", GetProjectName()), fmt::arg("dir_app", dir_app));
-  for (auto& f : source_files_) {
-    fmt::format_to(buff,
-                   "  ${{CMAKE_CURRENT_SOURCE_DIR}}/{dir_src}/{file_name}\n",
-                   fmt::arg("dir_src", dir_src), fmt::arg("file_name", f));
-  }
-  fmt::format_to(
-      buff,
+      "  ${{CMAKE_CURRENT_SOURCE_DIR}}/{dir_app}/main.cc\n"
       "  ${{extern_src}}\n"
+      "{source_files}\n"
       ")\n"
       "\n"
       "target_include_directories({project} PRIVATE {dir_include})\n"
       "target_link_libraries({project} SystemC::systemc)\n"
       "if(${{ILATOR_VERBOSE}})\n"
       "  target_compile_definitions({project} PRIVATE ILATOR_VERBOSE)\n"
-      "endif()\n",
-      fmt::arg("project", GetProjectName()),
+      "endif()\n"
+      "if(${{JSON_SUPPORT}})\n"
+      "  FetchContent_Declare(\n"
+      "    json\n"
+      "    GIT_REPOSITORY https://github.com/nlohmann/json.git\n"
+      "    GIT_TAG        v3.8.0\n"
+      "  )\n"
+      "  FetchContent_MakeAvailable(json)\n"
+      "  target_link_libraries({project} nlohmann_json::nlohmann_json)\n"
+      "endif()\n"
+      //
+      ,
+      fmt::arg("project", GetProjectName()), fmt::arg("dir_app", dir_app),
+      fmt::arg("source_files", fmt::join(src_files, "\n")),
       fmt::arg("dir_include", dir_include));
   WriteFile(os_portable_append_dir(dir, "CMakeLists.txt"), buff);
 
@@ -592,14 +601,12 @@ void Ilator::WriteFuncDecl(Ilator::CxxFunc* func, StrBuff& buff) const {
                   ? fmt::format("{}& tmp_memory", GetCxxType(func->target))
                   : "";
   if (!func->args.empty()) { // uninterpreted func only
-    ILA_ASSERT(args.empty());
     ILA_NOT_NULL(func->ret_type);
-    for (size_t i = 0; i < func->args.size(); i++) {
-      if (i != 0) {
-        args.append(", ");
-      }
-      args.append(GetCxxType(func->args.at(i)));
+    std::vector<std::string> arg_list;
+    for (const auto& a : func->args) {
+      arg_list.push_back(GetCxxType(a));
     }
+    args = fmt::format("{}", fmt::join(arg_list, ", "));
   }
 
   fmt::format_to(buff, "  {return_type} {func_name}({argument});\n",
