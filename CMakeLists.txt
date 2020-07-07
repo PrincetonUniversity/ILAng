@@ -115,7 +115,7 @@ add_subdirectory(src)
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   ${ILANG_CMAKE_VERSION_CONFIG_FILE} 
-  COMPATIBILITY SameMajorVersion # AnyNewVersion
+  COMPATIBILITY AnyNewerVersion
 )
 
 ##
