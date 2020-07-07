@@ -15,6 +15,8 @@
 /// \namespace ilang
 namespace ilang {
 
+#define ILATOR_PRECISE_MEM
+
 /// \brief The ILAtor class - for CMake-based SystemC simulator generation.
 class Ilator {
 public:
@@ -54,17 +56,17 @@ private:
   InstrLvlAbsPtr m_;
 
   /// Generated functions (with definition).
-  std::unordered_map<std::string, CxxFunc*> functions_;
+  std::map<std::string, CxxFunc*> functions_;
   /// Generated functions (without definition).
-  std::unordered_map<std::string, CxxFunc*> externs_;
+  std::map<std::string, CxxFunc*> externs_;
   /// Wrapper functions to update memory values.
-  std::unordered_map<std::string, CxxFunc*> memory_updates_;
+  std::map<std::string, CxxFunc*> memory_updates_;
   /// Generated sources files.
-  std::unordered_set<std::string> source_files_;
+  std::set<std::string> source_files_;
   /// Constant memory that needs to be initialzied.
-  std::unordered_set<ExprPtr> const_mems_;
+  std::set<ExprPtr> const_mems_;
   /// Global variables other than state variables.
-  std::unordered_set<ExprPtr> global_vars_;
+  std::set<ExprPtr> global_vars_;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Reset all internal trackers.

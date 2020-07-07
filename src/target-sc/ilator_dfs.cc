@@ -96,13 +96,18 @@ void Ilator::DfsOp(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
 }
 
 void Ilator::DfsOpMemory(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
-  auto mem_update_func = RegisterMemoryUpdate(expr);
 
   if (auto uid = GetUidExprOp(expr); uid == AST_UID_EXPR_OP::STORE) {
-    fmt::format_to(buff, "tmp_memory[{address}.to_int()] = {data}.to_int();\n",
+    fmt::format_to(buff,
+#ifdef ILATOR_PRECISE_MEM
+                   "tmp_memory[{address}] = {data};\n",
+#else
+                   "tmp_memory[{address}.to_int()] = {data}.to_int();\n",
+#endif
                    fmt::arg("address", LookUp(expr->arg(1), lut)),
                    fmt::arg("data", LookUp(expr->arg(2), lut)));
   } else { // ite
+    auto mem_update_func = RegisterMemoryUpdate(expr);
     fmt::format_to(buff, "{}(tmp_memory);\n", mem_update_func->name);
   }
 }
@@ -140,11 +145,16 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   switch (auto uid = GetUidExprOp(expr); uid) {
   case AST_UID_EXPR_OP::LOAD: {
     fmt::format_to(
-        buff, "{var_type} {local_var} = {memory_source}[{address}.to_int()];\n",
-        fmt::arg("var_type", GetCxxType(expr)),
+        buff, "auto {local_var} = {memory_source}[{address}{mem_suffix}];\n",
         fmt::arg("local_var", local_var),
         fmt::arg("memory_source", LookUp(expr->arg(0), lut)),
-        fmt::arg("address", LookUp(expr->arg(1), lut)));
+        fmt::arg("address", LookUp(expr->arg(1), lut)),
+#ifdef ILATOR_PRECISE_MEM
+        fmt::arg("mem_suffix", "")
+#else
+        fmt::arg("mem_suffix", ".to_int()")
+#endif
+    );
     break;
   }
   case AST_UID_EXPR_OP::CONCAT: {
@@ -246,12 +256,15 @@ void Ilator::DfsOpRegular(const ExprPtr& expr, StrBuff& buff,
   ILA_ASSERT(pos != k_op_symbols.end()) << uid;
 
   if (expr->arg_num() == 1) {
-    fmt::format_to(buff, "auto {local_var} = {unary_op}{argument};\n",
+    fmt::format_to(buff, "{var_type} {local_var} = {unary_op}{argument};\n",
+                   fmt::arg("var_type", GetCxxType(expr)),
                    fmt::arg("local_var", local_var),
                    fmt::arg("unary_op", pos->second),
                    fmt::arg("argument", LookUp(expr->arg(0), lut)));
   } else if (expr->arg_num() == 2) {
-    fmt::format_to(buff, "auto {local_var} = ({arg_0} {binary_op} {arg_1});\n",
+    fmt::format_to(buff,
+                   "{var_type} {local_var} = ({arg_0} {binary_op} {arg_1});\n",
+                   fmt::arg("var_type", GetCxxType(expr)),
                    fmt::arg("local_var", local_var),
                    fmt::arg("arg_0", LookUp(expr->arg(0), lut)),
                    fmt::arg("binary_op", pos->second),

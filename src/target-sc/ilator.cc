@@ -157,10 +157,7 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
   ExprVarMap lut;
 
   fmt::format_to( // include headers
-      buff,
-      "#include <systemc.h>\n"
-      "#include <{project}.h>\n",
-      fmt::arg("project", GetProjectName()));
+      buff, "#include <{project}.h>\n", fmt::arg("project", GetProjectName()));
 
   // decode function
   auto decode_expr = instr->decode();
@@ -192,13 +189,13 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
       auto placeholder = GetLocalVar(lut);
       auto [it, status] = lut.insert({update_expr, placeholder});
       ILA_ASSERT(status);
-      fmt::format_to(
-          buff,
-          "{mem_type} {placeholder};\n"
-          "{mem_update_func}({placeholder});\n",
-          fmt::arg("mem_type", GetCxxType(update_expr)),
-          fmt::arg("mem_update_func", GetMemoryFuncName(update_expr)),
-          fmt::arg("placeholder", placeholder));
+      auto mem_update_func = RegisterMemoryUpdate(update_expr);
+      fmt::format_to(buff,
+                     "{mem_type} {placeholder};\n"
+                     "{mem_update_func}({placeholder});\n",
+                     fmt::arg("mem_type", GetCxxType(update_expr)),
+                     fmt::arg("mem_update_func", mem_update_func->name),
+                     fmt::arg("placeholder", placeholder));
       // dummy traverse collect related memory operation
       fmt::memory_buffer dummy_buff;
       ExprVarMap dummy_lut;
@@ -235,13 +232,17 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
   fmt::memory_buffer buff;
   ExprVarMap lut;
 
-  fmt::format_to( // include headers
-      buff,
-      "#include <systemc.h>\n"
-      "#include <{project}.h>\n",
-      fmt::arg("project", GetProjectName()));
+  int file_cnt = 0;
+  auto GetMemUpdateFile = [&file_cnt]() {
+    return fmt::format("memory_update_functions_{}.cc", file_cnt++);
+  };
 
-  // TODO split into smaller files
+  auto StartNewFile = [this, &buff]() {
+    buff.clear();
+    fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
+  };
+
+  StartNewFile();
 
   auto status = true;
   for (auto mem_update_func_it : memory_updates_) {
@@ -257,17 +258,25 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
       status &= RenderExpr(mem, buff, lut);
     } else { // ite
       status &= RenderExpr(mem->arg(0), buff, lut);
-      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut));
+      auto lut_copy = lut;
+      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut_copy));
       status &= RenderExpr(mem->arg(1), buff, lut);
+      lut_copy.clear();
       fmt::format_to(buff, "}} else {{\n");
-      status &= RenderExpr(mem->arg(2), buff, lut);
+      status &= RenderExpr(mem->arg(2), buff, lut_copy);
       fmt::format_to(buff, "}}\n");
     }
 
     EndFuncDef(mem_update_func, buff);
+
+    if (buff.size() > 100000) {
+      CommitSource(GetMemUpdateFile(), dir, buff);
+      StartNewFile();
+    }
   }
 
-  CommitSource("memory_update_functions.cc", dir, buff);
+  CommitSource(GetMemUpdateFile(), dir, buff);
+  // CommitSource("memory_update_functions.cc", dir, buff);
   return status;
 }
 
@@ -309,7 +318,6 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
   fmt::format_to( // headers
       buff,
       "#include <iomanip>\n"
-      "#include <systemc.h>\n"
       "#include <{project}.h>\n",
       fmt::arg("project", GetProjectName()));
 
@@ -384,8 +392,12 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
 
   fmt::format_to(buff,
                  "#include <fstream>\n"
-                 "#include <map>\n"
                  "#include <systemc.h>\n"
+#ifdef ILATOR_PRECISE_MEM
+                 "#include <map>\n"
+#else
+                 "#include <unordered_map>\n"
+#endif
                  "SC_MODULE({project}) {{\n"
                  "  std::ofstream instr_log;\n"
                  "  void LogInstrSequence(const std::string& instr_name);\n",
@@ -497,7 +509,6 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
   if (!os_portable_exist(app_template)) {
     buff.clear();
     fmt::format_to(buff,
-                   "#include <systemc.h>\n"
                    "#include <{project}.h>\n\n"
                    "int sc_main(int argc, char* argv[]) {{\n"
                    "  return 0; \n"
@@ -614,7 +625,14 @@ std::string Ilator::GetCxxType(const SortPtr& sort) {
     return fmt::format("sc_biguint<{}>", sort->bit_width());
   } else {
     ILA_ASSERT(sort->is_mem());
-    return "std::map<int, int>";
+#ifdef ILATOR_PRECISE_MEM
+    return fmt::format(
+        "std::map<sc_biguint<{addr_width}>, sc_biguint<{data_width}>>",
+        fmt::arg("addr_width", sort->addr_width()),
+        fmt::arg("data_width", sort->data_width()));
+#else
+    return "std::unordered_map<int, int>";
+#endif
   }
 }
 
