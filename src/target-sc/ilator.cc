@@ -531,11 +531,22 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
 }
 
 bool Ilator::RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
+  auto ExprDfsVisiter = [this, &buff, &lut](const ExprPtr& e) {
+    if (auto pos = lut.find(e); pos == lut.end()) {
+      if (e->is_var()) {
+        DfsVar(e, buff, lut);
+      } else if (e->is_const()) {
+        DfsConst(e, buff, lut);
+      } else {
+        ILA_ASSERT(e->is_op());
+        DfsOp(e, buff, lut);
+      }
+    }
+    ILA_ASSERT((e->is_mem() && e->is_op()) || (lut.find(e) != lut.end()));
+  };
+
   try {
-    auto visiter = [this, &buff, &lut](const ExprPtr& e) {
-      DfsExpr(e, buff, lut);
-    };
-    expr->DepthFirstVisit(visiter);
+    expr->DepthFirstVisit(ExprDfsVisiter);
   } catch (std::exception& err) {
     ILA_ERROR << err.what();
     return false;
