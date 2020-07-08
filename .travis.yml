@@ -60,8 +60,8 @@ jobs:
             - g++-7
       before_install:
         - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-      before_script:
         - eval "${MATRIX_EVAL}"
+      before_script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR
       script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/build-static.sh $TRAVIS_BUILD_DIR
@@ -75,7 +75,6 @@ addons:
       - lcov
       - flex
       - bison
-      - libboost-all-dev
       - z3
       - libz3-dev
       - g++-7

@@ -59,13 +59,11 @@ brew install bison flex z3
 
 | OS                        | Compiler     | CMake  | z3    | Bison | Flex   | Build   |
 | ------------------------- | ------------ | ------ | ----- | ----- | ------ | ------- |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.12.4 | 4.4.1 | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 3.0.4 | 2.6.0  | Release |
-| Ubuntu 18.04 (Bionic)     | clang 6.0.0  | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Debug   |
-| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Debug   |
-| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
-| Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
+| Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.0  | Release |
+| Ubuntu 18.04 (Bionic)     | gcc 8.4.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Debug   |
+| Ubuntu 18.04 (Bionic)     | gcc 8.4.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
+| Ubuntu 20.04 (Focal Fosa) | gcc 9.3.0    | 3.17.0 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
 | OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Debug   |
 | OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Release |
 | Windows Server 2016       | VS 2017      | 3.17.2 | 4.8.8 | 3.3.2 | 2.6.4  | Release |
