@@ -70,7 +70,7 @@ jobs:
   - script: |
       mkdir -p build 
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DILANG_BUILD_SYNTH=ON -DCMAKE_CXX_COMPILER=g++-7
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-7
       cmake --build .
       sudo cmake --build . --target install 
       cmake --build . --target test
@@ -91,7 +91,7 @@ jobs:
   - script: |
       mkdir -p build
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DILANG_BUILD_SYNTH=ON
+      cmake .. -DCMAKE_BUILD_TYPE=Release
       cmake --build .
       sudo cmake --build . --target install 
       cmake --build . --target test
