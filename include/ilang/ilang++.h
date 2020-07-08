@@ -112,6 +112,8 @@ public:
   int addr_width() const;
   /// Return the data bit-width if is memory; return -1 otherwise.
   int data_width() const;
+  /// Return the expression name as std::string.
+  std::string name() const;
 
   // ------------------------- METHODS -------------------------------------- //
   /****************************************************************************/
@@ -393,6 +395,10 @@ public:
   /// Default destructor.
   ~FuncRef();
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the function name as std::string.
+  std::string name() const;
+
   // ------------------------- METHODS -------------------------------------- //
   /// Apply the function with no argument.
   ExprRef operator()() const;
@@ -461,6 +467,9 @@ public:
   /// Return the wrapped ILA pointer.
   inline InstrPtr get() const { return ptr_; }
 
+  /// Return the instruction name as std::string.
+  std::string name() const;
+
 }; // class InstrRef
 
 /// \brief The wrapper of InstrLvlAbs (ILA).
@@ -523,11 +532,6 @@ public:
   /// \param[in] name child-ILA name.
   Ila NewChild(const std::string& name);
 
-  // ------------------------- GENERATORS --------------------------------- //
-  /// \brief Export an ILA as Verilog
-  /// \param[in] fout the output stream of the generated Verilog source.
-  void ExportToVerilog(std::ostream& fout) const;
-
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the number of input variables.
   size_t input_num() const;
@@ -570,6 +574,15 @@ public:
   /// Return the wrapped ILA pointer.
   inline IlaPtr get() const { return ptr_; }
 
+  // ------------------------- UTILITIES ------------------------------------ //
+  /// \brief Export an ILA as Verilog
+  /// \param[in] fout the output stream of the generated Verilog source.
+  void ExportToVerilog(std::ostream& fout) const;
+
+  /// \brief Flatten the hierarchy by lifting child-instructions as the
+  /// top-level parent instructions.
+  void FlattenHierarchy();
+
 }; // class Ila
 
 /******************************************************************************/
@@ -607,6 +620,9 @@ Ila ImportSynthAbstraction(const std::string& file_name,
 /// \param[in] ila_name the name pf the generated child-ILA.
 void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name);
+
+/// \brief Generate the SystemC simulator.
+void ExportSysCSim(const Ila& ila, const std::string& dir_path);
 
 /******************************************************************************/
 // Verification.
@@ -652,6 +668,12 @@ public:
   /// \param[in] path the sequence of instructions.
   /// \param[in] init the starting time frame.
   z3::expr UnrollPathConn(const std::vector<InstrRef>& path,
+                          const int& init = 0);
+
+  /// \brief Unroll a path with each step connected with rewriting.
+  /// \param[in] path the sequence of instructions.
+  /// \param[in] init the starting time frame.
+  z3::expr UnrollPathSubs(const std::vector<InstrRef>& path,
                           const int& init = 0);
 
   /// \brief Unroll a path with each step freely defined.

@@ -37,38 +37,38 @@ ILAng requires CMake (3.9.6 or above) and compilers with C++17 support.
 To install dependencies on Debian-based Linux:
 
 ```bash
-apt-get install bison flex libboost-all-dev z3 libz3-dev
+apt-get install bison flex z3 libz3-dev
 ```
 
 To install dependencies (except z3) on Fedora-based Linux:
 
 ```bash
-yum install bison flex boost boost-python boost-devel
+yum install bison flex
 ```
 
 To install dependencies on OSX:
 
 ```bash
-brew install bison flex boost boost-python z3
+brew install bison flex z3
 ```
 
 -   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
 -   The [Boost](https://www.boost.org) package is required only if you want to build the synthesis engine (default `OFF`).
 
-#### Regression Environments
+#### CI Environments
 
-| OS                        | Compiler     | CMake  | z3    | Boost | Bison | Flex   | Build   |
-| ------------------------- | ------------ | ------ | ----- | ----- | ----- | ------ | ------- |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.17.0 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Release |
-| Ubuntu 18.04 (Bionic)     | clang 6.0.0  | 3.10.2 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Debug   |
-| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Debug   |
-| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Release |
-| Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.4.1 | -     | 3.0.4 | 2.6.4  | Release |
-| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | -     | 3.6.2 | 2.5.35 | Debug   |
-| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | -     | 3.6.2 | 2.5.35 | Release |
-| Windows Server 2016       | VS 2017      | 3.17.2 | 4.8.8 | -     | 3.3.2 | 2.6.4  | Release |
+| OS                        | Compiler     | CMake  | z3    | Bison | Flex   | Build   |
+| ------------------------- | ------------ | ------ | ----- | ----- | ------ | ------- |
+| Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 3.0.4 | 2.6.0  | Debug   |
+| Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.12.4 | 4.4.1 | 3.0.4 | 2.6.0  | Debug   |
+| Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 3.0.4 | 2.6.0  | Release |
+| Ubuntu 18.04 (Bionic)     | clang 6.0.0  | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Debug   |
+| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Debug   |
+| Ubuntu 18.04 (Bionic)     | gcc 7.5.0    | 3.17.0 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
+| Ubuntu 20.04 (Focal Fosa) | gcc 7.4.0    | 3.17.0 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
+| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Debug   |
+| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Release |
+| Windows Server 2016       | VS 2017      | 3.17.2 | 4.8.8 | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
 

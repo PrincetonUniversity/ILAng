@@ -23,6 +23,7 @@ TEST(TestApi, LogicShift) {
 
 TEST(TestApi, Construct) {
   Ila ila("top");
+  EXPECT_EQ(ila.name(), "top");
 
   // state
   auto flag = ila.NewBoolState("flag");
@@ -32,6 +33,7 @@ TEST(TestApi, Construct) {
     regs.push_back(ila.NewBvState(reg_name, REG_SIZE));
   }
   auto mem = ila.NewMemState("mem", REG_SIZE, REG_SIZE);
+  EXPECT_EQ(mem.name(), "mem");
 
   // input
   auto bool_in = ila.NewBoolInput("bool_in");
@@ -39,6 +41,8 @@ TEST(TestApi, Construct) {
   EXPECT_EQ(2, ila.input_num());
   EXPECT_EQ(bool_in.get(), ila.input(0).get());
   EXPECT_EQ(bv_in.get(), ila.input("bv_in").get());
+  EXPECT_EQ(bool_in.name(), "bool_in");
+  EXPECT_EQ(bv_in.name(), "bv_in");
 
   // init
   auto flag_init = (flag == BoolConst(true));
@@ -61,6 +65,7 @@ TEST(TestApi, Construct) {
   // instr and ast
   {
     auto instr = ila.NewInstr("instr_0");
+    EXPECT_EQ(instr.name(), "instr_0");
     auto decode = (regs[1] < regs[2]);
     instr.SetDecode(decode);
 
@@ -252,6 +257,10 @@ TEST(TestApi, Function) {
   FuncRef f1("f1", s_out, s_arg0);
   FuncRef f2("f2", s_out, s_arg0, s_arg1);
   FuncRef f3("f3", s_out, {s_arg0, s_arg1, s_arg2});
+  EXPECT_EQ(f0.name(), "f0");
+  EXPECT_EQ(f1.name(), "f1");
+  EXPECT_EQ(f2.name(), "f2");
+  EXPECT_EQ(f3.name(), "f3");
 
   Ila ila("host");
   auto i0 = BoolConst(true);
@@ -374,7 +383,7 @@ TEST(TestApi, Unroll) {
     unroller.AddInitPred(m1.init(i));
   }
   unroller.AddInitPred(init_mem == m1.state("ir"));
-  auto cstr11 = unroller.UnrollPathConn(path);
+  auto cstr11 = unroller.UnrollPathSubs(path);
 
   z3::solver s(c);
   s.add(cstr00);
