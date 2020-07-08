@@ -57,8 +57,8 @@ jobs:
             - libz3-dev
       before_install:
         - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | tee -a /etc/ssl/certs/ca- 
-        - eval "${MATRIX_EVAL}"
       before_script:
+        - eval "${MATRIX_EVAL}"
         - source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR
       script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/build-static.sh $TRAVIS_BUILD_DIR
