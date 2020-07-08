@@ -4,13 +4,14 @@
 #include <ilang/ilang++.h>
 
 #include <ilang/config.h>
+#include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila-mngr/u_smt_switch.h>
+#include <ilang/ila-mngr/u_unroller.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
+#include <ilang/target-sc/ilator.h>
 #include <ilang/util/log.h>
-#include <ilang/verification/abs_knob.h>
-#include <ilang/verification/unroller.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
 #ifdef SMTSWITCH_INTERFACE
@@ -66,6 +67,8 @@ int ExprRef::addr_width() const {
 int ExprRef::data_width() const {
   return ptr_->is_mem() ? ptr_->sort()->data_width() : -1;
 }
+
+std::string ExprRef::name() const { return ptr_->name().str(); }
 
 ExprRef ExprRef::Load(const ExprRef& addr) const {
   auto v = ExprFuse::Load(get(), addr.get());
@@ -522,6 +525,8 @@ FuncRef::FuncRef(const std::string& name, const SortRef& range,
   ptr_ = Func::New(name, range.get(), args);
 }
 
+std::string FuncRef::name() const { return ptr_->name().str(); }
+
 FuncRef::~FuncRef() {}
 
 ExprRef FuncRef::operator()() const {
@@ -586,6 +591,8 @@ void InstrRef::ExportToVerilogWithChild(std::ostream& fout) const {
   vgen.ExportIla(dept_ila_ptr);
   vgen.DumpToFile(fout);
 }
+
+std::string InstrRef::name() const { return ptr_->name().str(); }
 
 /******************************************************************************/
 // Ila
@@ -685,6 +692,8 @@ void Ila::ExportToVerilog(std::ostream& fout) const {
   vgen.DumpToFile(fout);
 }
 
+void Ila::FlattenHierarchy() { AbsKnob::FlattenIla(ptr_); }
+
 std::ostream& operator<<(std::ostream& out, const ExprRef& expr) {
   return out << expr.get();
 }
@@ -731,6 +740,11 @@ void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
 #endif
 }
 
+void ExportSysCSim(const Ila& ila, const std::string& dir_path) {
+  auto ilator = Ilator(ila.get());
+  ilator.Generate(dir_path);
+}
+
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
     : ctx_(ctx), extra_suff_(suff) {
   univ_ = std::make_shared<MonoUnroll>(ctx);
@@ -773,6 +787,17 @@ z3::expr IlaZ3Unroller::UnrollPathConn(const std::vector<InstrRef>& path,
     seq.push_back(path.at(i).get());
   }
   return u->PathAssn(seq, init);
+}
+
+z3::expr IlaZ3Unroller::UnrollPathSubs(const std::vector<InstrRef>& path,
+                                       const int& init) {
+  auto u = std::make_shared<PathUnroll>(ctx_, extra_suff_);
+  InitializeUnroller(u);
+  std::vector<InstrPtr> seq;
+  for (auto& instr : path) {
+    seq.push_back(instr.get());
+  }
+  return u->PathSubs(seq, init);
 }
 
 z3::expr IlaZ3Unroller::UnrollPathFree(const std::vector<InstrRef>& path,

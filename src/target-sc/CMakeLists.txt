@@ -4,6 +4,8 @@
 target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/dfs.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/ila_sim.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ilator.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ilator_dfs.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/sim_gen_decode.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/sim_gen_execute.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/sim_gen_init.cc
