@@ -13,6 +13,9 @@
 
 namespace ilang {
 
+/// Check if path exist.
+bool os_portable_exist(const std::string& path);
+
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir);
 

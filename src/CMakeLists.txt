@@ -124,7 +124,7 @@ if(NOT TARGET fmt::fmt)
   find_package(fmt REQUIRED)
 endif()
 
-target_link_libraries(${ILANG_LIB_NAME} PRIVATE fmt::fmt)
+target_link_libraries(${ILANG_LIB_NAME} PUBLIC fmt::fmt)
 
 ##
 ## verilog parser

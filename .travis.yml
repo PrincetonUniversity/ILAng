@@ -8,27 +8,26 @@ git:
   depth: 1
   submodules: false
 
-sudo: required
-
 language: cpp
 
 env:
   global:
    - secure: "RwHto3MzZ2KTsGK2LiCKCxdN/xzuWiCTO+2+zhfPjVujGMx84QdMHC5fRu94VoJ5PdZ5QHwoWy3jqQ0f2PJE7oRQe28w/ENY32yDl/ziRjY1U6k4p2pcfgYQtsyyof60mL+yG6Yzz4hlJ74uQ+arhdvyAYYvliyvUiHkLgp4XvJhmsqpogkL89pERAeZ32Xg22ajzXZD5tcWQ7CbCDVKOE0KrwktU3UG08VxMmgfjKG+rU1MKj5R8rXtwZrMzqEAzosTEK0miZYJcgO0pVStCeAC2UAZllEpWXaR2EW5plb/hXRmFjRSlWflasGzJ7VB6mZ95w4xm2DICKYgcrwPWgiMnwoEByrJBh0M7xBzU1MTFmbiqB5wSSsWfVA7zv+SLmD4mCww4HKxAkE2cDJ3MOAvK8bp1vCULBCMMmbVFNGQgBprZKoxUlpQLNn+y9C6pQoaCej9/KVdkyiSQ8SM2vXDoS4/CGnoeaOAoNpu5mkPmDk7RRjIPjdS7by9xycYXAoUVVty/EZideCrYswe1KvH87GK6Fd91XITHuhuc/Aw4Jg0zXjxx6dcHbjZKuYN5MgNMx4IWK+lNiKPyLGO1/AnFG1UP+CpOC6QE8XZNhcnvn3q4r6c+v/QbeoEE7O/XOXqJDSEumJ5b2psBuoktl52azKgUqMtDzuTWjv6BvY="
+   - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
 
 cache:
   directories:
     - $HOME/_cache
 
-matrix:
+jobs:
   include:
-    - name: "linux-gcc"
+    - name: "xenial"
       os: linux
       dist: xenial
-      compiler: gcc
       before_install:
         - gem install coveralls-lcov
+        - eval "${MATRIX_EVAL}"
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
         - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build
@@ -40,7 +39,6 @@ matrix:
     - name: "coverity"
       os: linux
       dist: xenial
-      compiler: gcc
       addons:
         coverity_scan:
           project:
@@ -58,8 +56,9 @@ matrix:
             - z3
             - libz3-dev
       before_install:
-        - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca- 
+        - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
       before_script:
+        - eval "${MATRIX_EVAL}"
         - source $TRAVIS_BUILD_DIR/scripts/travis/install-externs.sh $TRAVIS_BUILD_DIR
       script:
         - source $TRAVIS_BUILD_DIR/scripts/travis/build-static.sh $TRAVIS_BUILD_DIR
@@ -67,6 +66,8 @@ matrix:
 addons:
   apt:
     update: true
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - lcov
       - flex
@@ -74,6 +75,7 @@ addons:
       - libboost-all-dev
       - z3
       - libz3-dev
+      - g++-7
 
 notifications:
     email: false

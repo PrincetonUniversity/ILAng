@@ -38,7 +38,7 @@ sudo make install
 cd $CI_BUILD_DIR
 mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DILANG_BUILD_COV=ON -DILANG_BUILD_SWITCH=ON -DILANG_BUILD_SYNTH=ON
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DILANG_BUILD_COV=ON -DILANG_BUILD_SWITCH=ON
 make -j$(nproc)
 sudo make install
 make run_test
