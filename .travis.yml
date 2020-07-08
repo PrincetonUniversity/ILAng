@@ -50,11 +50,14 @@ jobs:
           branch_pattern: coverity_scan
         apt:
           update: true
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - flex
             - bison
             - z3
             - libz3-dev
+            - g++-7
       before_install:
         - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
       before_script:
