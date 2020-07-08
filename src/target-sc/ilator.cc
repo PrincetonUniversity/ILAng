@@ -475,7 +475,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
   fmt::format_to(
       buff,
       "# CMakeLists.txt for {project}\n"
-      "cmake_minimum_required(VERSION 3.9.6)\n"
+      "cmake_minimum_required(VERSION 3.14.0)\n"
       "project({project} LANGUAGES CXX)\n"
       "\n"
       "option(ILATOR_VERBOSE \"Enable instruction sequence logging\" OFF)\n"
@@ -497,6 +497,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "  target_compile_definitions({project} PRIVATE ILATOR_VERBOSE)\n"
       "endif()\n"
       "if(${{JSON_SUPPORT}})\n"
+      "  include(FetchContent)\n"
       "  FetchContent_Declare(\n"
       "    json\n"
       "    GIT_REPOSITORY https://github.com/nlohmann/json.git\n"
