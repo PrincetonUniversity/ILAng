@@ -11,7 +11,7 @@ endif()
 # PROJECT
 # name version language
 # ---------------------------------------------------------------------------- #
-project(ilang VERSION     1.0.5
+project(ilang VERSION     1.1.0
               LANGUAGES   CXX
 )
 
@@ -115,7 +115,7 @@ add_subdirectory(src)
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   ${ILANG_CMAKE_VERSION_CONFIG_FILE} 
-  COMPATIBILITY SameMajorVersion # AnyNewVersion
+  COMPATIBILITY AnyNewerVersion
 )
 
 ##

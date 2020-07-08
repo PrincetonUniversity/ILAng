@@ -180,6 +180,12 @@ void InsertInstr(const InstrLvlAbsCnstPtr m, InstrVec& instrs) {
   }
 }
 
+InstrVec GetInstr(const InstrLvlAbsCnstPtr m) {
+  auto instrs = InstrVec();
+  InsertInstr(m, instrs);
+  return instrs;
+}
+
 void InsertInstrTree(const InstrLvlAbsCnstPtr top, InstrVec& instrs) {
   auto f = FuncObjInsertILAInstr(instrs);
   top->DepthFirstVisit(f);
