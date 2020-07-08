@@ -237,7 +237,7 @@ ExprPtr J2IDes::DesExprConst(const json& j_sort, const json& j_val) const {
   // bit-vector
   case AST_UID_SORT::BV: {
     auto width = j_sort.at(SERDES_SORT_WIDTH).get<int>();
-    auto value = j_val.at(SERDES_CONST_VAL).get<int>();
+    auto value = j_val.at(SERDES_CONST_VAL).get<BvValType>();
     return ExprFuse::BvConst(value, width);
   }
   // memory (array)
@@ -245,7 +245,7 @@ ExprPtr J2IDes::DesExprConst(const json& j_sort, const json& j_val) const {
     auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
 
-    auto default_value = j_val.at(SERDES_CONST_DEF).get<int>();
+    auto default_value = j_val.at(SERDES_CONST_DEF).get<BvValType>();
     auto j_value_map = j_val.at(SERDES_CONST_MAP);
 
     auto i_value_map = MemVal::MemValMap();

@@ -62,6 +62,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_ila.cc
   t_ila_sim.cc
   t_ila_sim_cmake.cc
+  t_ilator.cc
   t_instr.cc
   t_instr_seq.cc
   t_keyvec.cc
@@ -70,6 +71,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_main.cc
   t_mapset.cc
   t_mcm.cc
+  t_mngr_absknob.cc
   t_pass.cc
   t_portable.cc
   t_sort.cc
