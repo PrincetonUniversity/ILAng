@@ -182,6 +182,8 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
       if (!RenderExpr(update_expr, buff, lut)) {
         return false;
       }
+      fmt::format_to(buff, "auto {local_var}_nxt_holder = {local_var};\n",
+                     fmt::arg("local_var", LookUp(update_expr, lut)));
     } else { // memory (one copy for performance, need special handling)
       if (HasLoadFromStore(update_expr)) {
         return false;
@@ -209,7 +211,7 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
     auto curr = instr->host()->state(s);
     auto next = instr->update(s);
     if (!curr->is_mem()) {
-      fmt::format_to(buff, "{current} = {next_value};\n",
+      fmt::format_to(buff, "{current} = {next_value}_nxt_holder;\n",
                      fmt::arg("current", GetCxxName(curr)),
                      fmt::arg("next_value", LookUp(next, lut)));
     } else {
@@ -258,12 +260,11 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
       status &= RenderExpr(mem, buff, lut);
     } else { // ite
       status &= RenderExpr(mem->arg(0), buff, lut);
-      auto lut_copy = lut;
-      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut_copy));
-      status &= RenderExpr(mem->arg(1), buff, lut);
-      lut_copy.clear();
+      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut));
+      auto lut_local_0 = lut;
+      status &= RenderExpr(mem->arg(1), buff, lut_local_0);
       fmt::format_to(buff, "}} else {{\n");
-      status &= RenderExpr(mem->arg(2), buff, lut_copy);
+      status &= RenderExpr(mem->arg(2), buff, lut); // reuse lut
       fmt::format_to(buff, "}}\n");
     }
 
@@ -273,10 +274,12 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
       CommitSource(GetMemUpdateFile(), dir, buff);
       StartNewFile();
     }
+    if (!status) {
+      return status;
+    }
   }
 
   CommitSource(GetMemUpdateFile(), dir, buff);
-  // CommitSource("memory_update_functions.cc", dir, buff);
   return status;
 }
 
@@ -531,11 +534,22 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
 }
 
 bool Ilator::RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
+  auto ExprDfsVisiter = [this, &buff, &lut](const ExprPtr& e) {
+    if (auto pos = lut.find(e); pos == lut.end()) {
+      if (e->is_var()) {
+        DfsVar(e, buff, lut);
+      } else if (e->is_const()) {
+        DfsConst(e, buff, lut);
+      } else {
+        ILA_ASSERT(e->is_op());
+        DfsOp(e, buff, lut);
+      }
+    }
+    ILA_ASSERT((e->is_mem() && e->is_op()) || (lut.find(e) != lut.end()));
+  };
+
   try {
-    auto visiter = [this, &buff, &lut](const ExprPtr& e) {
-      DfsExpr(e, buff, lut);
-    };
-    expr->DepthFirstVisit(visiter);
+    expr->DepthFirstVisit(ExprDfsVisiter);
   } catch (std::exception& err) {
     ILA_ERROR << err.what();
     return false;

@@ -10,7 +10,7 @@ build_script:
 - cd $APPVEYOR_BUILD_FOLDER
 - mkdir -p build
 - cd build
-- cmake .. -DCMAKE_BUILD_TYPE=Release
+- cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-9
 - make -j$(nproc)
 - sudo make install
 - make test
