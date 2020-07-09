@@ -5,6 +5,7 @@
 
 #include <fmt/format.h>
 
+#include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/util/fs.h>
@@ -136,19 +137,23 @@ bool Ilator::SanityCheck() const {
 
 bool Ilator::Bootstrap(const std::string& root) {
   Reset();
+  auto status = true;
+
+  // light-weight preprocessing
+  // status &= PassRewriteConditionalStore(m_);
 
   // create/structure project directory
-  auto res_mkdir = os_portable_mkdir(root);
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_app));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_extern));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_include));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_src));
-  if (!res_mkdir) {
+  status &= os_portable_mkdir(root);
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_app));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_extern));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_include));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_src));
+  if (!status) {
     os_portable_remove_directory(root);
-    ILA_ERROR << "Fail structuring simulator direcory at " << root;
-    return false;
   }
-  return true;
+
+  ILA_ERROR_IF(!status) << "Fail bootstraping";
+  return status;
 }
 
 bool Ilator::GenerateInstrContent(const InstrPtr& instr,
@@ -189,7 +194,7 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
         return false;
       }
       auto placeholder = GetLocalVar(lut);
-      auto [it, status] = lut.insert({update_expr, placeholder});
+      auto [it, status] = lut.try_emplace(update_expr, placeholder);
       ILA_ASSERT(status);
       auto mem_update_func = RegisterMemoryUpdate(update_expr);
       fmt::format_to(buff,
