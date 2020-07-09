@@ -140,7 +140,7 @@ bool Ilator::Bootstrap(const std::string& root) {
   auto status = true;
 
   // light-weight preprocessing
-  // status &= PassRewriteConditionalStore(m_);
+  status &= PassRewriteConditionalStore(m_);
 
   // create/structure project directory
   status &= os_portable_mkdir(root);
