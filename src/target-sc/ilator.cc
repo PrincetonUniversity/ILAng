@@ -182,9 +182,8 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
       if (!RenderExpr(update_expr, buff, lut)) {
         return false;
       }
-      fmt::format_to(buff, "auto {next_holder} = {next_internal};\n",
-                     fmt::arg("next_holder", GetCxxName(update_expr)),
-                     fmt::arg("next_internal", LookUp(update_expr, lut)));
+      fmt::format_to(buff, "auto {local_var}_nxt_holder = {local_var};\n",
+                     fmt::arg("local_var", LookUp(update_expr, lut)));
     } else { // memory (one copy for performance, need special handling)
       if (HasLoadFromStore(update_expr)) {
         return false;
@@ -212,9 +211,9 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
     auto curr = instr->host()->state(s);
     auto next = instr->update(s);
     if (!curr->is_mem()) {
-      fmt::format_to(buff, "{current} = {next_value};\n",
+      fmt::format_to(buff, "{current} = {next_value}_nxt_holder;\n",
                      fmt::arg("current", GetCxxName(curr)),
-                     fmt::arg("next_value", GetCxxName(next)));
+                     fmt::arg("next_value", LookUp(next, lut)));
     } else {
       fmt::format_to(buff,
                      "for (auto& it : {next_value}) {{\n"
