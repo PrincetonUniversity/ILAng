@@ -5,6 +5,7 @@
 
 #include <fmt/format.h>
 
+#include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/util/fs.h>
@@ -136,19 +137,23 @@ bool Ilator::SanityCheck() const {
 
 bool Ilator::Bootstrap(const std::string& root) {
   Reset();
+  auto status = true;
+
+  // light-weight preprocessing
+  status &= PassRewriteConditionalStore(m_);
 
   // create/structure project directory
-  auto res_mkdir = os_portable_mkdir(root);
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_app));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_extern));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_include));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_src));
-  if (!res_mkdir) {
+  status &= os_portable_mkdir(root);
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_app));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_extern));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_include));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_src));
+  if (!status) {
     os_portable_remove_directory(root);
-    ILA_ERROR << "Fail structuring simulator direcory at " << root;
-    return false;
   }
-  return true;
+
+  ILA_ERROR_IF(!status) << "Fail bootstraping";
+  return status;
 }
 
 bool Ilator::GenerateInstrContent(const InstrPtr& instr,
@@ -182,12 +187,14 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
       if (!RenderExpr(update_expr, buff, lut)) {
         return false;
       }
+      fmt::format_to(buff, "auto {local_var}_nxt_holder = {local_var};\n",
+                     fmt::arg("local_var", LookUp(update_expr, lut)));
     } else { // memory (one copy for performance, need special handling)
       if (HasLoadFromStore(update_expr)) {
         return false;
       }
       auto placeholder = GetLocalVar(lut);
-      auto [it, status] = lut.insert({update_expr, placeholder});
+      auto [it, status] = lut.try_emplace(update_expr, placeholder);
       ILA_ASSERT(status);
       auto mem_update_func = RegisterMemoryUpdate(update_expr);
       fmt::format_to(buff,
@@ -209,7 +216,7 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
     auto curr = instr->host()->state(s);
     auto next = instr->update(s);
     if (!curr->is_mem()) {
-      fmt::format_to(buff, "{current} = {next_value};\n",
+      fmt::format_to(buff, "{current} = {next_value}_nxt_holder;\n",
                      fmt::arg("current", GetCxxName(curr)),
                      fmt::arg("next_value", LookUp(next, lut)));
     } else {
@@ -258,12 +265,11 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
       status &= RenderExpr(mem, buff, lut);
     } else { // ite
       status &= RenderExpr(mem->arg(0), buff, lut);
-      auto lut_copy = lut;
-      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut_copy));
-      status &= RenderExpr(mem->arg(1), buff, lut);
-      lut_copy.clear();
+      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut));
+      auto lut_local_0 = lut;
+      status &= RenderExpr(mem->arg(1), buff, lut_local_0);
       fmt::format_to(buff, "}} else {{\n");
-      status &= RenderExpr(mem->arg(2), buff, lut_copy);
+      status &= RenderExpr(mem->arg(2), buff, lut); // reuse lut
       fmt::format_to(buff, "}}\n");
     }
 
@@ -273,10 +279,12 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
       CommitSource(GetMemUpdateFile(), dir, buff);
       StartNewFile();
     }
+    if (!status) {
+      return status;
+    }
   }
 
   CommitSource(GetMemUpdateFile(), dir, buff);
-  // CommitSource("memory_update_functions.cc", dir, buff);
   return status;
 }
 
@@ -531,11 +539,22 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
 }
 
 bool Ilator::RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
+  auto ExprDfsVisiter = [this, &buff, &lut](const ExprPtr& e) {
+    if (auto pos = lut.find(e); pos == lut.end()) {
+      if (e->is_var()) {
+        DfsVar(e, buff, lut);
+      } else if (e->is_const()) {
+        DfsConst(e, buff, lut);
+      } else {
+        ILA_ASSERT(e->is_op());
+        DfsOp(e, buff, lut);
+      }
+    }
+    ILA_ASSERT((e->is_mem() && e->is_op()) || (lut.find(e) != lut.end()));
+  };
+
   try {
-    auto visiter = [this, &buff, &lut](const ExprPtr& e) {
-      DfsExpr(e, buff, lut);
-    };
-    expr->DepthFirstVisit(visiter);
+    expr->DepthFirstVisit(ExprDfsVisiter);
   } catch (std::exception& err) {
     ILA_ERROR << err.what();
     return false;

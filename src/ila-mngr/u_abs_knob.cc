@@ -230,23 +230,23 @@ void RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
 // this function will change the input ! You can copy it first.
 void FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
   ILA_NOT_NULL(ila_ptr_);
+  ILA_INFO << "Flatten " << ila_ptr_;
 
   // let's first record all the child's input/states
   auto expr_map = ExprMap();
   CnstIlaMap ila_map_;
 
-  std::function<void(const InstrLvlAbsCnstPtr&)> recordInpStates =
-      [&](const InstrLvlAbsCnstPtr& a) {
-        ILA_INFO << "Traverse:" << (a->name().str());
-        if (a == ila_ptr_)
-          return; // will not change the top
-        DuplInp(a, ila_ptr_, expr_map);
-        DuplStt(a, ila_ptr_, expr_map);
-        DuplInit(a, ila_ptr_, expr_map);
+  auto recordInpStates = [&](const InstrLvlAbsCnstPtr& a) {
+    if (a == ila_ptr_)
+      return; // will not change the top
 
-        ila_map_.insert({a, ila_ptr_});
-        // remember to change the decode !!! to factor in the valid state
-      };
+    DuplInp(a, ila_ptr_, expr_map);
+    DuplStt(a, ila_ptr_, expr_map);
+    DuplInit(a, ila_ptr_, expr_map);
+
+    ila_map_.insert({a, ila_ptr_});
+    // remember to change the decode !!! to factor in the valid state
+  };
 
   ila_ptr_->DepthFirstVisit(recordInpStates);
 
@@ -316,34 +316,26 @@ InstrLvlAbsPtr CopyIlaTree(const InstrLvlAbsCnstPtr src,
 /******************************************************************************/
 void DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
              ExprMap& expr_map) {
-  auto inps = GetInp(src);
-  for (auto it = inps.begin(); it != inps.end(); it++) {
+  for (const auto& inp_src : GetInp(src)) {
     // declare new input if not exist (not parent states)
-    auto inp_src = *it;
     auto inp_dst = dst->find_input(inp_src->name());
     if (!inp_dst) { // not exist --> child-input --> create
       inp_dst = DuplInp(dst, inp_src);
     }
     // update rewrite rule
-    if (expr_map.find(inp_src) == expr_map.end()) {
-      expr_map.insert({inp_src, inp_dst});
-    }
+    expr_map.try_emplace(inp_src, inp_dst);
   }
 }
 
 void DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
              ExprMap& expr_map) {
-  auto stts = GetStt(src);
-  for (auto it = stts.begin(); it != stts.end(); it++) {
-    auto stt_src = *it;
+  for (const auto& stt_src : GetStt(src)) {
     auto stt_dst = dst->find_state(stt_src->name());
     if (!stt_dst) { // not exist --> child-state --> create
       stt_dst = DuplStt(dst, stt_src);
     }
     // update rewrite rule
-    if (expr_map.find(stt_src) == expr_map.end()) {
-      expr_map.insert({stt_src, stt_dst});
-    }
+    expr_map.try_emplace(stt_src, stt_dst);
   }
 }
 

@@ -40,10 +40,7 @@ ExprPtr FuncObjRewrExpr::Rewrite(const ExprPtr e) const {
 }
 
 ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
-  // check each type of op
-  auto expr_op_uid = GetUidExprOp(e);
-
-  switch (expr_op_uid) {
+  switch (auto expr_op_uid = GetUidExprOp(e); expr_op_uid) {
   case AST_UID_EXPR_OP::NEG: {
     auto a = get(e->arg(0));
     return Negate(a);
