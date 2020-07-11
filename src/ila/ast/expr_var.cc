@@ -3,6 +3,8 @@
 
 #include <ilang/ila/ast/expr_var.h>
 
+#include <fmt/format.h>
+
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 
@@ -47,12 +49,12 @@ std::ostream& ExprVar::PrintBool(std::ostream& out) const {
 }
 
 std::ostream& ExprVar::PrintBv(std::ostream& out) const {
-  return out << name().str() + "(" + std::to_string(sort()->bit_width()) + ")";
+  return out << fmt::format("{}({})", name().str(), sort()->bit_width());
 }
 
 std::ostream& ExprVar::PrintMem(std::ostream& out) const {
-  return out << name().str() + "(" + std::to_string(sort()->addr_width()) +
-                    ", " + std::to_string(sort()->data_width()) + ")";
+  return out << fmt::format("{}({}, {})", name().str(), sort()->addr_width(),
+                            sort()->data_width());
 }
 
 } // namespace ilang

@@ -31,10 +31,12 @@ const char* Symbol::c_str() const { return name_.c_str(); }
 const std::string Symbol::format_str(const std::string& prefix,
                                      const std::string& suffix) const {
   std::string res = name_;
-  if (prefix != "")
-    res = prefix + "_" + res;
-  if (suffix != "")
-    res = res + "_" + suffix;
+  if (!prefix.empty()) {
+    res = prefix + "_sEp_" + res;
+  }
+  if (!suffix.empty()) {
+    res = res + "_sEp_" + suffix;
+  }
   return res;
 }
 
