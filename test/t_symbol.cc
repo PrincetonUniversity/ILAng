@@ -64,9 +64,9 @@ TEST(TestSymbol, Copy) {
 TEST(TestSymbol, Format) {
   Symbol sym("name");
 
-  EXPECT_EQ("name_suf", sym.format_str("", "suf"));
-  EXPECT_EQ("pre_name", sym.format_str("pre", ""));
-  EXPECT_EQ("p_name_s", sym.format_str("p", "s"));
+  EXPECT_EQ("name_sEp_suf", sym.format_str("", "suf"));
+  EXPECT_EQ("pre_sEp_name", sym.format_str("pre", ""));
+  EXPECT_EQ("p_sEp_name_sEp_s", sym.format_str("p", "s"));
 }
 
 TEST(TestSymbol, Compare) {

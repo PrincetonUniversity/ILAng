@@ -304,8 +304,8 @@ void Unroller::CopyZExprVec(const ZExprVec& src, ZExprVec& dst) {
 
 ZExpr Unroller::ConjPred(const ZExprVec& vec) const {
   auto conj = ctx().bool_val(true);
-  for (const auto& p : vec) {
-    conj = (conj && p);
+  for (size_t i = 0; i != vec.size(); i++) {
+    conj = (conj && vec[i]);
   }
   conj = conj.simplify();
   return conj;
