@@ -91,6 +91,8 @@ private:
 
   /// Translate expression node to SystemC statements.
   bool RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut);
+  /// Translation routine for entrypoint.
+  void DfsExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut);
   /// Translation routine for variable.
   void DfsVar(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) const;
   /// Translation routine for constant.

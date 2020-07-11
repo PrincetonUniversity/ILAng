@@ -10,6 +10,20 @@
 
 namespace ilang {
 
+void Ilator::DfsExpr(const ExprPtr& e, StrBuff& buff, ExprVarMap& lut) {
+  if (auto pos = lut.find(e); pos == lut.end()) {
+    if (e->is_var()) {
+      DfsVar(e, buff, lut);
+    } else if (e->is_const()) {
+      DfsConst(e, buff, lut);
+    } else {
+      ILA_ASSERT(e->is_op());
+      DfsOp(e, buff, lut);
+    }
+  }
+  ILA_ASSERT((e->is_mem() && e->is_op()) || (lut.find(e) != lut.end()));
+}
+
 void Ilator::DfsVar(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) const {
   auto [it, status] = lut.try_emplace(expr, GetCxxName(expr));
   ILA_ASSERT(status);
