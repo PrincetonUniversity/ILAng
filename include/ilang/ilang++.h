@@ -398,6 +398,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the function name as std::string.
   std::string name() const;
+  /// Return the wrapped Func pointer.
+  inline FuncPtr get() const { return ptr_; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Apply the function with no argument.
@@ -408,11 +410,6 @@ public:
   ExprRef operator()(const ExprRef& arg0, const ExprRef& arg1) const;
   /// Apply the function with multiple arguments.
   ExprRef operator()(const std::vector<ExprRef>& argvec) const;
-
-private:
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the wrapped Func pointer.
-  inline FuncPtr get() const { return ptr_; }
 
 }; // class FuncRef
 
@@ -692,6 +689,8 @@ public:
   /// Return the z3::expr representing a and b are equal at their time.
   z3::expr Equal(const ExprRef& va, const int& ta, const ExprRef& vb,
                  const int& tb);
+  /// Return the z3::func_decl representing f.
+  z3::func_decl GetZ3FuncDecl(const FuncRef& f) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

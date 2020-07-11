@@ -72,6 +72,10 @@ ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
   return a_expr == b_expr;
 }
 
+z3::func_decl Unroller::GetZ3FuncDecl(const FuncPtr& f) const {
+  return f->GetZ3FuncDecl(ctx_);
+}
+
 ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // bootstrap basic information
   BootStrap(pos);
@@ -300,8 +304,8 @@ void Unroller::CopyZExprVec(const ZExprVec& src, ZExprVec& dst) {
 
 ZExpr Unroller::ConjPred(const ZExprVec& vec) const {
   auto conj = ctx().bool_val(true);
-  for (size_t i = 0; i != vec.size(); i++) {
-    conj = (conj && vec[i]);
+  for (const auto& p : vec) {
+    conj = (conj && p);
   }
   conj = conj.simplify();
   return conj;
