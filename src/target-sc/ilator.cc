@@ -4,9 +4,13 @@
 #include <fstream>
 
 #include <fmt/format.h>
+#include <z3++.h>
 
+#include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 
@@ -84,6 +88,9 @@ void Ilator::Generate(const std::string& dst) {
   // constant memory
   status &= GenerateConstantMemory(os_portable_append_dir(dst, dir_src));
 
+  // initial condition setup
+  status &= GenerateInitialSetup(os_portable_append_dir(dst, dir_src));
+
   // execution kernel
   status &= GenerateExecuteKernel(os_portable_append_dir(dst, dir_src));
 
@@ -136,19 +143,23 @@ bool Ilator::SanityCheck() const {
 
 bool Ilator::Bootstrap(const std::string& root) {
   Reset();
+  auto status = true;
+
+  // light-weight preprocessing
+  status &= PassRewriteConditionalStore(m_);
 
   // create/structure project directory
-  auto res_mkdir = os_portable_mkdir(root);
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_app));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_extern));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_include));
-  res_mkdir &= os_portable_mkdir(os_portable_append_dir(root, dir_src));
-  if (!res_mkdir) {
+  status &= os_portable_mkdir(root);
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_app));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_extern));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_include));
+  status &= os_portable_mkdir(os_portable_append_dir(root, dir_src));
+  if (!status) {
     os_portable_remove_directory(root);
-    ILA_ERROR << "Fail structuring simulator direcory at " << root;
-    return false;
   }
-  return true;
+
+  ILA_ERROR_IF(!status) << "Fail bootstraping";
+  return status;
 }
 
 bool Ilator::GenerateInstrContent(const InstrPtr& instr,
@@ -182,12 +193,14 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
       if (!RenderExpr(update_expr, buff, lut)) {
         return false;
       }
-    } else { // memory (one copy for performance, need special handling)
+      fmt::format_to(buff, "auto {local_var}_nxt_holder = {local_var};\n",
+                     fmt::arg("local_var", LookUp(update_expr, lut)));
+    } else { // memory (one copy for performance, require special handling)
       if (HasLoadFromStore(update_expr)) {
         return false;
       }
       auto placeholder = GetLocalVar(lut);
-      auto [it, status] = lut.insert({update_expr, placeholder});
+      auto [it, status] = lut.try_emplace(update_expr, placeholder);
       ILA_ASSERT(status);
       auto mem_update_func = RegisterMemoryUpdate(update_expr);
       fmt::format_to(buff,
@@ -209,7 +222,7 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
     auto curr = instr->host()->state(s);
     auto next = instr->update(s);
     if (!curr->is_mem()) {
-      fmt::format_to(buff, "{current} = {next_value};\n",
+      fmt::format_to(buff, "{current} = {next_value}_nxt_holder;\n",
                      fmt::arg("current", GetCxxName(curr)),
                      fmt::arg("next_value", LookUp(next, lut)));
     } else {
@@ -229,22 +242,53 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
 }
 
 bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
-  fmt::memory_buffer buff;
-  ExprVarMap lut;
 
+  // helper for traversing memory updates
+  class MemUpdateVisiter {
+  public:
+    MemUpdateVisiter(Ilator* h, fmt::memory_buffer& b, ExprVarMap& l)
+        : host(h), buff_ref(b), lut_ref(l) {}
+
+    bool pre(const ExprPtr& expr) {
+      // stop traversing when reaching memory ITE (stand-alone func)
+      if (expr->is_mem() && expr->is_op() &&
+          GetUidExprOp(expr) == AST_UID_EXPR_OP::ITE) {
+        host->DfsExpr(expr, buff_ref, lut_ref);
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    void post(const ExprPtr& expr) { host->DfsExpr(expr, buff_ref, lut_ref); }
+
+    Ilator* host;
+    fmt::memory_buffer& buff_ref;
+    ExprVarMap lut_ref;
+  };
+
+  auto RenderMemUpdate = [this](const ExprPtr e, fmt::memory_buffer& b,
+                                ExprVarMap& l) {
+    auto mem_visiter = MemUpdateVisiter(this, b, l);
+    e->DepthFirstVisitPrePost(mem_visiter);
+  };
+
+  // helpers for managing files
   int file_cnt = 0;
   auto GetMemUpdateFile = [&file_cnt]() {
     return fmt::format("memory_update_functions_{}.cc", file_cnt++);
   };
 
+  fmt::memory_buffer buff;
   auto StartNewFile = [this, &buff]() {
     buff.clear();
     fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
   };
 
+  // start generating
   StartNewFile();
+  ExprVarMap lut;
 
-  auto status = true;
   for (auto mem_update_func_it : memory_updates_) {
     auto& mem_update_func = mem_update_func_it.second;
     ILA_NOT_NULL(mem_update_func);
@@ -255,29 +299,29 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
     BeginFuncDef(mem_update_func, buff);
 
     if (auto uid = GetUidExprOp(mem); uid == AST_UID_EXPR_OP::STORE) {
-      status &= RenderExpr(mem, buff, lut);
+      RenderMemUpdate(mem, buff, lut);
     } else { // ite
-      status &= RenderExpr(mem->arg(0), buff, lut);
-      auto lut_copy = lut;
-      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut_copy));
-      status &= RenderExpr(mem->arg(1), buff, lut);
-      lut_copy.clear();
+      RenderExpr(mem->arg(0), buff, lut);
+      auto lut_local_true = lut;
+      auto& lut_local_false = lut; // reuse
+
+      fmt::format_to(buff, "if ({}) {{\n", LookUp(mem->arg(0), lut));
+      RenderMemUpdate(mem->arg(1), buff, lut_local_true);
       fmt::format_to(buff, "}} else {{\n");
-      status &= RenderExpr(mem->arg(2), buff, lut_copy);
+      RenderMemUpdate(mem->arg(2), buff, lut_local_false);
       fmt::format_to(buff, "}}\n");
     }
 
     EndFuncDef(mem_update_func, buff);
 
-    if (buff.size() > 100000) {
+    if (buff.size() > 50000) {
       CommitSource(GetMemUpdateFile(), dir, buff);
       StartNewFile();
     }
   }
 
   CommitSource(GetMemUpdateFile(), dir, buff);
-  // CommitSource("memory_update_functions.cc", dir, buff);
-  return status;
+  return true;
 }
 
 bool Ilator::GenerateConstantMemory(const std::string& dir) {
@@ -308,8 +352,56 @@ bool Ilator::GenerateConstantMemory(const std::string& dir) {
   return true;
 }
 
+bool Ilator::GenerateInitialSetup(const std::string& dir) {
+  // conjunct all initial condition
+  auto init = ExprFuse::BoolConst(true);
+  auto ConjInit = [&init](const InstrLvlAbsCnstPtr& m) {
+    for (size_t i = 0; i < m->init_num(); i++) {
+      init = ExprFuse::And(init, m->init(i));
+    }
+  };
+  m_->DepthFirstVisit(ConjInit);
+
+  // get value for referred vars
+  z3::context ctx;
+  z3::solver solver(ctx);
+  Z3ExprAdapter gen(ctx);
+  solver.add(gen.GetExpr(init));
+  auto res = solver.check();
+  if (res != z3::sat) {
+    ILA_ERROR << "Fail finding assignment satisfying initial condition";
+    return false;
+  }
+
+  std::map<ExprPtr, uint64_t> init_values;
+  auto model = solver.get_model();
+  auto refer_vars = AbsKnob::GetVar(init);
+  for (const auto& var : refer_vars) {
+    auto var_value = model.eval(gen.GetExpr(var));
+    try {
+      init_values.emplace(var, var_value.get_numeral_uint64());
+    } catch (...) {
+      ILA_ERROR << "Fail getting " << var_value;
+      return false;
+    }
+  }
+
+  // gen file
+  auto init_func = RegisterFunction("setup_initial_condition");
+  fmt::memory_buffer buff;
+  fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
+  BeginFuncDef(init_func, buff);
+  for (auto pair : init_values) {
+    fmt::format_to(buff, "{var_name} = {var_value};\n",
+                   fmt::arg("var_name", GetCxxName(pair.first)),
+                   fmt::arg("var_value", pair.second));
+  }
+  EndFuncDef(init_func, buff);
+  CommitSource("setup_initial_condition.cc", dir, buff);
+  return true;
+}
+
 bool Ilator::GenerateExecuteKernel(const std::string& dir) {
-  auto kernel_func = RegisterFunction("compute");
   fmt::memory_buffer buff;
 
   fmt::format_to( // headers
@@ -328,15 +420,22 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
       "}}\n",
       fmt::arg("project", GetProjectName()));
 
+  fmt::format_to(buff, "static bool g_initialized = false;\n");
+
+  auto kernel_func = RegisterFunction("compute");
   BeginFuncDef(kernel_func, buff);
+
+  // setup initial condition
+  fmt::format_to(buff, "if (!g_initialized) {{\n"
+                       "  setup_initial_condition();\n"
+                       "  g_initialized = true;\n"
+                       "}}\n");
 
   // read in input value
   for (size_t i = 0; i < m_->input_num(); i++) {
     fmt::format_to(buff, "{input_name} = {input_name}_in.read();\n",
                    fmt::arg("input_name", GetCxxName(m_->input(i))));
   }
-
-  // init TODO
 
   // instruction execution
   auto ExecInstr = [this, &buff](const InstrPtr& instr, bool child) {
@@ -463,17 +562,8 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
 }
 
 bool Ilator::GenerateBuildSupport(const std::string& dir) {
-  fmt::memory_buffer buff;
-
   // CMakeLists.txt
-  std::vector<std::string> src_files;
-  for (auto& f : source_files_) {
-    src_files.push_back(
-        fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/{dir}/{file}",
-                    fmt::arg("dir", dir_src), fmt::arg("file", f)));
-  }
-  fmt::format_to(
-      buff,
+  static const char* cmake_recipe_template =
       "# CMakeLists.txt for {project}\n"
       "cmake_minimum_required(VERSION 3.14.0)\n"
       "project({project} LANGUAGES CXX)\n"
@@ -505,37 +595,51 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "  )\n"
       "  FetchContent_MakeAvailable(json)\n"
       "  target_link_libraries({project} nlohmann_json::nlohmann_json)\n"
-      "endif()\n"
-      //
-      ,
-      fmt::arg("project", GetProjectName()), fmt::arg("dir_app", dir_app),
-      fmt::arg("source_files", fmt::join(src_files, "\n")),
-      fmt::arg("dir_include", dir_include));
+      "endif()\n";
+
+  std::vector<std::string> src_files;
+  for (auto& f : source_files_) {
+    src_files.push_back(
+        fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/{dir}/{file}",
+                    fmt::arg("dir", dir_src), fmt::arg("file", f)));
+  }
+
+  fmt::memory_buffer buff;
+  fmt::format_to(buff, cmake_recipe_template,
+                 fmt::arg("project", GetProjectName()),
+                 fmt::arg("dir_app", dir_app),
+                 fmt::arg("source_files", fmt::join(src_files, "\n")),
+                 fmt::arg("dir_include", dir_include));
+
   WriteFile(os_portable_append_dir(dir, "CMakeLists.txt"), buff);
 
   // dummy main function if not exist
-  auto app_template =
+  static const char* sim_entry_template =
+      "#include <{project}.h>\n\n"
+      "int sc_main(int argc, char* argv[]) {{\n"
+      "  return 0; \n"
+      "}}\n";
+
+  auto entry_path =
       os_portable_append_dir(os_portable_append_dir(dir, dir_app), "main.cc");
-  if (!os_portable_exist(app_template)) {
+
+  if (!os_portable_exist(entry_path)) {
     buff.clear();
-    fmt::format_to(buff,
-                   "#include <{project}.h>\n\n"
-                   "int sc_main(int argc, char* argv[]) {{\n"
-                   "  return 0; \n"
-                   "}}\n",
+    fmt::format_to(buff, sim_entry_template,
                    fmt::arg("project", GetProjectName()));
-    WriteFile(app_template, buff);
+    WriteFile(entry_path, buff);
   }
 
   return true;
 }
 
 bool Ilator::RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
+  auto ExprDfsVisiter = [this, &buff, &lut](const ExprPtr& e) {
+    DfsExpr(e, buff, lut);
+  };
+
   try {
-    auto visiter = [this, &buff, &lut](const ExprPtr& e) {
-      DfsExpr(e, buff, lut);
-    };
-    expr->DepthFirstVisit(visiter);
+    expr->DepthFirstVisit(ExprDfsVisiter);
   } catch (std::exception& err) {
     ILA_ERROR << err.what();
     return false;

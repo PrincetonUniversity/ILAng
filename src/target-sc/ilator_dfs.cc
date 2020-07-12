@@ -10,30 +10,29 @@
 
 namespace ilang {
 
-void Ilator::DfsExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
-  if (auto pos = lut.find(expr); pos == lut.end()) {
-    if (expr->is_var()) {
-      DfsVar(expr, buff, lut);
-    } else if (expr->is_const()) {
-      DfsConst(expr, buff, lut);
+void Ilator::DfsExpr(const ExprPtr& e, StrBuff& buff, ExprVarMap& lut) {
+  if (auto pos = lut.find(e); pos == lut.end()) {
+    if (e->is_var()) {
+      DfsVar(e, buff, lut);
+    } else if (e->is_const()) {
+      DfsConst(e, buff, lut);
     } else {
-      ILA_ASSERT(expr->is_op());
-      DfsOp(expr, buff, lut);
+      ILA_ASSERT(e->is_op());
+      DfsOp(e, buff, lut);
     }
   }
-  ILA_ASSERT((expr->is_mem() && expr->is_op()) ||
-             (lut.find(expr) != lut.end()));
+  ILA_ASSERT((e->is_mem() && e->is_op()) || (lut.find(e) != lut.end()));
 }
 
 void Ilator::DfsVar(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) const {
-  auto [it, status] = lut.insert({expr, GetCxxName(expr)});
+  auto [it, status] = lut.try_emplace(expr, GetCxxName(expr));
   ILA_ASSERT(status);
   // no need to define new variable
 }
 
 void Ilator::DfsConst(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   auto local_var = GetLocalVar(lut);
-  auto [it, status] = lut.insert({expr, local_var});
+  auto [it, status] = lut.try_emplace(expr, local_var);
   ILA_ASSERT(status);
 
   // alias for constant memory
@@ -122,7 +121,7 @@ void Ilator::DfsOpAppFunc(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   ILA_CHECK(!expr->is_mem()) << "Func returning memory not supported yet";
 
   auto local_var = GetLocalVar(lut);
-  auto [it, status] = lut.insert({expr, local_var});
+  auto [it, status] = lut.try_emplace(expr, local_var);
   ILA_ASSERT(status);
 
   // apply uninterpreted function
@@ -145,7 +144,7 @@ void Ilator::DfsOpAppFunc(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
 
 void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   auto local_var = GetLocalVar(lut);
-  auto [it, status] = lut.insert({expr, local_var});
+  auto [it, status] = lut.try_emplace(expr, local_var);
   ILA_ASSERT(status);
 
   switch (auto uid = GetUidExprOp(expr); uid) {
@@ -258,7 +257,7 @@ static const std::unordered_map<AST_UID_EXPR_OP, std::string> k_op_symbols = {
 void Ilator::DfsOpRegular(const ExprPtr& expr, StrBuff& buff,
                           ExprVarMap& lut) const {
   auto local_var = GetLocalVar(lut);
-  auto [it, status] = lut.insert({expr, local_var});
+  auto [it, status] = lut.try_emplace(expr, local_var);
   ILA_ASSERT(status);
 
   // get the corresponding operator symbol
