@@ -57,6 +57,8 @@ public:
   ZExpr GetZ3Expr(const ExprPtr e);
   /// Return the z3::expr representing a and b are equal at their time.
   ZExpr Equal(const ExprPtr va, const int& ta, const ExprPtr vb, const int& tb);
+  /// Return the z3::func_decl representing f.
+  z3::func_decl GetZ3FuncDecl(const FuncPtr& f) const;
 
 protected:
   // ------------------------- MEMBERS -------------------------------------- //

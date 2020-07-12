@@ -828,6 +828,10 @@ z3::expr IlaZ3Unroller::Equal(const ExprRef& va, const int& ta,
   return univ_->Equal(va.get(), ta, vb.get(), tb);
 }
 
+z3::func_decl IlaZ3Unroller::GetZ3FuncDecl(const FuncRef& f) const {
+  return univ_->GetZ3FuncDecl(f.get());
+}
+
 void LogLevel(const int& lvl) { SetLogLevel(lvl); }
 
 void LogPath(const std::string& path) { SetLogPath(path); }
