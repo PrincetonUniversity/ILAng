@@ -34,6 +34,16 @@ bool PassRewriteGeneric(const InstrLvlAbsPtr& m,
 /// \param[in] timeout Max time (ms) for each SMT query. (-1 for default)
 bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m, const int& timeout = -1);
 
+/// \namespace pass
+namespace pass {
+
+/// \brief Simplify instructions (across the hierarchy) syntactically.
+/// (Light-weight simplification, no SMT query.)
+/// \param[in] m The top-level ILA.
+bool SimplifySyntactic(const InstrLvlAbsCnstPtr& m);
+
+} // namespace pass
+
 }; // namespace ilang
 
 #endif // ILANG_ILA_MNGR_PASS_H__

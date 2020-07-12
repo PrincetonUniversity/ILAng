@@ -24,6 +24,7 @@ void ApplyPass(const std::string& dir, const std::string& file,
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file).get();
 
+  pass::SimplifySyntactic(ila);
   PassSimplifyInstrUpdate(ila);
 
   PassRewriteConditionalStore(ila);
