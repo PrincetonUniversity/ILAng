@@ -63,7 +63,6 @@ jobs:
       sudo apt-get update
       sudo apt-get install bison
       sudo apt-get install flex
-      sudo apt-get install libboost-all-dev
       sudo apt-get install z3
       sudo apt-get install libz3-dev
     displayName: 'package'
@@ -84,7 +83,6 @@ jobs:
       sudo apt-get update
       sudo apt-get install bison
       sudo apt-get install flex
-      sudo apt-get install libboost-all-dev
       sudo apt-get install z3
       sudo apt-get install libz3-dev
     displayName: 'package'
