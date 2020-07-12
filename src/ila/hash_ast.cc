@@ -1,12 +1,12 @@
 /// \file
 /// Source for the class ExprMngr and the corresponding hash
 
-// XXX Current replacing is not efficient.
-
 #include <ilang/ila/hash_ast.h>
 
+#include <fmt/format.h>
 #include <functional>
 
+#include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -19,7 +19,7 @@ ExprMngrPtr ExprMngr::New() { return std::make_shared<ExprMngr>(); }
 
 void ExprMngr::clear() { map_.clear(); }
 
-ExprPtr ExprMngr::GetRep(const ExprPtr node) {
+ExprPtr ExprMngr::GetRep(const ExprPtr& node) {
   node->DepthFirstVisit(*this);
 
   auto pos = map_.find(Hash(node));
@@ -30,7 +30,7 @@ ExprPtr ExprMngr::GetRep(const ExprPtr node) {
   return pos->second;
 }
 
-void ExprMngr::operator()(const ExprPtr node) {
+void ExprMngr::operator()(const ExprPtr& node) {
   ExprPtrVec reps;
   // replace child (must exist)
   for (size_t i = 0; i != node->arg_num(); i++) {
@@ -49,44 +49,48 @@ void ExprMngr::operator()(const ExprPtr node) {
   auto pos = map_.find(hash);
   // new node
   if (pos == map_.end()) {
-    map_.insert({hash, node});
+    map_.emplace(hash, node);
   }
 }
 
-static std::hash<ExprPtr> ptr_hash_fn;
-static std::hash<std::string> str_hash_fn;
-static std::hash<int> int_hash_fn;
+std::string ExprMngr::Hash(const ExprPtr& expr) {
+  static const char* template_var = "var::{id}";
+  static const char* template_const = "const::{sort}::{value}";
+  static const char* template_op = "op::{op}::{arg_list}::{param_list}";
 
-size_t ExprMngr::Hash(const ExprPtr n) const {
-  if (n->is_op()) { // ExprOp
-    auto n_op = std::static_pointer_cast<ExprOp>(n);
+  if (expr->is_var()) {
+    return fmt::format(template_var, fmt::arg("id", expr->name().id()));
 
-    std::string op_name_str = n_op->op_name();
-    auto hash = str_hash_fn(op_name_str);
-    for (size_t i = 0; i != n->arg_num(); i++) {
-      hash ^= (ptr_hash_fn(n->arg(i)) << (i * 8));
+  } else if (expr->is_const()) {
+    auto const_expr = std::static_pointer_cast<ExprConst>(expr);
+
+    std::string value = std::to_string(expr->name().id());
+    if (expr->is_bool()) {
+      value = const_expr->val_bool()->str();
+    } else if (expr->is_bv()) {
+      value = fmt::format("{}_{}", const_expr->val_bv()->val(),
+                          expr->sort()->bit_width());
     }
-    for (size_t i = 0; i != n->param_num(); i++) {
-      hash ^= (int_hash_fn(n->param(i)) << (i * 8));
+    // skip sharing memory constants
+
+    return fmt::format(template_const,
+                       fmt::arg("sort", GetUidSort(expr->sort())),
+                       fmt::arg("value", value));
+  } else {
+    ILA_ASSERT(expr->is_op());
+    std::vector<size_t> arg_list;
+    for (size_t i = 0; i < expr->arg_num(); i++) {
+      arg_list.push_back(expr->arg(i)->name().id());
     }
 
-    return hash;
-  } else if (n->is_var()) { // ExprVar
-    return n->name().id();
-  } else { // ExprConst
-    ILA_ASSERT(n->is_const()) << "Unrecognized expr type";
-    auto n_const = std::static_pointer_cast<ExprConst>(n);
-
-    if (n_const->is_bool()) {
-      return str_hash_fn(n_const->val_bool()->str());
-    } else if (n_const->is_bv()) {
-      auto bv_str = n_const->val_bv()->str() + "_" +
-                    std::to_string(n_const->sort()->bit_width());
-      return str_hash_fn(bv_str);
-    } else {
-      ILA_ASSERT(n_const->is_mem()) << "Unrecognized constant type";
-      return str_hash_fn(n_const->name().str());
+    std::vector<size_t> param_list;
+    for (size_t i = 0; i < expr->param_num(); i++) {
+      param_list.push_back(expr->param(i));
     }
+
+    return fmt::format(template_op, fmt::arg("op", GetUidExprOp(expr)),
+                       fmt::arg("arg_list", fmt::join(arg_list, ",")),
+                       fmt::arg("param_list", fmt::join(param_list, ",")));
   }
 }
 
