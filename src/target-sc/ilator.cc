@@ -4,10 +4,13 @@
 #include <fstream>
 
 #include <fmt/format.h>
+#include <z3++.h>
 
 #include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 
@@ -84,6 +87,9 @@ void Ilator::Generate(const std::string& dst) {
 
   // constant memory
   status &= GenerateConstantMemory(os_portable_append_dir(dst, dir_src));
+
+  // initial condition setup
+  status &= GenerateInitialSetup(os_portable_append_dir(dst, dir_src));
 
   // execution kernel
   status &= GenerateExecuteKernel(os_portable_append_dir(dst, dir_src));
@@ -346,8 +352,56 @@ bool Ilator::GenerateConstantMemory(const std::string& dir) {
   return true;
 }
 
+bool Ilator::GenerateInitialSetup(const std::string& dir) {
+  // conjunct all initial condition
+  auto init = ExprFuse::BoolConst(true);
+  auto ConjInit = [&init](const InstrLvlAbsCnstPtr& m) {
+    for (size_t i = 0; i < m->init_num(); i++) {
+      init = ExprFuse::And(init, m->init(i));
+    }
+  };
+  m_->DepthFirstVisit(ConjInit);
+
+  // get value for referred vars
+  z3::context ctx;
+  z3::solver solver(ctx);
+  Z3ExprAdapter gen(ctx);
+  solver.add(gen.GetExpr(init));
+  auto res = solver.check();
+  if (res != z3::sat) {
+    ILA_ERROR << "Fail finding assignment satisfying initial condition";
+    return false;
+  }
+
+  std::map<ExprPtr, uint64_t> init_values;
+  auto model = solver.get_model();
+  auto refer_vars = AbsKnob::GetVar(init);
+  for (const auto& var : refer_vars) {
+    auto var_value = model.eval(gen.GetExpr(var));
+    try {
+      init_values.emplace(var, var_value.get_numeral_uint64());
+    } catch (...) {
+      ILA_ERROR << "Fail getting " << var_value;
+      return false;
+    }
+  }
+
+  // gen file
+  auto init_func = RegisterFunction("setup_initial_condition");
+  fmt::memory_buffer buff;
+  fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
+  BeginFuncDef(init_func, buff);
+  for (auto pair : init_values) {
+    fmt::format_to(buff, "{var_name} = {var_value};\n",
+                   fmt::arg("var_name", GetCxxName(pair.first)),
+                   fmt::arg("var_value", pair.second));
+  }
+  EndFuncDef(init_func, buff);
+  CommitSource("setup_initial_condition.cc", dir, buff);
+  return true;
+}
+
 bool Ilator::GenerateExecuteKernel(const std::string& dir) {
-  auto kernel_func = RegisterFunction("compute");
   fmt::memory_buffer buff;
 
   fmt::format_to( // headers
@@ -366,15 +420,22 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
       "}}\n",
       fmt::arg("project", GetProjectName()));
 
+  fmt::format_to(buff, "static bool g_initialized = false;\n");
+
+  auto kernel_func = RegisterFunction("compute");
   BeginFuncDef(kernel_func, buff);
+
+  // setup initial condition
+  fmt::format_to(buff, "if (!g_initialized) {{\n"
+                       "  setup_initial_condition();\n"
+                       "  g_initialized = true;\n"
+                       "}}\n");
 
   // read in input value
   for (size_t i = 0; i < m_->input_num(); i++) {
     fmt::format_to(buff, "{input_name} = {input_name}_in.read();\n",
                    fmt::arg("input_name", GetCxxName(m_->input(i))));
   }
-
-  // init TODO
 
   // instruction execution
   auto ExecInstr = [this, &buff](const InstrPtr& instr, bool child) {

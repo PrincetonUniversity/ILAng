@@ -82,6 +82,8 @@ private:
   bool GenerateMemoryUpdate(const std::string& dir);
   /// Special handle for constant memory.
   bool GenerateConstantMemory(const std::string& dir);
+  /// Generate setup function for initial condition.
+  bool GenerateInitialSetup(const std::string& dir);
   /// Generate the instruction scheduler and driver.
   bool GenerateExecuteKernel(const std::string& dir);
   /// Generate the shared header files.
