@@ -6,6 +6,7 @@
 #include <fmt/format.h>
 #include <z3++.h>
 
+#include <ilang/config.h>
 #include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila/ast_fuse.h>
@@ -379,7 +380,13 @@ bool Ilator::GenerateInitialSetup(const std::string& dir) {
   for (const auto& var : refer_vars) {
     auto var_value = model.eval(gen.GetExpr(var));
     try {
-      init_values.emplace(var, var_value.get_numeral_uint64());
+#ifndef Z3_LEGACY_API
+      auto value_holder = var_value.get_numeral_uint64();
+#else
+      __uint64 value_holder;
+      Z3_get_numeral_uint64(ctx, var_value, &value_holder);
+#endif
+      init_values.emplace(var, value_holder);
     } catch (...) {
       ILA_ERROR << "Fail getting " << var_value;
       return false;
