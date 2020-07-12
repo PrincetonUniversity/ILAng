@@ -18,14 +18,13 @@ public:
   ~TestIlator() {}
 
   void SetUp() {
-    //  out_dir = GetRandomFileName(fs::temp_directory_path());
-    out_dir = GetRandomFileName(fs::current_path());
+    out_dir = GetRandomFileName(fs::temp_directory_path());
     os_portable_mkdir(out_dir);
   }
 
   void TearDown() {
     // for CI tests, may be needed for out-of-scope build tests
-    // os_portable_remove_directory(out_dir);
+    os_portable_remove_directory(out_dir);
   }
 
   fs::path out_dir;
