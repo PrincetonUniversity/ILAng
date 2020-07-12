@@ -82,6 +82,8 @@ private:
   bool GenerateMemoryUpdate(const std::string& dir);
   /// Special handle for constant memory.
   bool GenerateConstantMemory(const std::string& dir);
+  /// Generate setup function for initial condition.
+  bool GenerateInitialSetup(const std::string& dir);
   /// Generate the instruction scheduler and driver.
   bool GenerateExecuteKernel(const std::string& dir);
   /// Generate the shared header files.
@@ -91,7 +93,7 @@ private:
 
   /// Translate expression node to SystemC statements.
   bool RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut);
-  /// Translation routine entry point.
+  /// Translation routine for entrypoint.
   void DfsExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut);
   /// Translation routine for variable.
   void DfsVar(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) const;
