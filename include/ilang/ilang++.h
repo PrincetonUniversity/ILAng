@@ -619,7 +619,11 @@ void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name);
 
 /// \brief Generate the SystemC simulator.
-void ExportSysCSim(const Ila& ila, const std::string& dir_path);
+/// \param [in] ila the top-level ILA to generate.
+/// \param [in] dir_path directory path of the generated simulator.
+/// \param [in] optimize set true to enable optimization.
+void ExportSysCSim(const Ila& ila, const std::string& dir_path,
+                   bool optimize = false);
 
 /******************************************************************************/
 // Verification.

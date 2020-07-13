@@ -88,9 +88,13 @@ std::string ExprMngr::Hash(const ExprPtr& expr) {
                        fmt::arg("value", value));
   } else {
     ILA_ASSERT(expr->is_op());
+
     std::vector<size_t> arg_list;
     for (size_t i = 0; i < expr->arg_num(); i++) {
       arg_list.push_back(expr->arg(i)->name().id());
+    }
+    if (auto app_func = std::dynamic_pointer_cast<ExprOpAppFunc>(expr)) {
+      arg_list.push_back(app_func->func()->name().id());
     }
 
     std::vector<size_t> param_list;

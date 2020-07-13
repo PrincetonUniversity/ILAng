@@ -7,20 +7,20 @@
 
 namespace ilang {
 
-bool PassRewriteGeneric(const InstrLvlAbsPtr& m,
-                        std::function<ExprPtr(const ExprPtr)> Rewr) {
+namespace pass {
+
+bool RewriteGeneric(const InstrLvlAbsPtr& m,
+                    std::function<ExprPtr(const ExprPtr)> Rewr) {
   ILA_NOT_NULL(m);
 
   // rewrite valid
-  auto new_valid = Rewr(m->valid());
-  if (new_valid) {
-    m->ForceSetValid(new_valid);
+  if (m->valid()) {
+    m->ForceSetValid(Rewr(m->valid()));
   }
 
   // rewrite fetch
-  auto new_fetch = Rewr(m->fetch());
-  if (new_fetch) {
-    m->ForceSetFetch(new_fetch);
+  if (m->fetch()) {
+    m->ForceSetFetch(Rewr(m->fetch()));
   }
 
   // TODO rewrite init
@@ -30,26 +30,23 @@ bool PassRewriteGeneric(const InstrLvlAbsPtr& m,
     auto instr = m->instr(i);
 
     // rewrite decode
-    auto new_decode = Rewr(instr->decode());
-    if (new_decode) {
-      instr->ForceSetDecode(new_decode);
-    }
+    ILA_NOT_NULL(instr->decode());
+    instr->ForceSetDecode(Rewr(instr->decode()));
 
     // rewrite updates
-    for (size_t s = 0; s < m->state_num(); s++) {
-      auto new_update = Rewr(instr->update(m->state(s)));
-      if (new_update) {
-        instr->ForceAddUpdate(m->state(s)->name().str(), new_update);
-      }
+    for (const auto& state : instr->updated_states()) {
+      instr->ForceAddUpdate(state, Rewr(instr->update(state)));
     }
   }
 
   // traverse the ILA hierarchy
   for (size_t c = 0; c < m->child_num(); c++) {
-    PassRewriteGeneric(m->child(c), Rewr);
+    RewriteGeneric(m->child(c), Rewr);
   }
 
   return true;
 }
 
-}; // namespace ilang
+} // namespace pass
+
+} // namespace ilang

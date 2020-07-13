@@ -29,7 +29,8 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Generate the SystemC simulator.
   /// \param[in] dst the directory path for the generated simulator.
-  void Generate(const std::string& dst);
+  /// \param[in] opt set true to enable optimization.
+  void Generate(const std::string& dst, bool opt);
 
 private:
   /// Internal type of the string buffer.
@@ -74,7 +75,7 @@ private:
   /// Check if the ILA model contains unsupported patterns.
   bool SanityCheck() const;
   /// Generation bootstrap, e.g., creating directories.
-  bool Bootstrap(const std::string& root);
+  bool Bootstrap(const std::string& root, bool opt);
 
   /// Interpret instruction semantics (decode and state updates).
   bool GenerateInstrContent(const InstrPtr& instr, const std::string& dir);

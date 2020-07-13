@@ -10,31 +10,17 @@ namespace ilang {
 
 namespace pass {
 
-bool SimplifySyntactic(const InstrLvlAbsCnstPtr& m) {
+bool SimplifySyntactic(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
+  ILA_INFO << "Start pass: syntactic simplification";
 
   auto mngr = ExprMngr::New();
-  auto visiter = [&mngr](const InstrLvlAbsCnstPtr& current) {
-    try {
-      // only simplify instructions
-      for (size_t i = 0; i < current->instr_num(); i++) {
-        auto instr = current->instr(i);
-        // decode
-        ILA_NOT_NULL(instr->decode());
-        instr->ForceSetDecode(mngr->GetRep(instr->decode()));
-        // state updates
-        auto updated_states = instr->updated_states();
-        for (const auto& state : updated_states) {
-          instr->ForceAddUpdate(state, mngr->GetRep(instr->update(state)));
-        }
-      }
-    } catch (...) {
-      ILA_ERROR << "Fail simplify " << current;
-    }
-  };
-
-  m->DepthFirstVisit(visiter);
-  return true;
+  auto Rewr = [&mngr](const ExprPtr& expr) { return mngr->GetRep(expr); };
+  try {
+    return RewriteGeneric(m, Rewr);
+  } catch (...) {
+    return false;
+  }
 }
 
 } // namespace pass

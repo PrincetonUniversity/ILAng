@@ -15,41 +15,42 @@ public:
   FuncObjRewrExpr(const ExprMap& rule) : rule_(rule) {}
 
   /// Return the rewritten result.
-  ExprPtr get(const ExprPtr e) const;
+  ExprPtr get(const ExprPtr& e) const;
 
   /// Pre-process: return true (break) if the node has been visited.
-  bool pre(const ExprPtr e) const;
+  bool pre(const ExprPtr& e) const;
   /// Post-process: update the rewriting rule map.
-  void post(const ExprPtr e);
+  void post(const ExprPtr& e);
 
 protected:
   /// Internal rewriting table.
   ExprMap rule_;
 
   /// Rewrite all sorts of Expr.
-  virtual ExprPtr Rewrite(const ExprPtr e) const;
+  virtual ExprPtr Rewrite(const ExprPtr& e) const;
   /// Rewrite Operation sorted Expr.
-  virtual ExprPtr RewriteOp(const ExprPtr e) const;
+  virtual ExprPtr RewriteOp(const ExprPtr& e) const;
 
 }; // class FuncObjRewrExpr
 
 /// \brief  Function object for rewriting ILA tree.
 class FuncObjRewrIla {
-public:
+private:
   /// Type for storing ILA to ILA mapping.
   typedef CnstIlaMap IlaMap;
 
+public:
   /// Constructor.
   FuncObjRewrIla(const IlaMap& ila_map, const ExprMap& expr_map)
       : ila_map_(ila_map), expr_map_(expr_map) {}
 
   /// Return the mapped ILA.
-  InstrLvlAbsPtr get(const InstrLvlAbsCnstPtr m) const;
+  InstrLvlAbsPtr get(const InstrLvlAbsCnstPtr& m) const;
 
   /// Pre-processing: create new ILA based on the given source.
-  bool pre(const InstrLvlAbsCnstPtr src);
+  bool pre(const InstrLvlAbsCnstPtr& src);
   /// Nothing.
-  void post(const InstrLvlAbsCnstPtr src) const;
+  void post(const InstrLvlAbsCnstPtr& src) const;
 
 private:
   /// ILA mapping.
@@ -71,21 +72,24 @@ class FuncObjFlatIla {
     - Hongce
   */
 
-public:
+private:
   /// Type for storing ILA to ILA mapping.
   typedef CnstIlaMap IlaMap;
-  typedef std::stack<ExprPtr> ValidCondStack;
 
+public:
   /// Constructor.
   FuncObjFlatIla(const InstrLvlAbsCnstPtr& top_, const IlaMap& ila_map,
                  const ExprMap& expr_map);
 
   /// Pre-processing: create new ILA based on the given source.
-  bool pre(const InstrLvlAbsCnstPtr src);
+  bool pre(const InstrLvlAbsCnstPtr& src);
   /// Nothing.
-  void post(const InstrLvlAbsCnstPtr src);
+  void post(const InstrLvlAbsCnstPtr& src);
 
 private:
+  /// Type for holding valid condition stack across the hierarchy.
+  typedef std::stack<ExprPtr> ValidCondStack;
+
   /// ILA mapping.
   IlaMap ila_map_;
   /// Expr mapping.

@@ -11,26 +11,26 @@ namespace ilang {
 
 using namespace ExprFuse;
 
-ExprPtr FuncObjRewrExpr::get(const ExprPtr e) const {
+ExprPtr FuncObjRewrExpr::get(const ExprPtr& e) const {
   auto pos = rule_.find(e);
   ILA_CHECK(pos != rule_.end()) << e << " not found";
   return pos->second;
 }
 
-bool FuncObjRewrExpr::pre(const ExprPtr e) const {
+bool FuncObjRewrExpr::pre(const ExprPtr& e) const {
   // check rewriting rule to see if defined/visited
   auto pos = rule_.find(e);
   return pos != rule_.end(); // if found --> break
 }
 
-void FuncObjRewrExpr::post(const ExprPtr e) {
+void FuncObjRewrExpr::post(const ExprPtr& e) {
   auto dst = Rewrite(e);
-  auto ok = rule_.insert({e, dst}).second;
+  auto [it, ok] = rule_.emplace(e, dst);
   // must not be defined, otherwise, there is a cycle.
   ILA_ASSERT(ok) << "Rewriting rule redefined (exist cycle in the AST)";
 }
 
-ExprPtr FuncObjRewrExpr::Rewrite(const ExprPtr e) const {
+ExprPtr FuncObjRewrExpr::Rewrite(const ExprPtr& e) const {
   if (e->is_var() || e->is_const()) {
     return e;
   } else {
@@ -39,7 +39,7 @@ ExprPtr FuncObjRewrExpr::Rewrite(const ExprPtr e) const {
   }
 }
 
-ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
+ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr& e) const {
   switch (auto expr_op_uid = GetUidExprOp(e); expr_op_uid) {
   case AST_UID_EXPR_OP::NEG: {
     auto a = get(e->arg(0));

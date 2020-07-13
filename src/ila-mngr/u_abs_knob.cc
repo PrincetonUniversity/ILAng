@@ -217,13 +217,10 @@ void RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
   dst->set_decode(d_dst);
 
   // update
-  auto updated_states = src->updated_states();
-  for (auto& state_name : updated_states) {
-    auto update_src = src->update(state_name);
-    if (update_src) {
-      auto update_dst = Rewrite(update_src, expr_map);
-      dst->set_update(state_name, update_dst);
-    }
+  for (const auto& state : src->updated_states()) {
+    auto update_src = src->update(state);
+    auto update_dst = Rewrite(update_src, expr_map);
+    dst->set_update(state, update_dst);
   }
 }
 

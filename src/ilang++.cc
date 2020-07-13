@@ -740,9 +740,9 @@ void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
 #endif
 }
 
-void ExportSysCSim(const Ila& ila, const std::string& dir_path) {
+void ExportSysCSim(const Ila& ila, const std::string& dir_path, bool opt) {
   auto ilator = Ilator(ila.get());
-  ilator.Generate(dir_path);
+  ilator.Generate(dir_path, opt);
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)

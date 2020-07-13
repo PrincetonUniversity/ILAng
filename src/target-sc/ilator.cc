@@ -69,9 +69,9 @@ Ilator::Ilator(const InstrLvlAbsPtr& m) : m_(m) {}
 
 Ilator::~Ilator() { Reset(); }
 
-void Ilator::Generate(const std::string& dst) {
+void Ilator::Generate(const std::string& dst, bool opt) {
   // sanity checks and initialize
-  if (!SanityCheck() || !Bootstrap(dst)) {
+  if (!SanityCheck() || !Bootstrap(dst, opt)) {
     return;
   }
 
@@ -142,12 +142,15 @@ bool Ilator::SanityCheck() const {
   return true;
 }
 
-bool Ilator::Bootstrap(const std::string& root) {
+bool Ilator::Bootstrap(const std::string& root, bool opt) {
   Reset();
   auto status = true;
 
   // light-weight preprocessing
-  status &= PassRewriteConditionalStore(m_);
+  if (opt) {
+    status &= pass::SimplifySyntactic(m_);
+    status &= pass::RewriteConditionalStore(m_);
+  }
 
   // create/structure project directory
   status &= os_portable_mkdir(root);
@@ -165,7 +168,7 @@ bool Ilator::Bootstrap(const std::string& root) {
 
 bool Ilator::GenerateInstrContent(const InstrPtr& instr,
                                   const std::string& dir) {
-  fmt::memory_buffer buff;
+  StrBuff buff;
   ExprVarMap lut;
 
   // include headers
@@ -188,8 +191,18 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
   auto update_func = RegisterFunction(GetUpdateFuncName(instr));
   BeginFuncDef(update_func, buff);
   lut.clear();
+  std::set<ExprPtr> visited;
   auto updated_states = instr->updated_states();
-  for (auto& s : updated_states) {
+  for (const auto& s : updated_states) {
+    // check if visited
+    auto update_expr = instr->update(s);
+    if (auto pos = visited.find(update_expr); pos == visited.end()) {
+      visited.insert(update_expr);
+    } else {
+      continue;
+    }
+
+    // create placeholder
     if (auto update_expr = instr->update(s); !update_expr->is_mem()) {
       if (!RenderExpr(update_expr, buff, lut)) {
         return false;
@@ -211,7 +224,7 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
                      fmt::arg("mem_update_func", mem_update_func->name),
                      fmt::arg("placeholder", placeholder));
       // dummy traverse collect related memory operation
-      fmt::memory_buffer dummy_buff;
+      StrBuff dummy_buff;
       ExprVarMap dummy_lut;
       if (!RenderExpr(update_expr, dummy_buff, dummy_lut)) {
         return false;
@@ -247,7 +260,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
   // helper for traversing memory updates
   class MemUpdateVisiter {
   public:
-    MemUpdateVisiter(Ilator* h, fmt::memory_buffer& b, ExprVarMap& l)
+    MemUpdateVisiter(Ilator* h, StrBuff& b, ExprVarMap& l)
         : host(h), buff_ref(b), lut_ref(l) {}
 
     bool pre(const ExprPtr& expr) {
@@ -264,12 +277,11 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
     void post(const ExprPtr& expr) { host->DfsExpr(expr, buff_ref, lut_ref); }
 
     Ilator* host;
-    fmt::memory_buffer& buff_ref;
+    StrBuff& buff_ref;
     ExprVarMap lut_ref;
   };
 
-  auto RenderMemUpdate = [this](const ExprPtr e, fmt::memory_buffer& b,
-                                ExprVarMap& l) {
+  auto RenderMemUpdate = [this](const ExprPtr e, StrBuff& b, ExprVarMap& l) {
     auto mem_visiter = MemUpdateVisiter(this, b, l);
     e->DepthFirstVisitPrePost(mem_visiter);
   };
@@ -280,7 +292,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
     return fmt::format("memory_update_functions_{}.cc", file_cnt++);
   };
 
-  fmt::memory_buffer buff;
+  StrBuff buff;
   auto StartNewFile = [this, &buff]() {
     buff.clear();
     fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
@@ -326,7 +338,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
 }
 
 bool Ilator::GenerateConstantMemory(const std::string& dir) {
-  fmt::memory_buffer buff;
+  StrBuff buff;
   fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
 
   for (auto& mem : const_mems_) {
@@ -395,7 +407,7 @@ bool Ilator::GenerateInitialSetup(const std::string& dir) {
 
   // gen file
   auto init_func = RegisterFunction("setup_initial_condition");
-  fmt::memory_buffer buff;
+  StrBuff buff;
   fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
   BeginFuncDef(init_func, buff);
   for (auto pair : init_values) {
@@ -409,7 +421,7 @@ bool Ilator::GenerateInitialSetup(const std::string& dir) {
 }
 
 bool Ilator::GenerateExecuteKernel(const std::string& dir) {
-  fmt::memory_buffer buff;
+  StrBuff buff;
 
   fmt::format_to( // headers
       buff,
@@ -491,7 +503,7 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
 }
 
 bool Ilator::GenerateGlobalHeader(const std::string& dir) {
-  fmt::memory_buffer buff;
+  StrBuff buff;
 
   fmt::format_to(buff,
                  "#include <fstream>\n"
@@ -611,7 +623,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
                     fmt::arg("dir", dir_src), fmt::arg("file", f)));
   }
 
-  fmt::memory_buffer buff;
+  StrBuff buff;
   fmt::format_to(buff, cmake_recipe_template,
                  fmt::arg("project", GetProjectName()),
                  fmt::arg("dir_app", dir_app),
@@ -641,12 +653,22 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
 }
 
 bool Ilator::RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
-  auto ExprDfsVisiter = [this, &buff, &lut](const ExprPtr& e) {
-    DfsExpr(e, buff, lut);
+
+  class ExprDfsVisiter {
+  public:
+    ExprDfsVisiter(Ilator* hi, StrBuff& bi, ExprVarMap& li)
+        : host(hi), b(bi), l(li) {}
+    bool pre(const ExprPtr& e) { return l.find(e) != l.end(); }
+    void post(const ExprPtr& e) { host->DfsExpr(e, b, l); }
+
+    Ilator* host;
+    StrBuff& b;
+    ExprVarMap& l;
   };
 
   try {
-    expr->DepthFirstVisit(ExprDfsVisiter);
+    auto visiter = ExprDfsVisiter(this, buff, lut);
+    expr->DepthFirstVisitPrePost(visiter);
   } catch (std::exception& err) {
     ILA_ERROR << err.what();
     return false;
