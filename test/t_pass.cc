@@ -30,9 +30,8 @@ void ApplyPass(const std::string& dir, const std::string& file,
   pass::InferChildProgCFG(ila.get());
   pass::MapChildProgEntryPoint(ila.get());
 
-  auto out_file = GetRandomFileName();
-  ExportIlaPortable(ila, out_file);
-  os_portable_remove_file(out_file);
+  auto org = ImportIlaPortable(ila_file);
+  CheckIlaEqLegacy(org.get(), ila.get());
 
   DisableDebug("PassSimpSemantic");
   DisableDebug("PassRewrCondStore");
