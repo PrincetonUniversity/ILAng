@@ -398,6 +398,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the function name as std::string.
   std::string name() const;
+  /// Return the wrapped Func pointer.
+  inline FuncPtr get() const { return ptr_; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Apply the function with no argument.
@@ -408,11 +410,6 @@ public:
   ExprRef operator()(const ExprRef& arg0, const ExprRef& arg1) const;
   /// Apply the function with multiple arguments.
   ExprRef operator()(const std::vector<ExprRef>& argvec) const;
-
-private:
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the wrapped Func pointer.
-  inline FuncPtr get() const { return ptr_; }
 
 }; // class FuncRef
 
@@ -583,6 +580,18 @@ public:
   /// top-level parent instructions.
   void FlattenHierarchy();
 
+  /// \brief Supported pass ID.
+  typedef enum PassID {
+    SIMPLIFY_SYNTACTIC = 0,
+    SIMPLIFY_SEMANTIC,
+    REWRITE_CONDITIONAL_STORE,
+    REWRITE_LOAD_FROM_STORE
+  } PassID;
+
+  /// \brief Execute the specified passes in order.
+  /// \param[in] passes the list of passes to execute.
+  bool ExecutePass(const std::vector<PassID>& passes) const;
+
 }; // class Ila
 
 /******************************************************************************/
@@ -607,6 +616,7 @@ bool ExportIlaPortable(const Ila& ila, const std::string& file_name);
 /// \param[in] file_name the name of the ILA portable (JSON) file to import.
 Ila ImportIlaPortable(const std::string& file_name);
 
+#ifdef SYNTH_INTERFACE
 /// \brief Import the synthesized abstraction from file.
 /// \param[in] file_name the name of the synthesized abstraction (.ila) file.
 /// \param[in] ila_name the name of the generated ILA.
@@ -620,9 +630,14 @@ Ila ImportSynthAbstraction(const std::string& file_name,
 /// \param[in] ila_name the name pf the generated child-ILA.
 void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name);
+#endif // SYNTH_INTERFACE
 
 /// \brief Generate the SystemC simulator.
-void ExportSysCSim(const Ila& ila, const std::string& dir_path);
+/// \param [in] ila the top-level ILA to generate.
+/// \param [in] dir_path directory path of the generated simulator.
+/// \param [in] optimize set true to enable optimization.
+void ExportSysCSim(const Ila& ila, const std::string& dir_path,
+                   bool optimize = false);
 
 /******************************************************************************/
 // Verification.
@@ -692,6 +707,8 @@ public:
   /// Return the z3::expr representing a and b are equal at their time.
   z3::expr Equal(const ExprRef& va, const int& ta, const ExprRef& vb,
                  const int& tb);
+  /// Return the z3::func_decl representing f.
+  z3::func_decl GetZ3FuncDecl(const FuncRef& f) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

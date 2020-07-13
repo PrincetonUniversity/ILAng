@@ -8,29 +8,7 @@
 
 namespace ilang {
 
-bool SimplifyInstrUpdateTemplate(
-    const InstrLvlAbsPtr& m,
-    std::function<ExprPtr(const ExprPtr, const InstrPtr)> Simp) {
-  ILA_NOT_NULL(m);
-
-  // for each instruction
-  for (size_t i = 0; i < m->instr_num(); i++) {
-    // for each state
-    for (size_t s = 0; s < m->state_num(); s++) {
-      auto state_var = m->state(s);
-      auto new_update = Simp(m->instr(i)->update(state_var), m->instr(i));
-      if (new_update) {
-        m->instr(i)->ForceAddUpdate(state_var->name().str(), new_update);
-      }
-    }
-  }
-
-  for (size_t c = 0; c < m->child_num(); c++) {
-    SimplifyInstrUpdateTemplate(m->child(c), Simp);
-  }
-
-  return true;
-}
+namespace pass {
 
 class FuncObjEqSubtree {
 public:
@@ -50,7 +28,7 @@ public:
 
   void post(const ExprPtr e) {
     auto dst = Rewrite(e);
-    rule_.insert({e, dst}).second;
+    rule_.insert({e, dst});
   }
 
 private:
@@ -92,8 +70,9 @@ private:
 
 }; // class FuncObjSimpInstrUpdateRedundant
 
-bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m, const int& timeout) {
+bool SimplifySemantic(const InstrLvlAbsCnstPtr& m, const int& timeout) {
   ILA_NOT_NULL(m);
+  ILA_INFO << "Start pass: semantic simplification";
 
   // pattern - equivalent sub-tree modulo valid and decode
   auto SimpEqSubtree = [=](const ExprPtr e, const InstrPtr i) {
@@ -111,7 +90,7 @@ bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m, const int& timeout) {
 
     auto new_update = func.get(e);
     if (new_update != e) {
-      ILA_DLOG("PassSimpInstrUpdate") << "Equivalent sub-tree of " << i;
+      ILA_DLOG("PassSimpSemantic") << "Equivalent sub-tree of " << i;
     }
     return new_update;
   };
@@ -119,10 +98,33 @@ bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m, const int& timeout) {
   if (timeout > 0) {
     z3::set_param("timeout", timeout);
   }
-  auto res = SimplifyInstrUpdateTemplate(m, SimpEqSubtree);
+
+  auto visiter = [&SimpEqSubtree](const InstrLvlAbsCnstPtr& current) {
+    try {
+      // only simplify instructions
+      for (size_t i = 0; i < current->instr_num(); i++) {
+        auto instr = current->instr(i);
+        // decode
+        ILA_NOT_NULL(instr->decode());
+        instr->ForceSetDecode(SimpEqSubtree(instr->decode(), instr));
+        // state updates
+        for (const auto& state : instr->updated_states()) {
+          instr->ForceAddUpdate(state,
+                                SimpEqSubtree(instr->update(state), instr));
+        }
+      }
+    } catch (...) {
+      ILA_ERROR << "Fail simplify " << current;
+    }
+  };
+
+  m->DepthFirstVisit(visiter);
+
   z3::reset_params();
 
-  return res;
+  return true;
 }
 
-}; // namespace ilang
+} // namespace pass
+
+} // namespace ilang

@@ -9,31 +9,7 @@
 
 namespace ilang {
 
-#if 0
-class FuncObjStoreStore {
-public:
-  inline const ExprPtrVec& addr() const { return addr_; }
-  inline const ExprPtrVec& data() const { return data_; }
-
-  bool pre(const ExprPtr e) {
-    // ILA_ASSERT(GetUidExprOp(e) == AST_UID_EXPR_OP::LOAD);
-    // can be load from store/var/const/ite
-
-    addr_.push_back(e->arg(1));
-    data_.push_back(e->arg(2));
-
-    // return true if is store to store
-    return e->arg(0)->is_op();
-  }
-
-  void post(const ExprPtr e) {}
-
-private:
-  ExprPtrVec addr_;
-  ExprPtrVec data_;
-
-}; // class FuncObjStoreStore
-#endif
+namespace pass {
 
 class FuncObjRewrStoreLoad : public FuncObjRewrExpr {
 public:
@@ -97,8 +73,9 @@ private:
 
 }; // class FuncObjRewrStoreLoad
 
-bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m) {
+bool RewriteStoreLoad(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
+  ILA_INFO << "Start pass: rewrite store-load pattern";
 
   auto func = FuncObjRewrStoreLoad();
   auto Rewr = [=, &func](const ExprPtr e) {
@@ -109,7 +86,9 @@ bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m) {
     return e;
   };
 
-  return PassRewriteGeneric(m, Rewr);
+  return RewriteGeneric(m, Rewr);
 }
 
-}; // namespace ilang
+} // namespace pass
+
+} // namespace ilang

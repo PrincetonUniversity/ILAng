@@ -15,39 +15,6 @@ namespace ilang {
 
 typedef std::vector<std::string> P;
 
-TEST(TestVlgTargetGen, AesIlaInfo) {
-  auto aes_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
-  auto aesFile = os_portable_append_dir(aes_dir, "aes_v_top.abst");
-  auto aesuFile = os_portable_append_dir(aes_dir, "aes_v_child.abst");
-  auto aes = ImportSynthAbstraction(aesFile, "AES").get();
-  auto aesu = ImportSynthAbstraction(aesuFile, "AES_U").get();
-
-  // aes->AddChild(aesu);
-
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. instr:" << aes->instr_num();
-  for (unsigned i = 0; i < aes->instr_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo") << "\t" << aes->instr(i)->name().str()
-                                         << "\t" << aes->instr(i)->decode();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. state:" << aes->state_num();
-  for (unsigned i = 0; i < aes->state_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo") << "\t" << aes->state(i)->name().str();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << std::endl;
-
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. instr:" << aesu->instr_num();
-  for (unsigned i = 0; i < aes->instr_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo") << "\t" << aesu->instr(i)->name().str()
-                                         << "\t" << aesu->instr(i)->decode();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << "No. state:" << aesu->state_num();
-  for (unsigned i = 0; i < aesu->state_num(); ++i) {
-    ILA_DLOG("TestVlgTargetGen.IlaInfo")
-        << "\t" << aesu->state(i)->name().str();
-  }
-  ILA_DLOG("TestVlgTargetGen.IlaInfo") << std::endl;
-}
-
 TEST(TestVlgTargetGen, PipeExample) {
   auto ila_model = SimplePipe::BuildModel();
 

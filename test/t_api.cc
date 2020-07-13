@@ -1,12 +1,15 @@
 /// \file
 /// Unit test for c++ API
 
+#include <vector>
+
+#include <ilang/ilang++.h>
+#include <ilang/util/fs.h>
+
 #include "unit-include/config.h"
 #include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
-#include <ilang/ilang++.h>
-#include <vector>
 
 #define REG_NUM 16
 #define REG_SIZE 8
@@ -323,6 +326,61 @@ TEST(TestApi, EntryNum) {
   EXPECT_DEATH(bl.SetEntryNum(8), ".*");
   EXPECT_DEATH(bl.GetEntryNum(), ".*");
 #endif
+}
+
+TEST(TestApi, OutStream) {
+  auto m = SimpleCpuRef("m");
+  std::string msg = "";
+
+  // ila
+  GET_STDOUT_MSG((std::cout << m), msg);
+  EXPECT_TRUE(msg.find(m.name()) != std::string::npos);
+
+  // state
+  for (size_t i = 0; i < m.state_num(); i++) {
+    auto state = m.state(i);
+    GET_STDOUT_MSG((std::cout << state), msg);
+    EXPECT_TRUE(msg.find(state.name()) != std::string::npos);
+  }
+
+  // instr
+  for (size_t i = 0; i < m.instr_num(); i++) {
+    auto instr = m.instr(i);
+    GET_STDOUT_MSG((std::cout << instr), msg);
+    EXPECT_TRUE(msg.find(instr.name()) != std::string::npos);
+
+    GET_STDOUT_MSG((std::cout << instr.GetDecode()), msg);
+    EXPECT_FALSE(msg.empty());
+  }
+}
+
+TEST(TestApi, VerilogGen) {
+  auto tmp_dir = GetRandomFileName();
+  os_portable_mkdir(tmp_dir);
+
+  // ila
+  auto m = SimpleCpuRef("m");
+  auto tmp_file_ila = GetRandomFileName(tmp_dir);
+  std::ofstream fout(tmp_file_ila);
+  m.ExportToVerilog(fout);
+  fout.close();
+
+  // instr
+  for (size_t i = 0; i < m.instr_num(); i++) {
+    auto instr = m.instr(i);
+
+    auto tmp_file_instr = GetRandomFileName(tmp_dir);
+    fout.open(tmp_file_instr);
+    instr.ExportToVerilog(fout);
+    fout.close();
+
+    auto tmp_file_instr_child = GetRandomFileName(tmp_dir);
+    fout.open(tmp_file_instr_child);
+    instr.ExportToVerilogWithChild(fout);
+    fout.close();
+  }
+
+  os_portable_remove_directory(tmp_dir);
 }
 
 TEST(TestApi, Unroll) {
