@@ -12,8 +12,6 @@ namespace ilang {
 
 void ApplyPass(const std::string& dir, const std::string& file,
                bool simplify = true) {
-  // SetToStdErr(true);
-
   EnableDebug("PassSimpSemantic");
   EnableDebug("PassRewrCondStore");
   EnableDebug("PassRewrStoreLoad");
@@ -22,19 +20,25 @@ void ApplyPass(const std::string& dir, const std::string& file,
 
   auto file_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, dir);
   auto ila_file = os_portable_append_dir(file_dir, file);
-  auto ila = ImportIlaPortable(ila_file).get();
+  auto ila = ImportIlaPortable(ila_file);
 
-  pass::SimplifySyntactic(ila);
-  pass::SimplifySemantic(ila);
+  ila.ExecutePass({Ila::PassID::SIMPLIFY_SYNTACTIC,
+                   Ila::PassID::SIMPLIFY_SEMANTIC,
+                   Ila::PassID::REWRITE_CONDITIONAL_STORE,
+                   Ila::PassID::REWRITE_LOAD_FROM_STORE});
 
-  pass::RewriteConditionalStore(ila);
-  pass::RewriteStoreLoad(ila);
+  pass::InferChildProgCFG(ila.get());
+  pass::MapChildProgEntryPoint(ila.get());
 
-  pass::InferChildProgCFG(ila);
-  pass::MapChildProgEntryPoint(ila);
+  auto out_file = GetRandomFileName();
+  ExportIlaPortable(ila, out_file);
+  os_portable_remove_file(out_file);
 
-  auto out_file = "opt_" + file;
-  ExportIlaPortable(Ila(ila), out_file);
+  DisableDebug("PassSimpSemantic");
+  DisableDebug("PassRewrCondStore");
+  DisableDebug("PassRewrStoreLoad");
+  DisableDebug("PassInferChildProgCFG");
+  DisableDebug("PassMapChildProgEntry");
 }
 
 TEST(TestPass, AES) { ApplyPass("aes", "aes.json"); }

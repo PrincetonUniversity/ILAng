@@ -580,6 +580,18 @@ public:
   /// top-level parent instructions.
   void FlattenHierarchy();
 
+  /// \brief Supported pass ID.
+  typedef enum PassID {
+    SIMPLIFY_SYNTACTIC = 0,
+    SIMPLIFY_SEMANTIC,
+    REWRITE_CONDITIONAL_STORE,
+    REWRITE_LOAD_FROM_STORE
+  } PassID;
+
+  /// \brief Execute the specified passes in order.
+  /// \param[in] passes the list of passes to execute.
+  bool ExecutePass(const std::vector<PassID>& passes) const;
+
 }; // class Ila
 
 /******************************************************************************/

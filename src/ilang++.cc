@@ -4,6 +4,7 @@
 #include <ilang/ilang++.h>
 
 #include <ilang/config.h>
+#include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila-mngr/u_smt_switch.h>
 #include <ilang/ila-mngr/u_unroller.h>
@@ -693,6 +694,31 @@ void Ila::ExportToVerilog(std::ostream& fout) const {
 }
 
 void Ila::FlattenHierarchy() { AbsKnob::FlattenIla(ptr_); }
+
+bool Ila::ExecutePass(const std::vector<PassID>& passes) const {
+  auto status = true;
+  for (const auto& id : passes) {
+    switch (id) {
+    case PassID::SIMPLIFY_SYNTACTIC: {
+      status &= pass::SimplifySyntactic(ptr_);
+      break;
+    }
+    case PassID::SIMPLIFY_SEMANTIC: {
+      status &= pass::SimplifySemantic(ptr_);
+      break;
+    }
+    case PassID::REWRITE_CONDITIONAL_STORE: {
+      status &= pass::RewriteConditionalStore(ptr_);
+      break;
+    }
+    case PassID::REWRITE_LOAD_FROM_STORE: {
+      status &= pass::RewriteStoreLoad(ptr_);
+      break;
+    }
+    };
+  }
+  return status;
+}
 
 std::ostream& operator<<(std::ostream& out, const ExprRef& expr) {
   return out << expr.get();
