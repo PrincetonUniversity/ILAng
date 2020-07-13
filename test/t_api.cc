@@ -348,6 +348,9 @@ TEST(TestApi, OutStream) {
     auto instr = m.instr(i);
     GET_STDOUT_MSG((std::cout << instr), msg);
     EXPECT_TRUE(msg.find(instr.name()) != std::string::npos);
+
+    GET_STDOUT_MSG((std::cout << instr.GetDecode()), msg);
+    EXPECT_FALSE(msg.empty());
   }
 }
 
