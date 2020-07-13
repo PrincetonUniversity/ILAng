@@ -47,12 +47,6 @@ cd $CI_BUILD_DIR/extern/vlog-parser/build
 cmake .. -DCMAKE_INSTALL_PREFIX=$CI_BUILD_DIR/local
 cmake --build . --target install
 
-# tmpl-synth 
-mkdir -p $CI_BUILD_DIR/extern/tmpl-synth/build
-cd $CI_BUILD_DIR/extern/tmpl-synth/build
-cmake .. -DCMAKE_INSTALL_PREFIX=$CI_BUILD_DIR/local
-cmake --build . --target install
-
 # smt-switch with Boolector
 cd $CI_BUILD_DIR/extern/smt-switch
 source contrib/setup-btor.sh

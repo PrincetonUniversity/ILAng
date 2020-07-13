@@ -398,6 +398,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the function name as std::string.
   std::string name() const;
+  /// Return the wrapped Func pointer.
+  inline FuncPtr get() const { return ptr_; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Apply the function with no argument.
@@ -408,11 +410,6 @@ public:
   ExprRef operator()(const ExprRef& arg0, const ExprRef& arg1) const;
   /// Apply the function with multiple arguments.
   ExprRef operator()(const std::vector<ExprRef>& argvec) const;
-
-private:
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the wrapped Func pointer.
-  inline FuncPtr get() const { return ptr_; }
 
 }; // class FuncRef
 
@@ -622,7 +619,11 @@ void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name);
 
 /// \brief Generate the SystemC simulator.
-void ExportSysCSim(const Ila& ila, const std::string& dir_path);
+/// \param [in] ila the top-level ILA to generate.
+/// \param [in] dir_path directory path of the generated simulator.
+/// \param [in] optimize set true to enable optimization.
+void ExportSysCSim(const Ila& ila, const std::string& dir_path,
+                   bool optimize = false);
 
 /******************************************************************************/
 // Verification.
@@ -692,6 +693,8 @@ public:
   /// Return the z3::expr representing a and b are equal at their time.
   z3::expr Equal(const ExprRef& va, const int& ta, const ExprRef& vb,
                  const int& tb);
+  /// Return the z3::func_decl representing f.
+  z3::func_decl GetZ3FuncDecl(const FuncRef& f) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

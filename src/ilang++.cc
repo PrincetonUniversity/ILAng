@@ -740,9 +740,9 @@ void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
 #endif
 }
 
-void ExportSysCSim(const Ila& ila, const std::string& dir_path) {
+void ExportSysCSim(const Ila& ila, const std::string& dir_path, bool opt) {
   auto ilator = Ilator(ila.get());
-  ilator.Generate(dir_path);
+  ilator.Generate(dir_path, opt);
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
@@ -826,6 +826,10 @@ z3::expr IlaZ3Unroller::GetZ3Expr(const ExprRef& v, const int& t) {
 z3::expr IlaZ3Unroller::Equal(const ExprRef& va, const int& ta,
                               const ExprRef& vb, const int& tb) {
   return univ_->Equal(va.get(), ta, vb.get(), tb);
+}
+
+z3::func_decl IlaZ3Unroller::GetZ3FuncDecl(const FuncRef& f) const {
+  return univ_->GetZ3FuncDecl(f.get());
 }
 
 void LogLevel(const int& lvl) { SetLogLevel(lvl); }

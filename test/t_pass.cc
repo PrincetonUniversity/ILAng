@@ -14,7 +14,7 @@ void ApplyPass(const std::string& dir, const std::string& file,
                bool simplify = true) {
   // SetToStdErr(true);
 
-  EnableDebug("PassSimpInstrUpdate");
+  EnableDebug("PassSimpSemantic");
   EnableDebug("PassRewrCondStore");
   EnableDebug("PassRewrStoreLoad");
   EnableDebug("PassInferChildProgCFG");
@@ -24,13 +24,14 @@ void ApplyPass(const std::string& dir, const std::string& file,
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file).get();
 
-  PassSimplifyInstrUpdate(ila);
+  pass::SimplifySyntactic(ila);
+  pass::SimplifySemantic(ila);
 
-  PassRewriteConditionalStore(ila);
-  PassRewriteStoreLoad(ila);
+  pass::RewriteConditionalStore(ila);
+  pass::RewriteStoreLoad(ila);
 
-  PassInferChildProgCFG(ila);
-  PassMapChildProgEntryPoint(ila);
+  pass::InferChildProgCFG(ila);
+  pass::MapChildProgEntryPoint(ila);
 
   auto out_file = "opt_" + file;
   ExportIlaPortable(Ila(ila), out_file);
