@@ -36,7 +36,7 @@ public:
 
 }; // class TestUnroll
 
-TEST_F(TestUnroll, InsteSeqFlatSubs) {
+TEST_F(TestUnroll, InstrSeqFlatSubs) {
   auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
@@ -48,7 +48,7 @@ TEST_F(TestUnroll, InsteSeqFlatSubs) {
   auto cstr = unroller->PathSubs(seq);
 }
 
-TEST_F(TestUnroll, InsteSeqFlatAssn) {
+TEST_F(TestUnroll, InstrSeqFlatAssn) {
   auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
