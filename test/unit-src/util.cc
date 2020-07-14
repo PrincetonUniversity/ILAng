@@ -28,13 +28,16 @@ std::string random_string(std::size_t length) {
 }
 
 std::string GetRandomFileName(const std::string& dir) {
-  ILA_ASSERT(fs::is_directory(dir)) << dir << " doesn't exist";
+  auto root = fs::path(dir);
+  if (dir.empty() || !fs::is_directory(dir)) {
+    root = fs::temp_directory_path();
+  }
 
   auto file_name = fs::path(random_string(6));
-  while (fs::exists(fs::path(dir) / file_name)) {
+  while (fs::exists(root / file_name)) {
     file_name = fs::path(random_string(6));
   }
-  return (dir / file_name).string();
+  return (root / file_name).string();
 }
 
 void CheckIlaEqLegacy(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b) {

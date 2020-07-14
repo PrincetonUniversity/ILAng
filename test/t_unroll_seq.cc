@@ -1,11 +1,13 @@
 /// \file
 /// Unit test for unrolling a sequence of instruction.
 
+#include <iostream>
+
+#include <ilang/ila-mngr/u_unroller.h>
+
 #include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
-#include <ilang/ila-mngr/u_unroller.h>
-#include <iostream>
 
 namespace ilang {
 
@@ -36,7 +38,7 @@ public:
 
 }; // class TestUnroll
 
-TEST_F(TestUnroll, InsteSeqFlatSubs) {
+TEST_F(TestUnroll, InstrSeqFlatSubs) {
   auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
@@ -48,7 +50,7 @@ TEST_F(TestUnroll, InsteSeqFlatSubs) {
   auto cstr = unroller->PathSubs(seq);
 }
 
-TEST_F(TestUnroll, InsteSeqFlatAssn) {
+TEST_F(TestUnroll, InstrSeqFlatAssn) {
   auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;

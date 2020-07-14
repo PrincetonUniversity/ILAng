@@ -1,12 +1,16 @@
 /// \file
 /// Unit test for c++ API
 
+#include <vector>
+
+#include <ilang/ilang++.h>
+#include <ilang/util/fs.h>
+
 #include "unit-include/config.h"
 #include "unit-include/eq_ilas.h"
+#include "unit-include/ila_sim_test.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
-#include <ilang/ilang++.h>
-#include <vector>
 
 #define REG_NUM 16
 #define REG_SIZE 8
@@ -325,6 +329,67 @@ TEST(TestApi, EntryNum) {
 #endif
 }
 
+TEST(TestApi, OutStream) {
+  auto m = SimpleCpuRef("m");
+  std::string msg = "";
+
+  // ila
+  GET_STDOUT_MSG((std::cout << m), msg);
+  EXPECT_TRUE(msg.find(m.name()) != std::string::npos);
+
+  // state
+  for (size_t i = 0; i < m.state_num(); i++) {
+    auto state = m.state(i);
+    GET_STDOUT_MSG((std::cout << state), msg);
+    EXPECT_TRUE(msg.find(state.name()) != std::string::npos);
+  }
+
+  auto pc = m.state("pc");
+
+  // instr
+  for (size_t i = 0; i < m.instr_num(); i++) {
+    auto instr = m.instr(i);
+    GET_STDOUT_MSG((std::cout << instr), msg);
+    EXPECT_TRUE(msg.find(instr.name()) != std::string::npos);
+
+    GET_STDOUT_MSG((std::cout << instr.GetDecode()), msg);
+    EXPECT_FALSE(msg.empty());
+
+    auto next_pc = instr.GetUpdate(pc);
+    GET_STDOUT_MSG((std::cout << next_pc), msg); // not NULL
+    EXPECT_FALSE(msg.empty());
+  }
+}
+
+TEST(TestApi, VerilogGen) {
+  auto tmp_dir = GetRandomFileName();
+  os_portable_mkdir(tmp_dir);
+
+  // ila
+  auto m = SimpleCpuRef("m");
+  auto tmp_file_ila = GetRandomFileName(tmp_dir);
+  std::ofstream fout(tmp_file_ila);
+  m.ExportToVerilog(fout);
+  fout.close();
+
+  // instr
+  for (size_t i = 0; i < m.instr_num(); i++) {
+    auto instr = m.instr(i);
+
+    auto tmp_file_instr = GetRandomFileName(tmp_dir);
+    fout.open(tmp_file_instr);
+    instr.ExportToVerilog(fout);
+    fout.close();
+
+    auto tmp_file_instr_child = GetRandomFileName(tmp_dir);
+    fout.open(tmp_file_instr_child);
+    instr.ExportToVerilogWithChild(fout);
+    fout.close();
+  }
+
+  os_portable_remove_directory(tmp_dir);
+}
+
 TEST(TestApi, Unroll) {
   z3::context c;
   auto unroller = IlaZ3Unroller(c);
@@ -455,6 +520,66 @@ TEST(TestApi, Log) {
 #ifndef NDEBUG
   EXPECT_TRUE(msg.empty());
 #endif
+}
+
+TEST(TestApi, UnrollPathFreeWithFunc) {
+  z3::context ctx;
+  z3::solver solver(ctx);
+
+  auto unroller = IlaZ3Unroller(ctx);
+  auto m0 = IlaSimTest("m0").model;
+  auto m1 = IlaSimTest("m1").model;
+
+  // start from saem state
+  auto same_state = BoolConst(true);
+  for (size_t i = 0; i < m0.state_num(); i++) {
+    auto state_0 = m0.state(i);
+    auto state_1 = m1.state(state_0.name());
+    same_state = same_state & (state_0 == state_1);
+  }
+  unroller.AddInitPred(same_state);
+
+  // always share same input
+  auto same_input = BoolConst(true);
+  for (size_t i = 0; i < m0.input_num(); i++) {
+    auto input_0 = m0.input(i);
+    auto input_1 = m1.input(input_0.name());
+    same_input = same_input & (input_0 == input_1);
+  }
+  unroller.AddGlobPred(same_input);
+
+  // unroll instr sequence
+  auto seq0 = {m0.instr("WRITE_ADDRESS"), m0.instr("START_ENCRYPT")};
+  auto seq1 = {m1.instr("WRITE_ADDRESS"), m1.instr("START_ENCRYPT")};
+  auto path0 = unroller.UnrollPathConn(seq0);
+  auto path1 = unroller.UnrollPathFree(seq1);
+
+  auto connect = ctx.bool_val(true);
+  for (size_t i = 0; i < m1.state_num(); i++) {
+    auto state = m1.state(i);
+    connect = connect &&
+              (unroller.NextState(state, 0) == unroller.CurrState(state, 1)) &&
+              (unroller.NextState(state, 1) == unroller.CurrState(state, 2));
+  }
+
+  // func
+  auto farg = SortRef::BV(128);
+  auto func = unroller.GetZ3FuncDecl(FuncRef("process128", farg, farg, farg));
+  auto x = ctx.bv_const("x", 128);
+  auto y = ctx.bv_const("y", 128);
+  auto fdef = z3::forall(x, y, func(x, y) == (x + y)); // dummy
+
+  // check length
+  auto to_check = unroller.Equal(m0.state("length"), 2, m1.state("length"), 2);
+
+  // SMT query
+  solver.add(path0);
+  solver.add(path1);
+  solver.add(fdef);
+  solver.add(!to_check);
+  EXPECT_EQ(solver.check(), z3::sat);
+  solver.add(connect);
+  EXPECT_EQ(solver.check(), z3::unsat);
 }
 
 TEST(TestApi, Portable) {

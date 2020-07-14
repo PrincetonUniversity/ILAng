@@ -72,6 +72,10 @@ ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
   return a_expr == b_expr;
 }
 
+z3::func_decl Unroller::GetZ3FuncDecl(const FuncPtr& f) const {
+  return f->GetZ3FuncDecl(ctx_);
+}
+
 ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // bootstrap basic information
   BootStrap(pos);

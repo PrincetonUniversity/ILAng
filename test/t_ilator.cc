@@ -31,9 +31,14 @@ public:
 
 }; // TestIlator
 
-TEST_F(TestIlator, IlaSimTest) {
+TEST_F(TestIlator, Default) {
   IlaSimTest m;
   ExportSysCSim(m.model, out_dir);
+}
+
+TEST_F(TestIlator, Optimize) {
+  IlaSimTest m;
+  ExportSysCSim(m.model, out_dir, true);
 }
 
 } // namespace ilang

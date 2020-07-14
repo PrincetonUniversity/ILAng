@@ -29,7 +29,8 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Generate the SystemC simulator.
   /// \param[in] dst the directory path for the generated simulator.
-  void Generate(const std::string& dst);
+  /// \param[in] opt set true to enable optimization.
+  void Generate(const std::string& dst, bool opt);
 
 private:
   /// Internal type of the string buffer.
@@ -74,7 +75,7 @@ private:
   /// Check if the ILA model contains unsupported patterns.
   bool SanityCheck() const;
   /// Generation bootstrap, e.g., creating directories.
-  bool Bootstrap(const std::string& root);
+  bool Bootstrap(const std::string& root, bool opt);
 
   /// Interpret instruction semantics (decode and state updates).
   bool GenerateInstrContent(const InstrPtr& instr, const std::string& dir);
@@ -82,6 +83,8 @@ private:
   bool GenerateMemoryUpdate(const std::string& dir);
   /// Special handle for constant memory.
   bool GenerateConstantMemory(const std::string& dir);
+  /// Generate setup function for initial condition.
+  bool GenerateInitialSetup(const std::string& dir);
   /// Generate the instruction scheduler and driver.
   bool GenerateExecuteKernel(const std::string& dir);
   /// Generate the shared header files.
@@ -91,7 +94,7 @@ private:
 
   /// Translate expression node to SystemC statements.
   bool RenderExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut);
-  /// Translation routine entry point.
+  /// Translation routine for entrypoint.
   void DfsExpr(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut);
   /// Translation routine for variable.
   void DfsVar(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) const;
