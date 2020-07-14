@@ -11,28 +11,38 @@
 /// \namespace ilang
 namespace ilang {
 
+/// \namespace pass
+namespace pass {
+
 /// Infer the control flow graph among the child-instructions (instr. seq.)
-bool PassInferChildProgCFG(const InstrLvlAbsPtr& m);
+bool InferChildProgCFG(const InstrLvlAbsPtr& m);
 
 /// Map the child program (and its entry point) to the parent instruction
-bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m);
+bool MapChildProgEntryPoint(const InstrLvlAbsPtr& m);
 
 /// Rewrite the conditional STORE in the AST.
-bool PassRewriteConditionalStore(const InstrLvlAbsPtr& m);
+bool RewriteConditionalStore(const InstrLvlAbsPtr& m);
 
 /// Rewrite the STORE-LOAD pattern in the AST.
-bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m);
+bool RewriteStoreLoad(const InstrLvlAbsPtr& m);
 
 /// A pass template for rewriting AST in an ILA.
 /// \param[in] m The target ILA.
 /// \param[in] Rewr The pass-specific rewriting function.
-bool PassRewriteGeneric(const InstrLvlAbsPtr& m,
-                        std::function<ExprPtr(const ExprPtr)> Rewr);
+bool RewriteGeneric(const InstrLvlAbsPtr& m,
+                    std::function<ExprPtr(const ExprPtr)> Rewr);
 
-/// Simplify instruction state updates.
-/// \param[in] m The target ILA.
+/// \brief Simplify instructions (across the hierarchy) semantically (z3).
+/// \param[in] m The top-level ILA.
 /// \param[in] timeout Max time (ms) for each SMT query. (-1 for default)
-bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m, const int& timeout = -1);
+bool SimplifySemantic(const InstrLvlAbsCnstPtr& m, const int& timeout = -1);
+
+/// \brief Simplify instructions (across the hierarchy) syntactically.
+/// (Light-weight simplification, no SMT query.)
+/// \param[in] m The top-level ILA.
+bool SimplifySyntactic(const InstrLvlAbsPtr& m);
+
+} // namespace pass
 
 }; // namespace ilang
 

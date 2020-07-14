@@ -12,13 +12,13 @@
 
 namespace ilang {
 
-InstrLvlAbsPtr FuncObjRewrIla::get(const InstrLvlAbsCnstPtr m) const {
+InstrLvlAbsPtr FuncObjRewrIla::get(const InstrLvlAbsCnstPtr& m) const {
   auto pos = ila_map_.find(m);
   ILA_CHECK(pos != ila_map_.end()) << m << " not found";
   return pos->second;
 }
 
-bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr src) {
+bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr& src) {
   auto pos = ila_map_.find(src);
   ILA_ASSERT(pos != ila_map_.end()) << "ILA dst for " << src << " not found.";
   auto dst = pos->second;
@@ -58,7 +58,7 @@ bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr src) {
   return false;
 }
 
-void FuncObjRewrIla::post(const InstrLvlAbsCnstPtr src) const {
+void FuncObjRewrIla::post(const InstrLvlAbsCnstPtr& src) const {
   // nothing
 }
 
@@ -71,7 +71,7 @@ FuncObjFlatIla::FuncObjFlatIla(const InstrLvlAbsCnstPtr& top_,
 #endif // VALID_STACK
 }
 
-bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
+bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr& src) {
   if (src == top_ila_)
     return false; // skip the top level ila, do nothing
   auto pos = ila_map_.find(src);
@@ -105,7 +105,7 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
   return false;
 }
 
-void FuncObjFlatIla::post(const InstrLvlAbsCnstPtr src) {
+void FuncObjFlatIla::post(const InstrLvlAbsCnstPtr& src) {
   // pop the stack
 #ifdef VALID_STACK
   valid_cond_stack_.pop();

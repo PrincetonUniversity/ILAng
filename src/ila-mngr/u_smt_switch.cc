@@ -72,31 +72,25 @@ void SmtSwitchItf::PopulateExprMap(const ExprPtr expr) {
   }
 
   // get the Term based on its ast node type
+  auto Expr2Term = [this](const ExprPtr& e, const smt::TermVec& args) {
+    switch (auto uid = GetUidExpr(e); uid) {
+    case AST_UID_EXPR::VAR: {
+      return ExprVar2Term(e);
+    }
+    case AST_UID_EXPR::CONST: {
+      return ExprConst2Term(e);
+    }
+    default: {
+      ILA_ASSERT(uid == AST_UID_EXPR::OP);
+      return ExprOp2Term(e, args);
+    }
+    }; // switch uid
+  };
+
   auto res = Expr2Term(expr, arg_terms);
 
   // update the Term cache
   expr_map_.insert({expr, res});
-}
-
-smt::Term SmtSwitchItf::Expr2Term(const ExprPtr expr,
-                                  const smt::TermVec& arg_terms) {
-  auto expr_uid = GetUidExpr(expr);
-
-  switch (expr_uid) {
-  case AST_UID_EXPR::VAR: {
-    return ExprVar2Term(expr);
-  }
-  case AST_UID_EXPR::CONST: {
-    return ExprConst2Term(expr);
-  }
-  case AST_UID_EXPR::OP: {
-    return ExprOp2Term(expr, arg_terms);
-  }
-  default: {
-    ILA_CHECK(false) << fmt::format("Unknown type {} for ", expr_uid) << expr;
-    return solver_->make_term(true);
-  }
-  }; // switch expr_uid
 }
 
 smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr expr) {
@@ -110,9 +104,8 @@ smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr expr) {
 
 smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
   auto expr_const = std::static_pointer_cast<ExprConst>(expr);
-  auto sort_uid = GetUidSort(expr->sort());
 
-  switch (sort_uid) {
+  switch (auto sort_uid = GetUidSort(expr->sort()); sort_uid) {
   case AST_UID_SORT::BOOL: {
     return solver_->make_term(expr_const->val_bool()->val());
   }
@@ -121,7 +114,8 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
     return solver_->make_term(expr_const->val_bv()->val(),
                               solver_->make_sort(smt::BV, bw));
   }
-  case AST_UID_SORT::MEM: {
+  default: {
+    ILA_ASSERT(sort_uid == AST_UID_SORT::MEM);
     auto addr_sort = solver_->make_sort(smt::BV, expr->sort()->addr_width());
     auto data_sort = solver_->make_sort(smt::BV, expr->sort()->data_width());
     auto mem_sort = solver_->make_sort(smt::ARRAY, addr_sort, data_sort);
@@ -143,10 +137,6 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
 
     return const_memory;
   }
-  default: {
-    ILA_CHECK(false) << fmt::format("Unknown sort {} for ", sort_uid) << expr;
-    return solver_->make_term(true);
-  }
   }; // switch sort_uid
 }
 
@@ -156,9 +146,8 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
   // XXX Boolector (maybe also others) doesn't accept INT sort for param.
   // auto param_sort = solver_->make_sort(smt::INT);
   auto param_sort = solver_->make_sort(smt::BV, PARAM_BIT_WIDTH);
-  auto expr_op_uid = GetUidExprOp(expr);
 
-  switch (expr_op_uid) {
+  switch (auto expr_op_uid = GetUidExprOp(expr); expr_op_uid) {
   case AST_UID_EXPR_OP::NEG: {
     ILA_WARN << "Negate not fully supported in smt-switch.";
     return solver_->make_term(smt::PrimOp::Negate, arg_terms.at(0));
@@ -327,8 +316,8 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
     }
 
     // apply func
-    for (size_t i = 0; i != arg_terms.size(); i++) {
-      func_arg_terms.push_back(arg_terms.at(i));
+    for (auto arg_i : arg_terms) {
+      func_arg_terms.push_back(arg_i);
     }
     return solver_->make_term(smt::PrimOp::Apply, func_arg_terms);
   }
@@ -340,24 +329,20 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
 }
 
 smt::Sort SmtSwitchItf::IlaSort2SmtSort(const SortPtr s) {
-  auto sort_uid = GetUidSort(s);
-  switch (sort_uid) {
+  switch (auto sort_uid = GetUidSort(s); sort_uid) {
   case AST_UID_SORT::BOOL: {
     return solver_->make_sort(smt::BOOL);
   }
   case AST_UID_SORT::BV: {
     return solver_->make_sort(smt::BV, s->bit_width());
   }
-  case AST_UID_SORT::MEM: {
+  default: {
+    ILA_ASSERT(sort_uid == AST_UID_SORT::MEM);
     return solver_->make_sort(smt::ARRAY,
                               solver_->make_sort(smt::BV, s->addr_width()),
                               solver_->make_sort(smt::BV, s->data_width()));
   }
-  default: {
-    ILA_CHECK(false) << "Unknown sort " << sort_uid;
-    return solver_->make_sort(smt::BOOL);
-  }
-  }; // switch sort uid @ lambda Sort2Term
+  }; // switch sort uid
 }
 
 }; // namespace ilang

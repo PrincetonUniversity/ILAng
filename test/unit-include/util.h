@@ -46,7 +46,7 @@ void EndRecordLog();
   cmd;                                                                         \
   msg = ::testing::internal::GetCapturedStderr();
 
-std::string GetRandomFileName(const std::string& dir);
+std::string GetRandomFileName(const std::string& dir = "");
 
 void CheckIlaEqLegacy(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b);
 

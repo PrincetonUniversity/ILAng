@@ -55,8 +55,6 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the SMT Term of the given node into the map.
   void PopulateExprMap(const ExprPtr expr);
-  /// Make Term of expr based on its argument terms.
-  smt::Term Expr2Term(const ExprPtr expr, const smt::TermVec& arg_terms);
   /// Make Term of expr variable.
   smt::Term ExprVar2Term(const ExprPtr expr);
   /// Make Term of expr constant.

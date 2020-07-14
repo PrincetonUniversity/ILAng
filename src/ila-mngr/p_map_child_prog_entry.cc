@@ -8,8 +8,11 @@
 
 namespace ilang {
 
-bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m) {
+namespace pass {
+
+bool MapChildProgEntryPoint(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
+  ILA_INFO << "Start pass: mapping child program entry";
 
   // check if a can trigger b
   auto CheckCausality = [=](InstrPtr a, InstrPtr b) {
@@ -93,4 +96,6 @@ bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m) {
   return true;
 }
 
-}; // namespace ilang
+} // namespace pass
+
+} // namespace ilang

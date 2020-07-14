@@ -8,8 +8,11 @@
 
 namespace ilang {
 
-bool PassInferChildProgCFG(const InstrLvlAbsPtr& m) {
+namespace pass {
+
+bool InferChildProgCFG(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
+  ILA_INFO << "Start pass: infer child program control-flow";
 
   // iterate through child-ILAs
   for (size_t i = 0; i < m->child_num(); i++) {
@@ -51,10 +54,12 @@ bool PassInferChildProgCFG(const InstrLvlAbsPtr& m) {
     ILA_WARN_IF(!child->instr_seq()) << "Fail to infer CFG for " << child;
 
     // traverse the hierarchy
-    PassInferChildProgCFG(child);
+    InferChildProgCFG(child);
   }
 
   return true;
 }
 
-}; // namespace ilang
+} // namespace pass
+
+} // namespace ilang

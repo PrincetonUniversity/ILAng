@@ -4,6 +4,7 @@
 #include <ilang/ilang++.h>
 
 #include <ilang/config.h>
+#include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila-mngr/u_smt_switch.h>
 #include <ilang/ila-mngr/u_unroller.h>
@@ -694,6 +695,31 @@ void Ila::ExportToVerilog(std::ostream& fout) const {
 
 void Ila::FlattenHierarchy() { AbsKnob::FlattenIla(ptr_); }
 
+bool Ila::ExecutePass(const std::vector<PassID>& passes) const {
+  auto status = true;
+  for (const auto& id : passes) {
+    switch (id) {
+    case PassID::SIMPLIFY_SYNTACTIC: {
+      status &= pass::SimplifySyntactic(ptr_);
+      break;
+    }
+    case PassID::SIMPLIFY_SEMANTIC: {
+      status &= pass::SimplifySemantic(ptr_);
+      break;
+    }
+    case PassID::REWRITE_CONDITIONAL_STORE: {
+      status &= pass::RewriteConditionalStore(ptr_);
+      break;
+    }
+    case PassID::REWRITE_LOAD_FROM_STORE: {
+      status &= pass::RewriteStoreLoad(ptr_);
+      break;
+    }
+    };
+  }
+  return status;
+}
+
 std::ostream& operator<<(std::ostream& out, const ExprRef& expr) {
   return out << expr.get();
 }
@@ -715,34 +741,24 @@ Ila ImportIlaPortable(const std::string& file_name) {
   return Ila(m);
 }
 
+#ifdef SYNTH_INTERFACE
 Ila ImportSynthAbstraction(const std::string& file_name,
                            const std::string& ila_name) {
-#ifdef SYNTH_INTERFACE
   auto m = ImportSynthAbsFromFile(file_name, ila_name);
   return Ila(m);
-#else  // SYNTH_INTERFACE
-  auto m = Ila(ila_name);
-  ILA_ERROR << "Synthesis interface not built.";
-  ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
-  return m;
-#endif // SYNTH_INTERFACE
 }
 
 void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name) {
-#ifdef SYNTH_INTERFACE
   auto m = ImportSynthAbsFromFileHier(file_name, parent.get(), ila_name);
   ILA_NOT_NULL(m);
   return;
-#else
-  ILA_ERROR << "Synthesis interface not built.";
-  ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
-#endif
 }
+#endif // SYNTH_INTERFACE
 
-void ExportSysCSim(const Ila& ila, const std::string& dir_path) {
+void ExportSysCSim(const Ila& ila, const std::string& dir_path, bool opt) {
   auto ilator = Ilator(ila.get());
-  ilator.Generate(dir_path);
+  ilator.Generate(dir_path, opt);
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
@@ -751,18 +767,6 @@ IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
 }
 
 IlaZ3Unroller::~IlaZ3Unroller() {}
-
-#if 0
-void IlaZ3Unroller::SetExtraSuffix(const std::string& suff) {
-  extra_suff_ = suff;
-  univ_->SetExtraSuffix(suff);
-}
-
-void IlaZ3Unroller::ResetExtraSuffix() {
-  extra_suff_ = "";
-  univ_->ResetExtraSuffix();
-}
-#endif
 
 z3::expr IlaZ3Unroller::UnrollMonoConn(const Ila& top, const int& k,
                                        const int& init) {
@@ -826,6 +830,10 @@ z3::expr IlaZ3Unroller::GetZ3Expr(const ExprRef& v, const int& t) {
 z3::expr IlaZ3Unroller::Equal(const ExprRef& va, const int& ta,
                               const ExprRef& vb, const int& tb) {
   return univ_->Equal(va.get(), ta, vb.get(), tb);
+}
+
+z3::func_decl IlaZ3Unroller::GetZ3FuncDecl(const FuncRef& f) const {
+  return univ_->GetZ3FuncDecl(f.get());
 }
 
 void LogLevel(const int& lvl) { SetLogLevel(lvl); }

@@ -10,6 +10,8 @@
 
 namespace ilang {
 
+namespace pass {
+
 class FuncObjRewrCondStore : public FuncObjRewrExpr {
 public:
   FuncObjRewrCondStore() : FuncObjRewrExpr({}) {}
@@ -107,8 +109,9 @@ private:
 
 }; // class FuncObjRewrCondStore
 
-bool PassRewriteConditionalStore(const InstrLvlAbsPtr& m) {
+bool RewriteConditionalStore(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
+  ILA_INFO << "Start pass: rewrite conditional store";
 
   auto func = FuncObjRewrCondStore();
   auto Rewr = [=, &func](const ExprPtr e) {
@@ -119,7 +122,9 @@ bool PassRewriteConditionalStore(const InstrLvlAbsPtr& m) {
     return e;
   };
 
-  return PassRewriteGeneric(m, Rewr);
+  return RewriteGeneric(m, Rewr);
 }
 
-}; // namespace ilang
+} // namespace pass
+
+} // namespace ilang
