@@ -8,6 +8,7 @@
 
 #include "unit-include/config.h"
 #include "unit-include/eq_ilas.h"
+#include "unit-include/ila_sim_test.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 
@@ -343,6 +344,8 @@ TEST(TestApi, OutStream) {
     EXPECT_TRUE(msg.find(state.name()) != std::string::npos);
   }
 
+  auto pc = m.state("pc");
+
   // instr
   for (size_t i = 0; i < m.instr_num(); i++) {
     auto instr = m.instr(i);
@@ -350,6 +353,10 @@ TEST(TestApi, OutStream) {
     EXPECT_TRUE(msg.find(instr.name()) != std::string::npos);
 
     GET_STDOUT_MSG((std::cout << instr.GetDecode()), msg);
+    EXPECT_FALSE(msg.empty());
+
+    auto next_pc = instr.GetUpdate(pc);
+    GET_STDOUT_MSG((std::cout << next_pc), msg); // not NULL
     EXPECT_FALSE(msg.empty());
   }
 }
@@ -513,6 +520,66 @@ TEST(TestApi, Log) {
 #ifndef NDEBUG
   EXPECT_TRUE(msg.empty());
 #endif
+}
+
+TEST(TestApi, UnrollPathFreeWithFunc) {
+  z3::context ctx;
+  z3::solver solver(ctx);
+
+  auto unroller = IlaZ3Unroller(ctx);
+  auto m0 = IlaSimTest("m0").model;
+  auto m1 = IlaSimTest("m1").model;
+
+  // start from saem state
+  auto same_state = BoolConst(true);
+  for (size_t i = 0; i < m0.state_num(); i++) {
+    auto state_0 = m0.state(i);
+    auto state_1 = m1.state(state_0.name());
+    same_state = same_state & (state_0 == state_1);
+  }
+  unroller.AddInitPred(same_state);
+
+  // always share same input
+  auto same_input = BoolConst(true);
+  for (size_t i = 0; i < m0.input_num(); i++) {
+    auto input_0 = m0.input(i);
+    auto input_1 = m1.input(input_0.name());
+    same_input = same_input & (input_0 == input_1);
+  }
+  unroller.AddGlobPred(same_input);
+
+  // unroll instr sequence
+  auto seq0 = {m0.instr("WRITE_ADDRESS"), m0.instr("START_ENCRYPT")};
+  auto seq1 = {m1.instr("WRITE_ADDRESS"), m1.instr("START_ENCRYPT")};
+  auto path0 = unroller.UnrollPathConn(seq0);
+  auto path1 = unroller.UnrollPathFree(seq1);
+
+  auto connect = ctx.bool_val(true);
+  for (size_t i = 0; i < m1.state_num(); i++) {
+    auto state = m1.state(i);
+    connect = connect &&
+              (unroller.NextState(state, 0) == unroller.CurrState(state, 1)) &&
+              (unroller.NextState(state, 1) == unroller.CurrState(state, 2));
+  }
+
+  // func
+  auto farg = SortRef::BV(128);
+  auto func = unroller.GetZ3FuncDecl(FuncRef("process128", farg, farg, farg));
+  auto x = ctx.bv_const("x", 128);
+  auto y = ctx.bv_const("y", 128);
+  auto fdef = z3::forall(x, y, func(x, y) == (x + y)); // dummy
+
+  // check length
+  auto to_check = unroller.Equal(m0.state("length"), 2, m1.state("length"), 2);
+
+  // SMT query
+  solver.add(path0);
+  solver.add(path1);
+  solver.add(fdef);
+  solver.add(!to_check);
+  EXPECT_EQ(solver.check(), z3::sat);
+  solver.add(connect);
+  EXPECT_EQ(solver.check(), z3::unsat);
 }
 
 TEST(TestApi, Portable) {
