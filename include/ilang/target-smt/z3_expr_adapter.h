@@ -1,12 +1,13 @@
 /// \file
 /// Header for the class Z3ExprAdapter
 
-#ifndef ILANG_ILA_Z3_EXPR_ADAPTER_H__
-#define ILANG_ILA_Z3_EXPR_ADAPTER_H__
+#ifndef ILANG_TARGET_SMT_Z3_EXPR_ADAPTER_H__
+#define ILANG_TARGET_SMT_Z3_EXPR_ADAPTER_H__
 
 #include <unordered_map>
 
-#include "z3++.h"
+#include <z3++.h>
+
 #include <ilang/ila/expr_fuse.h>
 
 /// \namespace ilang
@@ -24,9 +25,6 @@ public:
   /// ~Default destructor.
   ~Z3ExprAdapter();
 
-  /// Type for caching the generated expressions.
-  typedef std::unordered_map<const ExprPtr, z3::expr, Z3AdapterHash> ExprMap;
-
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node.
   z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
@@ -35,6 +33,9 @@ public:
   void operator()(const ExprPtr expr);
 
 private:
+  /// Type for caching the generated expressions.
+  typedef std::unordered_map<const ExprPtr, z3::expr, Z3AdapterHash> ExprMap;
+
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying z3 context.
   z3::context& ctx_;
@@ -51,4 +52,4 @@ private:
 
 } // namespace ilang
 
-#endif // ILANG_ILA_Z3_EXPR_ADAPTER_H__
+#endif // ILANG_TARGET_SMT_Z3_EXPR_ADAPTER_H__

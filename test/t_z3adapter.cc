@@ -1,9 +1,10 @@
 /// \file
 /// Unit test for the class Z3ExprAdapter
 
-#include "unit-include/util.h"
 #include <ilang/ila/expr_fuse.h>
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 

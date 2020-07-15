@@ -6,7 +6,6 @@
 
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/instr.h>
-#include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/container.h>
 
 /// \namespace ilang

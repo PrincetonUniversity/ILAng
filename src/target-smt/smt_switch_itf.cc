@@ -3,7 +3,7 @@
 
 #ifdef SMTSWITCH_INTERFACE
 
-#include <ilang/ila-mngr/u_smt_switch.h>
+#include <ilang/target-smt/smt_switch_itf.h>
 
 #include <fmt/format.h>
 

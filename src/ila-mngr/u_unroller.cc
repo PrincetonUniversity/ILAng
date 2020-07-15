@@ -13,7 +13,7 @@ namespace ilang {
 
 using namespace ExprFuse;
 
-typedef Unroller::ZExpr ZExpr;
+typedef z3::expr ZExpr;
 
 /******************************************************************************/
 // Unroller

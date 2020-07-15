@@ -1,7 +1,7 @@
 /// \file
 /// Source for the class Z3EXprAdapter
 
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 
 #include <ilang/util/log.h>
 
