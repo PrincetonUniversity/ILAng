@@ -4,8 +4,6 @@
 #ifndef ILANG_ILA_MNGR_U_SMT_SWITCH_H__
 #define ILANG_ILA_MNGR_U_SMT_SWITCH_H__
 
-#include <ilang/config.h>
-
 #ifdef SMTSWITCH_INTERFACE
 
 #include <string>
@@ -27,21 +25,23 @@ public:
   /// Default destructor.
   ~SmtSwitchItf();
 
-  /// Type for cacheing the generated expressions.
-  typedef std::unordered_map<const ExprPtr, smt::Term, ExprHash> ExprTermMap;
-  /// Type for cacheing the generated functions.
-  typedef std::unordered_map<const FuncPtr, smt::Term, FuncHash> FuncTermMap;
-
   // ------------------------- METHODS -------------------------------------- //
   /// Get the SMT Term of the AST node.
   smt::Term GetSmtTerm(const ExprPtr expr, const std::string& suffix = "");
   /// Reset the solver and the interface.
   void Reset();
 
-  /// Function object for getting SMT Term.
-  void operator()(const ExprPtr expr);
+  /// Check if Term is generated.
+  bool pre(const ExprPtr& expr);
+  /// Generate Term if not already.
+  void post(const ExprPtr& expr);
 
 private:
+  /// Type for cacheing the generated expressions.
+  typedef std::unordered_map<const ExprPtr, smt::Term, ExprHash> ExprTermMap;
+  /// Type for cacheing the generated functions.
+  typedef std::unordered_map<const FuncPtr, smt::Term, FuncHash> FuncTermMap;
+
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying SMT solver.
   smt::SmtSolver& solver_;

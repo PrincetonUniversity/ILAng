@@ -4,10 +4,10 @@
 #include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
 
-#include "unit-include/util.h"
-#include <ilang/config.h>
 #include <ilang/ila-mngr/u_smt_switch.h>
 #include <ilang/ilang++.h>
+
+#include "unit-include/util.h"
 
 #define BV_SIZE 4
 
