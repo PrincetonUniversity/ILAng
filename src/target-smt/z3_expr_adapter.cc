@@ -1,5 +1,5 @@
 /// \file
-/// Source for the class Z3EXprAdapter
+/// Source for the class Z3ExprAdapter
 
 #include <ilang/target-smt/z3_expr_adapter.h>
 
@@ -11,7 +11,8 @@ Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx) : ctx_(ctx) {}
 
 Z3ExprAdapter::~Z3ExprAdapter() {}
 
-z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
+z3::expr Z3ExprAdapter::GetExpr(const ExprPtr& expr,
+                                const std::string& suffix) {
   expr_map_.clear();
   suffix_ = suffix;
 
@@ -23,7 +24,7 @@ z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
   return pos->second;
 }
 
-void Z3ExprAdapter::operator()(const ExprPtr expr) {
+void Z3ExprAdapter::operator()(const ExprPtr& expr) {
   auto pos = expr_map_.find(expr);
   // expression has been generated.
   if (pos != expr_map_.end()) {
@@ -38,7 +39,7 @@ void Z3ExprAdapter::operator()(const ExprPtr expr) {
   }
 }
 
-void Z3ExprAdapter::PopulateExprMap(const ExprPtr expr) {
+void Z3ExprAdapter::PopulateExprMap(const ExprPtr& expr) {
   size_t num = expr->arg_num();
 
   // reserve the container for argument expressions.

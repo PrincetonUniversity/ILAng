@@ -27,7 +27,7 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Get the SMT Term of the AST node.
-  smt::Term GetSmtTerm(const ExprPtr expr, const std::string& suffix = "");
+  smt::Term GetSmtTerm(const ExprPtr& expr, const std::string& suffix = "");
   /// Reset the solver and the interface.
   void Reset();
 
@@ -35,6 +35,14 @@ public:
   bool pre(const ExprPtr& expr);
   /// Generate Term if not already.
   void post(const ExprPtr& expr);
+
+  // ------------------------- SHIM INTERFACE ------------------------------- //
+  /// Unified SmtShim interface to get smt::Term.
+  inline auto GetShimExpr(const ExprPtr& expr, const std::string& suffix) {
+    return GetSmtTerm(expr, suffix);
+  }
+  /// Unified SmtShim interface to get smt::Func.
+  inline auto GetShimFunc(const FuncPtr& func) { return Func2Term(func); }
 
 private:
   /// Type for cacheing the generated expressions.
@@ -54,15 +62,17 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the SMT Term of the given node into the map.
-  void PopulateExprMap(const ExprPtr expr);
+  void PopulateExprMap(const ExprPtr& expr);
   /// Make Term of expr variable.
-  smt::Term ExprVar2Term(const ExprPtr expr);
+  smt::Term ExprVar2Term(const ExprPtr& expr);
   /// Make Term of expr constant.
-  smt::Term ExprConst2Term(const ExprPtr expr);
+  smt::Term ExprConst2Term(const ExprPtr& expr);
   /// Make Term of expr operator.
-  smt::Term ExprOp2Term(const ExprPtr expr, const smt::TermVec& arg_terms);
+  smt::Term ExprOp2Term(const ExprPtr& expr, const smt::TermVec& arg_terms);
+  /// Make Term of func.
+  smt::Term Func2Term(const FuncPtr& func);
   /// Make smt::Sort of ilang::SortPtr.
-  smt::Sort IlaSort2SmtSort(const SortPtr s);
+  smt::Sort IlaSort2SmtSort(const SortPtr& s);
 
 }; // class SmtSwitchItf
 

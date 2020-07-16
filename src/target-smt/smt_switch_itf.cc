@@ -29,7 +29,7 @@ void SmtSwitchItf::Reset() {
   func_map_.clear();
 }
 
-smt::Term SmtSwitchItf::GetSmtTerm(const ExprPtr expr,
+smt::Term SmtSwitchItf::GetSmtTerm(const ExprPtr& expr,
                                    const std::string& suffix) {
   suffix_ = suffix;
   expr->DepthFirstVisitPrePost(*this);
@@ -51,7 +51,7 @@ void SmtSwitchItf::post(const ExprPtr& expr) {
   }
 }
 
-void SmtSwitchItf::PopulateExprMap(const ExprPtr expr) {
+void SmtSwitchItf::PopulateExprMap(const ExprPtr& expr) {
   // placeholder for argument Terms
   smt::TermVec arg_terms;
 
@@ -85,7 +85,7 @@ void SmtSwitchItf::PopulateExprMap(const ExprPtr expr) {
   expr_map_.insert({expr, res});
 }
 
-smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr expr) {
+smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr& expr) {
   // for z3 compatibility
   auto prefix = (expr->host()) ? expr->host()->GetRootName() : "";
   auto e_name = expr->name().format_str(prefix, suffix_);
@@ -94,7 +94,7 @@ smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr expr) {
   return solver_->make_symbol(e_name, smt_sort);
 }
 
-smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
+smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr& expr) {
   auto expr_const = std::static_pointer_cast<ExprConst>(expr);
 
   switch (auto sort_uid = GetUidSort(expr->sort()); sort_uid) {
@@ -132,7 +132,7 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
   }; // switch sort_uid
 }
 
-smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
+smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr& expr,
                                     const smt::TermVec& arg_terms) {
 
   // XXX Boolector (maybe also others) doesn't accept INT sort for param.
@@ -280,23 +280,8 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
     if (pos != func_map_.end()) {
       func_arg_terms.push_back(pos->second);
     } else { // fist visit - create new term
-      // func name (for z3 compatibility)
-      auto prefix = (func->host()) ? func->host()->GetRootName() : "";
-      auto f_name = func->name().format_str(prefix, suffix_);
-
-      // func sort
-      auto arg_sorts = smt::SortVec();
-      for (size_t i = 0; i != func->arg_num(); i++) {
-        arg_sorts.push_back(IlaSort2SmtSort(func->arg(i)));
-      }
-      arg_sorts.push_back(IlaSort2SmtSort(func->out())); // return is the last
-      auto func_sort = solver_->make_sort(smt::FUNCTION, arg_sorts);
-
-      // func term
-      auto func_term = solver_->make_symbol(f_name, func_sort);
+      auto func_term = Func2Term(func);
       func_arg_terms.push_back(func_term);
-
-      // update cache
       func_map_[func] = func_term;
     }
 
@@ -313,7 +298,25 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
   }; // switch expr_op_uid
 }
 
-smt::Sort SmtSwitchItf::IlaSort2SmtSort(const SortPtr s) {
+smt::Term SmtSwitchItf::Func2Term(const FuncPtr& func) {
+  // func name (for z3 compatibility)
+  auto prefix = (func->host()) ? func->host()->GetRootName() : "";
+  auto f_name = func->name().format_str(prefix, suffix_);
+
+  // func sort
+  auto arg_sorts = smt::SortVec();
+  for (size_t i = 0; i != func->arg_num(); i++) {
+    arg_sorts.push_back(IlaSort2SmtSort(func->arg(i)));
+  }
+  arg_sorts.push_back(IlaSort2SmtSort(func->out())); // return is the last
+  auto func_sort = solver_->make_sort(smt::FUNCTION, arg_sorts);
+
+  // func term
+  auto func_term = solver_->make_symbol(f_name, func_sort);
+  return func_term;
+}
+
+smt::Sort SmtSwitchItf::IlaSort2SmtSort(const SortPtr& s) {
   switch (auto sort_uid = GetUidSort(s); sort_uid) {
   case AST_UID_SORT::BOOL: {
     return solver_->make_sort(smt::BOOL);

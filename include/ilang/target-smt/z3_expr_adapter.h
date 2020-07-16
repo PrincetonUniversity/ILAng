@@ -27,10 +27,20 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node.
-  z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
+  z3::expr GetExpr(const ExprPtr& expr, const std::string& suffix = "");
 
   /// Function object for getting z3 expression.
-  void operator()(const ExprPtr expr);
+  void operator()(const ExprPtr& expr);
+
+  // ------------------------- SHIM INTERFACE ------------------------------- //
+  /// Unified SmtShim interface to get z3::expr.
+  inline auto GetShimExpr(const ExprPtr& expr, const std::string& suffix) {
+    return GetExpr(expr, suffix);
+  }
+  /// Unified SmtShim interface to get z3::func_decl.
+  inline auto GetShimFunc(const FuncPtr& func) {
+    return func->GetZ3FuncDecl(ctx_);
+  }
 
 private:
   /// Type for caching the generated expressions.
@@ -46,7 +56,7 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the z3 expression of the given node into the map.
-  void PopulateExprMap(const ExprPtr expr);
+  void PopulateExprMap(const ExprPtr& expr);
 
 }; // class Z3ExprAdapter
 
