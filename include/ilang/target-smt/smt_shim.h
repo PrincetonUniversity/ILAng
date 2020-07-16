@@ -25,7 +25,7 @@ public:
   inline auto GetShimExpr(const ExprPtr& expr, const std::string& suffix = "") {
     return gen_.GetShimExpr(expr, suffix);
   }
-  /// Unified interface to get function definition.
+  /// Unified interface to get function declaration.
   inline auto GetShimFunc(const FuncPtr& func) {
     return gen_.GetShimFunc(func);
   }
