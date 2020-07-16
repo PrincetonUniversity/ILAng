@@ -543,8 +543,8 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   return true;
 }
 
-bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
-                                   const InstrLvlAbsPtr mb) const {
+bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr& ma,
+                                   const InstrLvlAbsPtr& mb) const {
   ILA_ERROR_IF(ma->name() == mb->name())
       << "Only EQ-Check ILAs with different names.";
 
@@ -741,7 +741,7 @@ z3::expr CommDiag::GetZ3Prop() {
   return eq;
 }
 
-z3::expr CommDiag::GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un,
+z3::expr CommDiag::GetZ3Cmpl(const ExprPtr& cmpl, MonoUnroll& un,
                              const int& begin, const int& end) const {
   auto cmpl_acc = ctx_.bool_val(false);
   for (auto i = begin; i <= end; i++) {
@@ -795,7 +795,7 @@ z3::expr CommDiag::GenProp() {
   return eq;
 }
 
-z3::expr CommDiag::AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+z3::expr CommDiag::AtLeastOnce(MonoUnroll& unroller, const ExprPtr& cmpl,
                                const int& start, const int& end) const {
   auto cstr = unroller.GetZ3Expr(BoolConst(false), 0);
   for (auto i = start; i <= end; i++) {
@@ -804,7 +804,7 @@ z3::expr CommDiag::AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
   return cstr;
 }
 
-z3::expr CommDiag::AtMostOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+z3::expr CommDiag::AtMostOnce(MonoUnroll& unroller, const ExprPtr& cmpl,
                               const int& start, const int& end) const {
   auto cstr = unroller.GetZ3Expr(BoolConst(true), 0);
   for (auto i = start; i <= end; i++) {

@@ -114,7 +114,7 @@ z3::expr LegacyBmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k,
   return cnst;
 }
 
-z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
+z3::expr LegacyBmc::Instr(const InstrPtr& instr, const std::string& suffix_prev,
                           const std::string& suffix_next, bool complete) {
   ILA_NOT_NULL(instr);
   ILA_DLOG("ModelGen.Instr")
@@ -151,7 +151,7 @@ z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
   return instr_cnst;
 }
 
-z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
+z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr& ila,
                                   const std::string& suffix_prev,
                                   const std::string& suffix_next) {
   ILA_NOT_NULL(ila);

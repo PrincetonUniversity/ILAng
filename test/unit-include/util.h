@@ -10,7 +10,6 @@
 #include <memory>
 #include <string>
 
-#include <ilang/config.h>
 #ifdef FS_INCLUDE
 #include <filesystem>
 #else // FS_INCLUDE

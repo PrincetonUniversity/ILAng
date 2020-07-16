@@ -19,11 +19,11 @@ void Expr::set_args(const ExprPtrVec& args) { args_ = args; }
 
 void Expr::set_params(const std::vector<int> params) { params_ = params; }
 
-void Expr::replace_arg(const int& idx, const ExprPtr arg) {
+void Expr::replace_arg(const int& idx, const ExprPtr& arg) {
   args_.at(idx) = arg;
 }
 
-void Expr::replace_arg(const ExprPtr a, const ExprPtr b) {
+void Expr::replace_arg(const ExprPtr& a, const ExprPtr& b) {
   size_t idx = arg_num();
   for (size_t i = 0; i != arg_num(); i++) {
     if (args_.at(i) == a)

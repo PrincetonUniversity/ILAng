@@ -56,9 +56,9 @@ public:
   /// Set the parameters.
   void set_params(const std::vector<int> params);
   /// Replace the i-th argument.
-  void replace_arg(const int& idx, const ExprPtr arg);
+  void replace_arg(const int& idx, const ExprPtr& arg);
   /// Replace the "a" argument with "b" argument with "exist".
-  void replace_arg(const ExprPtr a, const ExprPtr b);
+  void replace_arg(const ExprPtr& a, const ExprPtr& b);
 
   /// Is type expr (object).
   bool is_expr() const { return true; }
@@ -86,7 +86,7 @@ public:
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
   /// Overload output stream operator for pointer.
-  friend std::ostream& operator<<(std::ostream& out, const ExprPtr expr) {
+  friend std::ostream& operator<<(std::ostream& out, const ExprPtr& expr) {
     return expr->Print(out);
   }
 
@@ -94,7 +94,7 @@ public:
   /// the function object F on it.
   template <class F> void DepthFirstVisit(F& func) {
     for (size_t i = 0; i != arg_num(); i++) {
-      const ExprPtr arg_i = this->arg(i);
+      auto arg_i = this->arg(i);
       arg_i->DepthFirstVisit<F>(func);
     }
     func(shared_from_this());
@@ -139,7 +139,7 @@ typedef Expr::ExprPtrVec ExprPtrVec;
 class ExprHash {
 public:
   /// Function object for hashing
-  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
+  size_t operator()(const ExprPtr& expr) const { return expr->name().id(); }
 }; // class ExprHash
 
 /// Type for mapping between Expr.

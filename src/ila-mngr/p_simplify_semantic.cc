@@ -3,7 +3,7 @@
 
 #include <ilang/ila-mngr/pass.h>
 
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -21,12 +21,12 @@ public:
     return pos->second;
   }
 
-  bool pre(const ExprPtr e) const {
+  bool pre(const ExprPtr& e) const {
     auto pos = rule_.find(e);
     return pos != rule_.end(); // if found --> break
   }
 
-  void post(const ExprPtr e) {
+  void post(const ExprPtr& e) {
     auto dst = Rewrite(e);
     rule_.insert({e, dst});
   }
@@ -37,10 +37,10 @@ private:
   ExprPtr assump_;
   ExprPtr candidate_ = NULL;
 
-  ExprPtr Rewrite(const ExprPtr e) {
+  ExprPtr Rewrite(const ExprPtr& e) {
 
     // assump -> (e == target)
-    auto CheckEqModAssump = [=](const ExprPtr x) {
+    auto CheckEqModAssump = [=](const ExprPtr& x) {
       z3::context ctx;
       z3::solver s(ctx);
       auto gen = Z3ExprAdapter(ctx);
@@ -75,7 +75,7 @@ bool SimplifySemantic(const InstrLvlAbsCnstPtr& m, const int& timeout) {
   ILA_INFO << "Start pass: semantic simplification";
 
   // pattern - equivalent sub-tree modulo valid and decode
-  auto SimpEqSubtree = [=](const ExprPtr e, const InstrPtr i) {
+  auto SimpEqSubtree = [=](const ExprPtr& e, const InstrPtr& i) {
     auto host = i->host();
     ILA_NOT_NULL(host);
 

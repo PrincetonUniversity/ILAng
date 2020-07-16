@@ -26,7 +26,7 @@ InstrLvlAbsPtr ImportSynthAbsFromFile(const std::string& file_name,
 /// \param[in] ila_name name of the created ILA model.
 /// \return the generated ILA model.
 InstrLvlAbsPtr ImportSynthAbsFromFileHier(const std::string& file_name,
-                                          const InstrLvlAbsPtr parent,
+                                          const InstrLvlAbsPtr& parent,
                                           const std::string& ila_name = "");
 
 }; // namespace ilang
