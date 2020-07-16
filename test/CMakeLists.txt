@@ -74,6 +74,9 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mngr_absknob.cc
   t_pass.cc
   t_portable.cc
+  t_smt_in.cc
+  t_smt_shim.cc
+  t_smt_trans.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
@@ -88,8 +91,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3adapter.cc
   t_z3sanity.cc
   t_inv_syn.cc
-  t_smt_in.cc
-  t_smt_trans.cc
   t_inv_obj.cc
 )
 

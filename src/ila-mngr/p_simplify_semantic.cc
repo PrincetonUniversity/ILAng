@@ -3,7 +3,7 @@
 
 #include <ilang/ila-mngr/pass.h>
 
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 #include <ilang/util/log.h>
 
 namespace ilang {

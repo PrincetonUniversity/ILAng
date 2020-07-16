@@ -6,9 +6,10 @@
 
 #include <map>
 
-#include "z3++.h"
+#include <z3++.h>
+
 #include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 #include <ilang/util/container.h>
 
 /// \namespace ilang
