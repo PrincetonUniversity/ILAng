@@ -341,7 +341,7 @@ void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
 
-  auto Compare = [this](const ExprPtr n) {
+  auto Compare = [this](const ExprPtr& n) {
     // syntactically decompose at ITE nodes
     const ExprOpIte* expr_ite = NULL;
     if ((expr_ite = dynamic_cast<const ExprOpIte*>(n.get()))) {

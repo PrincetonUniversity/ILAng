@@ -36,7 +36,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the ast simplifier.
-  Instr(const std::string& name, const InstrLvlAbsPtr host = NULL);
+  Instr(const std::string& name, const InstrLvlAbsPtr& host = NULL);
   /// Default destructor.
   ~Instr();
 
@@ -59,22 +59,22 @@ public:
 
   /// \brief Set the decode function if not yet assigned.
   /// \param[in] decode is the pointer to the decode function (bool).
-  void set_decode(const ExprPtr decode);
+  void set_decode(const ExprPtr& decode);
 
   /// \brief Set the update function for the state variable specified by name.
   /// \param[in] name the name of the state variable.
   /// \param[in] update the update function expression (same type as state).
-  void set_update(const std::string& name, const ExprPtr update);
+  void set_update(const std::string& name, const ExprPtr& update);
 
   /// \brief Set the update function for the state variable specified by var
   /// pointer.
   /// \param[in] state the pointer to the state variable.
   /// \param[in] update the update function expression (same type as state).
-  void set_update(const ExprPtr state, const ExprPtr update);
+  void set_update(const ExprPtr& state, const ExprPtr& update);
 
   /// \brief Set the child-program (as a child-ILA) of the instruction.
   /// \param[in] program the pointer to the child-ILA.
-  void set_program(const InstrLvlAbsPtr program);
+  void set_program(const InstrLvlAbsPtr& program);
 
   /// Return the decode function.
   inline ExprPtr decode() const { return decode_; }
@@ -86,7 +86,7 @@ public:
 
   /// \brief Return the update function for the state specified by var pointer.
   /// \param[in] state the pointer to the state variable.
-  ExprPtr update(const ExprPtr state) const;
+  ExprPtr update(const ExprPtr& state) const;
 
   /// \brief return the (potentially) updated state of this function
   StateNameSet updated_states() const;
@@ -97,12 +97,12 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function.
   /// \param[in] decode is the pointer to the decode function (bool).
-  void ForceSetDecode(const ExprPtr decode);
+  void ForceSetDecode(const ExprPtr& decode);
 
   /// \brief Overwrite update function for the state variable specified by name.
   /// \param[in] name the name of the state variable.
   /// \param[in] update the update function expression (same type as state).
-  void ForceAddUpdate(const std::string& name, const ExprPtr update);
+  void ForceAddUpdate(const std::string& name, const ExprPtr& update);
 
   /// Output function.
   std::ostream& Print(std::ostream& out) const;
@@ -130,7 +130,7 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.
-  ExprPtr Unify(const ExprPtr e);
+  ExprPtr Unify(const ExprPtr& e);
 
 }; // class Instr
 

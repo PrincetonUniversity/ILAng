@@ -281,7 +281,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
     ExprVarMap lut_ref;
   };
 
-  auto RenderMemUpdate = [this](const ExprPtr e, StrBuff& b, ExprVarMap& l) {
+  auto RenderMemUpdate = [this](const ExprPtr& e, StrBuff& b, ExprVarMap& l) {
     auto mem_visiter = MemUpdateVisiter(this, b, l);
     e->DepthFirstVisitPrePost(mem_visiter);
   };

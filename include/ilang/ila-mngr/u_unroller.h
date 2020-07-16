@@ -34,11 +34,11 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Add a predicate that should be asserted globally.
-  void AddGlobPred(const ExprPtr p);
+  void AddGlobPred(const ExprPtr& p);
   /// Add a predicate that should be asserted in the initial condition.
-  void AddInitPred(const ExprPtr p);
+  void AddInitPred(const ExprPtr& p);
   /// Add a predicate that should be asserted at the k-th step.
-  void AddStepPred(const ExprPtr p, const int& k);
+  void AddStepPred(const ExprPtr& p, const int& k);
   /// Clear the global predicates.
   void ClearGlobPred();
   /// Clear the initial predicates.
@@ -50,15 +50,16 @@ public:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the z3::expr representing the current state at the time.
-  ZExpr CurrState(const ExprPtr v, const int& t);
+  ZExpr CurrState(const ExprPtr& v, const int& t);
   /// Return the z3::expr representing the next state at the time.
-  ZExpr NextState(const ExprPtr v, const int& t);
+  ZExpr NextState(const ExprPtr& v, const int& t);
   /// Return the z3::expr representing the current-based Expr at the time.
-  ZExpr GetZ3Expr(const ExprPtr e, const int& t);
+  ZExpr GetZ3Expr(const ExprPtr& e, const int& t);
   /// Return the z3::expr representing a unique Expr (regardless of time).
-  ZExpr GetZ3Expr(const ExprPtr e);
+  ZExpr GetZ3Expr(const ExprPtr& e);
   /// Return the z3::expr representing a and b are equal at their time.
-  ZExpr Equal(const ExprPtr va, const int& ta, const ExprPtr vb, const int& tb);
+  ZExpr Equal(const ExprPtr& va, const int& ta, const ExprPtr& vb,
+              const int& tb);
   /// Return the z3::func_decl representing f.
   z3::func_decl GetZ3FuncDecl(const FuncPtr& f) const;
 
@@ -95,12 +96,12 @@ protected:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the state update function (unchanged if not defined).
-  static ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
+  static ExprPtr StateUpdCmpl(const InstrPtr& instr, const ExprPtr& var);
   /// Return the decode function (true if not defined).
-  static ExprPtr DecodeCmpl(const InstrPtr instr);
+  static ExprPtr DecodeCmpl(const InstrPtr& instr);
 
   /// Create a new free variable (with same sort) under the same host.
-  static ExprPtr NewFreeVar(const ExprPtr var, const std::string& name);
+  static ExprPtr NewFreeVar(const ExprPtr& var, const std::string& name);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -241,21 +242,21 @@ public:
   /// \param[in] top the top-level ILA.
   /// \param[in] length number of steps to unroll.
   /// \param[in] pos the starting time frame.
-  ZExpr MonoSubs(const InstrLvlAbsPtr top, const int& length,
+  ZExpr MonoSubs(const InstrLvlAbsPtr& top, const int& length,
                  const int& pos = 0);
 
   /// \brief Unroll the ILA while asserting states are equal between each step.
   /// \param[in] top the top-level ILA.
   /// \param[in] length number of steps to unroll.
   /// \param[in] pos the starting time frame.
-  ZExpr MonoAssn(const InstrLvlAbsPtr top, const int& length,
+  ZExpr MonoAssn(const InstrLvlAbsPtr& top, const int& length,
                  const int& pos = 0);
 
   /// \brief Unroll the ILA without asserting states relations between steps.
   /// \param[in] top the top-level ILA.
   /// \param[in] length number of steps to unroll.
   /// \param[in] pos the starting time frame.
-  ZExpr MonoNone(const InstrLvlAbsPtr top, const int& length,
+  ZExpr MonoNone(const InstrLvlAbsPtr& top, const int& length,
                  const int& pos = 0);
 
   /// \brief Incrementally unrolling the ILA using MonoAssn (with transition
@@ -263,7 +264,7 @@ public:
   /// \param[in] top the top-level ILA.
   /// \param[in] length number of steps to unroll.
   /// \param[in] pos the starting time frame.
-  ZExpr MonoIncr(const InstrLvlAbsPtr top, const int& length, const int& pos);
+  ZExpr MonoIncr(const InstrLvlAbsPtr& top, const int& length, const int& pos);
 
 protected:
   // ------------------------- METHODS -------------------------------------- //

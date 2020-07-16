@@ -51,15 +51,15 @@ public:
   inline ExprPtr inv(const size_t& i) const { return invs_.at(i); }
 
   /// Define the target ILA (source for coi).
-  void set_tgt(const InstrLvlAbsPtr tgt);
+  void set_tgt(const InstrLvlAbsPtr& tgt);
   /// Define the target instruction (source for coi).
-  void set_tgt(const InstrPtr tgt);
+  void set_tgt(const InstrPtr& tgt);
   /// Define the apply function.
-  void set_appl(const ExprPtr appl);
+  void set_appl(const ExprPtr& appl);
   /// Define the flushing function.
-  void set_flush(const ExprPtr flush);
+  void set_flush(const ExprPtr& flush);
   /// Define the completion scenario (e.g. dummy end).
-  void set_cmpl(const ExprPtr cmpl);
+  void set_cmpl(const ExprPtr& cmpl);
   /// Specify the number of steps required for flushing. XXX
   inline void set_step(const int& step) { set_step_orig(step); }
   /// Specify the number of steps required for flushing apply path.
@@ -67,7 +67,7 @@ public:
   /// Specify the number of steps required for flushing original path.
   void set_step_orig(const int& step);
   /// Add an invariant.
-  void add_inv(const ExprPtr inv);
+  void add_inv(const ExprPtr& inv);
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new refinement mapping. Used for hiding implementation
@@ -111,7 +111,7 @@ public:
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Add one relation.
-  void add(const ExprPtr rel);
+  void add(const ExprPtr& rel);
   /// Return the conjuncted (ANDed) relation.
   inline ExprPtr get() const { return acc_; }
 
@@ -249,7 +249,7 @@ private:
   z3::expr GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref);
   z3::expr GetZ3Assm();
   z3::expr GetZ3Prop();
-  z3::expr GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un, const int& begin,
+  z3::expr GetZ3Cmpl(const ExprPtr& cmpl, MonoUnroll& un, const int& begin,
                      const int& end) const;
   z3::expr GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref, const int& begin,
                         const int& length, const ExprSet& stts) const;
@@ -263,8 +263,8 @@ private:
 
   bool SanityCheck();
   bool SanityCheckRefinement(const RefPtr ref);
-  bool SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
-                           const InstrLvlAbsPtr mb) const;
+  bool SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr& ma,
+                           const InstrLvlAbsPtr& mb) const;
 
   int DetStepOrig(const RefPtr ref, const int& max);
   int DetStepAppl(const RefPtr ref, const int& max);
@@ -276,9 +276,9 @@ private:
   z3::expr GenAssm();
   z3::expr GenProp();
 
-  z3::expr AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+  z3::expr AtLeastOnce(MonoUnroll& unroller, const ExprPtr& cmpl,
                        const int& start, const int& end) const;
-  z3::expr AtMostOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+  z3::expr AtMostOnce(MonoUnroll& unroller, const ExprPtr& cmpl,
                       const int& start, const int& end) const;
   z3::expr UnrollFlush(MonoUnroll& unroller, const RefPtr ref, const int& base,
                        const int& length, const int& start);

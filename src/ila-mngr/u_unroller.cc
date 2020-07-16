@@ -27,11 +27,11 @@ Unroller::Unroller(z3::context& ctx, const std::string& suff)
 
 Unroller::~Unroller() {}
 
-void Unroller::AddGlobPred(const ExprPtr p) { g_pred_.push_back(p); }
+void Unroller::AddGlobPred(const ExprPtr& p) { g_pred_.push_back(p); }
 
-void Unroller::AddInitPred(const ExprPtr p) { i_pred_.push_back(p); }
+void Unroller::AddInitPred(const ExprPtr& p) { i_pred_.push_back(p); }
 
-void Unroller::AddStepPred(const ExprPtr p, const int& k) {
+void Unroller::AddStepPred(const ExprPtr& p, const int& k) {
   s_pred_[k].push_back(p);
 }
 
@@ -47,25 +47,25 @@ void Unroller::ClearPred() {
   ClearStepPred();
 }
 
-ZExpr Unroller::CurrState(const ExprPtr v, const int& t) {
+ZExpr Unroller::CurrState(const ExprPtr& v, const int& t) {
   ILA_ASSERT(v->is_var()) << "Use GetZ3Expr for non-var Expr";
   return gen().GetExpr(v, SuffCurr(t));
 }
 
-ZExpr Unroller::NextState(const ExprPtr v, const int& t) {
+ZExpr Unroller::NextState(const ExprPtr& v, const int& t) {
   ILA_ASSERT(v->is_var()) << "Next state only exist for var";
   return gen().GetExpr(v, SuffNext(t));
 }
 
-ZExpr Unroller::GetZ3Expr(const ExprPtr e, const int& t) {
+ZExpr Unroller::GetZ3Expr(const ExprPtr& e, const int& t) {
   return gen().GetExpr(e, SuffCurr(t));
 }
 
-ZExpr Unroller::GetZ3Expr(const ExprPtr e) {
+ZExpr Unroller::GetZ3Expr(const ExprPtr& e) {
   return gen().GetExpr(e, extra_suff_);
 }
 
-ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
+ZExpr Unroller::Equal(const ExprPtr& a, const int& ta, const ExprPtr& b,
                       const int& tb) {
   auto a_expr = gen().GetExpr(a, SuffCurr(ta));
   auto b_expr = gen().GetExpr(b, SuffCurr(tb));
@@ -203,17 +203,17 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
   return cstr;
 }
 
-ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
+ExprPtr Unroller::StateUpdCmpl(const InstrPtr& instr, const ExprPtr& var) {
   auto upd = instr->update(var);
   return (upd) ? upd : var;
 }
 
-ExprPtr Unroller::DecodeCmpl(const InstrPtr instr) {
+ExprPtr Unroller::DecodeCmpl(const InstrPtr& instr) {
   auto dec = instr->decode();
   return (dec) ? dec : BoolConst(true);
 }
 
-ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
+ExprPtr Unroller::NewFreeVar(const ExprPtr& var, const std::string& name) {
   auto host = var->host();
   ILA_NOT_NULL(host);
 
@@ -377,25 +377,25 @@ MonoUnroll::MonoUnroll(z3::context& ctx, const std::string& suff)
 
 MonoUnroll::~MonoUnroll() {}
 
-ZExpr MonoUnroll::MonoSubs(const InstrLvlAbsPtr top, const int& length,
+ZExpr MonoUnroll::MonoSubs(const InstrLvlAbsPtr& top, const int& length,
                            const int& pos) {
   top_ = top;
   return UnrollSubs(length, pos);
 }
 
-ZExpr MonoUnroll::MonoAssn(const InstrLvlAbsPtr top, const int& length,
+ZExpr MonoUnroll::MonoAssn(const InstrLvlAbsPtr& top, const int& length,
                            const int& pos) {
   top_ = top;
   return UnrollAssn(length, pos);
 }
 
-ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr top, const int& length,
+ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr& top, const int& length,
                            const int& pos) {
   top_ = top;
   return UnrollNone(length, pos);
 }
 
-ZExpr MonoUnroll::MonoIncr(const InstrLvlAbsPtr top, const int& length,
+ZExpr MonoUnroll::MonoIncr(const InstrLvlAbsPtr& top, const int& length,
                            const int& pos) {
   top_ = top;
   return UnrollAssn(length, pos,

@@ -12,29 +12,29 @@ RefinementMap::RefinementMap() {}
 
 RefinementMap::~RefinementMap() {}
 
-void RefinementMap::set_tgt(const InstrLvlAbsPtr tgt) {
+void RefinementMap::set_tgt(const InstrLvlAbsPtr& tgt) {
   ILA_ASSERT(tgt);
   coi_ = tgt;
 }
 
-void RefinementMap::set_tgt(const InstrPtr tgt) {
+void RefinementMap::set_tgt(const InstrPtr& tgt) {
   ILA_ASSERT(tgt && tgt->host());
   coi_ = AbsKnob::ExtrDeptModl(tgt, tgt->host()->name().str());
 }
 
-void RefinementMap::set_appl(const ExprPtr appl) {
+void RefinementMap::set_appl(const ExprPtr& appl) {
   ILA_ASSERT(appl && appl->is_bool())
       << "Apply function should be represented as Boolean constraint.";
   appl_ = appl;
 }
 
-void RefinementMap::set_flush(const ExprPtr flush) {
+void RefinementMap::set_flush(const ExprPtr& flush) {
   ILA_ASSERT(flush && flush->is_bool())
       << "Flushing function should be represented as Boolean constraint.";
   flush_ = flush;
 }
 
-void RefinementMap::set_cmpl(const ExprPtr cmpl) {
+void RefinementMap::set_cmpl(const ExprPtr& cmpl) {
   ILA_ASSERT(cmpl && cmpl->is_bool())
       << "Completion should be indicated as Boolean constraint.";
   cmpl_ = cmpl;
@@ -50,7 +50,7 @@ void RefinementMap::set_step_orig(const int& step) {
   step_orig_ = step;
 }
 
-void RefinementMap::add_inv(const ExprPtr inv) {
+void RefinementMap::add_inv(const ExprPtr& inv) {
   ILA_ASSERT(inv && inv->is_bool()) << "Invariant should be Boolean.";
   invs_.push_back(inv);
 }
@@ -63,7 +63,7 @@ RelationMap::RelationMap() {}
 
 RelationMap::~RelationMap() {}
 
-void RelationMap::add(const ExprPtr rel) {
+void RelationMap::add(const ExprPtr& rel) {
   ILA_ASSERT(rel && rel->is_bool())
       << "Relation mapping should be Boolean typed.";
   acc_ = ExprFuse::And(acc_, rel);

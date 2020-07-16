@@ -12,7 +12,7 @@ static const bool kUnifyAst = false;
 
 namespace ilang {
 
-InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
+InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr& parent)
     : Object(name), parent_(parent) {
   ILA_WARN_IF(name == "") << "ILA name not specified...";
   InitObject();
@@ -21,7 +21,7 @@ InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
 InstrLvlAbs::~InstrLvlAbs() {}
 
 InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
-                                const InstrLvlAbsPtr parent) {
+                                const InstrLvlAbsPtr& parent) {
   return std::make_shared<InstrLvlAbs>(name, parent);
 }
 
@@ -65,7 +65,7 @@ const InstrLvlAbsPtr InstrLvlAbs::find_child(const Symbol& name) const {
   return (pos == childs_.end()) ? NULL : pos->second;
 }
 
-void InstrLvlAbs::AddInput(const ExprPtr input_var) {
+void InstrLvlAbs::AddInput(const ExprPtr& input_var) {
   // sanity check
   ILA_NOT_NULL(input_var);
   ILA_ASSERT(input_var->is_var()) << "Register non-var to Inputs.";
@@ -81,7 +81,7 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   inputs_.push_back(name, var);
 }
 
-void InstrLvlAbs::AddState(const ExprPtr state_var) {
+void InstrLvlAbs::AddState(const ExprPtr& state_var) {
   // sanity check
   ILA_NOT_NULL(state_var);
   ILA_ASSERT(state_var->is_var()) << "Register non-var to States.";
@@ -97,7 +97,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   states_.push_back(name, var);
 }
 
-void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
+void InstrLvlAbs::AddInit(const ExprPtr& cntr_expr) {
   // sanity check
   ILA_NOT_NULL(cntr_expr);
   ILA_ASSERT(cntr_expr->is_bool()) << "Initial condition must be Boolean.";
@@ -107,24 +107,24 @@ void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   inits_.push_back(cntr);
 }
 
-void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
+void InstrLvlAbs::SetFetch(const ExprPtr& fetch_expr) {
   ILA_ASSERT(!fetch_) << "Fetch alraedy defined";
   ForceSetFetch(fetch_expr);
 }
 
-void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
+void InstrLvlAbs::SetValid(const ExprPtr& valid_expr) {
   ILA_ASSERT(!valid_) << "Valid already defined";
   ForceSetValid(valid_expr);
 }
 
-void InstrLvlAbs::AddInstr(const InstrPtr instr) {
+void InstrLvlAbs::AddInstr(const InstrPtr& instr) {
   ILA_NOT_NULL(instr);
   // register the instruction and idx
   auto name = instr->name();
   instrs_.push_back(name, instr);
 }
 
-void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
+void InstrLvlAbs::AddChild(const InstrLvlAbsPtr& child) {
   ILA_NOT_NULL(child);
   /// register the child-ILA and idx
   auto name = child->name();
@@ -241,7 +241,7 @@ const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
   return child;
 }
 
-void InstrLvlAbs::ForceSetFetch(const ExprPtr fetch_expr) {
+void InstrLvlAbs::ForceSetFetch(const ExprPtr& fetch_expr) {
   // sanity check
   ILA_NOT_NULL(fetch_expr);
   ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.";
@@ -251,7 +251,7 @@ void InstrLvlAbs::ForceSetFetch(const ExprPtr fetch_expr) {
   fetch_ = fetch;
 }
 
-void InstrLvlAbs::ForceSetValid(const ExprPtr valid_expr) {
+void InstrLvlAbs::ForceSetValid(const ExprPtr& valid_expr) {
   // sanity check
   ILA_NOT_NULL(valid_expr);
   ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.";
@@ -261,8 +261,8 @@ void InstrLvlAbs::ForceSetValid(const ExprPtr valid_expr) {
   valid_ = valid;
 }
 
-void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
-                             const ExprPtr cnd) {
+void InstrLvlAbs::AddSeqTran(const InstrPtr& src, const InstrPtr& dst,
+                             const ExprPtr& cnd) {
   // XXX src, dst should already registered.
   auto cnd_simplified = Unify(cnd);
   if (!instr_seq_) {
@@ -296,7 +296,7 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbsCnstPtr ila) {
   return ila->Print(out);
 }
 
-ExprPtr InstrLvlAbs::Unify(const ExprPtr e) {
+ExprPtr InstrLvlAbs::Unify(const ExprPtr& e) {
   return kUnifyAst ? expr_mngr_->GetRep(e) : e;
 }
 

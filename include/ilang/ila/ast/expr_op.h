@@ -18,15 +18,15 @@ class ExprOp : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for unary operators.
-  ExprOp(const ExprPtr arg);
+  ExprOp(const ExprPtr& arg);
   /// Constructor for binary operators.
-  ExprOp(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOp(const ExprPtr& arg0, const ExprPtr& arg1);
   /// Constructor for ternary operators.
-  ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2);
+  ExprOp(const ExprPtr& arg0, const ExprPtr& arg1, const ExprPtr& arg2);
   /// Constructor for binary operators with parameters.
-  ExprOp(const ExprPtr arg0, const int& param1);
+  ExprOp(const ExprPtr& arg0, const int& param1);
   /// Constructor for ternary operators with parameters.
-  ExprOp(const ExprPtr arg0, const int& param1, const int& param2);
+  ExprOp(const ExprPtr& arg0, const int& param1, const int& param2);
   /// Constructor for multiple argument operators (AppFunc).
   ExprOp(const ExprPtrVec& args);
 
@@ -51,9 +51,9 @@ public:
 protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Derived the sort for binary operations.
-  SortPtr GetSortBinaryOperation(const ExprPtr e0, const ExprPtr e1);
+  SortPtr GetSortBinaryOperation(const ExprPtr& e0, const ExprPtr& e1);
   /// Derived the sort for binary comparisons.
-  SortPtr GetSortBinaryComparison(const ExprPtr e0, const ExprPtr e1);
+  SortPtr GetSortBinaryComparison(const ExprPtr& e0, const ExprPtr& e1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -69,7 +69,7 @@ private:
 class ExprOpNeg : public ExprOp {
 public:
   /// Constructor for Negate operation.
-  ExprOpNeg(const ExprPtr arg);
+  ExprOpNeg(const ExprPtr& arg);
   std::string op_name() const { return "NEGATE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -79,7 +79,7 @@ public:
 class ExprOpNot : public ExprOp {
 public:
   /// Constructor for Not operation.
-  ExprOpNot(const ExprPtr arg);
+  ExprOpNot(const ExprPtr& arg);
   std::string op_name() const { return "NOT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -89,7 +89,7 @@ public:
 class ExprOpCompl : public ExprOp {
 public:
   /// Constructor for Complement operation.
-  ExprOpCompl(const ExprPtr arg);
+  ExprOpCompl(const ExprPtr& arg);
   std::string op_name() const { return "COMPLEMENT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -103,7 +103,7 @@ public:
 class ExprOpAnd : public ExprOp {
 public:
   /// Constructor for AND operation.
-  ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpAnd(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "AND"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -113,7 +113,7 @@ public:
 class ExprOpOr : public ExprOp {
 public:
   /// Constructor for OR operation.
-  ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpOr(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "OR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -123,7 +123,7 @@ public:
 class ExprOpXor : public ExprOp {
 public:
   /// Constructor for XOR operation.
-  ExprOpXor(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpXor(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "XOR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -133,7 +133,7 @@ public:
 class ExprOpShl : public ExprOp {
 public:
   /// Constructor for left shifting a bit-vector.
-  ExprOpShl(const ExprPtr bv, const ExprPtr n);
+  ExprOpShl(const ExprPtr& bv, const ExprPtr& n);
   std::string op_name() const { return "SHL"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -143,7 +143,7 @@ public:
 class ExprOpAshr : public ExprOp {
 public:
   /// Constructor for arithmetic right shifting a bit-vector.
-  ExprOpAshr(const ExprPtr bv, const ExprPtr n);
+  ExprOpAshr(const ExprPtr& bv, const ExprPtr& n);
   std::string op_name() const { return "ASHR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -153,7 +153,7 @@ public:
 class ExprOpLshr : public ExprOp {
 public:
   /// Constructor for logical right shifting a bit-vector.
-  ExprOpLshr(const ExprPtr bv, const ExprPtr n);
+  ExprOpLshr(const ExprPtr& bv, const ExprPtr& n);
   std::string op_name() const { return "LSHR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -163,7 +163,7 @@ public:
 class ExprOpAdd : public ExprOp {
 public:
   /// Constructor for ADD operation.
-  ExprOpAdd(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpAdd(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "ADD"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -173,7 +173,7 @@ public:
 class ExprOpSub : public ExprOp {
 public:
   /// Constructor for SUB operation.
-  ExprOpSub(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpSub(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "SUB"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -183,7 +183,7 @@ public:
 class ExprOpDiv : public ExprOp {
 public:
   /// Constructor for DIV operation.
-  ExprOpDiv(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpDiv(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "DIV"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -193,7 +193,7 @@ public:
 class ExprOpSRem : public ExprOp {
 public:
   /// Constructor for SREM operation.
-  ExprOpSRem(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpSRem(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "SREM"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -203,7 +203,7 @@ public:
 class ExprOpURem : public ExprOp {
 public:
   /// Constructor for UREM operation.
-  ExprOpURem(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpURem(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "UREM"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -213,7 +213,7 @@ public:
 class ExprOpSMod : public ExprOp {
 public:
   /// Constructor for SREM operation.
-  ExprOpSMod(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpSMod(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "SMOD"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -225,7 +225,7 @@ public:
 class ExprOpMul : public ExprOp {
 public:
   /// Constructor for MUL operation.
-  ExprOpMul(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpMul(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "MUL"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -239,7 +239,7 @@ public:
 class ExprOpEq : public ExprOp {
 public:
   /// Constructor for Equal comparison.
-  ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpEq(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "EQ"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -251,7 +251,7 @@ public:
 class ExprOpLt : public ExprOp {
 public:
   /// Construtor for Lt comparison.
-  ExprOpLt(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpLt(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "LT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -261,7 +261,7 @@ public:
 class ExprOpGt : public ExprOp {
 public:
   /// Constructor for Gt comparison.
-  ExprOpGt(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpGt(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "GT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -275,7 +275,7 @@ public:
 class ExprOpUlt : public ExprOp {
 public:
   /// Construtor for ULt comparison.
-  ExprOpUlt(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpUlt(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "ULT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -285,7 +285,7 @@ public:
 class ExprOpUgt : public ExprOp {
 public:
   /// Constructor for UGt comparison.
-  ExprOpUgt(const ExprPtr arg0, const ExprPtr arg1);
+  ExprOpUgt(const ExprPtr& arg0, const ExprPtr& arg1);
   std::string op_name() const { return "UGT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -303,7 +303,7 @@ public:
 class ExprOpLoad : public ExprOp {
 public:
   /// Constructor for memory load.
-  ExprOpLoad(const ExprPtr mem, const ExprPtr addr);
+  ExprOpLoad(const ExprPtr& mem, const ExprPtr& addr);
   std::string op_name() const { return "LOAD"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -313,7 +313,7 @@ public:
 class ExprOpStore : public ExprOp {
 public:
   /// Constructor for memory store.
-  ExprOpStore(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
+  ExprOpStore(const ExprPtr& mem, const ExprPtr& addr, const ExprPtr& data);
   std::string op_name() const { return "STORE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -327,7 +327,7 @@ public:
 class ExprOpConcat : public ExprOp {
 public:
   /// Constructor for bitvector concatenation.
-  ExprOpConcat(const ExprPtr hi, const ExprPtr lo);
+  ExprOpConcat(const ExprPtr& hi, const ExprPtr& lo);
   std::string op_name() const { return "CONCAT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -337,7 +337,7 @@ public:
 class ExprOpExtract : public ExprOp {
 public:
   /// Constructor for bitvector extraction.
-  ExprOpExtract(const ExprPtr bv, const int& hi, const int& lo);
+  ExprOpExtract(const ExprPtr& bv, const int& hi, const int& lo);
   std::string op_name() const { return "EXTRACT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -347,7 +347,7 @@ public:
 class ExprOpZExt : public ExprOp {
 public:
   /// Constructor for bitvector zero-extend.
-  ExprOpZExt(const ExprPtr bv, const int& bit_width);
+  ExprOpZExt(const ExprPtr& bv, const int& bit_width);
   std::string op_name() const { return "ZERO_EXTEND"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -357,7 +357,7 @@ public:
 class ExprOpSExt : public ExprOp {
 public:
   /// Constructor for bitvector sign-extend.
-  ExprOpSExt(const ExprPtr bv, const int& bit_width);
+  ExprOpSExt(const ExprPtr& bv, const int& bit_width);
   std::string op_name() const { return "SIGN_EXTEND"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -367,7 +367,7 @@ public:
 class ExprOpLRotate : public ExprOp {
 public:
   /// Constructor for LRotate operation.
-  ExprOpLRotate(const ExprPtr bv, const int& immediate);
+  ExprOpLRotate(const ExprPtr& bv, const int& immediate);
   std::string op_name() const { return "LEFT_ROTATE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -377,7 +377,7 @@ public:
 class ExprOpRRotate : public ExprOp {
 public:
   /// Constructor for LRotate operation.
-  ExprOpRRotate(const ExprPtr bv, const int& immediate);
+  ExprOpRRotate(const ExprPtr& bv, const int& immediate);
   std::string op_name() const { return "RIGHT_ROTATE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -394,7 +394,7 @@ public:
   typedef std::shared_ptr<Func> FuncPtr;
 
   /// Constructor for apply uninterpreted function.
-  ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args);
+  ExprOpAppFunc(const FuncPtr& f, const ExprPtrVec& args);
   std::string op_name() const { return "APP"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -413,7 +413,7 @@ private:
 class ExprOpImply : public ExprOp {
 public:
   /// Constructor for imply.
-  ExprOpImply(const ExprPtr ante, const ExprPtr cons);
+  ExprOpImply(const ExprPtr& ante, const ExprPtr& cons);
   std::string op_name() const { return "IMPLY"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
@@ -423,8 +423,8 @@ public:
 class ExprOpIte : public ExprOp {
 public:
   /// Constructor for if-then-else.
-  ExprOpIte(const ExprPtr cnd, const ExprPtr true_expr,
-            const ExprPtr false_expr);
+  ExprOpIte(const ExprPtr& cnd, const ExprPtr& true_expr,
+            const ExprPtr& false_expr);
   std::string op_name() const { return "ITE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;

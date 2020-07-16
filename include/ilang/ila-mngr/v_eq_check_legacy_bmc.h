@@ -65,14 +65,14 @@ private:
 
   /// \brief Get the set of z3 expression (constraints) for the instruction.
   /// - States with no update functions are encoded as unchanged.
-  z3::expr Instr(const InstrPtr instr, const std::string& suffix_prev,
+  z3::expr Instr(const InstrPtr& instr, const std::string& suffix_prev,
                  const std::string& suffix_next, bool complete);
 
   /// \brief Get the set of z3 expression (constraints) for the ILA.
   /// - Assume no child-ILAs (not considered).
   /// - States with no update functions are encoded as unchanged.
   /// - Assume one-hot encoding of all instructions.
-  z3::expr IlaOneHotFlat(const InstrLvlAbsPtr ila,
+  z3::expr IlaOneHotFlat(const InstrLvlAbsPtr& ila,
                          const std::string& suffix_prev,
                          const std::string& suffix_next);
 
