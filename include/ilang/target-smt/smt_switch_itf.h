@@ -4,8 +4,6 @@
 #ifndef ILANG_ILA_MNGR_U_SMT_SWITCH_H__
 #define ILANG_ILA_MNGR_U_SMT_SWITCH_H__
 
-#include <ilang/config.h>
-
 #ifdef SMTSWITCH_INTERFACE
 
 #include <string>
@@ -27,21 +25,31 @@ public:
   /// Default destructor.
   ~SmtSwitchItf();
 
+  // ------------------------- METHODS -------------------------------------- //
+  /// Get the SMT Term of the AST node.
+  smt::Term GetSmtTerm(const ExprPtr& expr, const std::string& suffix = "");
+  /// Reset the solver and the interface.
+  void Reset();
+
+  /// Check if Term is generated.
+  bool pre(const ExprPtr& expr);
+  /// Generate Term if not already.
+  void post(const ExprPtr& expr);
+
+  // ------------------------- SHIM INTERFACE ------------------------------- //
+  /// Unified SmtShim interface to get smt::Term.
+  inline auto GetShimExpr(const ExprPtr& expr, const std::string& suffix) {
+    return GetSmtTerm(expr, suffix);
+  }
+  /// Unified SmtShim interface to get smt::Func.
+  inline auto GetShimFunc(const FuncPtr& func) { return Func2Term(func); }
+
+private:
   /// Type for cacheing the generated expressions.
   typedef std::unordered_map<const ExprPtr, smt::Term, ExprHash> ExprTermMap;
   /// Type for cacheing the generated functions.
   typedef std::unordered_map<const FuncPtr, smt::Term, FuncHash> FuncTermMap;
 
-  // ------------------------- METHODS -------------------------------------- //
-  /// Get the SMT Term of the AST node.
-  smt::Term GetSmtTerm(const ExprPtr expr, const std::string& suffix = "");
-  /// Reset the solver and the interface.
-  void Reset();
-
-  /// Function object for getting SMT Term.
-  void operator()(const ExprPtr expr);
-
-private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying SMT solver.
   smt::SmtSolver& solver_;
@@ -54,15 +62,17 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the SMT Term of the given node into the map.
-  void PopulateExprMap(const ExprPtr expr);
+  void PopulateExprMap(const ExprPtr& expr);
   /// Make Term of expr variable.
-  smt::Term ExprVar2Term(const ExprPtr expr);
+  smt::Term ExprVar2Term(const ExprPtr& expr);
   /// Make Term of expr constant.
-  smt::Term ExprConst2Term(const ExprPtr expr);
+  smt::Term ExprConst2Term(const ExprPtr& expr);
   /// Make Term of expr operator.
-  smt::Term ExprOp2Term(const ExprPtr expr, const smt::TermVec& arg_terms);
+  smt::Term ExprOp2Term(const ExprPtr& expr, const smt::TermVec& arg_terms);
+  /// Make Term of func.
+  smt::Term Func2Term(const FuncPtr& func);
   /// Make smt::Sort of ilang::SortPtr.
-  smt::Sort IlaSort2SmtSort(const SortPtr s);
+  smt::Sort IlaSort2SmtSort(const SortPtr& s);
 
 }; // class SmtSwitchItf
 

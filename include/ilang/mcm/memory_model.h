@@ -4,8 +4,9 @@
 #ifndef ILANG_MCM_MEMORY_MODEL_H__
 #define ILANG_MCM_MEMORY_MODEL_H__
 
-#include "ilang/mcm/ast_helper.h"
-#include "ilang/mcm/axiom_helper.h"
+#include <ilang/mcm/ast_helper.h>
+#include <ilang/mcm/axiom_helper.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 
 /// \namespace ilang
 namespace ilang {
