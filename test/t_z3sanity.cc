@@ -1,10 +1,11 @@
 /// \file
 /// Unit test for generating z3 express for ast.
 
-#include "unit-include/util.h"
 #include <ilang/ila/expr_fuse.h>
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 #include <ilang/util/log.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -118,7 +119,8 @@ TEST_F(TestZ3Expr, SRem) {
   auto ast_x_eq_y_plus_1 = ExprFuse::Eq(bv_var_x, ast_y_plus_1);
   auto ast_y_gt_1 = ExprFuse::Gt(bv_var_y, 1);
   auto ast_x_gt_0 = ExprFuse::Gt(bv_var_x, 0);
-  auto ast_cond = ExprFuse::And(ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1), ast_x_gt_0);
+  auto ast_cond =
+      ExprFuse::And(ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1), ast_x_gt_0);
   auto ast_target = ExprFuse::Ite(ast_cond, ast_urem_eq_1, bool_true);
   auto expr_target = gen->GetExpr(ast_target);
   s->add(!expr_target);

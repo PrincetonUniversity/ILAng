@@ -12,7 +12,6 @@
 #include <fstream>
 #include <iomanip>
 
-#include <ilang/config.h>
 #ifdef FS_INCLUDE
 #include <filesystem>
 #else // FS_INCLUDE
@@ -48,9 +47,7 @@ namespace fs = std::filesystem;
 namespace fs = std::experimental::filesystem;
 #endif // FS_INCLUDE
 
-bool os_portable_exist(const std::string& path) {
-  return fs::exists(path);
-}
+bool os_portable_exist(const std::string& path) { return fs::exists(path); }
 
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir) {

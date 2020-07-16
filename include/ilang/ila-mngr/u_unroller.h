@@ -4,19 +4,20 @@
 #ifndef ILANG_ILA_MNGR_U_UNROLLER_H__
 #define ILANG_ILA_MNGR_U_UNROLLER_H__
 
-#include <set>
+#include <map>
 #include <vector>
 
-#include "z3++.h"
+#include <z3++.h>
+
 #include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 
 /// \namespace ilang
 namespace ilang {
 
 /// \brief Base class for unrolling ILA execution in different settings.
 class Unroller {
-public:
+protected:
   /// Type alias for z3::expr.
   typedef z3::expr ZExpr;
   /// Type for containing a set of z3::expr.
@@ -24,6 +25,7 @@ public:
   /// Type alias for a set of ExprPtr.
   typedef ExprPtrVec IExprVec;
 
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor
   Unroller(z3::context& ctx, const std::string& suffix);
@@ -144,7 +146,7 @@ private:
                    const std::string& suffix);
 
   /// Clear the z3::epxr container.
-  inline void Clear(ZExprVec& z3_vec);
+  void Clear(ZExprVec& z3_vec);
 
   /// Generate and append the z3::expr for the set of Expr w.r.t. the suffix.
   void IExprToZExpr(const IExprVec& i_expr_src, const std::string& suffix,

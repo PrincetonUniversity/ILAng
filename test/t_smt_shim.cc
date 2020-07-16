@@ -1,13 +1,15 @@
 /// \file
-/// Unit tests for smt-switch interface (with Boolector)
+/// Unit tests for SmtShim
 
 #ifdef SMTSWITCH_TEST
-
 #include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
+#endif // SMTSWITCH_TEST
 
 #include <ilang/ilang++.h>
+#include <ilang/target-smt/smt_shim.h>
 #include <ilang/target-smt/smt_switch_itf.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 
 #include "unit-include/util.h"
 
@@ -15,36 +17,44 @@
 
 namespace ilang {
 
-class TestSmtSwitch : public ::testing::Test {
+class TestSmtShim : public ::testing::Test {
 public:
-  TestSmtSwitch()
+  TestSmtShim()
       : var_bool_a(m.NewBoolState("var_bool_a")),
         var_bool_b(m.NewBoolState("var_bool_b")),
         var_bv_a(m.NewBvState("var_bv_a", BV_SIZE)),
         var_bv_b(m.NewBvState("var_bv_b", BV_SIZE)),
         var_mem_a(m.NewMemState("var_mem_a", BV_SIZE, BV_SIZE)),
-        var_mem_b(m.NewMemState("var_mem_b", BV_SIZE, BV_SIZE)) {
-    // use boolector for the unit tests
-    s = smt::BoolectorSolverFactory::create(false);
-  }
+        var_mem_b(m.NewMemState("var_mem_b", BV_SIZE, BV_SIZE)) {}
 
-  ~TestSmtSwitch() {}
-
+  ~TestSmtShim() {}
   void SetUp() {}
+  void TearDown() {}
 
-  void TearDown() {
-    // reset all created terms etc.
-    s->reset();
+  void CheckUnsatZ3(const ExprRef& e) {
+    z3::context ctx;
+    z3::solver solver(ctx);
+    Z3ExprAdapter gen(ctx);
+    auto shim = SmtShim(gen);
+
+    auto z3_expr = shim.GetShimExpr(e.get());
+    solver.add(z3_expr);
+    auto res = solver.check();
+    EXPECT_TRUE(res == z3::unsat);
   }
 
-  void CheckUnsat(const ExprRef& e) {
-    auto term = ResetAndGetSmtTerm(s, e);
-    s->assert_formula(term);
-    auto res = s->check_sat();
+  void CheckUnsatSwitch(const ExprRef& e) {
+#ifdef SMTSWITCH_TEST
+    auto solver = smt::BoolectorSolverFactory::create(false);
+    auto switch_itf = SmtSwitchItf(solver);
+    auto shim = SmtShim(switch_itf);
+
+    auto switch_term = shim.GetShimExpr(e.get());
+    solver->assert_formula(switch_term);
+    auto res = solver->check_sat();
     EXPECT_TRUE(res.is_unsat());
+#endif // SMTSWITCH_TEST
   }
-
-  smt::SmtSolver s;
 
   Ila m = Ila("host");
   ExprRef var_bool_a;
@@ -53,274 +63,324 @@ public:
   ExprRef var_bv_b;
   ExprRef var_mem_a;
   ExprRef var_mem_b;
+};
 
-}; // class TestSmtSwitch
-
-TEST_F(TestSmtSwitch, OpBvNeg) {
-  auto neg_a = -var_bv_a;
-  auto neg_neg_a = -neg_a;
-  auto prop = neg_neg_a != var_bv_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
-}
-
-TEST_F(TestSmtSwitch, OpBoolNot) {
+TEST_F(TestSmtShim, OpBoolNot) {
   auto not_a = !var_bool_a;
   auto not_not_a = !not_a;
   auto prop = not_not_a != var_bool_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvComplement) {
+TEST_F(TestSmtShim, OpBvNeg) {
+  auto neg_a = -var_bv_a;
+  auto neg_neg_a = -neg_a;
+  auto prop = neg_neg_a != var_bv_a;
+  CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
+  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
+}
+
+TEST_F(TestSmtShim, OpBvComplement) {
   auto com_a = ~var_bv_a;
   auto com_com_a = ~com_a;
   auto prop = com_com_a != var_bv_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
+  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
-TEST_F(TestSmtSwitch, OpBoolAnd) {
+TEST_F(TestSmtShim, OpBoolAnd) {
   auto a_and_not_a = var_bool_a & !var_bool_a;
-  CheckUnsat(a_and_not_a);
+  CheckUnsatZ3(a_and_not_a);
+  CheckUnsatSwitch(a_and_not_a);
 }
 
-TEST_F(TestSmtSwitch, OpBvAnd) {
+TEST_F(TestSmtShim, OpBvAnd) {
   auto a_and_all1 = var_bv_a & BvConst((1 << BV_SIZE) - 1, BV_SIZE);
   auto prop = a_and_all1 != var_bv_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBoolOr) {
+TEST_F(TestSmtShim, OpBoolOr) {
   auto a_or_not_a = var_bool_a | !var_bool_a;
   auto prop = !a_or_not_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvOr) {
+TEST_F(TestSmtShim, OpBvOr) {
   auto a_or_0 = var_bv_a | BvConst(0, BV_SIZE);
   auto prop = a_or_0 != var_bv_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBoolXor) {
+TEST_F(TestSmtShim, OpBoolXor) {
   auto a_xor_b = var_bool_a ^ var_bool_b;
   auto a_eq_b = var_bool_a == var_bool_b;
   auto prop = a_xor_b & a_eq_b;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvXor) {
+TEST_F(TestSmtShim, OpBvXor) {
   auto a_xor_b = var_bv_a ^ var_bv_b;
   auto a_eq_b = var_bv_a == var_bv_b;
   auto prop = a_eq_b & (a_xor_b == BvConst((1 << BV_SIZE) - 1, BV_SIZE));
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvShl) {
+TEST_F(TestSmtShim, OpBvShl) {
   auto a_shl_all = var_bv_a << BV_SIZE;
   auto prop = a_shl_all != BvConst(0, BV_SIZE);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvAshr) {
+TEST_F(TestSmtShim, OpBvAshr) {
   auto a_ashr_all = var_bv_a >> BV_SIZE;
   auto is_pos = a_ashr_all == BvConst(0, BV_SIZE);
   auto is_neg = a_ashr_all == BvConst((1 << BV_SIZE) - 1, BV_SIZE);
   auto prop = !(is_pos | is_neg);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvLshr) {
+TEST_F(TestSmtShim, OpBvLshr) {
   auto a_ashr_all = Lshr(var_bv_a, BvConst(BV_SIZE, BV_SIZE));
   auto prop = a_ashr_all != BvConst(0, BV_SIZE);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvAdd) {
+TEST_F(TestSmtShim, OpBvAdd) {
   auto a_plus_0 = var_bv_a + BvConst(0, BV_SIZE);
   auto prop = a_plus_0 != var_bv_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvSub) {
+TEST_F(TestSmtShim, OpBvSub) {
   auto a_minus_0 = var_bv_a - BvConst(0, BV_SIZE);
   auto prop = a_minus_0 != var_bv_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvAddSub) {
+TEST_F(TestSmtShim, OpBvAddSub) {
   auto a_plus_b = var_bv_a + var_bv_b;
   auto a_plus_b_minus_b = a_plus_b - var_bv_b;
   auto prop = a_plus_b_minus_b != var_bv_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvMul) {
+TEST_F(TestSmtShim, OpBvMul) {
   auto a_times_0 = var_bv_a * BvConst(0, BV_SIZE);
   auto prop = a_times_0 != BvConst(0, BV_SIZE);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvDiv) {
+TEST_F(TestSmtShim, OpBvDiv) {
   auto a_div_1 = var_bv_a / BvConst(1, BV_SIZE);
   auto prop = a_div_1 != var_bv_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvSrem) {
+TEST_F(TestSmtShim, OpBvSrem) {
   auto div = BvConst(3, BV_SIZE);
   auto a_srem_3 = SRem(var_bv_a, div);
   auto prop = !(Slt(a_srem_3, div));
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvUrem) {
+TEST_F(TestSmtShim, OpBvUrem) {
   auto div = BvConst(3, BV_SIZE);
   auto a_urem_3 = URem(var_bv_a, div);
   auto prop = !(Ult(a_urem_3, div));
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvSmod) {
+TEST_F(TestSmtShim, OpBvSmod) {
   auto div = BvConst(3, BV_SIZE);
   auto a_smod_3 = SMod(var_bv_a, div);
   auto prop = !(Slt(a_smod_3, div));
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvSltSge) {
+TEST_F(TestSmtShim, OpBvSltSge) {
   auto a_slt_b = var_bv_a < var_bv_b;
   auto a_sge_b = var_bv_a >= var_bv_b;
   auto prop = a_slt_b & a_sge_b;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvSleSgt) {
+TEST_F(TestSmtShim, OpBvSleSgt) {
   auto a_sle_b = var_bv_a <= var_bv_b;
   auto a_sgt_b = var_bv_a > var_bv_b;
   auto prop = a_sle_b & a_sgt_b;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvSltSgteq) {
+TEST_F(TestSmtShim, OpBvSltSgteq) {
   auto a_slt_b = var_bv_a < var_bv_b;
   auto a_sgt_b = var_bv_a > var_bv_b;
   auto a_eq_b = var_bv_a == var_bv_b;
   auto prop = !(a_slt_b | a_sgt_b | a_eq_b);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvUltUge) {
+TEST_F(TestSmtShim, OpBvUltUge) {
   auto a_ult_b = Ult(var_bv_a, var_bv_b);
   auto a_uge_b = Uge(var_bv_a, var_bv_b);
   auto prop = a_ult_b & a_uge_b;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvUleUgt) {
+TEST_F(TestSmtShim, OpBvUleUgt) {
   auto a_ule_b = Ule(var_bv_a, var_bv_b);
   auto a_ugt_b = Ugt(var_bv_a, var_bv_b);
   auto prop = a_ule_b & a_ugt_b;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvUltUgteq) {
+TEST_F(TestSmtShim, OpBvUltUgteq) {
   auto a_ult_b = Ult(var_bv_a, var_bv_b);
   auto a_ugt_b = Ugt(var_bv_a, var_bv_b);
   auto a_eq_b = var_bv_a == var_bv_b;
   auto prop = !(a_ult_b | a_ugt_b | a_eq_b);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpMemLoad) {
+TEST_F(TestSmtShim, OpMemLoad) {
   auto data_a = Load(var_mem_a, var_bv_a);
   auto data_b = Load(var_mem_a, var_bv_b);
   auto prop = (var_bv_a == var_bv_b) & (data_a != data_b);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpMemStore) {
+TEST_F(TestSmtShim, OpMemStore) {
   auto new_mem = Store(var_mem_a, var_bv_a, var_bv_b);
   auto data = Load(new_mem, var_bv_a);
   auto prop = data != var_bv_b;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvConcat) {
+TEST_F(TestSmtShim, OpBvConcat) {
   auto a_con_b = Concat(var_bv_a, var_bv_b);
   auto b_con_a = Concat(var_bv_b, var_bv_a);
   auto prop = (var_bv_a == var_bv_b) & (a_con_b != b_con_a);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvExtract) {
+TEST_F(TestSmtShim, OpBvExtract) {
   auto a_con_b = Concat(var_bv_a, var_bv_b);
   auto extract_a_con_b = Extract(a_con_b, BV_SIZE - 1, 0);
   auto prop = extract_a_con_b != var_bv_b;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
+  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
-TEST_F(TestSmtSwitch, OpBvZext) {
+TEST_F(TestSmtShim, OpBvZext) {
   auto zext_a = ZExt(var_bv_a, 2 * BV_SIZE);
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), var_bv_a);
   auto prop = zext_a != zero_con_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
+  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
-TEST_F(TestSmtSwitch, OpBvSext) {
+TEST_F(TestSmtShim, OpBvSext) {
   auto pos_a = Lshr(var_bv_a, 1);
   auto sext_a = SExt(pos_a, 2 * BV_SIZE);
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), pos_a);
   auto prop = sext_a != zero_con_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
+  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
-TEST_F(TestSmtSwitch, OpBvRotate) {
+TEST_F(TestSmtShim, OpBvRotate) {
   auto left_rotate_1 = LRotate(var_bv_a, 1);
   auto right_rotate_back = RRotate(left_rotate_1, 1);
   auto prop = right_rotate_back != var_bv_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
+  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
-TEST_F(TestSmtSwitch, OpBoolImply) {
+TEST_F(TestSmtShim, OpBoolImply) {
   auto a_imply_b = Imply(var_bool_a, var_bool_b);
   auto prop = a_imply_b & var_bool_a & !var_bool_b;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBoolIte) {
+TEST_F(TestSmtShim, OpBoolIte) {
   auto ite_a_0_a = Ite(var_bool_a, BoolConst(false), var_bool_a);
   auto prop = ite_a_0_a;
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpBvIte) {
+TEST_F(TestSmtShim, OpBvIte) {
   auto ite_c_a_b = Ite(var_bool_a, var_bv_a, var_bv_b);
   auto prop = (var_bv_a == var_bv_b) & (ite_c_a_b != var_bv_a);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, OpApplyFunc) {
+TEST_F(TestSmtShim, OpApplyFunc) {
   auto func = FuncRef("func", SortRef::BOOL(), SortRef::BV(BV_SIZE));
   auto out1 = func(var_bv_a);
   auto out2 = func(var_bv_b);
   auto prop = (var_bv_a == var_bv_b) & (out1 != out2);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, ConstBool) {
+TEST_F(TestSmtShim, ConstBool) {
   auto a_is_0 = var_bool_a == BoolConst(false);
   auto b_is_1 = var_bool_b == BoolConst(true);
   auto prop = a_is_0 & b_is_1 & (var_bool_a == var_bool_b);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, ConstBv) {
+TEST_F(TestSmtShim, ConstBv) {
   auto a_is_0 = var_bv_a == BvConst(0, BV_SIZE);
   auto b_is_1 = var_bv_b == BvConst(1, BV_SIZE);
   auto prop = a_is_0 & b_is_1 & (var_bv_a == var_bv_b);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, ConstMem) {
+TEST_F(TestSmtShim, ConstMem) {
   std::map<NumericType, NumericType> data_pair;
   data_pair[0] = 0;
   data_pair[1] = 1;
@@ -330,38 +390,43 @@ TEST_F(TestSmtSwitch, ConstMem) {
   auto save_addr = (var_bv_a <= 3) & (var_bv_a >= 0);
   auto is_linear = Load(const_mem, var_bv_a) == var_bv_a;
   auto prop = !Imply(save_addr, is_linear);
-  CheckUnsat(prop);
+  CheckUnsatZ3(prop);
+  CheckUnsatSwitch(prop);
 }
 
-TEST_F(TestSmtSwitch, DiscreteUsage) {
+TEST_F(TestSmtShim, DiscreteUsage) {
   auto a_ult_b = Ult(var_bv_a, var_bv_b);
   auto a_ugt_b = Ugt(var_bv_a, var_bv_b);
   auto a_eq_b = var_bv_a == var_bv_b;
 
-  auto itf = SmtSwitchItf(s);
-  s->assert_formula(itf.GetSmtTerm(a_ult_b.get()));
-  s->assert_formula(itf.GetSmtTerm(a_ugt_b.get()));
-  s->assert_formula(itf.GetSmtTerm(a_eq_b.get()));
+  { // z3
+    z3::context ctx;
+    z3::solver solver(ctx);
+    Z3ExprAdapter gen(ctx);
+    auto shim = SmtShim(gen);
 
-  auto res = s->check_sat();
-  EXPECT_TRUE(res.is_unsat());
-}
+    solver.add(shim.GetShimExpr(a_ult_b.get()));
+    solver.add(shim.GetShimExpr(a_ugt_b.get()));
+    solver.add(shim.GetShimExpr(a_eq_b.get()));
 
-TEST_F(TestSmtSwitch, DISABLED_MultiIssue) {
-  auto itf = SmtSwitchItf(s);
+    auto res = solver.check();
+    EXPECT_TRUE(res == z3::unsat);
+  }
 
-  auto a_and_not_a = var_bool_a & !var_bool_a;
-  s->assert_formula(itf.GetSmtTerm(a_and_not_a.get()));
-  auto res = s->check_sat();
-  EXPECT_TRUE(res.is_unsat());
+#ifdef SMTSWITCH_TEST
+  { // switch
+    auto solver = smt::BoolectorSolverFactory::create(false);
+    auto itf = SmtSwitchItf(solver);
+    auto shim = SmtShim(itf);
 
-  itf.Reset(); // XXX solver not properly reseted
+    solver->assert_formula(shim.GetShimExpr(a_ult_b.get()));
+    solver->assert_formula(shim.GetShimExpr(a_ugt_b.get()));
+    solver->assert_formula(shim.GetShimExpr(a_eq_b.get()));
 
-  auto a_or_b = var_bool_a | var_bool_b;
-  s->assert_formula(itf.GetSmtTerm(a_or_b.get()));
-  EXPECT_TRUE(res.is_sat());
-}
-
-}; // namespace ilang
-
+    auto res = solver->check_sat();
+    EXPECT_TRUE(res.is_unsat());
+  }
 #endif // SMTSWITCH_TEST
+}
+
+} // namespace ilang

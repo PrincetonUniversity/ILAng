@@ -74,6 +74,10 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mngr_absknob.cc
   t_pass.cc
   t_portable.cc
+  t_smt_in.cc
+  t_smt_shim.cc
+  t_smt_switch_itf.cc
+  t_smt_trans.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
@@ -88,8 +92,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3adapter.cc
   t_z3sanity.cc
   t_inv_syn.cc
-  t_smt_in.cc
-  t_smt_trans.cc
   t_inv_obj.cc
 )
 
@@ -100,15 +102,14 @@ if(${ILANG_BUILD_SYNTH})
 endif()
 
 if(${ILANG_BUILD_SWITCH})
-
-  find_package(smtswitch REQUIRED)
-
   if(${SMTSWITCH_BTOR_FOUND})
-    target_sources(${ILANG_TEST_MAIN} PRIVATE
-      t_smt_switch_itf.cc
-    )
+    target_compile_definitions(${ILANG_TEST_MAIN} PRIVATE SMTSWITCH_TEST)
   endif()
+endif()
 
+# check if c++17 filesystem is available
+if(${FS_INCLUDE})
+  target_compile_definitions(${ILANG_TEST_MAIN} PRIVATE FS_INCLUDE)
 endif()
 
 set(ILANG_TEST_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
