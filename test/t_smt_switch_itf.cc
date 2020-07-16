@@ -1,6 +1,8 @@
 /// \file
 /// Unit tests for smt-switch interface (with Boolector)
 
+#ifdef SMTSWITCH_TEST
+
 #include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
 
@@ -361,3 +363,5 @@ TEST_F(TestSmtSwitch, DISABLED_MultiIssue) {
 }
 
 }; // namespace ilang
+
+#endif // SMTSWITCH_TEST

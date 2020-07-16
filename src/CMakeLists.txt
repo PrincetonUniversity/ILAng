@@ -60,6 +60,9 @@ target_include_directories(${ILANG_LIB_NAME}
 
 # check if c++17 filesystem is available
 CHECK_INCLUDE_FILE_CXX(filesystem FS_INCLUDE)
+if(${FS_INCLUDE})
+  target_compile_definitions(${ILANG_LIB_NAME} PRIVATE FS_INCLUDE)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # LINK LIBRARIES

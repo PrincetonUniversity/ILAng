@@ -1,14 +1,10 @@
 /// \file
 /// Unit tests for SmtShim
 
-#include <ilang/config.h>
-
-#ifdef SMTSWITCH_INTERFACE
-#ifdef SMTSWITCH_BTOR_FOUND
+#ifdef SMTSWITCH_TEST
 #include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
-#endif // SMTSWITCH_BTOR_FOUND
-#endif // SMTSWITCH_INTERFACE
+#endif // SMTSWITCH_TEST
 
 #include <ilang/ilang++.h>
 #include <ilang/target-smt/smt_shim.h>
@@ -48,8 +44,7 @@ public:
   }
 
   void CheckUnsatSwitch(const ExprRef& e) {
-#ifdef SMTSWITCH_INTERFACE
-#ifdef SMTSWITCH_BTOR_FOUND
+#ifdef SMTSWITCH_TEST
     auto solver = smt::BoolectorSolverFactory::create(false);
     auto switch_itf = SmtSwitchItf(solver);
     auto shim = SmtShim(switch_itf);
@@ -58,8 +53,7 @@ public:
     solver->assert_formula(switch_term);
     auto res = solver->check_sat();
     EXPECT_TRUE(res.is_unsat());
-#endif // SMTSWITCH_BTOR_FOUND
-#endif // SMTSWITCH_INTERFACE
+#endif // SMTSWITCH_TEST
   }
 
   Ila m = Ila("host");
@@ -84,7 +78,9 @@ TEST_F(TestSmtShim, OpBvNeg) {
   auto neg_neg_a = -neg_a;
   auto prop = neg_neg_a != var_bv_a;
   CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
   EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
 TEST_F(TestSmtShim, OpBvComplement) {
@@ -92,7 +88,9 @@ TEST_F(TestSmtShim, OpBvComplement) {
   auto com_com_a = ~com_a;
   auto prop = com_com_a != var_bv_a;
   CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
   EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
 TEST_F(TestSmtShim, OpBoolAnd) {
@@ -300,7 +298,9 @@ TEST_F(TestSmtShim, OpBvExtract) {
   auto extract_a_con_b = Extract(a_con_b, BV_SIZE - 1, 0);
   auto prop = extract_a_con_b != var_bv_b;
   CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
   EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
 TEST_F(TestSmtShim, OpBvZext) {
@@ -308,7 +308,9 @@ TEST_F(TestSmtShim, OpBvZext) {
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), var_bv_a);
   auto prop = zext_a != zero_con_a;
   CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
   EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
 TEST_F(TestSmtShim, OpBvSext) {
@@ -317,7 +319,9 @@ TEST_F(TestSmtShim, OpBvSext) {
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), pos_a);
   auto prop = sext_a != zero_con_a;
   CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
   EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
 TEST_F(TestSmtShim, OpBvRotate) {
@@ -325,7 +329,9 @@ TEST_F(TestSmtShim, OpBvRotate) {
   auto right_rotate_back = RRotate(left_rotate_1, 1);
   auto prop = right_rotate_back != var_bv_a;
   CheckUnsatZ3(prop);
+#ifdef SMTSWITCH_TEST
   EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
+#endif // SMTSWITCH_TEST
 }
 
 TEST_F(TestSmtShim, OpBoolImply) {
@@ -407,9 +413,8 @@ TEST_F(TestSmtShim, DiscreteUsage) {
     EXPECT_TRUE(res == z3::unsat);
   }
 
+#ifdef SMTSWITCH_TEST
   { // switch
-#ifdef SMTSWITCH_INTERFACE
-#ifdef SMTSWITCH_BTOR_FOUND
     auto solver = smt::BoolectorSolverFactory::create(false);
     auto itf = SmtSwitchItf(solver);
     auto shim = SmtShim(itf);
@@ -420,9 +425,8 @@ TEST_F(TestSmtShim, DiscreteUsage) {
 
     auto res = solver->check_sat();
     EXPECT_TRUE(res.is_unsat());
-#endif // SMTSWITCH_BTOR_FOUND
-#endif // SMTSWITCH_INTERFACE
   }
+#endif // SMTSWITCH_TEST
 }
 
 } // namespace ilang
