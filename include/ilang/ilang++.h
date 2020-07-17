@@ -582,7 +582,8 @@ public:
 
   /// \brief Supported pass ID.
   typedef enum PassID {
-    SIMPLIFY_SYNTACTIC = 0,
+    SANITY_CHECK_AND_FIX = 0,
+    SIMPLIFY_SYNTACTIC,
     SIMPLIFY_SEMANTIC,
     REWRITE_CONDITIONAL_STORE,
     REWRITE_LOAD_FROM_STORE

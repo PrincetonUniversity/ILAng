@@ -104,9 +104,7 @@ bool SimplifySemantic(const InstrLvlAbsCnstPtr& m, const int& timeout) {
       // only simplify instructions
       for (size_t i = 0; i < current->instr_num(); i++) {
         auto instr = current->instr(i);
-        // decode
-        ILA_NOT_NULL(instr->decode());
-        instr->ForceSetDecode(SimpEqSubtree(instr->decode(), instr));
+        // DO NOT rewrite decode (valid & decode used as the env.)
         // state updates
         for (const auto& state : instr->updated_states()) {
           instr->ForceAddUpdate(state,

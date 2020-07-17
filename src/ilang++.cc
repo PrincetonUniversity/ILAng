@@ -699,6 +699,10 @@ bool Ila::ExecutePass(const std::vector<PassID>& passes) const {
   auto status = true;
   for (const auto& id : passes) {
     switch (id) {
+    case PassID::SANITY_CHECK_AND_FIX: {
+      status &= pass::SanityCheckAndFix(ptr_);
+      break;
+    }
     case PassID::SIMPLIFY_SYNTACTIC: {
       status &= pass::SimplifySyntactic(ptr_);
       break;
