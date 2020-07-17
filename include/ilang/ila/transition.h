@@ -6,7 +6,6 @@
 
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/instr.h>
-#include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/container.h>
 
 /// \namespace ilang
@@ -23,7 +22,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with all components.
-  InstrTranEdge(const InstrPtr src, const InstrPtr dst, const ExprPtr cnd);
+  InstrTranEdge(const InstrPtr& src, const InstrPtr& dst, const ExprPtr& cnd);
   /// Default destructor.
   ~InstrTranEdge();
 
@@ -54,7 +53,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  InstrTranNode(const InstrPtr instr);
+  InstrTranNode(const InstrPtr& instr);
   /// Default destructir.
   ~InstrTranNode();
 
@@ -74,9 +73,9 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Update the set of out-going node.
-  void AddNext(const ItNodePtr next);
+  void AddNext(const ItNodePtr& next);
   /// Update the set of in-comming node.
-  void AddPrev(const ItNodePtr prev);
+  void AddPrev(const ItNodePtr& prev);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -98,10 +97,6 @@ class InstrSeq {
 public:
   /// Pointer type for passing around InstrSeq.
   typedef std::shared_ptr<InstrSeq> InstrSeqPtr;
-  /// Pointer type for passing around InstrTranEdge.
-  typedef InstrTranEdge::ItEdgePtr ItEdgePtr;
-  /// Pointer type for passing around InstrTranNode.
-  typedef InstrTranNode::ItNodePtr ItNodePtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -119,7 +114,7 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Add one transition to the set.
-  void AddTran(const InstrPtr src, const InstrPtr dst, const ExprPtr cnd);
+  void AddTran(const InstrPtr& src, const InstrPtr& dst, const ExprPtr& cnd);
 
   /// Set the root node (entry instruction).
   void set_root(const InstrPtr& i);
@@ -128,6 +123,11 @@ public:
   InstrPtr root() const { return root_; }
 
 private:
+  /// Pointer type for passing around InstrTranEdge.
+  typedef InstrTranEdge::ItEdgePtr ItEdgePtr;
+  /// Pointer type for passing around InstrTranNode.
+  typedef InstrTranNode::ItNodePtr ItNodePtr;
+
   // ------------------------- MEMBERS -------------------------------------- //
   /// The root node (instruction).
   InstrPtr root_ = NULL;

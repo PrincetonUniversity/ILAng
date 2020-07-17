@@ -6,12 +6,12 @@
 #include <ilang/config.h>
 #include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
-#include <ilang/ila-mngr/u_smt_switch.h>
 #include <ilang/ila-mngr/u_unroller.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
 #include <ilang/target-sc/ilator.h>
+#include <ilang/target-smt/smt_switch_itf.h>
 #include <ilang/util/log.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
@@ -699,6 +699,10 @@ bool Ila::ExecutePass(const std::vector<PassID>& passes) const {
   auto status = true;
   for (const auto& id : passes) {
     switch (id) {
+    case PassID::SANITY_CHECK_AND_FIX: {
+      status &= pass::SanityCheckAndFix(ptr_);
+      break;
+    }
     case PassID::SIMPLIFY_SYNTACTIC: {
       status &= pass::SimplifySyntactic(ptr_);
       break;

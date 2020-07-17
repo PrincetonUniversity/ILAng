@@ -17,10 +17,13 @@ void ApplyPass(const std::string& dir, const std::string& file,
   EnableDebug("PassRewrStoreLoad");
   EnableDebug("PassInferChildProgCFG");
   EnableDebug("PassMapChildProgEntry");
+  EnableDebug("PassSanityCheck");
 
   auto file_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, dir);
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file);
+
+  ila.ExecutePass({Ila::PassID::SANITY_CHECK_AND_FIX}); // this may add instr.
 
   ila.ExecutePass({Ila::PassID::SIMPLIFY_SYNTACTIC,
                    Ila::PassID::SIMPLIFY_SEMANTIC,
@@ -31,6 +34,8 @@ void ApplyPass(const std::string& dir, const std::string& file,
   pass::MapChildProgEntryPoint(ila.get());
 
   auto org = ImportIlaPortable(ila_file);
+  org.ExecutePass({Ila::PassID::SANITY_CHECK_AND_FIX}); // this may add instr.
+
   CheckIlaEqLegacy(org.get(), ila.get());
 
   DisableDebug("PassSimpSemantic");
@@ -38,6 +43,7 @@ void ApplyPass(const std::string& dir, const std::string& file,
   DisableDebug("PassRewrStoreLoad");
   DisableDebug("PassInferChildProgCFG");
   DisableDebug("PassMapChildProgEntry");
+  DisableDebug("PassSanityCheck");
 }
 
 TEST(TestPass, AES) { ApplyPass("aes", "aes.json"); }

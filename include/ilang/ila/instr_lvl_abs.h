@@ -48,7 +48,8 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Consturctor.
-  InstrLvlAbs(const std::string& name = "", const InstrLvlAbsPtr parent = NULL);
+  InstrLvlAbs(const std::string& name = "",
+              const InstrLvlAbsPtr& parent = NULL);
   /// Default destructor.
   ~InstrLvlAbs();
 
@@ -56,7 +57,7 @@ public:
   /// \brief Create a new ILA (InstrLvlAbs) with the name. Used for hiding
   /// implementation specific type details.
   static InstrLvlAbsPtr New(const std::string& name,
-                            const InstrLvlAbsPtr parent = NULL);
+                            const InstrLvlAbsPtr& parent = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.
@@ -128,37 +129,37 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
   /// \param[in] input_var pointer to the input variable being added.
-  void AddInput(const ExprPtr input_var);
+  void AddInput(const ExprPtr& input_var);
 
   /// \brief Add one state variable to the ILA, and register to the simplifier.
   /// \param[in] state_var pointer to the state variable being added.
-  void AddState(const ExprPtr state_var);
+  void AddState(const ExprPtr& state_var);
 
   /// \brief Add one free variable to the ILA.
   /// \param[in] free_var pointer to the free variable being added.
-  // void AddFreeVar(const ExprPtr free_var);
+  // void AddFreeVar(const ExprPtr& free_var);
 
   /// \brief Add one constraint to the initial condition, i.e. no contraint
   /// means arbitrary initial values to the state variables.
   /// \param[in] cntr_expr pointer to the constraint being added.
-  void AddInit(const ExprPtr cntr_expr);
+  void AddInit(const ExprPtr& cntr_expr);
 
   /// \brief Set the fetch function, and simplify (if needed) by the simplifier.
   /// \param[in] fetch_expr pointer to the fetch function (as an expression).
-  void SetFetch(const ExprPtr fetch_expr);
+  void SetFetch(const ExprPtr& fetch_expr);
 
   /// \brief Set the valid function, and simplify (if needed) by the simplifier.
   /// \param[in] valid_expr pointer to the valid function (as an expression).
-  void SetValid(const ExprPtr valid_expr);
+  void SetValid(const ExprPtr& valid_expr);
 
   /// \brief Add one instruction to the ILA, and simplify (if needed). Note that
   /// only fully constructed instruction can be added.
   /// \param[in] instr pointer to the instruction being added.
-  void AddInstr(const InstrPtr instr);
+  void AddInstr(const InstrPtr& instr);
 
   /// \brief Add one ILA to the child list. No simplification between ILAs.
   /// \param[in] child pointer to the child-ILA being added.
-  void AddChild(const InstrLvlAbsPtr child);
+  void AddChild(const InstrLvlAbsPtr& child);
 
   /// \brief Create one Boolean variable and register as an input.
   /// \param[in] name of the bool input.
@@ -229,17 +230,17 @@ public:
 
   /// \brief Set the fetch function no matter if is already set.
   /// \param[in] fetch_expr pointer to the fetch function (as an expression).
-  void ForceSetFetch(const ExprPtr fetch_expr);
+  void ForceSetFetch(const ExprPtr& fetch_expr);
 
   /// \brief Set the valid function no matter if is already set.
   /// \param[in] valid_expr pointer to the valid function (as an expression).
-  void ForceSetValid(const ExprPtr valid_expr);
+  void ForceSetValid(const ExprPtr& valid_expr);
 
   /// \brief Define instruction sequencing by adding a transition edge.
   /// \param[in] src source instruction
   /// \param[in] dst target instruction (destination)
   /// \param[in] cnd transition condition (guard), i.e. dst.DECODE
-  void AddSeqTran(const InstrPtr src, const InstrPtr dst, const ExprPtr cnd);
+  void AddSeqTran(const InstrPtr& src, const InstrPtr& dst, const ExprPtr& cnd);
 
   /// \brief Return the ancestor names in sequence.
   std::string GetRootName() const;
@@ -312,13 +313,13 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.
-  ExprPtr Unify(const ExprPtr e);
+  ExprPtr Unify(const ExprPtr& e);
   /// Initialize default configuration, reset members, etc.
   void InitObject();
   /// Check instruction is complete (e.g. update sort matches).
-  void CheckInstr(const InstrPtr instr);
+  void CheckInstr(const InstrPtr& instr);
   /// Simplify instruction if not already.
-  void SimplifyInstr(const InstrPtr instr);
+  void SimplifyInstr(const InstrPtr& instr);
 
 }; // class InstrLvlAbs
 

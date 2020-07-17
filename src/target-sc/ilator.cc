@@ -1,6 +1,8 @@
 /// \file
 /// Implementation of the class Ilator.
 
+#include <ilang/target-sc/ilator.h>
+
 #include <fstream>
 
 #include <fmt/format.h>
@@ -11,11 +13,9 @@
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/ila/expr_fuse.h>
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
-
-#include <ilang/target-sc/ilator.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -281,7 +281,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
     ExprVarMap lut_ref;
   };
 
-  auto RenderMemUpdate = [this](const ExprPtr e, StrBuff& b, ExprVarMap& l) {
+  auto RenderMemUpdate = [this](const ExprPtr& e, StrBuff& b, ExprVarMap& l) {
     auto mem_visiter = MemUpdateVisiter(this, b, l);
     e->DepthFirstVisitPrePost(mem_visiter);
   };

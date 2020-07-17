@@ -1,13 +1,12 @@
 /// \file
 /// Source for the smt-switch interface.
 
-#include <ilang/config.h>
-
 #ifdef SMTSWITCH_INTERFACE
+
+#include <ilang/target-smt/smt_switch_itf.h>
 
 #include <fmt/format.h>
 
-#include <ilang/ila-mngr/u_smt_switch.h>
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
@@ -21,53 +20,46 @@ SmtSwitchItf::SmtSwitchItf(smt::SmtSolver& solver) : solver_(solver) {}
 SmtSwitchItf::~SmtSwitchItf() {}
 
 void SmtSwitchItf::Reset() {
-  ILA_WARN << "Solver reset is not fully supported in smt-switch";
-  solver_->reset();
+  try {
+    solver_->reset();
+  } catch (SmtException& e) {
+    ILA_ERROR << e.what();
+  }
   expr_map_.clear();
   func_map_.clear();
 }
 
-smt::Term SmtSwitchItf::GetSmtTerm(const ExprPtr expr,
+smt::Term SmtSwitchItf::GetSmtTerm(const ExprPtr& expr,
                                    const std::string& suffix) {
   suffix_ = suffix;
-
-  expr->DepthFirstVisit(*this);
+  expr->DepthFirstVisitPrePost(*this);
 
   auto pos = expr_map_.find(expr);
-  ILA_ASSERT(pos != expr_map_.end()) << "SMT Term generating failed.";
-
+  ILA_ASSERT(pos != expr_map_.end()) << expr;
   return pos->second;
 }
 
-void SmtSwitchItf::operator()(const ExprPtr expr) {
-  auto pos = expr_map_.find(expr);
-  // Term has been generated
-  if (pos != expr_map_.end()) {
-    return;
-  }
+bool SmtSwitchItf::pre(const ExprPtr& expr) {
+  return (expr_map_.find(expr) != expr_map_.end());
+}
 
-  // Term not generated yet - try to construct
+void SmtSwitchItf::post(const ExprPtr& expr) {
   try {
     PopulateExprMap(expr);
   } catch (SmtException& e) {
-    ILA_ERROR << "Error while processing " << expr;
-    ILA_ERROR << e.what();
+    ILA_ERROR << expr << e.what();
   }
 }
 
-void SmtSwitchItf::PopulateExprMap(const ExprPtr expr) {
+void SmtSwitchItf::PopulateExprMap(const ExprPtr& expr) {
   // placeholder for argument Terms
   smt::TermVec arg_terms;
 
-  size_t num = expr->arg_num();
-  for (size_t i = 0; i != num; i++) {
+  for (size_t i = 0; i < expr->arg_num(); i++) {
     auto arg_i_expr = expr->arg(i);
     auto pos = expr_map_.find(arg_i_expr);
 
-    // all arguments should already have thier Terms
-    ILA_ASSERT(pos != expr_map_.end())
-        << fmt::format("No Term found for the {}-th argument", i);
-
+    ILA_ASSERT(pos != expr_map_.end()) << arg_i_expr;
     arg_terms.push_back(pos->second);
   }
 
@@ -93,7 +85,7 @@ void SmtSwitchItf::PopulateExprMap(const ExprPtr expr) {
   expr_map_.insert({expr, res});
 }
 
-smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr expr) {
+smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr& expr) {
   // for z3 compatibility
   auto prefix = (expr->host()) ? expr->host()->GetRootName() : "";
   auto e_name = expr->name().format_str(prefix, suffix_);
@@ -102,7 +94,7 @@ smt::Term SmtSwitchItf::ExprVar2Term(const ExprPtr expr) {
   return solver_->make_symbol(e_name, smt_sort);
 }
 
-smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
+smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr& expr) {
   auto expr_const = std::static_pointer_cast<ExprConst>(expr);
 
   switch (auto sort_uid = GetUidSort(expr->sort()); sort_uid) {
@@ -140,7 +132,7 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr expr) {
   }; // switch sort_uid
 }
 
-smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
+smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr& expr,
                                     const smt::TermVec& arg_terms) {
 
   // XXX Boolector (maybe also others) doesn't accept INT sort for param.
@@ -149,14 +141,12 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
 
   switch (auto expr_op_uid = GetUidExprOp(expr); expr_op_uid) {
   case AST_UID_EXPR_OP::NEG: {
-    ILA_WARN << "Negate not fully supported in smt-switch.";
     return solver_->make_term(smt::PrimOp::Negate, arg_terms.at(0));
   }
   case AST_UID_EXPR_OP::NOT: {
     return solver_->make_term(smt::PrimOp::Not, arg_terms.at(0));
   }
   case AST_UID_EXPR_OP::COMPL: {
-    ILA_WARN << "Complement not fully supported in smt-switch.";
     return solver_->make_term(smt::PrimOp::BVComp, arg_terms.at(0));
   }
   case AST_UID_EXPR_OP::AND: {
@@ -250,28 +240,23 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
                               arg_terms.at(1));
   }
   case AST_UID_EXPR_OP::EXTRACT: {
-    ILA_WARN << "Extract not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     auto p1 = solver_->make_term(expr->param(1), param_sort);
     return solver_->make_term(smt::PrimOp::Extract, arg_terms.at(0), p0, p1);
   }
   case AST_UID_EXPR_OP::ZEXT: {
-    ILA_WARN << "Zero_Extend not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Zero_Extend, arg_terms.at(0), p0);
   }
   case AST_UID_EXPR_OP::SEXT: {
-    ILA_WARN << "Sign_Extend not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Sign_Extend, arg_terms.at(0), p0);
   }
   case AST_UID_EXPR_OP::LROTATE: {
-    ILA_WARN << "Rotate_Left not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Rotate_Left, arg_terms.at(0), p0);
   }
   case AST_UID_EXPR_OP::RROTATE: {
-    ILA_WARN << "Rotate_Right not fully supported in smt-switch.";
     auto p0 = solver_->make_term(expr->param(0), param_sort);
     return solver_->make_term(smt::PrimOp::Rotate_Right, arg_terms.at(0), p0);
   }
@@ -295,23 +280,8 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
     if (pos != func_map_.end()) {
       func_arg_terms.push_back(pos->second);
     } else { // fist visit - create new term
-      // func name (for z3 compatibility)
-      auto prefix = (func->host()) ? func->host()->GetRootName() : "";
-      auto f_name = func->name().format_str(prefix, suffix_);
-
-      // func sort
-      auto arg_sorts = smt::SortVec();
-      for (size_t i = 0; i != func->arg_num(); i++) {
-        arg_sorts.push_back(IlaSort2SmtSort(func->arg(i)));
-      }
-      arg_sorts.push_back(IlaSort2SmtSort(func->out())); // return is the last
-      auto func_sort = solver_->make_sort(smt::FUNCTION, arg_sorts);
-
-      // func term
-      auto func_term = solver_->make_symbol(f_name, func_sort);
+      auto func_term = Func2Term(func);
       func_arg_terms.push_back(func_term);
-
-      // update cache
       func_map_[func] = func_term;
     }
 
@@ -328,7 +298,25 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr expr,
   }; // switch expr_op_uid
 }
 
-smt::Sort SmtSwitchItf::IlaSort2SmtSort(const SortPtr s) {
+smt::Term SmtSwitchItf::Func2Term(const FuncPtr& func) {
+  // func name (for z3 compatibility)
+  auto prefix = (func->host()) ? func->host()->GetRootName() : "";
+  auto f_name = func->name().format_str(prefix, suffix_);
+
+  // func sort
+  auto arg_sorts = smt::SortVec();
+  for (size_t i = 0; i != func->arg_num(); i++) {
+    arg_sorts.push_back(IlaSort2SmtSort(func->arg(i)));
+  }
+  arg_sorts.push_back(IlaSort2SmtSort(func->out())); // return is the last
+  auto func_sort = solver_->make_sort(smt::FUNCTION, arg_sorts);
+
+  // func term
+  auto func_term = solver_->make_symbol(f_name, func_sort);
+  return func_term;
+}
+
+smt::Sort SmtSwitchItf::IlaSort2SmtSort(const SortPtr& s) {
   switch (auto sort_uid = GetUidSort(s); sort_uid) {
   case AST_UID_SORT::BOOL: {
     return solver_->make_sort(smt::BOOL);

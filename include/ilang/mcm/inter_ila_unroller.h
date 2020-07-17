@@ -10,10 +10,10 @@
 #include <stack>
 #include <vector>
 
-#include "ilang/ila/instr_lvl_abs.h"
-#include "ilang/ila/z3_expr_adapter.h"
-#include "ilang/mcm/memory_model.h"
-#include "z3++.h"
+#include <z3++.h>
+
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/mcm/memory_model.h>
 
 /// \namespace ilang
 namespace ilang {

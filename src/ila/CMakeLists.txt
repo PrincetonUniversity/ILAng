@@ -18,7 +18,4 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/object.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/symbol.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/transition.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/validate_model.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/z3_expr_adapter.cc
 )
-

@@ -17,7 +17,7 @@ public:
   FuncObjRewrCondStore() : FuncObjRewrExpr({}) {}
 
 private:
-  ExprPtr RewriteOp(const ExprPtr e) const {
+  ExprPtr RewriteOp(const ExprPtr& e) const {
     // override memory ITE
     if (e->is_mem() && GetUidExprOp(e) == AST_UID_EXPR_OP::ITE) {
       return RewriteCondMem(e);
@@ -25,13 +25,13 @@ private:
     return FuncObjRewrExpr::RewriteOp(e);
   }
 
-  ExprPtr RewriteCondMem(const ExprPtr e) const {
+  ExprPtr RewriteCondMem(const ExprPtr& e) const {
     ILA_NOT_NULL(e);
     auto cond = get(e->arg(0));
     auto mem1 = get(e->arg(1));
     auto mem2 = get(e->arg(2));
 
-    auto IsStore = [=](const ExprPtr x) {
+    auto IsStore = [=](const ExprPtr& x) {
       ILA_ASSERT(x && x->is_mem()) << "Invariant violation " << x;
       if (x->is_op()) {
         return GetUidExprOp(x) == AST_UID_EXPR_OP::STORE;
@@ -114,7 +114,7 @@ bool RewriteConditionalStore(const InstrLvlAbsPtr& m) {
   ILA_INFO << "Start pass: rewrite conditional store";
 
   auto func = FuncObjRewrCondStore();
-  auto Rewr = [=, &func](const ExprPtr e) {
+  auto Rewr = [=, &func](const ExprPtr& e) {
     if (e) {
       e->DepthFirstVisitPrePost(func);
       return func.get(e);

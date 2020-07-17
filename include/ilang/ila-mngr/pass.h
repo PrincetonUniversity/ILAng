@@ -42,6 +42,11 @@ bool SimplifySemantic(const InstrLvlAbsCnstPtr& m, const int& timeout = -1);
 /// \param[in] m The top-level ILA.
 bool SimplifySyntactic(const InstrLvlAbsPtr& m);
 
+/// \brief Sanity check instruction completness and determinism and fix if
+/// possible.
+/// \param[in] m The top-level ILA.
+bool SanityCheckAndFix(const InstrLvlAbsPtr& m);
+
 } // namespace pass
 
 }; // namespace ilang
