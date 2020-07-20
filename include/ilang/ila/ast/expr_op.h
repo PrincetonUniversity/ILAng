@@ -286,7 +286,7 @@ public:
                      const std::string& suffix) const;
 }; // class ExprOpEq
 
-// Not equal is implemented in ExprFuse with Eq and Not.
+// Not equal is implemented in asthub with Eq and Not.
 
 /// \brief The class wrapper for binary comparison signed less than "<".
 class ExprOpLt : public ExprOp {
@@ -308,9 +308,9 @@ public:
                      const std::string& suffix) const;
 }; // class ExprOpGt
 
-// Signed less than or equal to is implemented in ExprFuse with Eq and Lt.
+// Signed less than or equal to is implemented in asthub with Eq and Lt.
 
-// Signed greater than or equal to is implemented in ExprFuse with Eq and Gt.
+// Signed greater than or equal to is implemented in asthub with Eq and Gt.
 
 /// \brief The class wrapper for binary comparison unsigned less than.
 class ExprOpUlt : public ExprOp {
@@ -332,9 +332,9 @@ public:
                      const std::string& suffix) const;
 }; // class ExprOpUgt
 
-// Unsigned less than or equal to is implemented in ExprFuse with Eq and ULt.
+// Unsigned less than or equal to is implemented in asthub with Eq and ULt.
 
-// Unsigned greater than or equal to is implemented in ExprFuse with Eq and UGt.
+// Unsigned greater than or equal to is implemented in asthub with Eq and UGt.
 
 /******************************************************************************/
 // Memory

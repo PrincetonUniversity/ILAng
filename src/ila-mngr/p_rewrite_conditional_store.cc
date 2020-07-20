@@ -34,10 +34,8 @@ private:
 
     auto IsStore = [=](const ExprPtr& x) {
       ILA_ASSERT(x && x->is_mem()) << "Invariant violation " << x;
-      if (x->is_op()) {
-        return asthub::GetUidExprOp(x) == AstUidExprOp::kStore;
-      }
-      return false;
+      return (x->is_op()) ? (asthub::GetUidExprOp(x) == AstUidExprOp::kStore)
+                          : false;
     };
 
     // pattern 0 - identical branch
@@ -114,11 +112,9 @@ bool RewriteConditionalStore(const InstrLvlAbsPtr& m) {
 
   auto func = FuncObjRewrCondStore();
   auto Rewr = [=, &func](const ExprPtr& e) {
-    if (e) {
-      e->DepthFirstVisitPrePost(func);
-      return func.get(e);
-    }
-    return e;
+    ILA_NOT_NULL(e);
+    e->DepthFirstVisitPrePost(func);
+    return func.get(e);
   };
 
   return RewriteGeneric(m, Rewr);

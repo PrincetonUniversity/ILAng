@@ -71,12 +71,11 @@ void InstrLvlAbs::AddInput(const ExprPtr& input_var) {
   // sanity check
   ILA_NOT_NULL(input_var);
   ILA_ASSERT(input_var->is_var()) << "Register non-var to Inputs.";
-  // should be the first
+
   auto name = input_var->name();
-  auto posi = inputs_.find(name);
-  auto poss = states_.find(name);
-  ILA_ASSERT(posi == inputs_.end() && poss == states_.end())
-      << "Input variable " << input_var << " has been declared.";
+  ILA_ASSERT(inputs_.find(name) == inputs_.end()) << name;
+  ILA_ASSERT(states_.find(name) == states_.end()) << name;
+
   // register to the simplifier
   auto var = Unify(input_var);
   // register to Inputs
@@ -87,12 +86,11 @@ void InstrLvlAbs::AddState(const ExprPtr& state_var) {
   // sanity check
   ILA_NOT_NULL(state_var);
   ILA_ASSERT(state_var->is_var()) << "Register non-var to States.";
-  // should be the first
+
   auto name = state_var->name();
-  auto poss = states_.find(name);
-  auto posi = inputs_.find(name);
-  ILA_ASSERT(poss == states_.end() && posi == inputs_.end())
-      << "State variable " << state_var << " has been declared.";
+  ILA_ASSERT(inputs_.find(name) == inputs_.end());
+  ILA_ASSERT(states_.find(name) == states_.end());
+
   // register to the simplifier
   auto var = Unify(state_var);
   // register to States
