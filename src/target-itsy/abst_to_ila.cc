@@ -228,7 +228,7 @@ void SynthAbsConverter::PortInits(const ilasynth::Abstraction& abs,
       auto init_val_node = abs.getInit(var_name)->node;
       if (init_val_node) {
         auto init_val_expr = ConvertSynthNodeToIlangExpr(init_val_node, ila);
-        ila->AddInit(ExprFuse::Eq(var_expr, init_val_expr));
+        ila->AddInit(asthub::Eq(var_expr, init_val_expr));
       }
     } catch (...) {
       ILA_DLOG("SynthImport") << "No initial value for " << var_name;
@@ -348,7 +348,7 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
       // check if the condition argument is one of the entries
       auto condition = n->arg(0);
       for (auto entry : decom_entry_) {
-        if (ExprFuse::TopEq(condition, entry)) {
+        if (asthub::TopEq(condition, entry)) {
           // this glue node is decomposed
           decom_glue_.insert(n);
           // record success matching
@@ -426,20 +426,20 @@ void SynthAbsConverter::CnvtNodeToExpr(const ilasynth::Node* n) {
 
 void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
   // place holder for the result
-  decltype(ExprFuse::BoolConst(true)) expr = NULL;
+  decltype(asthub::BoolConst(true)) expr = NULL;
 
   auto type = n->getType();
   switch (type.type) {
   case ilasynth::NodeType::Type::BOOL: {
     auto bool_const = static_cast<const ilasynth::BoolConst*>(n);
-    expr = ExprFuse::BoolConst(bool_const->val());
+    expr = asthub::BoolConst(bool_const->val());
     break;
   }
 
   case ilasynth::NodeType::Type::BITVECTOR: {
     auto bv_const = static_cast<const ilasynth::BitvectorConst*>(n);
     auto val = static_cast<int>(bv_const->val());
-    expr = ExprFuse::BvConst(val, type.bitWidth);
+    expr = asthub::BvConst(val, type.bitWidth);
     break;
   }
 
@@ -455,7 +455,7 @@ void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
       mem_value.set_data(addr, data);
     }
 
-    expr = ExprFuse::MemConst(mem_value, type.addrWidth, type.dataWidth);
+    expr = asthub::MemConst(mem_value, type.addrWidth, type.dataWidth);
     break;
   }
 
@@ -488,71 +488,71 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
   auto op_ptr = dynamic_cast<const ilasynth::BoolOp*>(n);
   ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bool Op";
 
-  decltype(ExprFuse::BoolConst(true)) expr = NULL;
+  decltype(asthub::BoolConst(true)) expr = NULL;
 
   switch (op_ptr->getOp()) {
   case ilasynth::BoolOp::Op::NOT:
-    expr = ExprFuse::Not(expr_args.at(0));
+    expr = asthub::Not(expr_args.at(0));
     break;
   case ilasynth::BoolOp::Op::AND:
-    expr = ExprFuse::And(expr_args.at(0), expr_args.at(1));
+    expr = asthub::And(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::OR:
-    expr = ExprFuse::Or(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Or(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::XOR:
-    expr = ExprFuse::Xor(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Xor(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::XNOR: {
-    auto tmp_xor = ExprFuse::Xor(expr_args.at(0), expr_args.at(1));
-    expr = ExprFuse::Not(tmp_xor);
+    auto tmp_xor = asthub::Xor(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Not(tmp_xor);
     break;
   }
   case ilasynth::BoolOp::Op::NAND: {
-    auto tmp_and = ExprFuse::And(expr_args.at(0), expr_args.at(1));
-    expr = ExprFuse::Not(tmp_and);
+    auto tmp_and = asthub::And(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Not(tmp_and);
     break;
   }
   case ilasynth::BoolOp::Op::NOR: {
-    auto tmp_or = ExprFuse::Or(expr_args.at(0), expr_args.at(1));
-    expr = ExprFuse::Not(tmp_or);
+    auto tmp_or = asthub::Or(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Not(tmp_or);
     break;
   }
   case ilasynth::BoolOp::Op::IMPLY:
-    expr = ExprFuse::Imply(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Imply(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::SLT:
-    expr = ExprFuse::Lt(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Lt(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::SGT:
-    expr = ExprFuse::Gt(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Gt(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::SLE:
-    expr = ExprFuse::Le(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Le(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::SGE:
-    expr = ExprFuse::Ge(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Ge(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::ULT:
-    expr = ExprFuse::Ult(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Ult(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::UGT:
-    expr = ExprFuse::Ugt(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Ugt(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::ULE:
-    expr = ExprFuse::Ule(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Ule(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::UGE:
-    expr = ExprFuse::Uge(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Uge(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::EQUAL:
-    expr = ExprFuse::Eq(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Eq(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::DISTINCT:
-    expr = ExprFuse::Ne(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Ne(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BoolOp::Op::IF:
-    expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
+    expr = asthub::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
   default:
     ILA_ERROR << "Cannot find corresponding Bool Op for " << n->getName();
@@ -589,118 +589,116 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   auto op_ptr = dynamic_cast<const ilasynth::BitvectorOp*>(n);
   ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bv Op";
 
-  decltype(ExprFuse::BvConst(1, 1)) expr = NULL;
+  decltype(asthub::BvConst(1, 1)) expr = NULL;
 
   switch (op_ptr->getOp()) {
   case ilasynth::BitvectorOp::Op::NEGATE:
-    expr = ExprFuse::Negate(expr_args.at(0));
+    expr = asthub::Negate(expr_args.at(0));
     break;
   case ilasynth::BitvectorOp::Op::COMPLEMENT:
-    expr = ExprFuse::Complement(expr_args.at(0));
+    expr = asthub::Complement(expr_args.at(0));
     break;
   case ilasynth::BitvectorOp::Op::LROTATE:
-    expr = ExprFuse::LRotate(expr_args.at(0), op_ptr->param(0));
+    expr = asthub::LRotate(expr_args.at(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::RROTATE:
-    expr = ExprFuse::RRotate(expr_args.at(0), op_ptr->param(0));
+    expr = asthub::RRotate(expr_args.at(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::Z_EXT:
-    expr = ExprFuse::ZExt(expr_args.at(0), op_ptr->param(0));
+    expr = asthub::ZExt(expr_args.at(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::S_EXT:
-    expr = ExprFuse::SExt(expr_args.at(0), op_ptr->param(0));
+    expr = asthub::SExt(expr_args.at(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::EXTRACT:
-    expr =
-        ExprFuse::Extract(expr_args.at(0), op_ptr->param(0), op_ptr->param(1));
+    expr = asthub::Extract(expr_args.at(0), op_ptr->param(0), op_ptr->param(1));
     break;
   case ilasynth::BitvectorOp::Op::ADD:
-    expr = ExprFuse::Add(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Add(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SUB:
-    expr = ExprFuse::Sub(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Sub(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::AND:
-    expr = ExprFuse::And(expr_args.at(0), expr_args.at(1));
+    expr = asthub::And(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::OR:
-    expr = ExprFuse::Or(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Or(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::XOR:
-    expr = ExprFuse::Xor(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Xor(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::XNOR: {
-    auto tmp_xor = ExprFuse::Xor(expr_args.at(0), expr_args.at(1));
-    expr = ExprFuse::Not(tmp_xor);
+    auto tmp_xor = asthub::Xor(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Not(tmp_xor);
     break;
   }
   case ilasynth::BitvectorOp::Op::NAND: {
-    auto tmp_and = ExprFuse::And(expr_args.at(0), expr_args.at(1));
-    expr = ExprFuse::Not(tmp_and);
+    auto tmp_and = asthub::And(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Not(tmp_and);
     break;
   }
   case ilasynth::BitvectorOp::Op::NOR: {
-    auto tmp_or = ExprFuse::Or(expr_args.at(0), expr_args.at(1));
-    expr = ExprFuse::Not(tmp_or);
+    auto tmp_or = asthub::Or(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Not(tmp_or);
     break;
   }
   case ilasynth::BitvectorOp::Op::SDIV:
     ILA_ERROR << "SDIV not implemented.";
     break;
   case ilasynth::BitvectorOp::Op::UDIV:
-    expr = ExprFuse::Div(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Div(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SREM:
-    expr = ExprFuse::SRem(expr_args.at(0), expr_args.at(1));
+    expr = asthub::SRem(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::UREM:
-    expr = ExprFuse::URem(expr_args.at(0), expr_args.at(1));
+    expr = asthub::URem(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SMOD:
-    expr = ExprFuse::SMod(expr_args.at(0), expr_args.at(1));
+    expr = asthub::SMod(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SHL:
-    expr = ExprFuse::Shl(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Shl(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::LSHR:
-    expr = ExprFuse::Lshr(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Lshr(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::ASHR:
-    expr = ExprFuse::Ashr(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Ashr(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::MUL:
-    expr = ExprFuse::Mul(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Mul(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::CONCAT:
-    expr = ExprFuse::Concat(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Concat(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::GET_BIT:
-    expr =
-        ExprFuse::Extract(expr_args.at(0), op_ptr->param(0), op_ptr->param(0));
+    expr = asthub::Extract(expr_args.at(0), op_ptr->param(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::READMEM:
-    expr = ExprFuse::Load(expr_args.at(0), expr_args.at(1));
+    expr = asthub::Load(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::READMEMBLOCK: {
     auto chunks = op_ptr->param(0);
     auto endian = op_ptr->param(1);
     for (auto i = 0; i < chunks; i++) {
-      auto addr_i = ExprFuse::Add(expr_args.at(1), i);
-      auto data_i = ExprFuse::Load(expr_args.at(0), addr_i);
+      auto addr_i = asthub::Add(expr_args.at(1), i);
+      auto data_i = asthub::Load(expr_args.at(0), addr_i);
       if (i == 0) {
         expr = data_i;
       } else {
         if (endian == ilasynth::endianness_t::LITTLE_E) {
-          expr = ExprFuse::Concat(data_i, expr);
+          expr = asthub::Concat(data_i, expr);
         } else {
-          expr = ExprFuse::Concat(expr, data_i);
+          expr = asthub::Concat(expr, data_i);
         }
       }
     }
     break;
   }
   case ilasynth::BitvectorOp::Op::IF:
-    expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
+    expr = asthub::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
   case ilasynth::BitvectorOp::Op::APPLY_FUNC: {
     auto func_node = n->arg(0);
@@ -708,7 +706,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     ILA_ASSERT(func_find != node_func_map_.end());
 
     auto func = func_find->second;
-    expr = ExprFuse::AppFunc(func, expr_args);
+    expr = asthub::AppFunc(func, expr_args);
     break;
   }
   default:
@@ -739,11 +737,11 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
   auto op_ptr = dynamic_cast<const ilasynth::MemOp*>(n);
   ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Mem Op";
 
-  decltype(ExprFuse::MemConst(0, 8, 8)) expr = NULL;
+  decltype(asthub::MemConst(0, 8, 8)) expr = NULL;
 
   switch (op_ptr->getOp()) {
   case ilasynth::MemOp::Op::STORE:
-    expr = ExprFuse::Store(expr_args.at(0), expr_args.at(1), expr_args.at(2));
+    expr = asthub::Store(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
 
   case ilasynth::MemOp::Op::STOREBLOCK: {
@@ -762,16 +760,16 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
     auto data = expr_args.at(2);
 
     for (auto i = 0; i < chunk_size; i++, bit_idx += bit_inc) {
-      auto addr_i = ExprFuse::Add(addr, i);
-      auto data_i = ExprFuse::Extract(data, bit_idx + chunk_size - 1, bit_idx);
-      expr = ExprFuse::Store(expr, addr_i, data_i);
+      auto addr_i = asthub::Add(addr, i);
+      auto data_i = asthub::Extract(data, bit_idx + chunk_size - 1, bit_idx);
+      expr = asthub::Store(expr, addr_i, data_i);
     }
 
     break;
   }
 
   case ilasynth::MemOp::Op::ITE:
-    expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
+    expr = asthub::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
 
   default:

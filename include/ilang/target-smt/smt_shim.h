@@ -5,7 +5,7 @@
 #define ILANG_TARGET_SMT_SMT_SHIM_H__
 
 #include <ilang/ila/ast/func.h>
-#include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/ast_hub.h>
 
 /// \namespace ilang
 namespace ilang {

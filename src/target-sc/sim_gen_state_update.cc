@@ -3,9 +3,10 @@
 
 #include <fmt/format.h>
 
-#include <ilang/ila/ast_fuse.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
+
+#include "ast_fuse.h"
 
 namespace ilang {
 

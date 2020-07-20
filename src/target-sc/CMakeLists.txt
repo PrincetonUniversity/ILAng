@@ -8,6 +8,7 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
 
 if(${ILANG_BUILD_COSIM})
   target_sources(${ILANG_LIB_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/ast_fuse.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/dfs.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/ila_sim.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/sim_gen_decode.cc
