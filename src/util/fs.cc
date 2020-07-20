@@ -201,19 +201,6 @@ std::string os_portable_remove_file_name_extension(const std::string& fname) {
   return name.string();
 }
 
-bool os_portable_compare_file(const std::string& file1,
-                              const std::string& file2) {
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  auto cmd = fmt::format("fc /a {} {}", file1, file2);
-#else
-  // on *nix
-  auto cmd = fmt::format("cmp -s {} {}", file1, file2);
-#endif
-  int ret = std::system(cmd.c_str());
-  return ret == 0;
-}
-
 #if defined(__unix__) || defined(unix) || defined(__APPLE__) ||                \
     defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 

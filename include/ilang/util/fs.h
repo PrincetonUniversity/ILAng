@@ -50,10 +50,6 @@ std::string os_portable_join_dir(const std::vector<std::string>& dirs);
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
 std::string os_portable_remove_file_name_extension(const std::string& fname);
 
-/// Compare two file
-bool os_portable_compare_file(const std::string& file1,
-                              const std::string& file2);
-
 /// the result from executing
 struct execute_result {
   /// has timeout

@@ -581,7 +581,7 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
 
 bool Ilator::GenerateBuildSupport(const std::string& dir) {
   // CMakeLists.txt
-  static const char* cmake_recipe_template =
+  static const char* kCmakeRecipeTemplate =
       "# CMakeLists.txt for {project}\n"
       "cmake_minimum_required(VERSION 3.14.0)\n"
       "project({project} LANGUAGES CXX)\n"
@@ -623,7 +623,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
   }
 
   StrBuff buff;
-  fmt::format_to(buff, cmake_recipe_template,
+  fmt::format_to(buff, kCmakeRecipeTemplate,
                  fmt::arg("project", GetProjectName()),
                  fmt::arg("dir_app", kDirApp),
                  fmt::arg("source_files", fmt::join(src_files, "\n")),
@@ -632,7 +632,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
   WriteFile(os_portable_append_dir(dir, "CMakeLists.txt"), buff);
 
   // dummy main function if not exist
-  static const char* sim_entry_template =
+  static const char* kSimEntryTemplate =
       "#include <{project}.h>\n\n"
       "int sc_main(int argc, char* argv[]) {{\n"
       "  return 0; \n"
@@ -643,7 +643,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
 
   if (!os_portable_exist(entry_path)) {
     buff.clear();
-    fmt::format_to(buff, sim_entry_template,
+    fmt::format_to(buff, kSimEntryTemplate,
                    fmt::arg("project", GetProjectName()));
     WriteFile(entry_path, buff);
   }

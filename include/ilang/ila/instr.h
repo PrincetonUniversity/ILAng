@@ -5,6 +5,7 @@
 #define ILANG_ILA_INSTR_H__
 
 #include <memory>
+#include <set>
 #include <string>
 
 #include <ilang/ila/hash_ast.h>

@@ -53,21 +53,21 @@ void ExprMngr::operator()(const ExprPtr& node) {
 }
 
 std::string ExprMngr::Hash(const ExprPtr& expr) {
-  static const char* template_var = "var::{sort}::{id}";
-  static const char* template_const = "const::{sort}::{value}";
-  static const char* template_op = "op::{sort}::{op}::{arg_list}::{param_list}";
-  static const char* template_sort = "{type}_{bit}_{addr}_{data}";
+  static const char* kTemplateVar = "var::{sort}::{id}";
+  static const char* kTemplateConst = "const::{sort}::{value}";
+  static const char* kTemplateOp = "op::{sort}::{op}::{arg_list}::{param_list}";
+  static const char* kTemplateSort = "{type}_{bit}_{addr}_{data}";
 
   auto GetSortHash = [](const SortPtr& sort) {
     return fmt::format(
-        template_sort, fmt::arg("type", sort->uid()),
+        kTemplateSort, fmt::arg("type", sort->uid()),
         fmt::arg("bit", sort->is_bv() ? sort->bit_width() : 0),
         fmt::arg("addr", sort->is_mem() ? sort->addr_width() : 0),
         fmt::arg("data", sort->is_mem() ? sort->data_width() : 0));
   };
 
   if (expr->is_var()) {
-    return fmt::format(template_var,
+    return fmt::format(kTemplateVar,
                        fmt::arg("sort", GetSortHash(expr->sort())),
                        fmt::arg("id", expr->name().id()));
 
@@ -82,7 +82,7 @@ std::string ExprMngr::Hash(const ExprPtr& expr) {
     }
     // skip sharing memory constants
 
-    return fmt::format(template_const,
+    return fmt::format(kTemplateConst,
                        fmt::arg("sort", GetSortHash(expr->sort())),
                        fmt::arg("value", value));
   } else {
@@ -101,7 +101,7 @@ std::string ExprMngr::Hash(const ExprPtr& expr) {
       param_list.push_back(expr->param(i));
     }
 
-    return fmt::format(template_op, fmt::arg("op", asthub::GetUidExprOp(expr)),
+    return fmt::format(kTemplateOp, fmt::arg("op", asthub::GetUidExprOp(expr)),
                        fmt::arg("sort", GetSortHash(expr->sort())),
                        fmt::arg("arg_list", fmt::join(arg_list, ",")),
                        fmt::arg("param_list", fmt::join(param_list, ",")));

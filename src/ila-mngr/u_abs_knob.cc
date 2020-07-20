@@ -3,8 +3,6 @@
 
 #include <ilang/ila-mngr/u_abs_knob.h>
 
-#include <functional>
-
 #include <ilang/ila-mngr/u_rewriter.h>
 #include <ilang/util/log.h>
 
@@ -343,7 +341,7 @@ ExprPtr DuplFetch(const InstrLvlAbsCnstPtr& src, const InstrLvlAbsPtr& dst,
   auto f_src = src->fetch();
   if (!f_src) {
     ILA_WARN << "Fetch not set for " << src;
-    return NULL;
+    return nullptr;
   }
   auto f_dst = Rewrite(f_src, expr_map);
   dst->SetFetch(f_dst);
@@ -355,7 +353,7 @@ ExprPtr DuplValid(const InstrLvlAbsCnstPtr& src, const InstrLvlAbsPtr& dst,
   auto v_src = src->valid();
   if (!v_src) {
     ILA_WARN << "Valid not set for " << src;
-    return NULL;
+    return nullptr;
   }
   auto v_dst = Rewrite(v_src, expr_map);
   dst->SetValid(v_dst);

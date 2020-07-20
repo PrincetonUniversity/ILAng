@@ -4,10 +4,14 @@
 #ifndef ILANG_ILA_AST_FUNC_H__
 #define ILANG_ILA_AST_FUNC_H__
 
-#include "z3++.h"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <z3++.h>
+
 #include <ilang/ila/ast/ast.h>
 #include <ilang/ila/ast/sort.h>
-#include <ilang/ila/defines.h>
 
 /// \namespace ilang
 namespace ilang {

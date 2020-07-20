@@ -311,7 +311,7 @@ void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
     // next state functions are conjuncted when being exported
     auto name = var->name().str();
 
-    auto next_expr = ExprPtr(NULL);
+    ExprPtr next_expr = nullptr;
     try {
       auto next_node = abs.getNext(name)->node;
       next_expr = ConvertSynthNodeToIlangExpr(next_node, ila);
@@ -343,7 +343,7 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
 
   auto Compare = [this](const ExprPtr& n) {
     // syntactically decompose at ITE nodes
-    const ExprOpIte* expr_ite = NULL;
+    const ExprOpIte* expr_ite = nullptr;
     if ((expr_ite = dynamic_cast<const ExprOpIte*>(n.get()))) {
       // check if the condition argument is one of the entries
       auto condition = n->arg(0);
@@ -426,7 +426,7 @@ void SynthAbsConverter::CnvtNodeToExpr(const ilasynth::Node* n) {
 
 void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
   // place holder for the result
-  decltype(asthub::BoolConst(true)) expr = NULL;
+  decltype(asthub::BoolConst(true)) expr = nullptr;
 
   auto type = n->getType();
   switch (type.type) {
@@ -488,7 +488,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
   auto op_ptr = dynamic_cast<const ilasynth::BoolOp*>(n);
   ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bool Op";
 
-  decltype(asthub::BoolConst(true)) expr = NULL;
+  decltype(asthub::BoolConst(true)) expr = nullptr;
 
   switch (op_ptr->getOp()) {
   case ilasynth::BoolOp::Op::NOT:
@@ -589,7 +589,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   auto op_ptr = dynamic_cast<const ilasynth::BitvectorOp*>(n);
   ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bv Op";
 
-  decltype(asthub::BvConst(1, 1)) expr = NULL;
+  decltype(asthub::BvConst(1, 1)) expr = nullptr;
 
   switch (op_ptr->getOp()) {
   case ilasynth::BitvectorOp::Op::NEGATE:
@@ -737,7 +737,7 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
   auto op_ptr = dynamic_cast<const ilasynth::MemOp*>(n);
   ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Mem Op";
 
-  decltype(asthub::MemConst(0, 8, 8)) expr = NULL;
+  decltype(asthub::MemConst(0, 8, 8)) expr = nullptr;
 
   switch (op_ptr->getOp()) {
   case ilasynth::MemOp::Op::STORE:

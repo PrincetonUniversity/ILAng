@@ -36,9 +36,9 @@ void Ilator::DfsConst(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   ILA_ASSERT(status);
 
   // alias for constant memory
-  static const char* const_mem_template = "auto& {local_var} = {const_mem};\n";
+  static const char* kConstMemTemplate = "auto& {local_var} = {const_mem};\n";
   if (expr->is_mem()) {
-    fmt::format_to(buff, const_mem_template, //
+    fmt::format_to(buff, kConstMemTemplate, //
                    fmt::arg("local_var", local_var),
                    fmt::arg("const_mem", GetCxxName(expr)));
     const_mems_.insert(expr);
@@ -54,9 +54,9 @@ void Ilator::DfsConst(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
     ILA_ASSERT(expr->is_bv());
     value = std::to_string(expr_const->val_bv()->val());
   }
-  static const char* const_non_mem_template =
+  static const char* kConstNonMemTemplate =
       "{var_type} {local_var} = {const_value};\n";
-  fmt::format_to(buff, const_non_mem_template, //
+  fmt::format_to(buff, kConstNonMemTemplate, //
                  fmt::arg("var_type", GetCxxType(expr)),
                  fmt::arg("local_var", local_var),
                  fmt::arg("const_value", value));
@@ -100,19 +100,19 @@ void Ilator::DfsOp(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
 void Ilator::DfsOpMemory(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
 
   if (auto uid = asthub::GetUidExprOp(expr); uid == AstUidExprOp::kStore) {
-    static const char* mem_store_template =
+    static const char* kMemStoreTemplate =
 #ifdef ILATOR_PRECISE_MEM
         "tmp_memory[{address}] = {data};\n";
 #else
         "tmp_memory[{address}.to_int()] = {data}.to_int();\n";
 #endif
-    fmt::format_to(buff, mem_store_template,
+    fmt::format_to(buff, kMemStoreTemplate,
                    fmt::arg("address", LookUp(expr->arg(1), lut)),
                    fmt::arg("data", LookUp(expr->arg(2), lut)));
   } else { // ite
-    static const char* mem_ite_template = "{ite_update_func}(tmp_memory);\n";
+    static const char* kMemIteTemplate = "{ite_update_func}(tmp_memory);\n";
     auto mem_update_func = RegisterMemoryUpdate(expr);
-    fmt::format_to(buff, mem_ite_template,
+    fmt::format_to(buff, kMemIteTemplate,
                    fmt::arg("ite_update_func", mem_update_func->name));
   }
 }
@@ -134,9 +134,9 @@ void Ilator::DfsOpAppFunc(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
     arguments.push_back(LookUp(app_func->arg(i), lut));
   }
 
-  static const char* app_func_template =
+  static const char* kAppFuncTemplate =
       "auto {return_var} = {func_name}({argument_list});\n";
-  fmt::format_to(buff, app_func_template, //
+  fmt::format_to(buff, kAppFuncTemplate, //
                  fmt::arg("return_var", local_var),
                  fmt::arg("func_name", func_cxx->name),
                  fmt::arg("argument_list", fmt::join(arguments, ", ")));
@@ -149,9 +149,9 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
 
   switch (auto uid = asthub::GetUidExprOp(expr); uid) {
   case AstUidExprOp::kLoad: {
-    static const char* load_template =
+    static const char* kLoadTemplate =
         "auto {local_var} = {memory_source}[{address}{mem_suffix}];\n";
-    fmt::format_to(buff, load_template, //
+    fmt::format_to(buff, kLoadTemplate, //
                    fmt::arg("local_var", local_var),
                    fmt::arg("memory_source", LookUp(expr->arg(0), lut)),
                    fmt::arg("address", LookUp(expr->arg(1), lut)),
@@ -170,11 +170,11 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
     ILA_ASSERT(!stg);
     global_vars_.insert(expr);
 
-    static const char* concat_template =
+    static const char* kConcatTemplate =
         "{global_var} = ({type_0}({arg_0}), {type_1}({arg_1}));\n";
     auto arg0 = expr->arg(0);
     auto arg1 = expr->arg(1);
-    fmt::format_to(buff, concat_template, //
+    fmt::format_to(buff, kConcatTemplate, //
                    fmt::arg("global_var", global_var),
                    fmt::arg("type_0", GetCxxType(arg0)),
                    fmt::arg("arg_0", LookUp(arg0, lut)),
@@ -183,9 +183,9 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
     break;
   }
   case AstUidExprOp::kExtract: {
-    static const char* extract_template =
+    static const char* kExtractTemplate =
         "auto {extract} = {origin}.range({loc_high}, {loc_low});\n";
-    fmt::format_to(buff, extract_template, //
+    fmt::format_to(buff, kExtractTemplate, //
                    fmt::arg("extract", local_var),
                    fmt::arg("origin", LookUp(expr->arg(0), lut)),
                    fmt::arg("loc_high", expr->param(0)),
@@ -195,29 +195,29 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   case AstUidExprOp::kZeroExtend:
     [[fallthrough]];
   case AstUidExprOp::kSignedExtend: {
-    static const char* extend_template =
+    static const char* kExtendTemplate =
         "auto {extend} = ({origin}[{sign}] == 1) ? (~{origin}) : {origin};\n"
         "{extend} = ({origin}[{sign}] == 1) ? (~{extend}) : {extend};\n";
     auto origin_expr = expr->arg(0);
-    fmt::format_to(buff, extend_template, //
+    fmt::format_to(buff, kExtendTemplate, //
                    fmt::arg("extend", local_var),
                    fmt::arg("origin", LookUp(origin_expr, lut)),
                    fmt::arg("sign", origin_expr->sort()->bit_width() - 1));
     break;
   }
   case AstUidExprOp::kImply: {
-    static const char* imply_template =
+    static const char* kImplyTemplate =
         "auto {local_var} = (!{if_var}) & {then_var};\n";
-    fmt::format_to(buff, imply_template, //
+    fmt::format_to(buff, kImplyTemplate, //
                    fmt::arg("local_var", local_var),
                    fmt::arg("if_var", LookUp(expr->arg(0), lut)),
                    fmt::arg("then_var", LookUp(expr->arg(1), lut)));
     break;
   }
   case AstUidExprOp::kIfThenElse: {
-    static const char* ite_template =
+    static const char* kIteTemplate =
         "auto {local_var} = ({condition}) ? {true_branch} : {false_branch};\n";
-    fmt::format_to(buff, ite_template, //
+    fmt::format_to(buff, kIteTemplate, //
                    fmt::arg("local_var", local_var),
                    fmt::arg("condition", LookUp(expr->arg(0), lut)),
                    fmt::arg("true_branch", LookUp(expr->arg(1), lut)),
@@ -230,7 +230,7 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   };
 }
 
-static const std::unordered_map<AstUidExprOp, std::string> k_op_symbols = {
+static const std::unordered_map<AstUidExprOp, std::string> kOpSymbols = {
     // unary
     {AstUidExprOp::kNegate, "-"},
     {AstUidExprOp::kNot, "!"},
@@ -262,22 +262,22 @@ void Ilator::DfsOpRegular(const ExprPtr& expr, StrBuff& buff,
 
   // get the corresponding operator symbol
   auto uid = asthub::GetUidExprOp(expr);
-  auto pos = k_op_symbols.find(uid);
-  ILA_ASSERT(pos != k_op_symbols.end()) << uid;
+  auto pos = kOpSymbols.find(uid);
+  ILA_ASSERT(pos != kOpSymbols.end()) << uid;
 
-  static const char* unary_op_template =
+  static const char* kUnaryOpTemplate =
       "{var_type} {local_var} = {unary_op}{arg_0};\n";
-  static const char* binary_op_template =
+  static const char* kBinaryOpTemplate =
       "{var_type} {local_var} = ({arg_0} {binary_op} {arg_1});\n";
 
   if (expr->arg_num() == 1) {
-    fmt::format_to(buff, unary_op_template, //
+    fmt::format_to(buff, kUnaryOpTemplate, //
                    fmt::arg("var_type", GetCxxType(expr)),
                    fmt::arg("local_var", local_var),
                    fmt::arg("unary_op", pos->second),
                    fmt::arg("arg_0", LookUp(expr->arg(0), lut)));
   } else if (expr->arg_num() == 2) {
-    fmt::format_to(buff, binary_op_template, //
+    fmt::format_to(buff, kBinaryOpTemplate, //
                    fmt::arg("var_type", GetCxxType(expr)),
                    fmt::arg("local_var", local_var),
                    fmt::arg("arg_0", LookUp(expr->arg(0), lut)),

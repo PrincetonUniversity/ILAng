@@ -233,7 +233,7 @@ RefPtr CommDiag::GetRefine(const UID& uid) {
     break;
   default:
     ILA_ASSERT(false) << "unknon uid " << uid;
-    return NULL;
+    return nullptr;
     break;
   }
 }

@@ -35,7 +35,7 @@ private:
   ExprMap rule_;
   ExprPtr target_;
   ExprPtr assump_;
-  ExprPtr candidate_ = NULL;
+  ExprPtr candidate_ = nullptr;
 
   ExprPtr Rewrite(const ExprPtr& e) {
 

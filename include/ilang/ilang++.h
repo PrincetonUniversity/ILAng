@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "z3++.h"
+#include <z3++.h>
 
 #include <ilang/config.h>
 
@@ -66,7 +66,7 @@ private:
   typedef std::shared_ptr<Sort> SortPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Sort pointer.
-  SortPtr ptr_ = NULL;
+  SortPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -94,7 +94,7 @@ private:
   typedef std::shared_ptr<Expr> ExprPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Expr pointer.
-  ExprPtr ptr_ = NULL;
+  ExprPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -378,7 +378,7 @@ private:
   typedef std::shared_ptr<Func> FuncPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Func pointer.
-  FuncPtr ptr_ = NULL;
+  FuncPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -419,7 +419,7 @@ private:
   typedef std::shared_ptr<Instr> InstrPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Instr pointer.
-  InstrPtr ptr_ = NULL;
+  InstrPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -475,7 +475,7 @@ private:
   typedef std::shared_ptr<InstrLvlAbs> IlaPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped InstrLvlAbs pointer.
-  IlaPtr ptr_ = NULL;
+  IlaPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -726,7 +726,7 @@ private:
   std::string extra_suff_;
 
   /// Pointer for calling universal functions.
-  std::shared_ptr<Unroller> univ_ = NULL;
+  std::shared_ptr<Unroller> univ_ = nullptr;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Initialize the unroller based on its dynamic type.

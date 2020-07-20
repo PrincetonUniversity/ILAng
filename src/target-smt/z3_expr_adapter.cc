@@ -43,7 +43,7 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtr& expr) {
   size_t num = expr->arg_num();
 
   // reserve the container for argument expressions.
-  Z3ExprVec expr_vec;
+  std::vector<z3::expr> expr_vec;
   expr_vec.reserve(num);
 
   // all arguments should already have expressions, put them in the container.

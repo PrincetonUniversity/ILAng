@@ -16,7 +16,6 @@
 
 #include <ilang/ila/ast/ast.h>
 #include <ilang/ila/ast/sort.h>
-#include <ilang/ila/defines.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -30,6 +29,11 @@ public:
   /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
 
+protected:
+  /// Vector type for z3 expression.
+  typedef std::vector<z3::expr> Z3ExprVec;
+
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Expr();
