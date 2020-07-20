@@ -4,13 +4,15 @@
 #ifndef EXPR_BANK_H__
 #define EXPR_BANK_H__
 
-#include "util.h"
-#include <ilang/ila/expr_fuse.h>
 #include <vector>
+
+#include <ilang/ila/ast_hub.h>
+
+#include "util.h"
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 template <int BV_SIZE = 8, int VAR_NUM = 16> class ExprBank {
 public:

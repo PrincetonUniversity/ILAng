@@ -29,16 +29,16 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
   auto mem = ila->NewMemState("memory", 8, 8);
 
   // valid
-  ila->SetValid(ExprFuse::BoolConst(true));
+  ila->SetValid(asthub::BoolConst(true));
 
   // Instruction 1: (start == 1 && opcode = 1)
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
   auto instr_1 = ila->NewInstr();
 
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(1, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_1->set_decode(decode);
   }
 
@@ -55,20 +55,20 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
 
   auto instr_2 = ila->NewInstr();
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(2, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(2, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_2->set_decode(decode);
   }
 
   { // updates
     for (auto i = 0; i < reg_num_; i++) {
-      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
+      auto cnd_i = asthub::Eq(cnt, asthub::BvConst(i, 8));
       ExprPtr next_i = NULL;
       if (i == 0) {
-        next_i = ExprFuse::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
+        next_i = asthub::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
       } else {
-        next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
+        next_i = asthub::Ite(cnd_i, regs[i - 1], regs[i]);
       }
       instr_2->set_update(regs[i], next_i);
     }
@@ -80,26 +80,26 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
   auto instr_3 = ila->NewInstr();
 
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(3, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(3, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_3->set_decode(decode);
   }
 
   { // updates
-    auto mem_val = ExprFuse::Load(mem, addr);
+    auto mem_val = asthub::Load(mem, addr);
     for (auto i = 0; i < reg_num_; i++) {
-      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
-      auto next_i = ExprFuse::Ite(cnd_i, mem_val, regs[i]);
+      auto cnd_i = asthub::Eq(cnt, asthub::BvConst(i, 8));
+      auto next_i = asthub::Ite(cnd_i, mem_val, regs[i]);
       instr_3->set_update(regs[i], next_i);
     }
 
     auto reg_val = regs[0];
     for (auto i = 1; i < reg_num_; i++) {
-      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
-      reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
+      auto cnd_i = asthub::Eq(cnt, asthub::BvConst(i, 8));
+      reg_val = asthub::Ite(cnd_i, regs[i], reg_val);
     }
-    auto mem_next = ExprFuse::Store(mem, addr, reg_val);
+    auto mem_next = asthub::Store(mem, addr, reg_val);
     instr_3->set_update(mem, mem_next);
   }
 
@@ -108,16 +108,16 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
   auto instr_4 = ila->NewInstr();
 
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(4, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(4, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_4->set_decode(decode);
   }
 
   { // updates
     auto sum = regs[0];
     for (auto i = 1; i < reg_num_; i++) {
-      sum = ExprFuse::Add(sum, regs[i]);
+      sum = asthub::Add(sum, regs[i]);
     }
     instr_4->set_update(regs[reg_num_ - 1], sum);
   }
@@ -148,16 +148,16 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   auto mem = ila->NewMemState("memory", 8, 8);
 
   // valid
-  ila->SetValid(ExprFuse::BoolConst(true));
+  ila->SetValid(asthub::BoolConst(true));
 
   // Instruction 1: (start == 1 && opcode = 1)
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
   auto instr_1 = ila->NewInstr();
 
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(1, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_1->set_decode(decode);
   }
 
@@ -174,20 +174,20 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   auto instr_2 = ila->NewInstr();
 
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(2, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(2, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_2->set_decode(decode);
   }
 
   { // updates
     for (auto i = 0; i < reg_num_; i++) {
-      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
+      auto cnd_i = asthub::Eq(cnt, asthub::BvConst(i, 8));
       ExprPtr next_i = NULL;
       if (i == 0) {
-        next_i = ExprFuse::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
+        next_i = asthub::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
       } else {
-        next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
+        next_i = asthub::Ite(cnd_i, regs[i - 1], regs[i]);
       }
       instr_2->set_update(regs[i], next_i);
     }
@@ -199,26 +199,26 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   auto instr_3 = ila->NewInstr();
 
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(3, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(3, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_3->set_decode(decode);
   }
 
   { // updates
-    auto mem_val = ExprFuse::Load(mem, addr);
+    auto mem_val = asthub::Load(mem, addr);
     for (auto i = 0; i < reg_num_; i++) {
-      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
-      auto next_i = ExprFuse::Ite(cnd_i, mem_val, regs[i]);
+      auto cnd_i = asthub::Eq(cnt, asthub::BvConst(i, 8));
+      auto next_i = asthub::Ite(cnd_i, mem_val, regs[i]);
       instr_3->set_update(regs[i], next_i);
     }
 
     auto reg_val = regs[reg_num_ - 1];
     for (auto i = reg_num_ - 2; i >= 0; i--) {
-      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
-      reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
+      auto cnd_i = asthub::Eq(cnt, asthub::BvConst(i, 8));
+      reg_val = asthub::Ite(cnd_i, regs[i], reg_val);
     }
-    auto mem_next = ExprFuse::Store(mem, addr, reg_val);
+    auto mem_next = asthub::Store(mem, addr, reg_val);
     instr_3->set_update(mem, mem_next);
   }
 
@@ -227,16 +227,16 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   auto instr_4 = ila->NewInstr();
 
   { // decode
-    auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
-    auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(4, 3));
-    auto decode = ExprFuse::And(decode_start, decode_opcode);
+    auto decode_start = asthub::Eq(start, asthub::BoolConst(true));
+    auto decode_opcode = asthub::Eq(opcode, asthub::BvConst(4, 3));
+    auto decode = asthub::And(decode_start, decode_opcode);
     instr_4->set_decode(decode);
   }
 
   { // updates
     auto sum = regs[reg_num_ - 2];
     for (auto i = reg_num_ - 3; i >= 0; i--) {
-      sum = ExprFuse::Add(sum, regs[i]);
+      sum = asthub::Add(sum, regs[i]);
     }
     instr_4->set_update(regs[reg_num_ - 1], sum);
   }
@@ -336,12 +336,12 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
 
   { // updates
     for (auto i = 0; i < reg_num(); i++) {
-      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
+      auto cnd_i = asthub::Eq(cnt, asthub::BvConst(i, 8));
       ExprPtr next_i = NULL;
       if (i == 0) {
-        next_i = ExprFuse::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
+        next_i = asthub::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
       } else {
-        next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
+        next_i = asthub::Ite(cnd_i, regs[i - 1], regs[i]);
       }
       instr_2->set_update(regs[i], next_i);
     }

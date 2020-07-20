@@ -76,8 +76,7 @@ private:
 }; // class NestedMemAddrDataAvoider
 
 /// \brief Function to deal with Ite(c, v, apply(__unknown__) );
-bool getIteUnknownCondVal(const ExprPtr & e, ExprPtr & c, ExprPtr & v);
-
+bool getIteUnknownCondVal(const ExprPtr& e, ExprPtr& c, ExprPtr& v);
 
 /// \brief Class of traversing to find the application of functions in an AST
 class FunctionApplicationFinder {
@@ -86,11 +85,12 @@ protected:
   /// the functions used in app_func
   std::set<std::shared_ptr<Func>> _func_refs;
   /// record whether a node has been visited
-  std::set<Expr *> visited;
+  std::set<Expr*> visited;
   /// does a node contain a funcapp
   void hasFuncAppOnNode(const ExprPtr& e);
   /// does a tree contain funcapps?
   void hasFuncApp(const ExprPtr& expr);
+
 public:
   // ------------------------- CONSTRUCTOR ---------------------------------- //
   FunctionApplicationFinder(const ExprPtr& expr);

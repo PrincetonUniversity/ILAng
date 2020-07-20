@@ -3,60 +3,32 @@
 
 #include <ilang/target-json/ila_to_json_serializer.h>
 
-#include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/target-json/serdes_config.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
 
+//
+// type and helpers
+//
+
 typedef size_t ID_t;
+
+inline ExprTypeId GetUidExpr(const ExprPtr& expr) {
+  return expr->is_var() ? ExprTypeId::kVar
+                        : expr->is_op() ? ExprTypeId::kOp : ExprTypeId::kConst;
+}
+
+//
+// I2JSer
+//
 
 I2JSer::I2JSer() {}
 
 I2JSer::~I2JSer() {}
 
 I2JSerPtr I2JSer::New() { return std::make_shared<I2JSer>(); }
-
-json I2JSer::SerExpr(const ExprPtr& i_expr) {
-  ILA_NOT_NULL(i_expr);
-
-  // Ser i_expr and all its subexpressions
-  auto SerExprKernel = [this](const ExprPtr& e) { SerExprUnit(e); };
-  i_expr->DepthFirstVisit(SerExprKernel);
-
-  // return the Ser'ed object
-  auto id = i_expr->name().id();
-  auto pos = id_idx_map_.find(id);
-  ILA_ASSERT(pos != id_idx_map_.end()) << "Fail Ser'ing " << i_expr;
-  return j_expr_arr_.at(pos->second);
-}
-
-json I2JSer::SerInstr(const InstrPtr& i_instr) {
-  ILA_NOT_NULL(i_instr);
-
-  // create a new JSON object
-  auto j_instr = json::object();
-  j_instr.emplace(SERDES_INSTR_NAME, i_instr->name().str());
-
-  // decode
-  auto j_decode = SerExpr(i_instr->decode());
-  j_instr.emplace(SERDES_INSTR_DECODE, j_decode.at(SERDES_EXPR_ID).get<ID_t>());
-
-  // state updates
-  auto j_update = json::object();
-  auto host = i_instr->host();
-  for (decltype(host->state_num()) i = 0; i < host->state_num(); i++) {
-    auto i_state = host->state(i);
-    auto i_next = i_instr->update(i_state);
-    i_next = i_next ? i_next : i_state; // NULL is unchanged
-    auto j_next = SerExpr(i_next);
-    j_update.emplace(i_state->name().str(),
-                     j_next.at(SERDES_EXPR_ID).get<ID_t>());
-  }
-  j_instr.emplace(SERDES_INSTR_UPDATE, j_update);
-
-  return j_instr;
-}
 
 json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   ILA_NOT_NULL(i_ila);
@@ -82,17 +54,17 @@ json I2JSer::SerSort(const SortPtr& i_sort) const {
   auto j_sort = json::object();
 
   // sort type
-  auto sort_uid = GetUidSort(i_sort);
+  auto sort_uid = i_sort->uid();
   j_sort.emplace(SERDES_SORT_UID, sort_uid);
 
   switch (sort_uid) {
   // bit-vector
-  case AST_UID_SORT::BV: {
+  case AstUidSort::kBv: {
     j_sort.emplace(SERDES_SORT_WIDTH, i_sort->bit_width());
     break;
   }
   // memory
-  case AST_UID_SORT::MEM: {
+  case AstUidSort::kMem: {
     j_sort.emplace(SERDES_SORT_ADDR_WIDTH, i_sort->addr_width());
     j_sort.emplace(SERDES_SORT_DATA_WIDTH, i_sort->data_width());
     break;
@@ -145,6 +117,20 @@ json I2JSer::SerFunc(const FuncPtr& i_func) {
   return j_func;
 }
 
+json I2JSer::SerExpr(const ExprPtr& i_expr) {
+  ILA_NOT_NULL(i_expr);
+
+  // Ser i_expr and all its subexpressions
+  auto SerExprKernel = [this](const ExprPtr& e) { SerExprUnit(e); };
+  i_expr->DepthFirstVisit(SerExprKernel);
+
+  // return the Ser'ed object
+  auto id = i_expr->name().id();
+  auto pos = id_idx_map_.find(id);
+  ILA_ASSERT(pos != id_idx_map_.end()) << "Fail Ser'ing " << i_expr;
+  return j_expr_arr_.at(pos->second);
+}
+
 json I2JSer::SerConstVal(const ExprPtr& i_expr) const {
   auto i_expr_const = std::static_pointer_cast<ExprConst>(i_expr);
   ILA_NOT_NULL(i_expr_const);
@@ -161,7 +147,7 @@ json I2JSer::SerConstVal(const ExprPtr& i_expr) const {
     j_val.emplace(SERDES_CONST_DEF, mem_val->def_val());
 
     auto j_val_map = json::object();
-    for (auto it : mem_val->val_map()) {
+    for (const auto& it : mem_val->val_map()) {
       auto addr_str = std::to_string(it.first);
       j_val_map.emplace(addr_str, it.second);
     }
@@ -191,21 +177,21 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
 
   switch (expr_uid) {
   // serialize variable
-  case AST_UID_EXPR::VAR: {
+  case ExprTypeId::kVar: {
     j_expr.emplace(SERDES_EXPR_SORT, SerSort(i_expr->sort()));
     j_expr.emplace(SERDES_EXPR_NAME, i_expr->name().str());
     break;
   }
   // serialize constant
-  case AST_UID_EXPR::CONST: {
+  case ExprTypeId::kConst: {
     j_expr.emplace(SERDES_EXPR_SORT, SerSort(i_expr->sort()));
     j_expr.emplace(SERDES_EXPR_VAL, SerConstVal(i_expr));
     break;
   }
   // serialize operator
-  case AST_UID_EXPR::OP: {
+  case ExprTypeId::kOp: {
     // op
-    auto expr_op_uid = GetUidExprOp(i_expr);
+    auto expr_op_uid = asthub::GetUidExprOp(i_expr);
     j_expr.emplace(SERDES_EXPR_OP, expr_op_uid);
 
     // args
@@ -224,7 +210,7 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
     j_expr.emplace(SERDES_EXPR_PARAMS, j_param_arr);
 
     // only for apply function
-    if (expr_op_uid == AST_UID_EXPR_OP::APP_FUNC) {
+    if (expr_op_uid == AstUidExprOp::kApplyFunc) {
       auto i_expr_op_appfunc = std::static_pointer_cast<ExprOpAppFunc>(i_expr);
       ILA_NOT_NULL(i_expr_op_appfunc);
       auto j_func = SerFunc(i_expr_op_appfunc->func());
@@ -239,6 +225,33 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
   j_expr_arr_.push_back(j_expr);
 
   return j_expr;
+}
+
+json I2JSer::SerInstr(const InstrPtr& i_instr) {
+  ILA_NOT_NULL(i_instr);
+
+  // create a new JSON object
+  auto j_instr = json::object();
+  j_instr.emplace(SERDES_INSTR_NAME, i_instr->name().str());
+
+  // decode
+  auto j_decode = SerExpr(i_instr->decode());
+  j_instr.emplace(SERDES_INSTR_DECODE, j_decode.at(SERDES_EXPR_ID).get<ID_t>());
+
+  // state updates
+  auto j_update = json::object();
+  auto host = i_instr->host();
+  for (decltype(host->state_num()) i = 0; i < host->state_num(); i++) {
+    auto i_state = host->state(i);
+    auto i_next = i_instr->update(i_state);
+    i_next = i_next ? i_next : i_state; // NULL is unchanged
+    auto j_next = SerExpr(i_next);
+    j_update.emplace(i_state->name().str(),
+                     j_next.at(SERDES_EXPR_ID).get<ID_t>());
+  }
+  j_instr.emplace(SERDES_INSTR_UPDATE, j_update);
+
+  return j_instr;
 }
 
 json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
@@ -307,4 +320,4 @@ json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
   return j_ila;
 }
 
-}; // namespace ilang
+} // namespace ilang

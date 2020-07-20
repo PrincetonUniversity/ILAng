@@ -3,16 +3,17 @@
 /// the support for inv-syn (monolithic/cegar)
 // --- Hongce Zhang
 
-#include <ilang/ila/expr_fuse.h>
-#include <ilang/util/container_shortcut.h>
-#include <ilang/util/fs.h>
-#include <ilang/util/log.h>
-#include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 #include <cmath>
 #include <fstream>
 #include <iostream>
+
+#include <ilang/ila/ast_hub.h>
+#include <ilang/util/container_shortcut.h>
+#include <ilang/util/fs.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -80,8 +81,8 @@ void VlgSglTgtGen::add_inv_obj_as_assertion(InvariantObject* inv_obj) {
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
     auto new_cond = ReplExpr(inv_expr, true);
-    ILA_CHECK( !S_IN("][", new_cond) ) << "Inv translate error: ][ found in:"
-      << new_cond;
+    ILA_CHECK(!S_IN("][", new_cond))
+        << "Inv translate error: ][ found in:" << new_cond;
     add_an_assertion(new_cond, "invariant_assert");
   }
 } // add_inv_obj_as_assertion
@@ -100,15 +101,17 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
     auto new_cond = ReplExpr(inv_expr, true);
-    ILA_CHECK( !S_IN("][", new_cond) ) << "Inv translate error: ][ found in:"
-      << new_cond;
+    ILA_CHECK(!S_IN("][", new_cond))
+        << "Inv translate error: ][ found in:" << new_cond;
     add_an_assumption(new_cond, "invariant_assume");
   }
 } // add_inv_obj_as_assumption
 
 void VlgSglTgtGen::add_rf_inv_as_assumption() {
   if (has_rf_invariant) {
-    nlohmann::json & inv = IN("global invariants", rf_cond) ? rf_cond["global invariants"] : rf_cond["global-invariants"];
+    nlohmann::json& inv = IN("global invariants", rf_cond)
+                              ? rf_cond["global invariants"]
+                              : rf_cond["global-invariants"];
     for (auto& cond : inv) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
       add_an_assumption(new_cond, "invariant_assume"); // without new var added
@@ -119,7 +122,9 @@ void VlgSglTgtGen::add_rf_inv_as_assumption() {
 void VlgSglTgtGen::add_rf_inv_as_assertion() {
   // the provided invariants
   if (has_rf_invariant) {
-    nlohmann::json & inv = IN("global invariants", rf_cond) ? rf_cond["global invariants"] : rf_cond["global-invariants"];
+    nlohmann::json& inv = IN("global invariants", rf_cond)
+                              ? rf_cond["global invariants"]
+                              : rf_cond["global-invariants"];
     for (auto& cond : inv) {
       auto new_cond =
           ReplExpr(cond.get<std::string>(), true); // force vlg state
@@ -142,7 +147,7 @@ void VlgSglTgtGen::
   if (_vtg_config.ValidateSynthesizedInvariant ==
       vtg_config_t::_validate_synthesized_inv::ALL) {
     ILA_CHECK(has_confirmed_synthesized_invariant ||
-               has_gussed_synthesized_invariant || has_rf_invariant)
+              has_gussed_synthesized_invariant || has_rf_invariant)
         << "No invariant to handle for INVARIANT target, this is a bug!";
     if (has_confirmed_synthesized_invariant)
       add_inv_obj_as_assertion(_advanced_param_ptr->_inv_obj_ptr);
@@ -239,14 +244,14 @@ void VlgSglTgtGen::
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
   ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY ||
-             target_type == target_type_t::INVARIANTS);
+            target_type == target_type_t::INVARIANTS);
   vlg_wrapper.add_input("__START__", 1);
   vlg_wrapper.add_input("__STARTED__", 1);
 }
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
   ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY ||
-             target_type == target_type_t::INVARIANTS);
+            target_type == target_type_t::INVARIANTS);
 
   std::map<std::string, std::pair<int, int>> ila_mem_state_names;
 
@@ -258,7 +263,9 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
                              _host->state(state_idx)->sort()->addr_width(),
                              _host->state(state_idx)->sort()->data_width())));
   }
-  nlohmann::json & state_mapping = IN("state mapping", rf_vmap) ? rf_vmap["state mapping"] : rf_vmap["state-mapping"];
+  nlohmann::json& state_mapping = IN("state mapping", rf_vmap)
+                                      ? rf_vmap["state mapping"]
+                                      : rf_vmap["state-mapping"];
   for (auto& i : state_mapping.items()) {
     auto sname = i.key(); // ila state name
     if (!IN(sname, ila_mem_state_names))

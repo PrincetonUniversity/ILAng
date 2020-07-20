@@ -1,5 +1,5 @@
 /// \file
-/// JSON to ILA deserializer.
+/// Class J2IDes - JSON to ILA deserializer.
 
 #ifndef ILANG_TARGET_JSON_J2I_DES_H__
 #define ILANG_TARGET_JSON_J2I_DES_H__
@@ -7,8 +7,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include <ilang/ila/instr_lvl_abs.h>
 #include <nlohmann/json.hpp>
+
+#include <ilang/ila/instr_lvl_abs.h>
 
 using json = nlohmann::json;
 
@@ -33,14 +34,6 @@ public:
   static J2IDesPtr New();
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Deserialize Sort from JSON.
-  SortPtr DesSort(const json& j_sort);
-  /// Deserialize Func from JSON.
-  FuncPtr DesFunc(const json& j_func);
-  /// \brief Deserialize Expr from JSON.
-  ExprPtr DesExpr(const json& j_expr);
-  /// \brief Deserialize Instr from JSON.
-  InstrPtr DesInstr(const json& j_instr, const InstrLvlAbsPtr& i_host) const;
   /// \brief Deserialize InstrLvlAbs from JSON.
   InstrLvlAbsPtr DesInstrLvlAbs(const json& j_global);
 
@@ -54,6 +47,14 @@ private:
   std::unordered_map<std::string, const InstrLvlAbsPtr> ila_name_ptr_map_;
 
   // ------------------------- METHODS -------------------------------------- //
+  /// Deserialize Sort from JSON.
+  SortPtr DesSort(const json& j_sort);
+
+  /// Deserialize Func from JSON.
+  FuncPtr DesFunc(const json& j_func);
+
+  /// Deserialize Expr from JSON.
+  ExprPtr DesExpr(const json& j_expr);
   /// Deserialize ExprVar into state from JSON.
   ExprPtr DesExprState(const json& j_sort, const std::string& name,
                        const InstrLvlAbsPtr& i_host) const;
@@ -77,6 +78,9 @@ private:
   void DesVarHier(const json& j_ila, const json& j_ast_list,
                   const InstrLvlAbsPtr& i_parent);
 
+  /// \brief Deserialize Instr from JSON.
+  InstrPtr DesInstr(const json& j_instr, const InstrLvlAbsPtr& i_host) const;
+
   /// Deserialize ILA info, e.g., fetch, valid, instructions, etc.
   void DesIlaUnit(const json& j_ila);
   /// Deserialize ILA info hierarchically.
@@ -87,6 +91,6 @@ private:
 /// Pointer type for normal use of J2IDes.
 typedef J2IDes::J2IDesPtr J2IDesPtr;
 
-}; // namespace ilang
+} // namespace ilang
 
 #endif // ILANG_TARGET_JSON_J2I_DES_H__

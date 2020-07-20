@@ -9,10 +9,12 @@
 static const bool kUnifyAst = false;
 // please design a better hash function  -- HZ
 // ISSUE: hash collision on large designs like AES128 function
+// updated to a new hash function, there's now an optional pass
+// (SimplifySyntactic) for users to apply -- BYH
 
 namespace ilang {
 
-InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
+InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr& parent)
     : Object(name), parent_(parent) {
   ILA_WARN_IF(name == "") << "ILA name not specified...";
   InitObject();
@@ -21,7 +23,7 @@ InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
 InstrLvlAbs::~InstrLvlAbs() {}
 
 InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
-                                const InstrLvlAbsPtr parent) {
+                                const InstrLvlAbsPtr& parent) {
   return std::make_shared<InstrLvlAbs>(name, parent);
 }
 
@@ -47,25 +49,25 @@ const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
 
 const ExprPtr InstrLvlAbs::find_input(const Symbol& name) const {
   auto pos = inputs_.find(name);
-  return (pos == inputs_.end()) ? NULL : pos->second;
+  return (pos == inputs_.end()) ? nullptr : pos->second;
 }
 
 const ExprPtr InstrLvlAbs::find_state(const Symbol& name) const {
   auto pos = states_.find(name);
-  return (pos == states_.end()) ? NULL : pos->second;
+  return (pos == states_.end()) ? nullptr : pos->second;
 }
 
 const InstrPtr InstrLvlAbs::find_instr(const Symbol& name) const {
   auto pos = instrs_.find(name);
-  return (pos == instrs_.end()) ? NULL : pos->second;
+  return (pos == instrs_.end()) ? nullptr : pos->second;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::find_child(const Symbol& name) const {
   auto pos = childs_.find(name);
-  return (pos == childs_.end()) ? NULL : pos->second;
+  return (pos == childs_.end()) ? nullptr : pos->second;
 }
 
-void InstrLvlAbs::AddInput(const ExprPtr input_var) {
+void InstrLvlAbs::AddInput(const ExprPtr& input_var) {
   // sanity check
   ILA_NOT_NULL(input_var);
   ILA_ASSERT(input_var->is_var()) << "Register non-var to Inputs.";
@@ -81,7 +83,7 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   inputs_.push_back(name, var);
 }
 
-void InstrLvlAbs::AddState(const ExprPtr state_var) {
+void InstrLvlAbs::AddState(const ExprPtr& state_var) {
   // sanity check
   ILA_NOT_NULL(state_var);
   ILA_ASSERT(state_var->is_var()) << "Register non-var to States.";
@@ -97,7 +99,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   states_.push_back(name, var);
 }
 
-void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
+void InstrLvlAbs::AddInit(const ExprPtr& cntr_expr) {
   // sanity check
   ILA_NOT_NULL(cntr_expr);
   ILA_ASSERT(cntr_expr->is_bool()) << "Initial condition must be Boolean.";
@@ -107,24 +109,24 @@ void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   inits_.push_back(cntr);
 }
 
-void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
+void InstrLvlAbs::SetFetch(const ExprPtr& fetch_expr) {
   ILA_ASSERT(!fetch_) << "Fetch alraedy defined";
   ForceSetFetch(fetch_expr);
 }
 
-void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
+void InstrLvlAbs::SetValid(const ExprPtr& valid_expr) {
   ILA_ASSERT(!valid_) << "Valid already defined";
   ForceSetValid(valid_expr);
 }
 
-void InstrLvlAbs::AddInstr(const InstrPtr instr) {
+void InstrLvlAbs::AddInstr(const InstrPtr& instr) {
   ILA_NOT_NULL(instr);
   // register the instruction and idx
   auto name = instr->name();
   instrs_.push_back(name, instr);
 }
 
-void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
+void InstrLvlAbs::AddChild(const InstrLvlAbsPtr& child) {
   ILA_NOT_NULL(child);
   /// register the child-ILA and idx
   auto name = child->name();
@@ -132,7 +134,7 @@ void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
 }
 
 const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
-  ExprPtr bool_input = ExprFuse::NewBoolVar(name);
+  ExprPtr bool_input = asthub::NewBoolVar(name);
   // set host
   bool_input->set_host(shared_from_this());
   // register
@@ -142,7 +144,7 @@ const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
 
 const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
                                       const int& bit_width) {
-  ExprPtr bv_input = ExprFuse::NewBvVar(name, bit_width);
+  ExprPtr bv_input = asthub::NewBvVar(name, bit_width);
   // set host
   bv_input->set_host(shared_from_this());
   // register
@@ -153,7 +155,7 @@ const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
 const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
                                        const int& addr_width,
                                        const int& data_width) {
-  ExprPtr mem_input = ExprFuse::NewMemVar(name, addr_width, data_width);
+  ExprPtr mem_input = asthub::NewMemVar(name, addr_width, data_width);
   // set host
   mem_input->set_host(shared_from_this());
   // register
@@ -162,7 +164,7 @@ const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
 }
 
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
-  ExprPtr bool_state = ExprFuse::NewBoolVar(name);
+  ExprPtr bool_state = asthub::NewBoolVar(name);
   // set host
   bool_state->set_host(shared_from_this());
   // register
@@ -172,7 +174,7 @@ const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
 
 const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
                                       const int& bit_width) {
-  ExprPtr bv_state = ExprFuse::NewBvVar(name, bit_width);
+  ExprPtr bv_state = asthub::NewBvVar(name, bit_width);
   // set host
   bv_state->set_host(shared_from_this());
   // register
@@ -183,7 +185,7 @@ const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
 const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
                                        const int& addr_width,
                                        const int& data_width) {
-  ExprPtr mem_state = ExprFuse::NewMemVar(name, addr_width, data_width);
+  ExprPtr mem_state = asthub::NewMemVar(name, addr_width, data_width);
   // set host
   mem_state->set_host(shared_from_this());
   // register
@@ -193,7 +195,7 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
 
 const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
   // create new var
-  ExprPtr bool_var = ExprFuse::NewBoolVar(name);
+  ExprPtr bool_var = asthub::NewBoolVar(name);
   // set host
   bool_var->set_host(shared_from_this());
   return bool_var;
@@ -202,7 +204,7 @@ const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
 const ExprPtr InstrLvlAbs::NewBvFreeVar(const std::string& name,
                                         const int& bit_width) {
   // create new var
-  ExprPtr bv_var = ExprFuse::NewBvVar(name, bit_width);
+  ExprPtr bv_var = asthub::NewBvVar(name, bit_width);
   // set host
   bv_var->set_host(shared_from_this());
   return bv_var;
@@ -212,7 +214,7 @@ const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
                                          const int& addr_width,
                                          const int& data_width) {
   // create new var
-  ExprPtr mem_var = ExprFuse::NewMemVar(name, addr_width, data_width);
+  ExprPtr mem_var = asthub::NewMemVar(name, addr_width, data_width);
   // set host
   mem_var->set_host(shared_from_this());
   return mem_var;
@@ -241,7 +243,7 @@ const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
   return child;
 }
 
-void InstrLvlAbs::ForceSetFetch(const ExprPtr fetch_expr) {
+void InstrLvlAbs::ForceSetFetch(const ExprPtr& fetch_expr) {
   // sanity check
   ILA_NOT_NULL(fetch_expr);
   ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.";
@@ -251,7 +253,7 @@ void InstrLvlAbs::ForceSetFetch(const ExprPtr fetch_expr) {
   fetch_ = fetch;
 }
 
-void InstrLvlAbs::ForceSetValid(const ExprPtr valid_expr) {
+void InstrLvlAbs::ForceSetValid(const ExprPtr& valid_expr) {
   // sanity check
   ILA_NOT_NULL(valid_expr);
   ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.";
@@ -261,8 +263,8 @@ void InstrLvlAbs::ForceSetValid(const ExprPtr valid_expr) {
   valid_ = valid;
 }
 
-void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
-                             const ExprPtr cnd) {
+void InstrLvlAbs::AddSeqTran(const InstrPtr& src, const InstrPtr& dst,
+                             const ExprPtr& cnd) {
   // XXX src, dst should already registered.
   auto cnd_simplified = Unify(cnd);
   if (!instr_seq_) {
@@ -296,7 +298,7 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbsCnstPtr ila) {
   return ila->Print(out);
 }
 
-ExprPtr InstrLvlAbs::Unify(const ExprPtr e) {
+ExprPtr InstrLvlAbs::Unify(const ExprPtr& e) {
   return kUnifyAst ? expr_mngr_->GetRep(e) : e;
 }
 
@@ -311,7 +313,7 @@ void InstrLvlAbs::InitObject() {
   if (parent_) {
     expr_mngr_ = parent_->expr_mngr();
   } else {
-    expr_mngr_ = kUnifyAst ? ExprMngr::New() : NULL;
+    expr_mngr_ = kUnifyAst ? ExprMngr::New() : nullptr;
   }
 }
 

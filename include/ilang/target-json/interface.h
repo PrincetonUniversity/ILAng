@@ -1,13 +1,14 @@
 /// \file
-/// The interface for Ser/Des ILA to/from ILA portable (JSON format).
+/// Class IlaSerDesMngr - the interface for Ser/Des ILA models.
 
 #ifndef ILANG_TARGET_JSON_INTERFACE_H__
 #define ILANG_TARGET_JSON_INTERFACE_H__
 
 #include <string>
 
-#include <ilang/ila/instr_lvl_abs.h>
 #include <nlohmann/json.hpp>
+
+#include <ilang/ila/instr_lvl_abs.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -43,6 +44,6 @@ public:
 
 }; // class IlaSerDesMngr
 
-}; // namespace ilang
+} // namespace ilang
 
 #endif // ILANG_TARGET_JSON_INTERFACE_H__

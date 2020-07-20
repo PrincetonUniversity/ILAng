@@ -61,7 +61,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 
   /// Overload output stream.
-  friend std::ostream& operator<<(std::ostream& out, const FuncPtr f) {
+  friend std::ostream& operator<<(std::ostream& out, const FuncPtr& f) {
     return f->Print(out);
   }
 
@@ -83,7 +83,7 @@ typedef Func::FuncPtr FuncPtr;
 class FuncHash {
 public:
   /// Function object for hashing
-  size_t operator()(const FuncPtr func) const { return func->name().id(); }
+  size_t operator()(const FuncPtr& func) const { return func->name().id(); }
 }; // class FuncHash
 
 } // namespace ilang

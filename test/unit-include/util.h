@@ -10,14 +10,13 @@
 #include <memory>
 #include <string>
 
-#include <ilang/config.h>
 #ifdef FS_INCLUDE
 #include <filesystem>
 #else // FS_INCLUDE
 #include <experimental/filesystem>
 #endif // FS_INCLUDE
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 

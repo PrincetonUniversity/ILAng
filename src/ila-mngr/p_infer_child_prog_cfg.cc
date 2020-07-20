@@ -35,7 +35,7 @@ bool InferChildProgCFG(const InstrLvlAbsPtr& m) {
         auto res = s.check();
         if (res == z3::sat) {
           ILA_DLOG("PassInferChildProgCFG") << a << " -> " << b;
-          child->AddSeqTran(a, b, ExprFuse::BoolConst(true));
+          child->AddSeqTran(a, b, asthub::BoolConst(true));
         }
       };
 

@@ -4,9 +4,8 @@
 #include <ilang/ila/hash_ast.h>
 
 #include <fmt/format.h>
-#include <functional>
 
-#include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -61,7 +60,7 @@ std::string ExprMngr::Hash(const ExprPtr& expr) {
 
   auto GetSortHash = [](const SortPtr& sort) {
     return fmt::format(
-        template_sort, fmt::arg("type", GetUidSort(sort)),
+        template_sort, fmt::arg("type", sort->uid()),
         fmt::arg("bit", sort->is_bv() ? sort->bit_width() : 0),
         fmt::arg("addr", sort->is_mem() ? sort->addr_width() : 0),
         fmt::arg("data", sort->is_mem() ? sort->data_width() : 0));
@@ -102,7 +101,7 @@ std::string ExprMngr::Hash(const ExprPtr& expr) {
       param_list.push_back(expr->param(i));
     }
 
-    return fmt::format(template_op, fmt::arg("op", GetUidExprOp(expr)),
+    return fmt::format(template_op, fmt::arg("op", asthub::GetUidExprOp(expr)),
                        fmt::arg("sort", GetSortHash(expr->sort())),
                        fmt::arg("arg_list", fmt::join(arg_list, ",")),
                        fmt::arg("param_list", fmt::join(param_list, ",")));

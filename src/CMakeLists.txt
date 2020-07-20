@@ -13,6 +13,7 @@ add_subdirectory(ila-mngr)
 add_subdirectory(mcm)
 add_subdirectory(target-json)
 add_subdirectory(target-sc)
+add_subdirectory(target-smt)
 add_subdirectory(util)
 add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
@@ -59,6 +60,9 @@ target_include_directories(${ILANG_LIB_NAME}
 
 # check if c++17 filesystem is available
 CHECK_INCLUDE_FILE_CXX(filesystem FS_INCLUDE)
+if(${FS_INCLUDE})
+  target_compile_definitions(${ILANG_LIB_NAME} PRIVATE FS_INCLUDE)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # LINK LIBRARIES
@@ -200,7 +204,7 @@ if(${ILANG_BUILD_SWITCH})
 
   find_package(smtswitch REQUIRED)
   target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch)
-  set(SMTSWITCH_INTERFACE TRUE)
+  target_compile_definitions(${ILANG_LIB_NAME} PUBLIC SMTSWITCH_INTERFACE)
 
   if(${SMTSWITCH_BTOR_FOUND})
     target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-btor)
@@ -218,8 +222,6 @@ if(${ILANG_BUILD_SWITCH})
     target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-yices2)
   endif()
 
-else()
-  set(SMTSWITCH_INTERFACE FALSE)
 endif()
 
 ##

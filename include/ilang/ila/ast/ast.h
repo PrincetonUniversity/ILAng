@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Ast.
+/// Class Ast - abstract syntax tree (virtual) base clase.
 
 #ifndef ILANG_ILA_AST_AST_H__
 #define ILANG_ILA_AST_AST_H__
@@ -18,17 +18,18 @@ class InstrLvlAbs;
 /// \brief The class for the Abstract Syntax Tree. An Ast object can be an
 /// expression or function definition (interpreted or uninterpreted).
 class Ast : public Object {
-public:
+protected:
   /// Type for forward declaration of ILA.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  Ast();
+  Ast() {}
   /// Constructor with name.
-  Ast(const std::string& name);
+  Ast(const std::string& name) : Object(name) {}
   /// Default destructor.
-  virtual ~Ast();
+  virtual ~Ast() {}
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Is type Ast.
@@ -42,7 +43,7 @@ public:
   /// Return the hosting ILA.
   inline InstrLvlAbsPtr host() const { return host_; }
   /// Set the hosting ILA.
-  void set_host(InstrLvlAbsPtr host);
+  void set_host(const InstrLvlAbsPtr& host) { host_ = host; }
 
   // ------------------------- METHODS -------------------------------------- //
 
@@ -52,7 +53,7 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Pointer to the host ILA.
-  InstrLvlAbsPtr host_ = NULL;
+  InstrLvlAbsPtr host_ = nullptr;
 
 }; // class Ast
 

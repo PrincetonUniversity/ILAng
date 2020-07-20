@@ -1,6 +1,8 @@
 /// \file
 /// Implementation of the class Ilator.
 
+#include <ilang/target-sc/ilator.h>
+
 #include <fstream>
 
 #include <fmt/format.h>
@@ -9,13 +11,10 @@
 #include <ilang/config.h>
 #include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
-#include <ilang/ila/ast_fuse.h>
-#include <ilang/ila/expr_fuse.h>
-#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/ila/ast_hub.h>
+#include <ilang/target-smt/z3_expr_adapter.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
-
-#include <ilang/target-sc/ilator.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -24,17 +23,17 @@ namespace ilang {
 // static helpers/members
 //
 
-static const std::string dir_app = "app";
-static const std::string dir_src = "src";
-static const std::string dir_include = "include";
-static const std::string dir_extern = "extern";
+static const std::string kDirApp = "app";
+static const std::string kDirSrc = "src";
+static const std::string kDirInclude = "include";
+static const std::string kDirExtern = "extern";
 
-static std::unordered_map<size_t, size_t> pivotal_id;
+static std::unordered_map<size_t, size_t> kPivotalId;
 
 size_t GetPivotalId(const size_t& id) {
-  if (auto pos = pivotal_id.find(id); pos == pivotal_id.end()) {
-    auto new_id = pivotal_id.size();
-    pivotal_id.insert({id, new_id});
+  if (auto pos = kPivotalId.find(id); pos == kPivotalId.end()) {
+    auto new_id = kPivotalId.size();
+    kPivotalId.insert({id, new_id});
     return new_id;
   } else {
     return pos->second;
@@ -52,7 +51,7 @@ bool HasLoadFromStore(const ExprPtr& expr) {
   auto monitor = false;
   auto LoadFromStore = [&monitor](const ExprPtr& e) {
     if (e->is_op()) {
-      if (auto uid = GetUidExprOp(e); uid == AST_UID_EXPR_OP::LOAD) {
+      if (asthub::GetUidExprOp(e) == AstUidExprOp::kLoad) {
         monitor |= e->arg(0)->is_op();
       }
     }
@@ -80,23 +79,23 @@ void Ilator::Generate(const std::string& dst, bool opt) {
 
   // instruction semantics (decode and updates)
   for (auto& instr : AbsKnob::GetInstrTree(m_)) {
-    status &= GenerateInstrContent(instr, os_portable_append_dir(dst, dir_src));
+    status &= GenerateInstrContent(instr, os_portable_append_dir(dst, kDirSrc));
   }
 
   // memory updates
-  status &= GenerateMemoryUpdate(os_portable_append_dir(dst, dir_src));
+  status &= GenerateMemoryUpdate(os_portable_append_dir(dst, kDirSrc));
 
   // constant memory
-  status &= GenerateConstantMemory(os_portable_append_dir(dst, dir_src));
+  status &= GenerateConstantMemory(os_portable_append_dir(dst, kDirSrc));
 
   // initial condition setup
-  status &= GenerateInitialSetup(os_portable_append_dir(dst, dir_src));
+  status &= GenerateInitialSetup(os_portable_append_dir(dst, kDirSrc));
 
   // execution kernel
-  status &= GenerateExecuteKernel(os_portable_append_dir(dst, dir_src));
+  status &= GenerateExecuteKernel(os_portable_append_dir(dst, kDirSrc));
 
   // shared header (input, state, func., etc.)
-  status &= GenerateGlobalHeader(os_portable_append_dir(dst, dir_include));
+  status &= GenerateGlobalHeader(os_portable_append_dir(dst, kDirInclude));
 
   // cmake support, e.g., recipe and templates
   status &= GenerateBuildSupport(dst);
@@ -154,10 +153,10 @@ bool Ilator::Bootstrap(const std::string& root, bool opt) {
 
   // create/structure project directory
   status &= os_portable_mkdir(root);
-  status &= os_portable_mkdir(os_portable_append_dir(root, dir_app));
-  status &= os_portable_mkdir(os_portable_append_dir(root, dir_extern));
-  status &= os_portable_mkdir(os_portable_append_dir(root, dir_include));
-  status &= os_portable_mkdir(os_portable_append_dir(root, dir_src));
+  status &= os_portable_mkdir(os_portable_append_dir(root, kDirApp));
+  status &= os_portable_mkdir(os_portable_append_dir(root, kDirExtern));
+  status &= os_portable_mkdir(os_portable_append_dir(root, kDirInclude));
+  status &= os_portable_mkdir(os_portable_append_dir(root, kDirSrc));
   if (!status) {
     os_portable_remove_directory(root);
   }
@@ -266,7 +265,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
     bool pre(const ExprPtr& expr) {
       // stop traversing when reaching memory ITE (stand-alone func)
       if (expr->is_mem() && expr->is_op() &&
-          GetUidExprOp(expr) == AST_UID_EXPR_OP::ITE) {
+          asthub::GetUidExprOp(expr) == AstUidExprOp::kIfThenElse) {
         host->DfsExpr(expr, buff_ref, lut_ref);
         return true;
       } else {
@@ -281,7 +280,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
     ExprVarMap lut_ref;
   };
 
-  auto RenderMemUpdate = [this](const ExprPtr e, StrBuff& b, ExprVarMap& l) {
+  auto RenderMemUpdate = [this](const ExprPtr& e, StrBuff& b, ExprVarMap& l) {
     auto mem_visiter = MemUpdateVisiter(this, b, l);
     e->DepthFirstVisitPrePost(mem_visiter);
   };
@@ -311,7 +310,7 @@ bool Ilator::GenerateMemoryUpdate(const std::string& dir) {
 
     BeginFuncDef(mem_update_func, buff);
 
-    if (auto uid = GetUidExprOp(mem); uid == AST_UID_EXPR_OP::STORE) {
+    if (asthub::GetUidExprOp(mem) == AstUidExprOp::kStore) {
       RenderMemUpdate(mem, buff, lut);
     } else { // ite
       RenderExpr(mem->arg(0), buff, lut);
@@ -367,10 +366,10 @@ bool Ilator::GenerateConstantMemory(const std::string& dir) {
 
 bool Ilator::GenerateInitialSetup(const std::string& dir) {
   // conjunct all initial condition
-  auto init = ExprFuse::BoolConst(true);
+  auto init = asthub::BoolConst(true);
   auto ConjInit = [&init](const InstrLvlAbsCnstPtr& m) {
     for (size_t i = 0; i < m->init_num(); i++) {
-      init = ExprFuse::And(init, m->init(i));
+      init = asthub::And(init, m->init(i));
     }
   };
   m_->DepthFirstVisit(ConjInit);
@@ -620,15 +619,15 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
   for (auto& f : source_files_) {
     src_files.push_back(
         fmt::format("  ${{CMAKE_CURRENT_SOURCE_DIR}}/{dir}/{file}",
-                    fmt::arg("dir", dir_src), fmt::arg("file", f)));
+                    fmt::arg("dir", kDirSrc), fmt::arg("file", f)));
   }
 
   StrBuff buff;
   fmt::format_to(buff, cmake_recipe_template,
                  fmt::arg("project", GetProjectName()),
-                 fmt::arg("dir_app", dir_app),
+                 fmt::arg("dir_app", kDirApp),
                  fmt::arg("source_files", fmt::join(src_files, "\n")),
-                 fmt::arg("dir_include", dir_include));
+                 fmt::arg("dir_include", kDirInclude));
 
   WriteFile(os_portable_append_dir(dir, "CMakeLists.txt"), buff);
 
@@ -640,7 +639,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "}}\n";
 
   auto entry_path =
-      os_portable_append_dir(os_portable_append_dir(dir, dir_app), "main.cc");
+      os_portable_append_dir(os_portable_append_dir(dir, kDirApp), "main.cc");
 
   if (!os_portable_exist(entry_path)) {
     buff.clear();
@@ -799,7 +798,7 @@ std::string Ilator::GetUpdateFuncName(const InstrPtr& instr) {
 
 std::string Ilator::GetMemoryFuncName(const ExprPtr& expr) {
   ILA_ASSERT(expr->is_mem());
-  if (auto uid = GetUidExprOp(expr); uid == AST_UID_EXPR_OP::ITE) {
+  if (asthub::GetUidExprOp(expr) == AstUidExprOp::kIfThenElse) {
     return fmt::format("ite_{}", GetPivotalId(expr->name().id()));
   } else {
     return fmt::format("store_{}", GetPivotalId(expr->name().id()));

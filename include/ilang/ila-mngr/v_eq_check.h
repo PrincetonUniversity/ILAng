@@ -4,7 +4,6 @@
 #ifndef ILANG_ILA_MNGR_V_EQ_CHECK_H__
 #define ILANG_ILA_MNGR_V_EQ_CHECK_H__
 
-// #include <ilang/ilang++.h>
 #include <ilang/ila/instr_lvl_abs.h>
 
 /// \namespace ilang
@@ -26,6 +25,6 @@ bool CheckEqSameArch(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b,
 bool CheckEqSameMicroArch(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b,
                           bool update = true);
 
-}; // namespace ilang
+} // namespace ilang
 
 #endif // ILANG_ILA_MNGR_V_EQ_CHECK_H__
