@@ -2,16 +2,17 @@
 /// the miscs : UF/MEM/AMC/Post-value-holder/cycle-count
 // --- Hongce Zhang
 
-#include <ilang/ila/expr_fuse.h>
-#include <ilang/util/container_shortcut.h>
-#include <ilang/util/fs.h>
-#include <ilang/util/log.h>
-#include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 #include <cmath>
 #include <fstream>
 #include <iostream>
+
+#include <ilang/ila/ast_hub.h>
+#include <ilang/util/container_shortcut.h>
+#include <ilang/util/fs.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -111,7 +112,8 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       name_to_fnapp_vec;
   for (auto&& func_app : vlg_ila.ila_func_app) {
     if (_vtg_config.IteUnknownAutoIgnore) {
-      if ( func_app.args.empty() && _sdr.isSpecialUnknownFunctionName(func_app.func_name) )
+      if (func_app.args.empty() &&
+          _sdr.isSpecialUnknownFunctionName(func_app.func_name))
         continue;
     }
     name_to_fnapp_vec[func_app.func_name].push_back(func_app);
@@ -304,14 +306,16 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
   for (auto&& m_rec : monitor_rec.items()) {
     const auto& mname = m_rec.key(); // actually no use
     auto& mdef = m_rec.value();
-    ILA_ERROR_IF(!(mdef.is_object() ))
+    ILA_ERROR_IF(!(mdef.is_object()))
         << "Expect verilog-inline-monitors's element to be map type";
     std::string vlg_expr;
     std::vector<std::string> repl_list;
     bool keep_for_non_instruction_target = false;
-    if (IN("keep-for-invariants", mdef) && mdef["keep-for-invariants"].get<bool>())
+    if (IN("keep-for-invariants", mdef) &&
+        mdef["keep-for-invariants"].get<bool>())
       keep_for_non_instruction_target = true;
-    if(target_type != target_type_t::INSTRUCTIONS && !keep_for_non_instruction_target )
+    if (target_type != target_type_t::INSTRUCTIONS &&
+        !keep_for_non_instruction_target)
       continue;
     for (auto&& vlg_inp_pair : mdef.items()) {
       if (vlg_inp_pair.key() == "verilog") {
@@ -380,9 +384,9 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
           ILA_ERROR << "Expecting list-of-map in `defs` field of "
                        "`verilog-inline-monitors`";
       } else if (vlg_inp_pair.key() == "keep-for-invariants") {
-        ILA_ASSERT( vlg_inp_pair.value().get<bool>() == keep_for_non_instruction_target );
-      }
-      else
+        ILA_ASSERT(vlg_inp_pair.value().get<bool>() ==
+                   keep_for_non_instruction_target);
+      } else
         ILA_ERROR << "Unexpected key: " << vlg_inp_pair.key()
                   << " in verilog-inline-monitors, expecting "
                      "verilog/refs/defs/keep-for-invariants";

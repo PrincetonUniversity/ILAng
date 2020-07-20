@@ -1,12 +1,13 @@
 /// \file
 /// Unit test for hashing ast sub-trees
 
-#include "unit-include/util.h"
 #include <ilang/ila/instr_lvl_abs.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 class TestHashApi : public ::testing::Test {
 public:

@@ -8,7 +8,7 @@
 
 #include <cmath>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
@@ -369,7 +369,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       // if you choose to expand the array then we are able to handle with out
       // MEM directive
       int addr_range = std::pow(2, ila_state->sort()->addr_width()); // 2^N
-      int specify_range = ExprFuse::GetMemSize(ila_state);
+      int specify_range = asthub::GetMemSize(ila_state);
       ILA_ERROR_IF(specify_range > addr_range)
           << "For memory state: " << ila_state_name << ", its address width is"
           << ila_state->sort()->addr_width() << " which can hold " << addr_range

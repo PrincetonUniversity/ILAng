@@ -7,7 +7,8 @@
 #include <memory>
 #include <vector>
 
-#include "z3++.h"
+#include <z3++.h>
+
 #include <ilang/ila/symbol.h>
 #include <ilang/util/container.h>
 

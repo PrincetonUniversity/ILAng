@@ -11,7 +11,7 @@
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 class TestUnroll : public ::testing::Test {
 public:

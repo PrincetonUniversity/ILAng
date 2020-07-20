@@ -1,11 +1,13 @@
 /// \file
 /// Unit test for KeyVec
 
-#include "unit-include/util.h"
-#include <ilang/ila/expr_fuse.h>
+#include <string>
+
+#include <ilang/ila/ast_hub.h>
 #include <ilang/ila/symbol.h>
 #include <ilang/util/container.h>
-#include <string>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -51,9 +53,9 @@ TEST(TestKeyVec, SymbolExpr) {
   // bv --> bv_var
   // bool --> bool_const
   // mem --> mem_var
-  ExprPtr bv_var = ExprFuse::NewBvVar("bv_var", 8);
-  ExprPtr bool_const = ExprFuse::BoolConst(true);
-  ExprPtr mem_var = ExprFuse::NewMemVar("mem_var", 8, 32);
+  ExprPtr bv_var = asthub::NewBvVar("bv_var", 8);
+  ExprPtr bool_const = asthub::BoolConst(true);
+  ExprPtr mem_var = asthub::NewMemVar("mem_var", 8, 32);
 
   kv.push_back(bv_var->name(), bv_var);
   kv.push_back(bool_const->name(), bool_const);

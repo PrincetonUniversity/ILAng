@@ -67,7 +67,7 @@ FuncObjFlatIla::FuncObjFlatIla(const InstrLvlAbsCnstPtr& top_,
                                const IlaMap& ila_map, const ExprMap& expr_map)
     : ila_map_(ila_map), expr_map_(expr_map), top_ila_(top_) {
 #ifdef VALID_STACK
-  valid_cond_stack_.push(ExprFuse::BoolConst(true));
+  valid_cond_stack_.push(asthub::BoolConst(true));
 #endif // VALID_STACK
 }
 
@@ -81,11 +81,11 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr& src) {
   auto valid_cond_ = src->valid();
   if (!valid_cond_) {
     ILA_WARN << "valid condition for " << src << " is unset";
-    valid_cond_ = ExprFuse::BoolConst(true);
+    valid_cond_ = asthub::BoolConst(true);
   }
 #ifdef VALID_STACK
   valid_cond_ = AbsKnob::Rewrite(valid_cond_, expr_map_);
-  valid_cond_stack_.push(ExprFuse::And(valid_cond_stack_.top(), valid_cond_));
+  valid_cond_stack_.push(asthub::And(valid_cond_stack_.top(), valid_cond_));
   const auto& hierarchical_valid_cond = valid_cond_stack_.top();
 #endif // VALID_STACK
 
@@ -94,7 +94,7 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr& src) {
     auto i_src = src->instr(i);
     auto i_dst = AbsKnob::DuplInstr(i_src, dst, expr_map_, ila_map_);
 #ifdef VALID_STACK
-    auto new_decode = ExprFuse::And(i_dst->decode(), hierarchical_valid_cond);
+    auto new_decode = asthub::And(i_dst->decode(), hierarchical_valid_cond);
     i_dst->ForceSetDecode(new_decode);
 #endif // VALID_STACK
   }

@@ -1,11 +1,13 @@
 /// \file
 /// Source for multi-ILA unroller
 
-#include "ilang/mcm/inter_ila_unroller.h"
-#include "ilang/mcm/set_op.h"
-#include "ilang/util/log.h"
+#include <ilang/mcm/inter_ila_unroller.h>
+
 #include <map>
 #include <vector>
+
+#include <ilang/mcm/set_op.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -169,7 +171,7 @@ void InterIlaUnroller::GenSysInitConstraints() {
     // auto &unroller_ptr = unrollers_[idx];
     InstrVec InitInstVec; // Only one instruction init
     InitInstVec.push_back(Instr::New("__INIT__", ila_ptr));
-    InitInstVec[0]->set_decode(ExprFuse::BoolConst(true));
+    InitInstVec[0]->set_decode(asthub::BoolConst(true));
 
     size_t init_num = ila_ptr->init_num();
     for (size_t init_cond_idx = 0; init_cond_idx != init_num; ++init_cond_idx) {

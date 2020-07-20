@@ -1,8 +1,9 @@
 /// \file
 /// Unit test for class InstrLvlAbs.
 
-#include "unit-include/util.h"
 #include <ilang/ila/instr_lvl_abs.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -44,16 +45,16 @@ TEST(TestInstrLvlAbs, Input) {
   auto ila = InstrLvlAbs::New("ila");
 
   // Add
-  ExprPtr bool_input = ExprFuse::NewBoolVar("bool_input");
+  ExprPtr bool_input = asthub::NewBoolVar("bool_input");
   ila->AddInput(bool_input);
 
-  ExprPtr bool_const = ExprFuse::BoolConst(true);
+  ExprPtr bool_const = asthub::BoolConst(true);
 #ifndef NDEBUG
   EXPECT_DEATH(ila->AddInput(bool_const), ".*");
   EXPECT_DEATH(ila->AddInput(NULL), ".*");
 #endif
 
-  ExprPtr new_bool_input = ExprFuse::NewBoolVar("bool_input");
+  ExprPtr new_bool_input = asthub::NewBoolVar("bool_input");
 #ifndef NDEBUG
   EXPECT_DEATH(ila->AddInput(new_bool_input), ".*");
 #endif
@@ -85,17 +86,17 @@ TEST(TestInstrLvlAbs, State) {
   auto ila = InstrLvlAbs::New("ila");
 
   // Add
-  ExprPtr bool_state = ExprFuse::NewBoolVar("bool_state");
+  ExprPtr bool_state = asthub::NewBoolVar("bool_state");
   ila->AddState(bool_state);
 
-  ExprPtr bool_const = ExprFuse::BoolConst(true);
+  ExprPtr bool_const = asthub::BoolConst(true);
 #ifndef NDEBUG
   EXPECT_DEATH(ila->AddState(bool_const), ".*");
 
   EXPECT_DEATH(ila->AddState(NULL), ".*");
 #endif
 
-  ExprPtr new_bool_state = ExprFuse::NewBoolVar("bool_state");
+  ExprPtr new_bool_state = asthub::NewBoolVar("bool_state");
 #ifndef NDEBUG
   EXPECT_DEATH(ila->AddState(new_bool_state), ".*");
 #endif
@@ -125,12 +126,12 @@ TEST(TestInstrLvlAbs, Init) {
   auto ila = InstrLvlAbs::New("ila");
   auto varx = ila->NewBvState("varx", 8);
   auto vary = ila->NewBvState("vary", 8);
-  auto bv0 = ExprFuse::BvConst(0, 8);
-  auto bv1 = ExprFuse::BvConst(1, 8);
+  auto bv0 = asthub::BvConst(0, 8);
+  auto bv1 = asthub::BvConst(1, 8);
 
-  auto init0 = ExprFuse::Eq(varx, bv0);
-  auto init1 = ExprFuse::Ne(vary, bv1);
-  auto bad_cntr = ExprFuse::And(varx, bv1);
+  auto init0 = asthub::Eq(varx, bv0);
+  auto init1 = asthub::Ne(vary, bv1);
+  auto bad_cntr = asthub::And(varx, bv1);
 
   ila->AddInit(init0);
   ila->AddInit(init1);
@@ -151,8 +152,8 @@ TEST(TestInstrLvlAbs, Fetch) {
   auto varb = ila->NewBoolState("varb");
   auto mem = ila->NewMemState("mem", 8, 32);
 
-  auto fetch = ExprFuse::Load(mem, varx);
-  auto new_f = ExprFuse::Or(varx, vary);
+  auto fetch = asthub::Load(mem, varx);
+  auto new_f = asthub::Or(varx, vary);
 
 #ifndef NDEBUG
   EXPECT_DEATH(ila->SetFetch(varb), ".*");
@@ -177,10 +178,10 @@ TEST(TestInstrLvlAbs, Valid) {
   auto varx = ila->NewBvState("varx", 8);
   auto varb = ila->NewBoolState("varb");
   auto mem = ila->NewMemState("mem", 8, 32);
-  auto bv0 = ExprFuse::BvConst(0, 32);
+  auto bv0 = asthub::BvConst(0, 32);
 
-  auto opcode = ExprFuse::Load(mem, varx);
-  auto valid = ExprFuse::Eq(opcode, bv0);
+  auto opcode = asthub::Load(mem, varx);
+  auto valid = asthub::Eq(opcode, bv0);
   auto new_v = varb;
 
 #ifndef NDEBUG
@@ -280,10 +281,10 @@ TEST(TestInstrLvlAbs, SeqTran) {
   auto instr_1 = ila->NewInstr("instr_1");
   auto instr_2 = ila->NewInstr("instr_2");
   auto counter = ila->NewBvState("counter", 8);
-  auto const_1 = ExprFuse::BvConst(1, 8);
-  auto const_2 = ExprFuse::BvConst(2, 8);
-  auto cnd_1 = ExprFuse::Eq(counter, const_1);
-  auto cnd_2 = ExprFuse::Eq(counter, const_2);
+  auto const_1 = asthub::BvConst(1, 8);
+  auto const_2 = asthub::BvConst(2, 8);
+  auto cnd_1 = asthub::Eq(counter, const_1);
+  auto cnd_2 = asthub::Eq(counter, const_2);
 
   ila->AddSeqTran(instr_0, instr_1, cnd_1);
   ila->AddSeqTran(instr_1, instr_2, cnd_2);
