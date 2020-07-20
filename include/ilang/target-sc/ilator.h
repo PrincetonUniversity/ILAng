@@ -41,14 +41,14 @@ private:
   class CxxFunc {
   public:
     CxxFunc(const std::string& in_name, const ExprPtr& in_ret,
-            const ExprPtr& in_target = NULL)
+            const ExprPtr& in_target = nullptr)
         : name(in_name), ret(in_ret), target(in_target) {}
     CxxFunc(const std::string& in_name, const SortPtr& in_ret_type)
         : name(in_name), ret_type(in_ret_type) {}
     const std::string name = "";
-    const ExprPtr ret = NULL;
-    const ExprPtr target = NULL;
-    const SortPtr ret_type = NULL;
+    const ExprPtr ret = nullptr;
+    const ExprPtr target = nullptr;
+    const SortPtr ret_type = nullptr;
     std::vector<SortPtr> args;
   };
 
@@ -113,7 +113,7 @@ private:
 
   /// Request a function with the specified name and return var.
   CxxFunc* RegisterFunction(const std::string& func_name,
-                            ExprPtr return_expr = NULL);
+                            ExprPtr return_expr = nullptr);
   /// Request a function simulating the uninterpreted function.
   CxxFunc* RegisterExternalFunc(const FuncPtr& func);
   /// Request a wrapping function for memory operation.

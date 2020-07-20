@@ -9,7 +9,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/mcm/ast_helper.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
@@ -25,8 +25,8 @@ void VlgSglTgtGen::add_wire_assign_assumption(const std::string& varname,
   //                                convert_expr_to_cosa(expression));
   vlg_wrapper.add_assign_stmt(varname, expression);
   ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
-                 vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
-             expression.find(".") == std::string::npos)
+                vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
+            expression.find(".") == std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
   ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify ==
                   vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_WARNING &&
@@ -45,8 +45,8 @@ void VlgSglTgtGen::add_reg_cassign_assumption(const std::string& varname,
   //                                convert_expr_to_cosa(expression) + "))");
 
   ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
-                 vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
-             expression.find(".") == std::string::npos)
+                vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
+            expression.find(".") == std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
 
   ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify ==
@@ -76,8 +76,8 @@ void VlgSglTgtGen::add_an_assumption(const std::string& aspt,
                          1); // I find it is necessary to connect to the output
 
   ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
-                 vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
-             aspt.find(".") == std::string::npos)
+                vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
+            aspt.find(".") == std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
 
   ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify ==
@@ -86,9 +86,10 @@ void VlgSglTgtGen::add_an_assumption(const std::string& aspt,
       << "aspt:" << aspt << " contains unfriendly dot.";
 
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
-  add_a_direct_assumption(assumption_wire_name + 
-    (_backend == backend_selector::COSA ? " = 1_1" : ""),
-    dspt);
+  add_a_direct_assumption(
+      assumption_wire_name +
+          (_backend == backend_selector::COSA ? " = 1_1" : ""),
+      dspt);
 } // add_an_assumption
 
 /// Add an assertion
@@ -99,12 +100,12 @@ void VlgSglTgtGen::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_output(assrt_wire_name,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
-  add_a_direct_assertion(assrt_wire_name + 
-    (_backend == backend_selector::COSA ? " = 1_1" : ""),
-    dspt);
+  add_a_direct_assertion(
+      assrt_wire_name + (_backend == backend_selector::COSA ? " = 1_1" : ""),
+      dspt);
   ILA_CHECK(_vtg_config.CosaDotReferenceNotify !=
-                 vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
-             asst.find(".") == std::string::npos)
+                vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC ||
+            asst.find(".") == std::string::npos)
       << "asst:" << asst << " contains unfriendly dot.";
   ILA_WARN_IF(_vtg_config.CosaDotReferenceNotify ==
                   vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_WARNING &&

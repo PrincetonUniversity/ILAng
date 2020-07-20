@@ -1,6 +1,6 @@
 #include <string>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 
 #include "../unit-include/ila_sim_test.h"
 
@@ -25,8 +25,8 @@ IlaSimTest::IlaSimTest(const std::string& name)
 
   { // WRITE_ADDRESS
     auto instr = model.NewInstr("WRITE_ADDRESS");
-    auto flag_true = ExprFuse::BoolConst(true);
-    auto flag_false = ExprFuse::BoolConst(false);
+    auto flag_true = asthub::BoolConst(true);
+    auto flag_false = asthub::BoolConst(false);
 
     instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= ADDR) &
                     (cmdaddr < ADDR + 2));

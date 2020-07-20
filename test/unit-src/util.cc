@@ -48,13 +48,12 @@ void CheckIlaEqLegacy(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b) {
   EXPECT_EQ(ila->instr_num(), des->instr_num());
 
   // eq check (no child)
-  auto state_mapping = ExprFuse::BoolConst(true);
+  auto state_mapping = asthub::BoolConst(true);
   for (decltype(ila->state_num()) i = 0; i < ila->state_num(); i++) {
     auto var_org = ila->state(i);
     try {
       auto var_des = des->state(var_org->name().str());
-      state_mapping =
-          ExprFuse::And(state_mapping, ExprFuse::Eq(var_org, var_des));
+      state_mapping = asthub::And(state_mapping, asthub::Eq(var_org, var_des));
     } catch (...) {
       ILA_WARN << "Fail automatically matching state vars";
     }

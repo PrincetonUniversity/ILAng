@@ -1,5 +1,5 @@
 /// \file
-/// ILA to JSON serializer.
+/// Class I2JSer - ILA to JSON serializer.
 
 #ifndef ILANG_TARGET_JSON_I2J_SER_H__
 #define ILANG_TARGET_JSON_I2J_SER_H__
@@ -7,8 +7,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include <ilang/ila/instr_lvl_abs.h>
 #include <nlohmann/json.hpp>
+
+#include <ilang/ila/instr_lvl_abs.h>
 
 using json = nlohmann::json;
 
@@ -33,10 +34,6 @@ public:
   static I2JSerPtr New();
 
   // ------------------------- METHODS -------------------------------------- //
-  /// \brief Serialize Expr to JSON (and all its sub-expressions).
-  json SerExpr(const ExprPtr& i_expr);
-  /// \brief Serialize Instr to JSON.
-  json SerInstr(const InstrPtr& i_instr);
   /// \brief Serialize InstrLvlAbs, including its children, to JSON.
   json SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila);
 
@@ -56,10 +53,14 @@ private:
   json SerSort(const SortPtr& i_sort) const;
   /// Serialize Func to JSON.
   json SerFunc(const FuncPtr& i_func);
+  /// Serialize Expr to JSON (and all its sub-expressions).
+  json SerExpr(const ExprPtr& i_expr);
   /// Serialize constant value to JSON.
   json SerConstVal(const ExprPtr& i_expr) const;
   /// Serialize one single Expr.
   json SerExprUnit(const ExprPtr& i_expr);
+  /// Serialize Instr to JSON.
+  json SerInstr(const InstrPtr& i_instr);
   /// Serialize InstrLvlAbs and its children, excluding the AST list.
   json SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila);
 
@@ -68,6 +69,6 @@ private:
 /// Pointer type for normal use of I2JSer.
 typedef I2JSer::I2JSerPtr I2JSerPtr;
 
-}; // namespace ilang
+} // namespace ilang
 
 #endif // ILANG_TARGET_JSON_I2J_SER_H__

@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Expr
+/// Class Expr - base class of expression nodes.
 
 #ifndef ILANG_ILA_AST_EXPR_H__
 #define ILANG_ILA_AST_EXPR_H__
@@ -11,11 +11,11 @@
 #include <unordered_set>
 #include <vector>
 
-#include "z3++.h"
-#include "z3_api.h"
+#include <z3++.h>
+#include <z3_api.h>
+
 #include <ilang/ila/ast/ast.h>
 #include <ilang/ila/ast/sort.h>
-#include <ilang/ila/defines.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -29,6 +29,11 @@ public:
   /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
 
+protected:
+  /// Vector type for z3 expression.
+  typedef std::vector<z3::expr> Z3ExprVec;
+
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Expr();
@@ -56,9 +61,9 @@ public:
   /// Set the parameters.
   void set_params(const std::vector<int> params);
   /// Replace the i-th argument.
-  void replace_arg(const int& idx, const ExprPtr arg);
+  void replace_arg(const int& idx, const ExprPtr& arg);
   /// Replace the "a" argument with "b" argument with "exist".
-  void replace_arg(const ExprPtr a, const ExprPtr b);
+  void replace_arg(const ExprPtr& a, const ExprPtr& b);
 
   /// Is type expr (object).
   bool is_expr() const { return true; }
@@ -86,7 +91,7 @@ public:
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
   /// Overload output stream operator for pointer.
-  friend std::ostream& operator<<(std::ostream& out, const ExprPtr expr) {
+  friend std::ostream& operator<<(std::ostream& out, const ExprPtr& expr) {
     return expr->Print(out);
   }
 
@@ -94,7 +99,7 @@ public:
   /// the function object F on it.
   template <class F> void DepthFirstVisit(F& func) {
     for (size_t i = 0; i != arg_num(); i++) {
-      const ExprPtr arg_i = this->arg(i);
+      auto arg_i = this->arg(i);
       arg_i->DepthFirstVisit<F>(func);
     }
     func(shared_from_this());
@@ -139,7 +144,7 @@ typedef Expr::ExprPtrVec ExprPtrVec;
 class ExprHash {
 public:
   /// Function object for hashing
-  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
+  size_t operator()(const ExprPtr& expr) const { return expr->name().id(); }
 }; // class ExprHash
 
 /// Type for mapping between Expr.

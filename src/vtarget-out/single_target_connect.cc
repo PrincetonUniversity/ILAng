@@ -2,16 +2,17 @@
 /// the connection wires / instantiation and etc.
 // --- Hongce Zhang
 
-#include <ilang/ila/expr_fuse.h>
-#include <ilang/util/container_shortcut.h>
-#include <ilang/util/fs.h>
-#include <ilang/util/log.h>
-#include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 #include <cmath>
 #include <fstream>
 #include <iostream>
+
+#include <ilang/ila/ast_hub.h>
+#include <ilang/util/container_shortcut.h>
+#include <ilang/util/fs.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -74,10 +75,10 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   std::set<std::string> func_port_skip_set;
 
   // ite ( unknown) also use this port
-  for (auto&& sname_cond_pair  : vlg_ila.state_update_ite_unknown) {
-    const auto & port_name = sname_cond_pair.second.condition;
-    func_port_skip_set.insert( port_name );
-    port_connected.insert( port_name );
+  for (auto&& sname_cond_pair : vlg_ila.state_update_ite_unknown) {
+    const auto& port_name = sname_cond_pair.second.condition;
+    func_port_skip_set.insert(port_name);
+    port_connected.insert(port_name);
     vlg_wrapper.add_wire(port_name, 1, true);
     vlg_wrapper.add_output(port_name, 1);
 
@@ -273,7 +274,9 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
   auto vlg_inputs =
       vlg_info_ptr->get_top_module_io(supplementary_info.width_info);
-  auto& io_map = IN("interface mapping",rf_vmap) ? rf_vmap["interface mapping"] : rf_vmap["interface-mapping"] ;
+  auto& io_map = IN("interface mapping", rf_vmap)
+                     ? rf_vmap["interface mapping"]
+                     : rf_vmap["interface-mapping"];
   for (auto&& name_siginfo_pair : vlg_inputs) {
     std::string refstr =
         IN(name_siginfo_pair.first, io_map)

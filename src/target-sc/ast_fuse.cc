@@ -1,7 +1,7 @@
 /// \file
 /// Source of AstFuse
 
-#include <ilang/ila/ast_fuse.h>
+#include "ast_fuse.h"
 
 #include <memory>
 

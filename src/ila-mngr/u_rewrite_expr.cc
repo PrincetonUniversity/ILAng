@@ -3,17 +3,14 @@
 
 #include <ilang/ila-mngr/u_rewriter.h>
 
-#include <ilang/ila/ast_fuse.h>
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
 
-using namespace ExprFuse;
-
 ExprPtr FuncObjRewrExpr::get(const ExprPtr& e) const {
   auto pos = rule_.find(e);
-  ILA_CHECK(pos != rule_.end()) << e << " not found";
+  ILA_ASSERT(pos != rule_.end()) << e << " not found";
   return pos->second;
 }
 
@@ -40,163 +37,164 @@ ExprPtr FuncObjRewrExpr::Rewrite(const ExprPtr& e) const {
 }
 
 ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr& e) const {
+  using namespace asthub;
   switch (auto expr_op_uid = GetUidExprOp(e); expr_op_uid) {
-  case AST_UID_EXPR_OP::NEG: {
+  case AstUidExprOp::kNegate: {
     auto a = get(e->arg(0));
     return Negate(a);
   }
-  case AST_UID_EXPR_OP::NOT: {
+  case AstUidExprOp::kNot: {
     auto a = get(e->arg(0));
     return Not(a);
   }
-  case AST_UID_EXPR_OP::COMPL: {
+  case AstUidExprOp::kComplement: {
     auto a = get(e->arg(0));
     return Complement(a);
   }
-  case AST_UID_EXPR_OP::AND: {
+  case AstUidExprOp::kAnd: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return And(a0, a1);
   }
-  case AST_UID_EXPR_OP::OR: {
+  case AstUidExprOp::kOr: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Or(a0, a1);
   }
-  case AST_UID_EXPR_OP::XOR: {
+  case AstUidExprOp::kXor: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Xor(a0, a1);
   }
-  case AST_UID_EXPR_OP::SHL: {
+  case AstUidExprOp::kShiftLeft: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Shl(a0, a1);
   }
-  case AST_UID_EXPR_OP::ASHR: {
+  case AstUidExprOp::kArithShiftRight: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Ashr(a0, a1);
   }
-  case AST_UID_EXPR_OP::LSHR: {
+  case AstUidExprOp::kLogicShiftRight: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Lshr(a0, a1);
   }
-  case AST_UID_EXPR_OP::ADD: {
+  case AstUidExprOp::kAdd: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Add(a0, a1);
   }
-  case AST_UID_EXPR_OP::SUB: {
+  case AstUidExprOp::kSubtract: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Sub(a0, a1);
   }
-  case AST_UID_EXPR_OP::DIV: {
+  case AstUidExprOp::kDivide: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Div(a0, a1);
   }
 #if 0
-  case AST_UID_EXPR_OP::SREM: {
+  case AstUidExprOp::kSignedRemainder: {
     // TODO
   }
 #endif
-  case AST_UID_EXPR_OP::UREM: {
+  case AstUidExprOp::kUnsignedRemainder: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return URem(a0, a1);
   }
 #if 0
-  case AST_UID_EXPR_OP::SMOD: {
+  case AstUidExprOp::kSignedModular: {
     // TODO
   }
 #endif
-  case AST_UID_EXPR_OP::MUL: {
+  case AstUidExprOp::kMultiply: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Mul(a0, a1);
   }
-  case AST_UID_EXPR_OP::EQ: {
+  case AstUidExprOp::kEqual: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Eq(a0, a1);
   }
-  case AST_UID_EXPR_OP::LT: {
+  case AstUidExprOp::kLessThan: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Lt(a0, a1);
   }
-  case AST_UID_EXPR_OP::GT: {
+  case AstUidExprOp::kGreaterThan: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Gt(a0, a1);
   }
-  case AST_UID_EXPR_OP::ULT: {
+  case AstUidExprOp::kUnsignedLessThan: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Ult(a0, a1);
   }
-  case AST_UID_EXPR_OP::UGT: {
+  case AstUidExprOp::kUnsignedGreaterThan: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Ugt(a0, a1);
   }
-  case AST_UID_EXPR_OP::LOAD: {
+  case AstUidExprOp::kLoad: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Load(a0, a1);
   }
-  case AST_UID_EXPR_OP::STORE: {
+  case AstUidExprOp::kStore: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     auto a2 = get(e->arg(2));
     return Store(a0, a1, a2);
   }
-  case AST_UID_EXPR_OP::CONCAT: {
+  case AstUidExprOp::kConcatenate: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Concat(a0, a1);
   }
-  case AST_UID_EXPR_OP::EXTRACT: {
+  case AstUidExprOp::kExtract: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     auto p1 = e->param(1);
     return Extract(a0, p0, p1);
   }
-  case AST_UID_EXPR_OP::ZEXT: {
+  case AstUidExprOp::kZeroExtend: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     return ZExt(a0, p0);
   }
-  case AST_UID_EXPR_OP::SEXT: {
+  case AstUidExprOp::kSignedExtend: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     return SExt(a0, p0);
   }
-  case AST_UID_EXPR_OP::LROTATE: {
+  case AstUidExprOp::kRotateLeft: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     return LRotate(a0, p0);
   }
-  case AST_UID_EXPR_OP::RROTATE: {
+  case AstUidExprOp::kRotateRight: {
     auto a0 = get(e->arg(0));
     auto p0 = e->param(0);
     return RRotate(a0, p0);
   }
-  case AST_UID_EXPR_OP::IMPLY: {
+  case AstUidExprOp::kImply: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     return Imply(a0, a1);
   }
-  case AST_UID_EXPR_OP::ITE: {
+  case AstUidExprOp::kIfThenElse: {
     auto a0 = get(e->arg(0));
     auto a1 = get(e->arg(1));
     auto a2 = get(e->arg(2));
     return Ite(a0, a1, a2);
   }
-  case AST_UID_EXPR_OP::APP_FUNC: {
+  case AstUidExprOp::kApplyFunc: {
     auto e_derive = std::static_pointer_cast<ExprOpAppFunc>(e);
     ILA_NOT_NULL(e_derive);
 
@@ -209,7 +207,7 @@ ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr& e) const {
   }
   default: {
     ILA_ERROR << "Rewriting " << expr_op_uid << " not implemented";
-    return NULL;
+    return nullptr;
   }
   };
 }

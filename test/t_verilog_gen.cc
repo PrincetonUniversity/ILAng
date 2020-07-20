@@ -1,5 +1,6 @@
 /// \file
 /// Unit test for Verilog parser.
+
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -337,7 +338,7 @@ public:
     SortPtr rs = std::make_shared<SortBv>(8);
     FuncPtr f1 = Func::New("f1", rs, {rs, rs});
 
-    auto f1a = ExprFuse::AppFunc(f1, bv_x, bv_y);
+    auto f1a = asthub::AppFunc(f1, bv_x, bv_y);
 
     auto a = ila->NewInstr("a");
     { a->set_update(bv_x, f1a); }
@@ -380,11 +381,11 @@ TEST_F(TestVerilogExport, OPs) {
   {
     i1->set_update(x,
 
-                   ExprFuse::Ite(x, ExprFuse::Ult(x, y), ExprFuse::Ugt(y, z)));
+                   asthub::Ite(x, asthub::Ult(x, y), asthub::Ugt(y, z)));
     i1->set_update(y,
 
-                   ExprFuse::Imply(ExprFuse::Xor(x, y), z));
-    i1->set_update(bv_z, ExprFuse::Mul(bv_x, bv_y));
+                   asthub::Imply(asthub::Xor(x, y), z));
+    i1->set_update(bv_z, asthub::Mul(bv_x, bv_y));
 
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i1);
@@ -392,89 +393,89 @@ TEST_F(TestVerilogExport, OPs) {
 
   auto i2 = ila->NewInstr();
   {
-    i2->set_update(bv_x, ExprFuse::Negate(bv_x));
+    i2->set_update(bv_x, asthub::Negate(bv_x));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i2);
   }
 
   auto i3 = ila->NewInstr();
   {
-    i3->set_update(bv_x, ExprFuse::SExt(bv_x, 8));
+    i3->set_update(bv_x, asthub::SExt(bv_x, 8));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i3);
   }
 
   auto i32 = ila->NewInstr();
   {
-    i32->set_update(bv_x, ExprFuse::ZExt(bv_x, 8));
+    i32->set_update(bv_x, asthub::ZExt(bv_x, 8));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i32);
   }
   auto i33 = ila->NewInstr();
   {
-    i33->set_update(bv_x, ExprFuse::Extract(ExprFuse::ZExt(bv_x, 9), 8, 1));
+    i33->set_update(bv_x, asthub::Extract(asthub::ZExt(bv_x, 9), 8, 1));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i33);
   }
   auto i34 = ila->NewInstr();
   {
-    i34->set_update(bv_x, ExprFuse::Extract(ExprFuse::SExt(bv_x, 9), 8, 1));
+    i34->set_update(bv_x, asthub::Extract(asthub::SExt(bv_x, 9), 8, 1));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i34);
   }
 
   auto i4 = ila->NewInstr();
   {
-    i4->set_update(bv_x, ExprFuse::Complement(bv_x));
+    i4->set_update(bv_x, asthub::Complement(bv_x));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i4);
   }
 
   auto i = ila->NewInstr();
   {
-    i->set_update(bv_x, ExprFuse::Or(bv_x, bv_y));
+    i->set_update(bv_x, asthub::Or(bv_x, bv_y));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i);
   }
   i = ila->NewInstr();
   {
-    i->set_update(bv_x, ExprFuse::Xor(bv_x, bv_y));
-    auto vgen = VerilogGenerator();
-    vgen.ExportTopLevelInstr(i);
-  }
-
-  i = ila->NewInstr();
-  {
-    i->set_update(bv_x, ExprFuse::Shl(bv_x, 1));
+    i->set_update(bv_x, asthub::Xor(bv_x, bv_y));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i);
   }
 
   i = ila->NewInstr();
   {
-    i->set_update(bv_x, ExprFuse::Ashr(bv_x, 1));
+    i->set_update(bv_x, asthub::Shl(bv_x, 1));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i);
   }
 
   i = ila->NewInstr();
   {
-    i->set_update(bv_x, ExprFuse::Lshr(bv_x, 1));
+    i->set_update(bv_x, asthub::Ashr(bv_x, 1));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i);
   }
 
   i = ila->NewInstr();
   {
-    i->set_update(bv_x, ExprFuse::Extract(ExprFuse::Concat(bv_x, bv_y), 9, 2));
+    i->set_update(bv_x, asthub::Lshr(bv_x, 1));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i);
   }
 
   i = ila->NewInstr();
   {
-    i->set_update(bv_u, ExprFuse::Ite(x, ExprFuse::Store(bv_u, bv_x, bv_y),
-                                      ExprFuse::Store(bv_u, bv_z, bv_x)));
+    i->set_update(bv_x, asthub::Extract(asthub::Concat(bv_x, bv_y), 9, 2));
+    auto vgen = VerilogGenerator();
+    vgen.ExportTopLevelInstr(i);
+  }
+
+  i = ila->NewInstr();
+  {
+    i->set_update(bv_u, asthub::Ite(x, asthub::Store(bv_u, bv_x, bv_y),
+                                    asthub::Store(bv_u, bv_z, bv_x)));
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i);
   }

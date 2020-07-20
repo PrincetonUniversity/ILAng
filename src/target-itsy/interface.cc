@@ -33,7 +33,7 @@ InstrLvlAbsPtr ImportSynthAbsFromFile(const std::string& fileName,
 }
 
 InstrLvlAbsPtr ImportSynthAbsFromFileHier(const std::string& fileName,
-                                          const InstrLvlAbsPtr parent,
+                                          const InstrLvlAbsPtr& parent,
                                           const std::string& name) {
   struct stat buffer;
   ILA_CHECK(stat(fileName.c_str(), &buffer) == 0) << fileName << " not exist";

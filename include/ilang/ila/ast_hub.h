@@ -1,12 +1,9 @@
 /// \file
-/// Header of the wrapping Expr usage
+///
 
-#ifndef ILANG_ILA_EXPR_FUSE_H__
-#define ILANG_ILA_EXPR_FUSE_H__
+#ifndef ILANG_ILA_AST_HUB_H__
+#define ILANG_ILA_AST_HUB_H__
 
-#include <string>
-
-#include <ilang/ila/ast/expr.h>
 #include <ilang/ila/ast/expr_const.h>
 #include <ilang/ila/ast/expr_op.h>
 #include <ilang/ila/ast/expr_var.h>
@@ -15,9 +12,19 @@
 /// \namespace ilang
 namespace ilang {
 
-/// \namespace ExprFuse
-/// Defines the wrapper for hiding imeplementation dependent type details.
-namespace ExprFuse {
+/// \namespace asthub
+namespace asthub {
+
+/// Helper to get the unified id of expr's sort.
+inline AstUidSort GetUidSort(const ExprPtr& expr) {
+  return expr->sort()->uid();
+}
+
+/// Helper to get the unified id of expr's operation.
+inline AstUidExprOp GetUidExprOp(const ExprPtr& expr) {
+  return std::dynamic_pointer_cast<ExprOp>(expr)->uid();
+}
+
 /******************************************************************************/
 // Variable
 /******************************************************************************/
@@ -220,8 +227,8 @@ ExprPtr Ite(const ExprPtr& cnd, const ExprPtr& true_expr,
 /// Topologically equivalent.
 bool TopEq(const ExprPtr& a, const ExprPtr& b);
 
-} // namespace ExprFuse
+} // namespace asthub
 
 } // namespace ilang
 
-#endif // ILANG_ILA_EXPR_FUSE_H__
+#endif // ILANG_ILA_AST_HUB_H__

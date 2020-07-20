@@ -2,13 +2,12 @@
 /// Unit tests for exporting and importing ILA portables.
 
 #include <ilang/ila-mngr/u_abs_knob.h>
-
-#include "unit-include/config.h"
-#include "unit-include/util.h"
-#include <ilang/ila-mngr/v_eq_check.h>
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
+
+#include "unit-include/config.h"
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -25,8 +24,6 @@ void Copy(const std::string& dir, const std::string& file, bool check = true) {
   if (check) {
     Check(ila, copy);
   }
-
-  EXPECT_TRUE(CheckEqSameMicroArch(ila, copy, check));
 }
 
 TEST(TestCopyTree, AES_V_TOP) { Copy("aes", "aes_v_top.json"); }

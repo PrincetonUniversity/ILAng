@@ -1,6 +1,7 @@
-#include <ilang/ila/ast_fuse.h>
 #include <ilang/target-sc/ila_sim.h>
 #include <ilang/util/log.h>
+
+#include "ast_fuse.h"
 
 namespace ilang {
 
