@@ -1,10 +1,11 @@
 /// \file
-/// Header for the class SmtShim.
+/// Templated class SmtShim - higher-level wrapper for z3 and smt-switch.
 
 #ifndef ILANG_TARGET_SMT_SMT_SHIM_H__
 #define ILANG_TARGET_SMT_SMT_SHIM_H__
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast/func.h>
+#include <ilang/ila/ast_fuse.h>
 
 /// \namespace ilang
 namespace ilang {

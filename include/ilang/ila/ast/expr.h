@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Expr
+/// Class Expr - base class of expression nodes.
 
 #ifndef ILANG_ILA_AST_EXPR_H__
 #define ILANG_ILA_AST_EXPR_H__
@@ -11,8 +11,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include "z3++.h"
-#include "z3_api.h"
+#include <z3++.h>
+#include <z3_api.h>
+
 #include <ilang/ila/ast/ast.h>
 #include <ilang/ila/ast/sort.h>
 #include <ilang/ila/defines.h>

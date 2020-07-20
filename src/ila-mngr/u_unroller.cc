@@ -11,7 +11,7 @@
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 typedef z3::expr ZExpr;
 

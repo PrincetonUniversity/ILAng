@@ -1,12 +1,12 @@
 /// \file
 /// Implementation of DFS visitor to translate expr in Ilator.
 
+#include <ilang/target-sc/ilator.h>
+
 #include <fmt/format.h>
 
-#include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/util/log.h>
-
-#include <ilang/target-sc/ilator.h>
 
 namespace ilang {
 
@@ -69,25 +69,25 @@ void Ilator::DfsOp(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
     return;
   }
 
-  switch (auto uid = GetUidExprOp(expr); uid) {
+  switch (auto uid = asthub::GetUidExprOp(expr); uid) {
   // apply function
-  case AST_UID_EXPR_OP::APP_FUNC:
+  case AstUidExprOp::kApplyFunc:
     DfsOpAppFunc(expr, buff, lut);
     break;
   // special cases
-  case AST_UID_EXPR_OP::LOAD:
+  case AstUidExprOp::kLoad:
     [[fallthrough]];
-  case AST_UID_EXPR_OP::CONCAT:
+  case AstUidExprOp::kConcatenate:
     [[fallthrough]];
-  case AST_UID_EXPR_OP::EXTRACT:
+  case AstUidExprOp::kExtract:
     [[fallthrough]];
-  case AST_UID_EXPR_OP::ZEXT:
+  case AstUidExprOp::kZeroExtend:
     [[fallthrough]];
-  case AST_UID_EXPR_OP::SEXT:
+  case AstUidExprOp::kSignedExtend:
     [[fallthrough]];
-  case AST_UID_EXPR_OP::IMPLY:
+  case AstUidExprOp::kImply:
     [[fallthrough]];
-  case AST_UID_EXPR_OP::ITE:
+  case AstUidExprOp::kIfThenElse:
     DfsOpSpecial(expr, buff, lut);
     break;
   // regular operator
@@ -99,7 +99,7 @@ void Ilator::DfsOp(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
 
 void Ilator::DfsOpMemory(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
 
-  if (auto uid = GetUidExprOp(expr); uid == AST_UID_EXPR_OP::STORE) {
+  if (auto uid = asthub::GetUidExprOp(expr); uid == AstUidExprOp::kStore) {
     static const char* mem_store_template =
 #ifdef ILATOR_PRECISE_MEM
         "tmp_memory[{address}] = {data};\n";
@@ -147,8 +147,8 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   auto [it, status] = lut.try_emplace(expr, local_var);
   ILA_ASSERT(status);
 
-  switch (auto uid = GetUidExprOp(expr); uid) {
-  case AST_UID_EXPR_OP::LOAD: {
+  switch (auto uid = asthub::GetUidExprOp(expr); uid) {
+  case AstUidExprOp::kLoad: {
     static const char* load_template =
         "auto {local_var} = {memory_source}[{address}{mem_suffix}];\n";
     fmt::format_to(buff, load_template, //
@@ -163,7 +163,7 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
     );
     break;
   }
-  case AST_UID_EXPR_OP::CONCAT: {
+  case AstUidExprOp::kConcatenate: {
     // concate using "," in SystemC needs to be global
     auto global_var = GetCxxName(expr);
     auto [itg, stg] = lut.insert_or_assign(expr, global_var);
@@ -182,7 +182,7 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
                    fmt::arg("arg_1", LookUp(arg1, lut)));
     break;
   }
-  case AST_UID_EXPR_OP::EXTRACT: {
+  case AstUidExprOp::kExtract: {
     static const char* extract_template =
         "auto {extract} = {origin}.range({loc_high}, {loc_low});\n";
     fmt::format_to(buff, extract_template, //
@@ -192,9 +192,9 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
                    fmt::arg("loc_low", expr->param(1)));
     break;
   }
-  case AST_UID_EXPR_OP::ZEXT:
+  case AstUidExprOp::kZeroExtend:
     [[fallthrough]];
-  case AST_UID_EXPR_OP::SEXT: {
+  case AstUidExprOp::kSignedExtend: {
     static const char* extend_template =
         "auto {extend} = ({origin}[{sign}] == 1) ? (~{origin}) : {origin};\n"
         "{extend} = ({origin}[{sign}] == 1) ? (~{extend}) : {extend};\n";
@@ -205,7 +205,7 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
                    fmt::arg("sign", origin_expr->sort()->bit_width() - 1));
     break;
   }
-  case AST_UID_EXPR_OP::IMPLY: {
+  case AstUidExprOp::kImply: {
     static const char* imply_template =
         "auto {local_var} = (!{if_var}) & {then_var};\n";
     fmt::format_to(buff, imply_template, //
@@ -214,7 +214,7 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
                    fmt::arg("then_var", LookUp(expr->arg(1), lut)));
     break;
   }
-  case AST_UID_EXPR_OP::ITE: {
+  case AstUidExprOp::kIfThenElse: {
     static const char* ite_template =
         "auto {local_var} = ({condition}) ? {true_branch} : {false_branch};\n";
     fmt::format_to(buff, ite_template, //
@@ -230,29 +230,29 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   };
 }
 
-static const std::unordered_map<AST_UID_EXPR_OP, std::string> k_op_symbols = {
+static const std::unordered_map<AstUidExprOp, std::string> k_op_symbols = {
     // unary
-    {AST_UID_EXPR_OP::NEG, "-"},
-    {AST_UID_EXPR_OP::NOT, "!"},
-    {AST_UID_EXPR_OP::COMPL, "~"},
+    {AstUidExprOp::kNegate, "-"},
+    {AstUidExprOp::kNot, "!"},
+    {AstUidExprOp::kComplement, "~"},
     // binary compare
-    {AST_UID_EXPR_OP::EQ, "=="},
-    {AST_UID_EXPR_OP::LT, "<"},
-    {AST_UID_EXPR_OP::GT, ">"},
-    {AST_UID_EXPR_OP::ULT, "<"},
-    {AST_UID_EXPR_OP::UGT, ">"},
+    {AstUidExprOp::kEqual, "=="},
+    {AstUidExprOp::kLessThan, "<"},
+    {AstUidExprOp::kGreaterThan, ">"},
+    {AstUidExprOp::kUnsignedLessThan, "<"},
+    {AstUidExprOp::kUnsignedGreaterThan, ">"},
     // binary arith
-    {AST_UID_EXPR_OP::AND, "&"},
-    {AST_UID_EXPR_OP::OR, "|"},
-    {AST_UID_EXPR_OP::XOR, "^"},
-    {AST_UID_EXPR_OP::SHL, "<<"},
-    {AST_UID_EXPR_OP::LSHR, ">>"},
-    {AST_UID_EXPR_OP::ASHR, ">>"},
-    {AST_UID_EXPR_OP::ADD, "+"},
-    {AST_UID_EXPR_OP::SUB, "-"},
-    {AST_UID_EXPR_OP::MUL, "*"},
-    {AST_UID_EXPR_OP::DIV, "/"},
-    {AST_UID_EXPR_OP::UREM, "%"}};
+    {AstUidExprOp::kAnd, "&"},
+    {AstUidExprOp::kOr, "|"},
+    {AstUidExprOp::kXor, "^"},
+    {AstUidExprOp::kShiftLeft, "<<"},
+    {AstUidExprOp::kLogicShiftRight, ">>"},
+    {AstUidExprOp::kArithShiftRight, ">>"},
+    {AstUidExprOp::kAdd, "+"},
+    {AstUidExprOp::kSubtract, "-"},
+    {AstUidExprOp::kMultiply, "*"},
+    {AstUidExprOp::kDivide, "/"},
+    {AstUidExprOp::kUnsignedRemainder, "%"}};
 
 void Ilator::DfsOpRegular(const ExprPtr& expr, StrBuff& buff,
                           ExprVarMap& lut) const {
@@ -261,7 +261,7 @@ void Ilator::DfsOpRegular(const ExprPtr& expr, StrBuff& buff,
   ILA_ASSERT(status);
 
   // get the corresponding operator symbol
-  auto uid = GetUidExprOp(expr);
+  auto uid = asthub::GetUidExprOp(expr);
   auto pos = k_op_symbols.find(uid);
   ILA_ASSERT(pos != k_op_symbols.end()) << uid;
 

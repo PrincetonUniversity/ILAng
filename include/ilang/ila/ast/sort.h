@@ -7,11 +7,15 @@
 #include <memory>
 #include <ostream>
 
-#include "z3++.h"
+#include <z3++.h>
+
 #include <ilang/ila/ast/ast.h>
 
 /// \namespace ilang
 namespace ilang {
+
+/// Unified ID for Sort.
+enum AstUidSort { kBool = 1, kBv, kMem };
 
 /// \brief The class for sort (type for expr, and the range/domain of
 /// functions).
@@ -35,6 +39,8 @@ public:
   static SortPtr MakeMemSort(const int& addr_width, const int& data_width);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the unified ID of Sort.
+  virtual AstUidSort uid() const = 0;
   /// Return true if have Boolean sort.
   virtual bool is_bool() const { return false; }
   /// Return true if have bit-vector sort.
@@ -85,6 +91,8 @@ public:
   ~SortBool();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the unified ID of SortBool.
+  AstUidSort uid() const { return AstUidSort::kBool; }
   /// Return true since it is Boolean Sort.
   bool is_bool() const { return true; }
 
@@ -109,6 +117,8 @@ public:
   ~SortBv();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the unified ID of SortBv.
+  AstUidSort uid() const { return AstUidSort::kBv; }
   /// Return true since it is bit-vector Sort.
   bool is_bv(const int& width) const {
     return (width == 0) ? true : (width == bit_width_);
@@ -141,6 +151,8 @@ public:
   ~SortMem();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the unified ID of SortMem.
+  AstUidSort uid() const { return AstUidSort::kMem; }
   /// Return true since it is memory (array) Sort.
   bool is_mem() const { return true; }
 

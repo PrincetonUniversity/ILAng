@@ -59,7 +59,7 @@ ExprPtr Instr::update(const std::string& name) const {
   if (pos != updates_.end()) {
     return pos->second;
   } else {
-    return NULL;
+    return nullptr;
   }
 }
 

@@ -1,10 +1,12 @@
 /// \file
 /// Unit test for MapSet
 
-#include "unit-include/util.h"
+#include <set>
+
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/container.h>
-#include <set>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -34,7 +36,7 @@ TEST(TestMapSet, IntInt) {
 }
 
 TEST(TestMapSet, ExprInstr) {
-  using namespace ExprFuse;
+  using namespace asthub;
 
   MapSet<ExprPtr, InstrPtr> map;
 

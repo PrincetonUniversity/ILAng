@@ -3,7 +3,7 @@
 
 #include <ilang/ila/ast/func.h>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 

@@ -1,5 +1,5 @@
 /// \file
-/// Header for the smt-switch interface.
+/// Class SmtSwitchItf - the interface to external library smt-switch.
 
 #ifndef ILANG_ILA_MNGR_U_SMT_SWITCH_H__
 #define ILANG_ILA_MNGR_U_SMT_SWITCH_H__
@@ -11,7 +11,7 @@
 
 #include <smt-switch/smt.h>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -76,7 +76,7 @@ private:
 
 }; // class SmtSwitchItf
 
-}; // namespace ilang
+} // namespace ilang
 
 #endif // SMTSWITCH_INTERFACE
 

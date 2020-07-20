@@ -47,6 +47,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
   unit-src/util.cc
+  t_ast_hub.cc
   t_api.cc
   t_case_aes_eq.cc
   t_copy.cc
@@ -54,14 +55,11 @@ package_add_test(${ILANG_TEST_MAIN}
   t_eq_check.cc
   t_expr.cc
   t_expr_const.cc
-  t_expr_fuse.cc
   t_expr_op.cc
   t_expr_var.cc
   t_func.cc
   t_hash_ast.cc
   t_ila.cc
-  t_ila_sim.cc
-  t_ila_sim_cmake.cc
   t_ilator.cc
   t_instr.cc
   t_instr_seq.cc
@@ -100,7 +98,15 @@ if(${ILANG_BUILD_SYNTH})
   )
 endif()
 
+if(${ILANG_BUILD_COSIM})
+  target_sources(${ILANG_TEST_MAIN} PRIVATE
+    t_ila_sim.cc
+    t_ila_sim_cmake.cc
+  )
+endif()
+
 if(${ILANG_BUILD_SWITCH})
+  find_package(smtswitch REQUIRED)
   if(${SMTSWITCH_BTOR_FOUND})
     target_compile_definitions(${ILANG_TEST_MAIN} PRIVATE SMTSWITCH_TEST)
   endif()

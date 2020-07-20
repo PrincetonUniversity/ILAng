@@ -26,20 +26,20 @@ TEST(TestLegacyBmc, FF) {
 
   { // init for m0
     auto start = m0->input("start");
-    auto start_i = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
+    auto start_i = asthub::Eq(start, asthub::BoolConst(true));
     auto opcode = m0->input("opcode");
-    auto opcode_i = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
-    auto init = ExprFuse::And(start_i, opcode_i);
+    auto opcode_i = asthub::Eq(opcode, asthub::BvConst(1, 3));
+    auto init = asthub::And(start_i, opcode_i);
     // bmc.AddInit(m0, init);
     bmc.AddInit(init);
   }
 
   { // init for m1
     auto start = m1->input("start");
-    auto start_i = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
+    auto start_i = asthub::Eq(start, asthub::BoolConst(true));
     auto opcode = m1->input("opcode");
-    auto opcode_i = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
-    auto init = ExprFuse::And(start_i, opcode_i);
+    auto opcode_i = asthub::Eq(opcode, asthub::BvConst(1, 3));
+    auto init = asthub::And(start_i, opcode_i);
     // bmc.AddInit(m1, init);
     bmc.AddInit(init);
   }

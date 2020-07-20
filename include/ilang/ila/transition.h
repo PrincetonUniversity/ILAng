@@ -4,9 +4,7 @@
 #ifndef ILANG_ILA_TRANSITION_H__
 #define ILANG_ILA_TRANSITION_H__
 
-#include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/instr.h>
-#include <ilang/util/container.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -130,7 +128,7 @@ private:
 
   // ------------------------- MEMBERS -------------------------------------- //
   /// The root node (instruction).
-  InstrPtr root_ = NULL;
+  InstrPtr root_ = nullptr;
   /// The set of transition relations (edges).
   std::set<ItEdgePtr> edges_;
   /// The instruction to node mapping.

@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Z3ExprAdapter
+/// Class Z3ExprAdapter - the generator for ilang::Expr to z3::expr
 
 #ifndef ILANG_TARGET_SMT_Z3_EXPR_ADAPTER_H__
 #define ILANG_TARGET_SMT_Z3_EXPR_ADAPTER_H__
@@ -8,7 +8,7 @@
 
 #include <z3++.h>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 
 /// \namespace ilang
 namespace ilang {

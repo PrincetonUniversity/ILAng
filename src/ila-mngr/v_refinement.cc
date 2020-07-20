@@ -66,7 +66,7 @@ RelationMap::~RelationMap() {}
 void RelationMap::add(const ExprPtr& rel) {
   ILA_ASSERT(rel && rel->is_bool())
       << "Relation mapping should be Boolean typed.";
-  acc_ = ExprFuse::And(acc_, rel);
+  acc_ = asthub::And(acc_, rel);
 }
 
 RelationMap::RelPtr RelationMap::New() {

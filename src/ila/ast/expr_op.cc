@@ -1,7 +1,10 @@
 /// \file
-/// Source for the op expression
+/// Implementation of the ExprOp - operational expressions
 
 #include <ilang/ila/ast/expr_op.h>
+
+#include <set>
+#include <unordered_map>
 
 #include <ilang/ila/ast/func.h>
 #include <ilang/ila/instr_lvl_abs.h>
@@ -9,6 +12,41 @@
 #include <ilang/util/z3_helper.h>
 
 namespace ilang {
+
+// verbose operation name
+static const std::unordered_map<AstUidExprOp, std::string> kOpName{
+    {AstUidExprOp::kNegate, "NEGATE"},
+    {AstUidExprOp::kNot, "NOT"},
+    {AstUidExprOp::kComplement, "COMPLEMENT"},
+    {AstUidExprOp::kAnd, "AND"},
+    {AstUidExprOp::kOr, "OR"},
+    {AstUidExprOp::kXor, "XOR"},
+    {AstUidExprOp::kShiftLeft, "SHL"},
+    {AstUidExprOp::kArithShiftRight, "ASHR"},
+    {AstUidExprOp::kLogicShiftRight, "LSHR"},
+    {AstUidExprOp::kAdd, "ADD"},
+    {AstUidExprOp::kSubtract, "SUB"},
+    {AstUidExprOp::kMultiply, "MUL"},
+    {AstUidExprOp::kEqual, "EQ"},
+    {AstUidExprOp::kLessThan, "LT"},
+    {AstUidExprOp::kGreaterThan, "GT"},
+    {AstUidExprOp::kUnsignedLessThan, "ULT"},
+    {AstUidExprOp::kUnsignedGreaterThan, "UGT"},
+    {AstUidExprOp::kLoad, "LOAD"},
+    {AstUidExprOp::kStore, "STORE"},
+    {AstUidExprOp::kConcatenate, "CONCAT"},
+    {AstUidExprOp::kExtract, "EXTRACT"},
+    {AstUidExprOp::kZeroExtend, "ZERO_EXTEND"},
+    {AstUidExprOp::kSignedExtend, "SIGN_EXTEND"},
+    {AstUidExprOp::kApplyFunc, "APP"},
+    {AstUidExprOp::kImply, "IMPLY"},
+    {AstUidExprOp::kIfThenElse, "ITE"},
+    {AstUidExprOp::kDivide, "DIV"},
+    {AstUidExprOp::kRotateLeft, "LEFT_ROTATE"},
+    {AstUidExprOp::kRotateRight, "RIGHT_ROTATE"},
+    {AstUidExprOp::kSignedRemainder, "SREM"},
+    {AstUidExprOp::kUnsignedRemainder, "UREM"},
+    {AstUidExprOp::kSignedModular, "SMOD"}};
 
 // ------------------------- Class ExprOp ----------------------------------- //
 
@@ -56,13 +94,19 @@ ExprOp::ExprOp(const ExprPtrVec& args) {
   set_args(args);
   // host
   auto args_set = ExprSet();
-  for (auto arg_i : args) {
+  for (const auto& arg_i : args) {
     args_set.insert(arg_i);
   }
   set_host(GetHost(args_set));
 }
 
 ExprOp::~ExprOp() {}
+
+std::string ExprOp::op_name() const {
+  auto pos = kOpName.find(uid());
+  ILA_ASSERT(pos != kOpName.end());
+  return pos->second;
+}
 
 std::ostream& ExprOp::Print(std::ostream& out) const {
   return out << name().format_str(op_name(), "");
@@ -71,8 +115,7 @@ std::ostream& ExprOp::Print(std::ostream& out) const {
 SortPtr ExprOp::GetSortBinaryOperation(const ExprPtr& e0, const ExprPtr& e1) {
   auto s0 = e0->sort();
   auto s1 = e1->sort();
-  ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " and " << s1
-                       << " for binary operations.";
+  ILA_ASSERT(s0 == s1) << "Mismatch sorts " << s0 << " and " << s1;
   // return the same sort as input arguments.
   return s0;
 }
@@ -80,8 +123,7 @@ SortPtr ExprOp::GetSortBinaryOperation(const ExprPtr& e0, const ExprPtr& e1) {
 SortPtr ExprOp::GetSortBinaryComparison(const ExprPtr& e0, const ExprPtr& e1) {
   auto s0 = e0->sort();
   auto s1 = e1->sort();
-  ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " and " << s1
-                       << " for binary comparison.";
+  ILA_ASSERT(s0 == s1) << "Mismatch sorts " << s0 << " and " << s1;
   // return boolean sort.
   return Sort::MakeBoolSort();
 }
@@ -89,15 +131,15 @@ SortPtr ExprOp::GetSortBinaryComparison(const ExprPtr& e0, const ExprPtr& e1) {
 ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprSet& args) const {
   // get all hosts
   std::set<InstrLvlAbsPtr> hosts;
-  for (auto arg_i : args) {
+  for (const auto& arg_i : args) {
     auto host_i = arg_i->host();
     if (host_i) {
       hosts.insert(host_i);
     }
   }
   // find host with no child in the hosts ("one of" the leaf hosts)
-  InstrLvlAbsPtr leaf = NULL;
-  for (auto host_i : hosts) {
+  InstrLvlAbsPtr leaf = nullptr;
+  for (const auto& host_i : hosts) {
     if (host_i->child_num() == 0) { // XXX pick one if multiple leaves
       return host_i;
     } else {
@@ -160,10 +202,11 @@ z3::expr ExprOpAnd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2);
   ILA_ASSERT(is_bool() || is_bv()) << "AND can only be either bool or bv.";
-  if (is_bool())
+  if (is_bool()) {
     return expr_vec[0] && expr_vec[1];
-  else
+  } else {
     return expr_vec[0] & expr_vec[1];
+  }
 }
 
 // ------------------------- Class ExprOpOr --------------------------------- //
@@ -176,10 +219,11 @@ z3::expr ExprOpOr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                              const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2);
   ILA_ASSERT(is_bool() || is_bv()) << "OR can only be either bool or bv.";
-  if (is_bool())
+  if (is_bool()) {
     return expr_vec[0] || expr_vec[1];
-  else
+  } else {
     return expr_vec[0] | expr_vec[1];
+  }
 }
 
 // ------------------------- Class ExprOpXor -------------------------------- //
@@ -392,8 +436,7 @@ z3::expr ExprOpUgt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpLoad ------------------------------- //
 ExprOpLoad::ExprOpLoad(const ExprPtr& mem, const ExprPtr& addr)
     : ExprOp(mem, addr) {
-  ILA_ASSERT(mem->sort()->addr_width() == addr->sort()->bit_width())
-      << "Address width does not match with memory.";
+  ILA_ASSERT(mem->sort()->addr_width() == addr->sort()->bit_width());
   // sort should be the data sort of the mem
   auto data_sort = Sort::MakeBvSort(mem->sort()->data_width());
   set_sort(data_sort);
@@ -409,10 +452,8 @@ z3::expr ExprOpLoad::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 ExprOpStore::ExprOpStore(const ExprPtr& mem, const ExprPtr& addr,
                          const ExprPtr& data)
     : ExprOp(mem, addr, data) {
-  ILA_ASSERT(mem->sort()->addr_width() == addr->sort()->bit_width())
-      << "Address width does not match with memory.";
-  ILA_ASSERT(mem->sort()->data_width() == data->sort()->bit_width())
-      << "Data width does not match with memory.";
+  ILA_ASSERT(mem->sort()->addr_width() == addr->sort()->bit_width());
+  ILA_ASSERT(mem->sort()->data_width() == data->sort()->bit_width());
   set_sort(mem->sort());
 }
 
@@ -454,8 +495,8 @@ z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(expr_vec.size() == 1) << "Extract take 1 argument.";
   ILA_ASSERT(param_num() == 2) << "Extract need two parameters.";
   auto bv = expr_vec[0];
-  unsigned hi = static_cast<unsigned>(param(0));
-  unsigned lo = static_cast<unsigned>(param(1));
+  auto hi = static_cast<unsigned>(param(0));
+  auto lo = static_cast<unsigned>(param(1));
   return bv.extract(hi, lo);
 }
 
@@ -463,8 +504,7 @@ z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 ExprOpZExt::ExprOpZExt(const ExprPtr& bv, const int& bit_width)
     : ExprOp(bv, bit_width) {
   ILA_ASSERT(bv->is_bv()) << "Zero-extend can only be applied to bit-vector.";
-  ILA_ASSERT(bit_width >= bv->sort()->bit_width())
-      << "Invalid target bit-width for extend.";
+  ILA_ASSERT(bit_width >= bv->sort()->bit_width());
   set_sort(Sort::MakeBvSort(bit_width));
 }
 
@@ -474,7 +514,7 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
   auto bv = expr_vec[0];
   auto org_wid = arg(0)->sort()->bit_width();
-  unsigned wid = static_cast<unsigned>(param(0) - org_wid);
+  auto wid = static_cast<unsigned>(param(0) - org_wid);
   return Z3ZExt(ctx, bv, wid);
 }
 
@@ -482,8 +522,7 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 ExprOpSExt::ExprOpSExt(const ExprPtr& bv, const int& bit_width)
     : ExprOp(bv, bit_width) {
   ILA_ASSERT(bv->is_bv()) << "Sign-extend can only be applied to bit-vector.";
-  ILA_ASSERT(bit_width >= bv->sort()->bit_width())
-      << "Invalid target bit-width for extend.";
+  ILA_ASSERT(bit_width >= bv->sort()->bit_width());
   set_sort(Sort::MakeBvSort(bit_width));
 }
 
@@ -570,8 +609,7 @@ ExprOpIte::ExprOpIte(const ExprPtr& cnd, const ExprPtr& true_expr,
                      const ExprPtr& false_expr)
     : ExprOp(cnd, true_expr, false_expr) {
   ILA_ASSERT(cnd->is_bool()) << "Condition must be Boolean.";
-  ILA_ASSERT(true_expr->sort() == false_expr->sort())
-      << "True/false branch sort mismatch.";
+  ILA_ASSERT(true_expr->sort() == false_expr->sort()) << "sort mismatch";
   set_sort(true_expr->sort());
 }
 

@@ -27,13 +27,13 @@ bool CheckDeterminism(const InstrLvlAbsCnstPtr& m) {
       if (!is_determ) {
         return;
       }
-      auto valid = loc->valid() ? loc->valid() : ExprFuse::BoolConst(true);
+      auto valid = loc->valid() ? loc->valid() : asthub::BoolConst(true);
       auto instr_num = loc->instr_num();
       for (size_t i = 0; i < instr_num; i++) {
         auto instr_i = loc->instr(i);
         for (size_t j = i + 1; j < instr_num; j++) {
           auto instr_j = loc->instr(j);
-          auto non_det = ExprFuse::And(instr_i->decode(), instr_j->decode());
+          auto non_det = asthub::And(instr_i->decode(), instr_j->decode());
           solver.reset();
           solver.add(gen.GetExpr(valid));
           solver.add(gen.GetExpr(non_det));
@@ -64,13 +64,13 @@ bool SanityCheckAndFix(const InstrLvlAbsPtr& m) {
   ILA_WARN_IF(!is_determ) << "Non-deterministic instruction set.";
 
   // check completeness
-  auto acc = ExprFuse::BoolConst(false);
+  auto acc = asthub::BoolConst(false);
   for (const auto& instr : AbsKnob::GetInstrTree(m)) {
     auto host = instr->host();
     ILA_NOT_NULL(host);
-    auto valid = host->valid() ? host->valid() : ExprFuse::BoolConst(true);
-    auto decode = ExprFuse::And(valid, instr->decode());
-    acc = ExprFuse::Or(acc, decode);
+    auto valid = host->valid() ? host->valid() : asthub::BoolConst(true);
+    auto decode = asthub::And(valid, instr->decode());
+    acc = asthub::Or(acc, decode);
   }
   solver.reset();
   solver.add(!gen.GetExpr(acc));
@@ -85,7 +85,7 @@ bool SanityCheckAndFix(const InstrLvlAbsPtr& m) {
     }
     if (clean) {
       auto default_instr = m->NewInstr("PASS_ADD_DEFAULT_INSTR");
-      default_instr->set_decode(ExprFuse::Not(acc));
+      default_instr->set_decode(asthub::Not(acc));
     }
     ILA_ERROR_IF(!clean) << "Fail adding default instruction";
     is_complete &= clean;

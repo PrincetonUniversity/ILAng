@@ -1,5 +1,5 @@
 /// \file
-/// The header for the class InstrLvlAbs.
+/// Class InstrLvlAbs - the class to represent an ILA model.
 
 #ifndef ILANG_ILA_INSTR_LVL_ABS_H__
 #define ILANG_ILA_INSTR_LVL_ABS_H__
@@ -11,7 +11,7 @@
 #include <string>
 
 #include <ilang/ila/ast/func.h>
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/ila/hash_ast.h>
 #include <ilang/ila/instr.h>
 #include <ilang/ila/object.h>
@@ -39,17 +39,20 @@ public:
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
   /// Pointer type for read-only usage of InstrLvlAbs
   typedef std::shared_ptr<const InstrLvlAbs> InstrLvlAbsCnstPtr;
+  /// Type for storing a set of ILA (child-ILAs).
+  typedef KeyVec<Symbol, InstrLvlAbsPtr> InstrLvlAbsMap;
+
+private:
   /// Type for storing a set of ExprPtr (input/state variables).
   typedef KeyVec<Symbol, ExprPtr> VarMap;
   /// Type for storing a set of Instr.
   typedef KeyVec<Symbol, InstrPtr> InstrMap;
-  /// Type for storing a set of ILA (child-ILAs).
-  typedef KeyVec<Symbol, InstrLvlAbsPtr> InstrLvlAbsMap;
 
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Consturctor.
   InstrLvlAbs(const std::string& name = "",
-              const InstrLvlAbsPtr& parent = NULL);
+              const InstrLvlAbsPtr& parent = nullptr);
   /// Default destructor.
   ~InstrLvlAbs();
 
@@ -57,7 +60,7 @@ public:
   /// \brief Create a new ILA (InstrLvlAbs) with the name. Used for hiding
   /// implementation specific type details.
   static InstrLvlAbsPtr New(const std::string& name,
-                            const InstrLvlAbsPtr& parent = NULL);
+                            const InstrLvlAbsPtr& parent = nullptr);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.
@@ -134,10 +137,6 @@ public:
   /// \brief Add one state variable to the ILA, and register to the simplifier.
   /// \param[in] state_var pointer to the state variable being added.
   void AddState(const ExprPtr& state_var);
-
-  /// \brief Add one free variable to the ILA.
-  /// \param[in] free_var pointer to the free variable being added.
-  // void AddFreeVar(const ExprPtr& free_var);
 
   /// \brief Add one constraint to the initial condition, i.e. no contraint
   /// means arbitrary initial values to the state variables.
@@ -295,21 +294,21 @@ private:
   /// The set of initial constraints (not neccessary per-state).
   ExprPtrVec inits_;
   /// The fetch function.
-  ExprPtr fetch_ = NULL;
+  ExprPtr fetch_ = nullptr;
   /// The valid function.
-  ExprPtr valid_ = NULL;
+  ExprPtr valid_ = nullptr;
   /// The set of instructions.
   InstrMap instrs_;
   /// The set of child-ILAs.
   InstrLvlAbsMap childs_;
   // child-instr sequencing
-  InstrSeqPtr instr_seq_ = NULL;
+  InstrSeqPtr instr_seq_ = nullptr;
 
   /// Specification/implementation.
   bool is_spec_ = true;
 
   /// The simplifier for expr nodes. May be shared.
-  ExprMngrPtr expr_mngr_ = NULL;
+  ExprMngrPtr expr_mngr_ = nullptr;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.

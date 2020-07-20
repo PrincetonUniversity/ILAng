@@ -85,7 +85,7 @@ bool SimplifySemantic(const InstrLvlAbsCnstPtr& m, const int& timeout) {
     auto decode = i->decode();
     ILA_NOT_NULL(decode);
 
-    auto func = FuncObjEqSubtree(e, ExprFuse::And(valid, decode));
+    auto func = FuncObjEqSubtree(e, asthub::And(valid, decode));
     e->DepthFirstVisitPrePost(func);
 
     auto new_update = func.get(e);

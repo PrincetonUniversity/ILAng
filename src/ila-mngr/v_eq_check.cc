@@ -4,7 +4,7 @@
 #include <ilang/ila-mngr/v_eq_check.h>
 
 #include <ilang/ila-mngr/v_eq_check_refinement.h>
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -38,7 +38,7 @@ bool CheckEqSameMicroArch(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b,
     auto inp_a = ma->input(i);
     auto inp_b = mb->input(inp_a->name().str());
     if (inp_b && (inp_a->sort() == inp_b->sort())) {
-      relation->add(ExprFuse::Eq(inp_a, inp_b));
+      relation->add(asthub::Eq(inp_a, inp_b));
     } else {
       ILA_INFO << "No corresponding input " << inp_a << " found";
       return false;
@@ -49,13 +49,15 @@ bool CheckEqSameMicroArch(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b,
     auto var_a = ma->state(i);
     auto var_b = mb->state(var_a->name().str());
     if (var_b && (var_a->sort() == var_b->sort())) {
-      relation->add(ExprFuse::Eq(var_a, var_b));
+      relation->add(asthub::Eq(var_a, var_b));
     } else {
       ILA_INFO << "No corresponding state var " << var_a << " found";
       return false;
     }
   }
 
+  // TODO
+#if 0 
   auto refinement_a = nullptr;
   auto refinement_b = nullptr;
 
@@ -68,15 +70,16 @@ bool CheckEqSameMicroArch(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b,
     ref->set_appl(instr->decode());
 
     // flush
-    auto has_instr = ExprFuse::BoolConst(false);
+    auto has_instr = asthub::BoolConst(false);
     for (unsigned i = 0; i < m->instr_num(); i++) {
-      has_instr = ExprFuse::Or(has_instr, m->instr(i)->decode());
+      has_instr = asthub::Or(has_instr, m->instr(i)->decode());
     }
-    ref->set_flush(ExprFuse::Not(has_instr));
+    ref->set_flush(asthub::Not(has_instr));
 
     // ready
     // fix bound 1?
   };
+#endif
 
   if (ma->child_num() != mb->child_num()) {
     return false;

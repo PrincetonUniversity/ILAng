@@ -1,12 +1,13 @@
 /// \file
 /// Unit test for class MemoryModel.
 
-#include "unit-include/mcm_ilas.h"
-#include "unit-include/util.h"
 #include <ilang/mcm/inter_ila_unroller.h>
 #include <ilang/mcm/sc_manual.h>
 #include <ilang/mcm/set_op.h>
 #include <ilang/mcm/tso_manual.h>
+
+#include "unit-include/mcm_ilas.h"
+#include "unit-include/util.h"
 
 #define EXPECT_IN(a, s) EXPECT_TRUE(IN((a), (s)))
 #define EXPECT_NOT_IN(a, s) EXPECT_FALSE(IN((a), (s)))
@@ -115,7 +116,7 @@ TEST(TestMcm, SingleILAUnroll) {
   u.Push();
   // all (not init) steps sees (beforehand) that, r0 == 0
   u.AddSingleTraceStepProperty(
-      ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8)),
+      asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8)),
       [](const TraceStep& ts) { return !ts.is_init_tracestep(); });
   u.LinkStates(ordered);
   // all trace step (the pre-value actually)
@@ -126,7 +127,7 @@ TEST(TestMcm, SingleILAUnroll) {
   u.Push();
   // all (not init) steps sees (beforehand) that, r0 != 0 (False)
   u.AddSingleTraceStepProperty(
-      ExprFuse::Not(ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8))),
+      asthub::Not(asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8))),
       [](const TraceStep& ts) {
         return !ts.is_init_tracestep();
       } // a conjunction on every one
@@ -151,7 +152,7 @@ TEST(TestMcm, SingleILAUnroll) {
   u.Push();
   // ts.pos_suffix2 sees that r0 != 0 (False)
   u.AddSingleTraceStepProperty(
-      ExprFuse::Not(ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8))),
+      asthub::Not(asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8))),
       [](const TraceStep& ts) {
         return ts.pos_suffix() == 2;
       } // only on the last one
@@ -196,7 +197,7 @@ TEST(TestMcm, SingleILAUnrollOrderedReverse) {
   u.Push();
   // all (not init) steps sees (beforehand) that, r0 == 0
   u.AddSingleTraceStepProperty(
-      ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8)),
+      asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8)),
       [](const TraceStep& ts) { return !ts.is_init_tracestep(); });
   u.LinkStates(ordered);
   // all trace step (the pre-value actually)
@@ -207,7 +208,7 @@ TEST(TestMcm, SingleILAUnrollOrderedReverse) {
   u.Push();
   // all (not init) steps sees (beforehand) that, r0 != 0 (False)
   u.AddSingleTraceStepProperty(
-      ExprFuse::Not(ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8))),
+      asthub::Not(asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8))),
       [](const TraceStep& ts) {
         return !ts.is_init_tracestep();
       } // a conjunction on every one
@@ -220,7 +221,7 @@ TEST(TestMcm, SingleILAUnrollOrderedReverse) {
   u.Push();
   // ts.pos_suffix2 sees that r0 != 0 (False)
   u.AddSingleTraceStepProperty(
-      ExprFuse::Not(ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8))),
+      asthub::Not(asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8))),
       [](const TraceStep& ts) {
         return ts.pos_suffix() == 2;
       } // only on the last one
@@ -265,7 +266,7 @@ TEST(TestMcm, SingleILAUnrollUnorderedReverse) {
   u.Push();
   // all (not init) steps sees (beforehand) that, r0 == 0
   u.AddSingleTraceStepProperty(
-      ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8)),
+      asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8)),
       [](const TraceStep& ts) { return !ts.is_init_tracestep(); });
   u.LinkStates(ordered);
   // all trace step (the pre-value actually)
@@ -290,7 +291,7 @@ TEST(TestMcm, SingleILAUnrollUnorderedReverse) {
   u.Push();
   // all (not init) steps sees (beforehand) that, r0 != 0 (False)
   u.AddSingleTraceStepProperty(
-      ExprFuse::Not(ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8))),
+      asthub::Not(asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8))),
       [](const TraceStep& ts) {
         return !ts.is_init_tracestep();
       } // a conjunction on every one
@@ -303,7 +304,7 @@ TEST(TestMcm, SingleILAUnrollUnorderedReverse) {
   u.Push();
   // ts.pos_suffix2 sees that r0 != 0 (False)
   u.AddSingleTraceStepProperty(
-      ExprFuse::Not(ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(0, 8))),
+      asthub::Not(asthub::Eq(ila1->state("r0"), asthub::BvConst(0, 8))),
       [](const TraceStep& ts) {
         return ts.pos_suffix() == 2;
       } // only on the last one
@@ -351,11 +352,10 @@ TEST(TestMcm, SingleIlaMcm) { // multi inst - non linear
   u.Push();
   // give me a trace with 3 registers set
   u.AddSingleTraceStepProperty(
-      ExprFuse::And(
-          ExprFuse::And(
-              ExprFuse::Eq(ila1->state("r0"), ExprFuse::BvConst(10, 8)),
-              ExprFuse::Eq(ila1->state("r1"), ExprFuse::BvConst(2, 8))),
-          ExprFuse::Eq(ila1->state("r2"), ExprFuse::BvConst(10, 8))),
+      asthub::And(
+          asthub::And(asthub::Eq(ila1->state("r0"), asthub::BvConst(10, 8)),
+                      asthub::Eq(ila1->state("r1"), asthub::BvConst(2, 8))),
+          asthub::Eq(ila1->state("r2"), asthub::BvConst(10, 8))),
       [](const TraceStep& ts) { return ts.inst()->name().str() == "STORE"; });
   u.LinkStates(ordered); // not ordered
   // all trace step (the pre-value actually)
@@ -404,8 +404,8 @@ void TestTsoSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 1
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -430,8 +430,8 @@ void TestTsoSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 2
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -440,8 +440,8 @@ void TestTsoSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 3
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -450,8 +450,8 @@ void TestTsoSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 4
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -480,8 +480,8 @@ void TestTsoMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 1
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -506,8 +506,8 @@ void TestTsoMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 2
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
   EXPECT_FALSE(u.CheckSat());
@@ -516,8 +516,8 @@ void TestTsoMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 3
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -526,8 +526,8 @@ void TestTsoMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 4
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -556,8 +556,8 @@ void TestScSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 1
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
   EXPECT_FALSE(u.CheckSat());
@@ -567,8 +567,8 @@ void TestScSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 2
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
 
@@ -596,8 +596,8 @@ void TestScSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 3
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -606,8 +606,8 @@ void TestScSb(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 4
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T1->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T1->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -636,8 +636,8 @@ void TestScMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 1
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -647,8 +647,8 @@ void TestScMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 2
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(0, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(0, 8))));
 
   u.LinkStates(ordered);
   EXPECT_FALSE(u.CheckSat());
@@ -658,8 +658,8 @@ void TestScMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 3
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(0, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(0, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());
@@ -668,8 +668,8 @@ void TestScMp(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
   // Case 4
   u.Push();
   u.SetFinalProperty(
-      ExprFuse::And(ExprFuse::Eq(T2->state("r1"), ExprFuse::BvConst(1, 8)),
-                    ExprFuse::Eq(T2->state("r2"), ExprFuse::BvConst(1, 8))));
+      asthub::And(asthub::Eq(T2->state("r1"), asthub::BvConst(1, 8)),
+                  asthub::Eq(T2->state("r2"), asthub::BvConst(1, 8))));
 
   u.LinkStates(ordered);
   EXPECT_TRUE(u.CheckSat());

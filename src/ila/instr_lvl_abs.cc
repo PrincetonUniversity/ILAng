@@ -9,6 +9,8 @@
 static const bool kUnifyAst = false;
 // please design a better hash function  -- HZ
 // ISSUE: hash collision on large designs like AES128 function
+// updated to a new hash function, there's now an optional pass
+// (SimplifySyntactic) for users to apply -- BYH
 
 namespace ilang {
 
@@ -47,22 +49,22 @@ const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
 
 const ExprPtr InstrLvlAbs::find_input(const Symbol& name) const {
   auto pos = inputs_.find(name);
-  return (pos == inputs_.end()) ? NULL : pos->second;
+  return (pos == inputs_.end()) ? nullptr : pos->second;
 }
 
 const ExprPtr InstrLvlAbs::find_state(const Symbol& name) const {
   auto pos = states_.find(name);
-  return (pos == states_.end()) ? NULL : pos->second;
+  return (pos == states_.end()) ? nullptr : pos->second;
 }
 
 const InstrPtr InstrLvlAbs::find_instr(const Symbol& name) const {
   auto pos = instrs_.find(name);
-  return (pos == instrs_.end()) ? NULL : pos->second;
+  return (pos == instrs_.end()) ? nullptr : pos->second;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::find_child(const Symbol& name) const {
   auto pos = childs_.find(name);
-  return (pos == childs_.end()) ? NULL : pos->second;
+  return (pos == childs_.end()) ? nullptr : pos->second;
 }
 
 void InstrLvlAbs::AddInput(const ExprPtr& input_var) {
@@ -132,7 +134,7 @@ void InstrLvlAbs::AddChild(const InstrLvlAbsPtr& child) {
 }
 
 const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
-  ExprPtr bool_input = ExprFuse::NewBoolVar(name);
+  ExprPtr bool_input = asthub::NewBoolVar(name);
   // set host
   bool_input->set_host(shared_from_this());
   // register
@@ -142,7 +144,7 @@ const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
 
 const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
                                       const int& bit_width) {
-  ExprPtr bv_input = ExprFuse::NewBvVar(name, bit_width);
+  ExprPtr bv_input = asthub::NewBvVar(name, bit_width);
   // set host
   bv_input->set_host(shared_from_this());
   // register
@@ -153,7 +155,7 @@ const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
 const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
                                        const int& addr_width,
                                        const int& data_width) {
-  ExprPtr mem_input = ExprFuse::NewMemVar(name, addr_width, data_width);
+  ExprPtr mem_input = asthub::NewMemVar(name, addr_width, data_width);
   // set host
   mem_input->set_host(shared_from_this());
   // register
@@ -162,7 +164,7 @@ const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
 }
 
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
-  ExprPtr bool_state = ExprFuse::NewBoolVar(name);
+  ExprPtr bool_state = asthub::NewBoolVar(name);
   // set host
   bool_state->set_host(shared_from_this());
   // register
@@ -172,7 +174,7 @@ const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
 
 const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
                                       const int& bit_width) {
-  ExprPtr bv_state = ExprFuse::NewBvVar(name, bit_width);
+  ExprPtr bv_state = asthub::NewBvVar(name, bit_width);
   // set host
   bv_state->set_host(shared_from_this());
   // register
@@ -183,7 +185,7 @@ const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
 const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
                                        const int& addr_width,
                                        const int& data_width) {
-  ExprPtr mem_state = ExprFuse::NewMemVar(name, addr_width, data_width);
+  ExprPtr mem_state = asthub::NewMemVar(name, addr_width, data_width);
   // set host
   mem_state->set_host(shared_from_this());
   // register
@@ -193,7 +195,7 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
 
 const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
   // create new var
-  ExprPtr bool_var = ExprFuse::NewBoolVar(name);
+  ExprPtr bool_var = asthub::NewBoolVar(name);
   // set host
   bool_var->set_host(shared_from_this());
   return bool_var;
@@ -202,7 +204,7 @@ const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
 const ExprPtr InstrLvlAbs::NewBvFreeVar(const std::string& name,
                                         const int& bit_width) {
   // create new var
-  ExprPtr bv_var = ExprFuse::NewBvVar(name, bit_width);
+  ExprPtr bv_var = asthub::NewBvVar(name, bit_width);
   // set host
   bv_var->set_host(shared_from_this());
   return bv_var;
@@ -212,7 +214,7 @@ const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
                                          const int& addr_width,
                                          const int& data_width) {
   // create new var
-  ExprPtr mem_var = ExprFuse::NewMemVar(name, addr_width, data_width);
+  ExprPtr mem_var = asthub::NewMemVar(name, addr_width, data_width);
   // set host
   mem_var->set_host(shared_from_this());
   return mem_var;
@@ -311,7 +313,7 @@ void InstrLvlAbs::InitObject() {
   if (parent_) {
     expr_mngr_ = parent_->expr_mngr();
   } else {
-    expr_mngr_ = kUnifyAst ? ExprMngr::New() : NULL;
+    expr_mngr_ = kUnifyAst ? ExprMngr::New() : nullptr;
   }
 }
 

@@ -1,9 +1,10 @@
 /// \file
 /// Unit test for function declaration.
 
-#include "unit-include/util.h"
 #include <ilang/ila/ast/func.h>
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -43,9 +44,9 @@ TEST_F(TestFunc, Unary) {
   EXPECT_EQ(1, f->arg_num());
   EXPECT_EQ(bv, f->arg(0));
   EXPECT_ANY_THROW(f->arg(1));
-  EXPECT_TRUE(f->CheckSort({ExprFuse::NewBvVar("bv_var", 8)}));
-  EXPECT_DEATH(f->CheckSort({ExprFuse::NewBvVar("bv_var", 6)}), ".*");
-  EXPECT_DEATH(f->CheckSort({ExprFuse::NewBoolVar("bool_var")}), ".*");
+  EXPECT_TRUE(f->CheckSort({asthub::NewBvVar("bv_var", 8)}));
+  EXPECT_DEATH(f->CheckSort({asthub::NewBvVar("bv_var", 6)}), ".*");
+  EXPECT_DEATH(f->CheckSort({asthub::NewBoolVar("bool_var")}), ".*");
 
   z3::context c;
   auto f_decl = f->GetZ3FuncDecl(c);
@@ -58,8 +59,8 @@ TEST_F(TestFunc, Binary) {
   EXPECT_EQ(b, f->arg(0));
   EXPECT_EQ(bv, f->arg(1));
   EXPECT_ANY_THROW(f->arg(2));
-  auto b_var = ExprFuse::NewBoolVar("bool_var");
-  auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
+  auto b_var = asthub::NewBoolVar("bool_var");
+  auto bv_var = asthub::NewBvVar("bv_var", 8);
   EXPECT_TRUE(f->CheckSort({b_var, bv_var}));
   EXPECT_DEATH(f->CheckSort({b_var}), ".*");
   EXPECT_DEATH(f->CheckSort({b_var, b_var}), ".*");
@@ -74,8 +75,8 @@ TEST_F(TestFunc, Multiple) {
   EXPECT_EQ(3, f->arg_num());
   EXPECT_EQ(bv, f->arg(1));
   EXPECT_ANY_THROW(f->arg(3));
-  auto b_var = ExprFuse::NewBoolVar("bool_var");
-  auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
+  auto b_var = asthub::NewBoolVar("bool_var");
+  auto bv_var = asthub::NewBvVar("bv_var", 8);
   EXPECT_TRUE(f->CheckSort({b_var, bv_var, bv_var}));
 
   z3::context c;

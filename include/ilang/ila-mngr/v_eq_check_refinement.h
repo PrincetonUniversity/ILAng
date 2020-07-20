@@ -5,7 +5,8 @@
 #ifndef ILANG_ILA_MNGR_V_EQ_CHECK_REFINEMENT_H__
 #define ILANG_ILA_MNGR_V_EQ_CHECK_REFINEMENT_H__
 
-#include "z3++.h"
+#include <z3++.h>
+
 #include <ilang/ila-mngr/u_unroller.h>
 #include <ilang/ila/instr_lvl_abs.h>
 
@@ -77,13 +78,13 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Cone-of-influence (as an ILA).
-  InstrLvlAbsPtr coi_ = NULL;
+  InstrLvlAbsPtr coi_ = nullptr;
   /// Apply function.
-  ExprPtr appl_ = NULL;
+  ExprPtr appl_ = nullptr;
   /// Flushing function.
-  ExprPtr flush_ = NULL;
+  ExprPtr flush_ = nullptr;
   /// Completion indicator.
-  ExprPtr cmpl_ = ExprFuse::BoolConst(true);
+  ExprPtr cmpl_ = asthub::BoolConst(true);
   /// Number of steps for flushing apply path.
   int step_appl_ = -1;
   /// Number of steps for flushing original path.
@@ -123,7 +124,7 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Cached output for conjuncting all relations.
-  ExprPtr acc_ = ExprFuse::BoolConst(true);
+  ExprPtr acc_ = asthub::BoolConst(true);
 
 }; // RelationMap
 

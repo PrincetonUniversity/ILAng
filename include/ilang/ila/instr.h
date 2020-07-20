@@ -1,5 +1,5 @@
 /// \file
-/// The header for the class Instr.
+/// Class Instr - the object representing an instruction.
 
 #ifndef ILANG_ILA_INSTR_H__
 #define ILANG_ILA_INSTR_H__
@@ -7,7 +7,6 @@
 #include <memory>
 #include <string>
 
-#include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/hash_ast.h>
 #include <ilang/ila/object.h>
 
@@ -29,33 +28,30 @@ public:
   typedef std::shared_ptr<const Instr> InstrCnstPtr;
   /// Type for a set of state names
   typedef std::set<std::string> StateNameSet;
+
+private:
   /// Type for storing a set of Expr.
   typedef std::map<std::string, ExprPtr> ExprPtrMap;
   /// Pointer type for ILA.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the ast simplifier.
-  Instr(const std::string& name, const InstrLvlAbsPtr& host = NULL);
+  Instr(const std::string& name, const InstrLvlAbsPtr& host = nullptr);
   /// Default destructor.
   ~Instr();
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new instruction (Instr) binded with the host. Used
   /// for hiding implementation specific type details.
-  static InstrPtr New(const std::string& name, InstrLvlAbsPtr host = NULL);
+  static InstrPtr New(const std::string& name, InstrLvlAbsPtr host = nullptr);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.
   bool is_instr() const { return true; }
-  /// Return true if has view.
-  inline bool has_view() const { return has_view_; }
   /// Return the host ILA.
   inline InstrLvlAbsPtr host() const { return host_; }
-
-  /// \brief Set the view flag.
-  /// \param[in] v the flag indicating whether the instruction has views.
-  inline void set_view(bool v) { has_view_ = v; }
 
   /// \brief Set the decode function if not yet assigned.
   /// \param[in] decode is the pointer to the decode function (bool).
@@ -114,19 +110,16 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Has view.
-  bool has_view_ = false;
-
   /// The decode function.
-  ExprPtr decode_ = NULL;
+  ExprPtr decode_ = nullptr;
   /// The set of update functions, mapped by name.
   ExprPtrMap updates_;
 
   /// The host ILA.
-  InstrLvlAbsPtr host_ = NULL;
+  InstrLvlAbsPtr host_ = nullptr;
 
   /// The child-program (child-ILA being triggered).
-  InstrLvlAbsPtr prog_ = NULL;
+  InstrLvlAbsPtr prog_ = nullptr;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.

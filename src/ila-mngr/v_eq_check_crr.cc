@@ -19,7 +19,7 @@ const std::string CommDiag::k_suff_old_ = "old";
 const std::string CommDiag::k_suff_new_ = "new";
 const std::string CommDiag::k_suff_apl_ = "apl";
 
-using namespace ExprFuse;
+using namespace asthub;
 
 CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {
   Init();

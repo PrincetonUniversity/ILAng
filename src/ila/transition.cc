@@ -75,8 +75,8 @@ void InstrSeq::AddTran(const InstrPtr& src, const InstrPtr& dst,
   edges_.insert(edge);
 
   // update nodes
-  ItNodePtr src_node = NULL;
-  ItNodePtr dst_node = NULL;
+  ItNodePtr src_node = nullptr;
+  ItNodePtr dst_node = nullptr;
 
   auto src_it = nodes_.find(src);
   if (src_it == nodes_.end()) { // instr first seen
