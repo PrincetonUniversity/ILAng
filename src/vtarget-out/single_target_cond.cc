@@ -2,16 +2,17 @@
 /// the conditions
 // --- Hongce Zhang
 
-#include <ilang/ila/expr_fuse.h>
-#include <ilang/util/container_shortcut.h>
-#include <ilang/util/fs.h>
-#include <ilang/util/log.h>
-#include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 #include <cmath>
 #include <fstream>
 #include <iostream>
+
+#include <ilang/ila/ast_hub.h>
+#include <ilang/util/container_shortcut.h>
+#include <ilang/util/fs.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -251,7 +252,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 
   if (has_flush) {
     ILA_CHECK(IN("pre-flush end", instr) &&
-               IN("post-flush end", instr)); // there has to be something
+              IN("post-flush end", instr)); // there has to be something
 
     std::string issue_cond;
     if (instr["pre-flush end"].is_string())

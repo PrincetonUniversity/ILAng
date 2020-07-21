@@ -8,7 +8,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/mcm/ast_helper.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
@@ -65,7 +65,8 @@ VlgSglTgtGen::VlgSglTgtGen(
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true, // rand init
           true, // for internal should always expand (probe) memory
-          vtg_config.IteUnknownAutoIgnore // may collect depends on configuration
+          vtg_config
+              .IteUnknownAutoIgnore // may collect depends on configuration
           )),
       // interface mapping directive
       // -------- CONTROLLING THE RESET CONNECTION ------------- //
@@ -100,10 +101,9 @@ VlgSglTgtGen::VlgSglTgtGen(
           adv_ptr && adv_ptr->_inv_obj_ptr &&
           !adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
       has_rf_invariant((IN("global invariants", _rf_cond) &&
-                       rf_cond["global invariants"].size() != 0) ||
+                        rf_cond["global invariants"].size() != 0) ||
                        (IN("global-invariants", _rf_cond) &&
-                       rf_cond["global-invariants"].size() != 0)
-                       ),
+                        rf_cond["global-invariants"].size() != 0)),
       mapping_counter(0), property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
@@ -113,23 +113,27 @@ VlgSglTgtGen::VlgSglTgtGen(
   ILA_NOT_NULL(_host);
 
   ILA_CHECK(target_type == target_type_t::INVARIANTS ||
-             target_type == target_type_t::INSTRUCTIONS ||
-             target_type == target_type_t::INV_SYN_DESIGN_ONLY)
+            target_type == target_type_t::INSTRUCTIONS ||
+            target_type == target_type_t::INV_SYN_DESIGN_ONLY)
       << "Implementation bug: unrecognized target type!";
 
   // reset absmem's counter
   VlgAbsMem::ClearAbsMemRecord();
 
   if (has_rf_invariant) {
-    if (IN("global invariants", rf_cond) && !rf_cond["global invariants"].is_array()) {
-      ILA_ERROR << "'global invariants' field in refinement relation has to be a "
-                  "JSON array.";
+    if (IN("global invariants", rf_cond) &&
+        !rf_cond["global invariants"].is_array()) {
+      ILA_ERROR
+          << "'global invariants' field in refinement relation has to be a "
+             "JSON array.";
       _bad_state = true;
       return;
     }
-    if (IN("global-invariants", rf_cond) && !rf_cond["global-invariants"].is_array()) {
-      ILA_ERROR << "'global-invariants' field in refinement relation has to be a "
-                  "JSON array.";
+    if (IN("global-invariants", rf_cond) &&
+        !rf_cond["global-invariants"].is_array()) {
+      ILA_ERROR
+          << "'global-invariants' field in refinement relation has to be a "
+             "JSON array.";
       _bad_state = true;
       return;
     }
@@ -216,7 +220,7 @@ VlgSglTgtGen::VlgSglTgtGen(
   // they will still be a target for invariant generated.
   // you can use it to verify the invariants if you like
   ILA_CHECK(!(has_flush &&
-               (backend & backend_selector::YOSYS) == backend_selector::YOSYS))
+              (backend & backend_selector::YOSYS) == backend_selector::YOSYS))
       << "Currently does not support flushing in invariant synthesis."
       << "Future work.";
 
@@ -228,7 +232,7 @@ VlgSglTgtGen::VlgSglTgtGen(
 void VlgSglTgtGen::ConstructWrapper_generate_header() {
   vlg_wrapper.add_preheader("\n`define true  1'b1\n");
   vlg_wrapper.add_preheader("\n`define false 1'b0\n");
-  vlg_wrapper.add_preheader("\n" + _vtg_config.WrapperPreheader + "\n" );
+  vlg_wrapper.add_preheader("\n" + _vtg_config.WrapperPreheader + "\n");
 } // ConstructWrapper_generate_header
 
 // for special memory, we don't need to do anything?
@@ -241,7 +245,9 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  nlohmann::json & state_mapping = IN("state mapping", rf_vmap) ? rf_vmap["state mapping"] : rf_vmap["state-mapping"];
+  nlohmann::json& state_mapping = IN("state mapping", rf_vmap)
+                                      ? rf_vmap["state mapping"]
+                                      : rf_vmap["state-mapping"];
   for (auto& i : state_mapping.items()) {
     auto sname = i.key();
     if (!IN(sname, ila_state_names)) {
@@ -267,7 +273,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     // if we are targeting yosys, we should make sure they have the same
     // problem_name so the it knowns these are the assumptions for varmap
 
-    if ( _backend == backend_selector::RELCHC) {
+    if (_backend == backend_selector::RELCHC) {
 
       add_an_assumption(GetStateVarMapExpr(sname, i.value()), problem_name);
       // its signal reference will be replaced, but this should be fine
@@ -301,7 +307,9 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  nlohmann::json & state_mapping = IN("state mapping", rf_vmap) ? rf_vmap["state mapping"] : rf_vmap["state-mapping"];
+  nlohmann::json& state_mapping = IN("state mapping", rf_vmap)
+                                      ? rf_vmap["state mapping"]
+                                      : rf_vmap["state-mapping"];
   for (auto& i : state_mapping.items()) {
     auto sname = i.key();
     if (!IN(sname, ila_state_names)) {
@@ -328,7 +336,8 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
       FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
       for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
         // handle the IteUnknown function case
-        if (_vtg_config.IteUnknownAutoIgnore && _sdr.isSpecialUnknownFunction(func_ptr))
+        if (_vtg_config.IteUnknownAutoIgnore &&
+            _sdr.isSpecialUnknownFunction(func_ptr))
           continue;
         ILA_ERROR_IF(!(IN("functions", rf_vmap) &&
                        rf_vmap["functions"].is_object() &&
@@ -342,10 +351,10 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     // ISSUE ==> vmap
     std::string precondition =
         has_flush ? "(~ __ENDFLUSH__) || " : "(~ __IEND__) || ";
-    
+
     if (IN(sname, vlg_ila.state_update_ite_unknown)) {
       auto pos = vlg_ila.state_update_ite_unknown.find(sname);
-      precondition += "(~ " + pos->second.condition +") ||";
+      precondition += "(~ " + pos->second.condition + ") ||";
     }
 
     std::string problem_name = "variable_map_assert";
@@ -396,8 +405,8 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
   ILA_CHECK(target_type == target_type_t::INVARIANTS ||
-             target_type == target_type_t::INSTRUCTIONS ||
-             target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+            target_type == target_type_t::INSTRUCTIONS ||
+            target_type == target_type_t::INV_SYN_DESIGN_ONLY);
 
   if (bad_state_return())
     return;
@@ -462,7 +471,7 @@ void VlgSglTgtGen::ConstructWrapper() {
     ConstructWrapper_add_post_value_holder();
   }
   ConstructWrapper_add_vlg_monitor();
-  // add monitor -- inside the monitor, there will be 
+  // add monitor -- inside the monitor, there will be
   // disable logic if it is for invariant type target
 
   // 6. helper memory
@@ -504,8 +513,7 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
   std::string fn;
   if (_backend == backend_selector::COSA ||
       (_backend & backend_selector::YOSYS) == backend_selector::YOSYS ||
-      (_backend == backend_selector::RELCHC)
-      ) {
+      (_backend == backend_selector::RELCHC)) {
     fn = os_portable_append_dir(_output_path, top_file_name);
     fout.open(fn, std::ios_base::app);
   } else if (_backend == backend_selector::JASPERGOLD) {

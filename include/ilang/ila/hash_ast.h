@@ -1,12 +1,15 @@
 /// \file
-/// Header for the class ExprMngr and the corresponding hash
+/// Class ExprMngr - organize and share Expr nodes based on their syntactic
+/// structures.
 
 #ifndef ILANG_ILA_HASH_AST_H__
 #define ILANG_ILA_HASH_AST_H__
 
+#include <memory>
+#include <string>
 #include <unordered_map>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 
 /// \namespace ilang
 namespace ilang {

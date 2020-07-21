@@ -12,7 +12,6 @@
 #include <fstream>
 #include <iomanip>
 
-#include <ilang/config.h>
 #ifdef FS_INCLUDE
 #include <filesystem>
 #else // FS_INCLUDE
@@ -48,9 +47,7 @@ namespace fs = std::filesystem;
 namespace fs = std::experimental::filesystem;
 #endif // FS_INCLUDE
 
-bool os_portable_exist(const std::string& path) {
-  return fs::exists(path);
-}
+bool os_portable_exist(const std::string& path) { return fs::exists(path); }
 
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir) {
@@ -202,19 +199,6 @@ std::string os_portable_remove_file_name_extension(const std::string& fname) {
   auto name = fs::path(fname);
   name.replace_extension();
   return name.string();
-}
-
-bool os_portable_compare_file(const std::string& file1,
-                              const std::string& file2) {
-#if defined(_WIN32) || defined(_WIN64)
-  // on windows
-  auto cmd = fmt::format("fc /a {} {}", file1, file2);
-#else
-  // on *nix
-  auto cmd = fmt::format("cmp -s {} {}", file1, file2);
-#endif
-  int ret = std::system(cmd.c_str());
-  return ret == 0;
 }
 
 #if defined(__unix__) || defined(unix) || defined(__APPLE__) ||                \

@@ -39,7 +39,7 @@ z3::check_result LegacyBmc::Check(InstrLvlAbsPtr m0, const int& k0,
   for (size_t i = 0; i != state_num_m0; i++) {
     auto state_m0 = m0->state(i);
     auto state_m1 = m1->find_state(state_m0->name());
-    ILA_ASSERT(state_m1 != NULL) << "State unmatched: " << state_m0;
+    ILA_NOT_NULL(state_m1);
 
     // equal initial condition
     auto state_m0_init = gen.GetExpr(state_m0, suffix_init);
@@ -59,7 +59,7 @@ z3::check_result LegacyBmc::Check(InstrLvlAbsPtr m0, const int& k0,
   for (size_t i = 0; i != input_num_m0; i++) {
     auto input_m0 = m0->input(i);
     auto input_m1 = m1->find_input(input_m0->name());
-    ILA_ASSERT(input_m1 != NULL) << "Input unmatched: " << input_m0;
+    ILA_NOT_NULL(input_m1);
 
     auto input_m0_init = gen.GetExpr(input_m0, suffix_init);
     auto input_m1_init = gen.GetExpr(input_m1, suffix_init);
@@ -114,7 +114,7 @@ z3::expr LegacyBmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k,
   return cnst;
 }
 
-z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
+z3::expr LegacyBmc::Instr(const InstrPtr& instr, const std::string& suffix_prev,
                           const std::string& suffix_next, bool complete) {
   ILA_NOT_NULL(instr);
   ILA_DLOG("ModelGen.Instr")
@@ -131,7 +131,7 @@ z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
     auto state_n = ila->state(i);
     auto update_n = instr->update(state_n);
 
-    if (update_n != NULL) { // update function specified
+    if (update_n) { // update function specified
       auto next_val_e = gen_.GetExpr(update_n, suffix_prev);
       auto next_var_e = gen_.GetExpr(state_n, suffix_next);
       auto eq_cnst = (next_var_e == next_val_e);
@@ -151,7 +151,7 @@ z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
   return instr_cnst;
 }
 
-z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
+z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr& ila,
                                   const std::string& suffix_prev,
                                   const std::string& suffix_next) {
   ILA_NOT_NULL(ila);

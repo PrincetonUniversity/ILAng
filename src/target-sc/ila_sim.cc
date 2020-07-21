@@ -37,12 +37,10 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
     auto source_dir = os_portable_append_dir(export_dir, "src");
     auto header_dir = os_portable_append_dir(export_dir, "include");
     auto extern_dir = os_portable_append_dir(export_dir, "extern");
-    auto scmain_dir = os_portable_append_dir(export_dir, "app");
 
     os_portable_mkdir(source_dir);
     os_portable_mkdir(header_dir);
     os_portable_mkdir(extern_dir);
-    os_portable_mkdir(scmain_dir);
   }
 
   sim_gen_init(export_dir, external_mem, readable, qemu_device);
@@ -312,7 +310,6 @@ void IlaSim::generate_cmake_support() {
   auto source_dir = os_portable_append_dir(export_dir_, "src");
   auto header_dir = os_portable_append_dir(export_dir_, "include");
   auto extern_dir = os_portable_append_dir(export_dir_, "extern");
-  auto scmain_dir = os_portable_append_dir(export_dir_, "app");
 
   // gen recipe
   std::stringstream fb;
@@ -373,24 +370,6 @@ void IlaSim::generate_cmake_support() {
   std::ofstream fw(file);
   fw << fb.rdbuf();
   fw.close();
-
-  // sc_main
-  auto app_template = os_portable_append_dir(scmain_dir, "main.cc");
-  if (!os_portable_compare_file(app_template, app_template)) {
-    // no file exist, create template
-    fb.clear();
-
-    fb << fmt::format("#include <systemc.h>\n"
-                      "#include <{0}.h>\n\n"
-                      "int sc_main(int argc, char* argv[]) {{\n"
-                      "  return 0; \n"
-                      "}}\n",
-                      proj);
-
-    fw.open(app_template);
-    fw << fb.rdbuf();
-    fw.close();
-  }
 }
 
 }; // namespace ilang

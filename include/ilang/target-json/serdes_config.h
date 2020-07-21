@@ -4,8 +4,13 @@
 #ifndef ILANG_TARGET_JSON_SERDES_CONFIG_H__
 #define ILANG_TARGET_JSON_SERDES_CONFIG_H__
 
+#include <ilang/util/log.h>
+
 /// \namespace ilange
 namespace ilang {
+
+/// ILA ser/des specific ID for Expr type.
+enum ExprTypeId { kVar = 1, kConst, kOp };
 
 // Sort
 #define SERDES_SORT_UID "u"
