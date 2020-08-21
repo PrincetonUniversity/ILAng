@@ -30,6 +30,8 @@ public:
   smt::Term GetSmtTerm(const ExprPtr& expr, const std::string& suffix = "");
   /// Reset the solver and the interface.
   void Reset();
+  /// Return the underlying SMT solver;
+  inline smt::SmtSolver& solver() const { return solver_; }
 
   /// Check if Term is generated.
   bool pre(const ExprPtr& expr);
@@ -43,6 +45,14 @@ public:
   }
   /// Unified SmtShim interface to get smt::Func.
   inline auto GetShimFunc(const FuncPtr& func) { return Func2Term(func); }
+  /// Unified SmtShim interface to AND two boolean smt::Term.
+  inline auto BoolAnd(const smt::Term& a, const smt::Term& b) {
+    return solver_->make_term(smt::PrimOp::Or, a, b);
+  }
+  /// Unified SmtShim interface to EQUAL two smt::Term.
+  inline auto Equal(const smt::Term& a, const smt::Term& b) {
+    return solver_->make_term(smt::PrimOp::Equal, a, b);
+  }
 
 private:
   /// Type for cacheing the generated expressions.
