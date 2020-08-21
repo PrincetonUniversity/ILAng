@@ -60,7 +60,7 @@ TEST_F(TestSmtSwitch, OpBvNeg) {
   auto neg_a = -var_bv_a;
   auto neg_neg_a = -neg_a;
   auto prop = neg_neg_a != var_bv_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsat(prop);
 }
 
 TEST_F(TestSmtSwitch, OpBoolNot) {
@@ -74,7 +74,7 @@ TEST_F(TestSmtSwitch, OpBvComplement) {
   auto com_a = ~var_bv_a;
   auto com_com_a = ~com_a;
   auto prop = com_com_a != var_bv_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsat(prop);
 }
 
 TEST_F(TestSmtSwitch, OpBoolAnd) {
@@ -255,14 +255,14 @@ TEST_F(TestSmtSwitch, OpBvExtract) {
   auto a_con_b = Concat(var_bv_a, var_bv_b);
   auto extract_a_con_b = Extract(a_con_b, BV_SIZE - 1, 0);
   auto prop = extract_a_con_b != var_bv_b;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsat(prop);
 }
 
 TEST_F(TestSmtSwitch, OpBvZext) {
   auto zext_a = ZExt(var_bv_a, 2 * BV_SIZE);
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), var_bv_a);
   auto prop = zext_a != zero_con_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsat(prop);
 }
 
 TEST_F(TestSmtSwitch, OpBvSext) {
@@ -270,14 +270,14 @@ TEST_F(TestSmtSwitch, OpBvSext) {
   auto sext_a = SExt(pos_a, 2 * BV_SIZE);
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), pos_a);
   auto prop = sext_a != zero_con_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsat(prop);
 }
 
 TEST_F(TestSmtSwitch, OpBvRotate) {
   auto left_rotate_1 = LRotate(var_bv_a, 1);
   auto right_rotate_back = RRotate(left_rotate_1, 1);
   auto prop = right_rotate_back != var_bv_a;
-  EXPECT_DEATH(CheckUnsat(prop), ".*");
+  CheckUnsat(prop);
 }
 
 TEST_F(TestSmtSwitch, OpBoolImply) {
