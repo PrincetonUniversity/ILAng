@@ -47,7 +47,7 @@ public:
   inline auto GetShimFunc(const FuncPtr& func) { return Func2Term(func); }
   /// Unified SmtShim interface to AND two boolean smt::Term.
   inline auto BoolAnd(const smt::Term& a, const smt::Term& b) {
-    return solver_->make_term(smt::PrimOp::Or, a, b);
+    return solver_->make_term(smt::PrimOp::And, a, b);
   }
   /// Unified SmtShim interface to EQUAL two smt::Term.
   inline auto Equal(const smt::Term& a, const smt::Term& b) {

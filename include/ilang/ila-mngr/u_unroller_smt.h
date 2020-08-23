@@ -91,11 +91,11 @@ protected:
   typedef std::vector<SmtExpr> SmtExprVec;
 
   // ------------------------- MEMBERS -------------------------------------- //
-  //
+  ///
   IlaExprVec deciding_vars_;
-  //
+  ///
   IlaExprVec update_holder_;
-  //
+  ///
   IlaExprVec assert_holder_;
 
   // ------------------------- METHODS -------------------------------------- //
@@ -112,11 +112,43 @@ protected:
   SmtExpr UnrollWithStepsUnconnected_(const size_t& len, const size_t& begin);
 
 private:
-  // ------------------------- MEMBERS -------------------------------------- //
-
-  // ------------------------- METHODS -------------------------------------- //
-
   // ------------------------- HELPERS -------------------------------------- //
+  ///
+  inline void InterpIlaExprAndAppend(const IlaExprVec& ila_expr_src,
+                                     const std::string& suffix,
+                                     SmtExprVec& smt_expr_dst) {
+    for (const auto& e : ila_expr_src) {
+      smt_expr_dst.push_back(smt_gen_.GetShimExpr(e, suffix));
+    }
+  }
+
+  ///
+  inline void InterpIlaExprAndAppend(const ExprSet& ila_expr_src,
+                                     const std::string& suffix,
+                                     SmtExprVec& smt_expr_dst) {
+    for (const auto& e : ila_expr_src) {
+      smt_expr_dst.push_back(smt_gen_.GetShimExpr(e, suffix));
+    }
+  }
+
+  ///
+  inline void ElementWiseEqualAndAppend(const SmtExprVec& a,
+                                        const SmtExprVec& b,
+                                        SmtExprVec& smt_expr_dst) {
+    ILA_ASSERT(a.size() == b.size());
+    for (size_t i = 0; i < a.size(); i++) {
+      smt_expr_dst.push_back(smt_gen_.Equal(a.at(i), b.at(i)));
+    }
+  }
+
+  ///
+  inline SmtExpr ConjunctAll(const SmtExprVec& vec) const {
+    auto conjunct_holder = smt_gen_.GetShimExpr(asthub::BoolConst(true));
+    for (const auto& e : vec) {
+      conjunct_holder = smt_gen_.BoolAnd(conjunct_holder, e);
+    }
+    return conjunct_holder;
+  }
 
 }; // class UnrollerSmt
 
@@ -136,7 +168,7 @@ public:
   }
 
   ///
-  auto UnrollWithStepUnconnected(const InstrVec& seq, const size_t& begin) {
+  auto UnrollWithStepsUnconnected(const InstrVec& seq, const size_t& begin) {
     seq_ = seq;
     return this->UnrollWithStepsUnconnected_(seq.size(), begin);
   }
