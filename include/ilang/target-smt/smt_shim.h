@@ -20,6 +20,8 @@ public:
 private:
   /// Reference to the underlying SMT formula generator.
   Generator& gen_;
+  /// Type alias for expression.
+  typedef decltype(gen_.GetShimExpr(nullptr, "")) ShimExprType;
 
 public:
   /// Unified interface to get expression.
@@ -30,6 +32,16 @@ public:
   inline auto GetShimFunc(const FuncPtr& func) {
     return gen_.GetShimFunc(func);
   }
+  /// Unified interface to AND two boolean expressions.
+  inline auto BoolAnd(const ShimExprType& a, const ShimExprType& b) {
+    return gen_.BoolAnd(a, b);
+  }
+  /// Unified interface to Equal two expressions.
+  inline auto Equal(const ShimExprType& a, const ShimExprType& b) {
+    return gen_.Equal(a, b);
+  }
+  /// Return the underlying generator.
+  inline Generator& get() const { return gen_; }
 
 }; // class SmtShim
 

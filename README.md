@@ -63,6 +63,7 @@ brew install bison flex z3
 | Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.0  | Release |
 | Ubuntu 18.04 (Bionic)     | gcc 8.4.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Debug   |
 | Ubuntu 18.04 (Bionic)     | gcc 8.4.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
+| Ubuntu 20.04 (Focal Fosa) | gcc 9.3.0    | 3.17.0 | 4.8.7 | 3.0.4 | 2.6.4  | Debug   |
 | Ubuntu 20.04 (Focal Fosa) | gcc 9.3.0    | 3.17.0 | 4.8.7 | 3.0.4 | 2.6.4  | Release |
 | OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Debug   |
 | OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Release |
@@ -70,7 +71,7 @@ brew install bison flex z3
 
 ### Default Build
 
-To build ILAng with default configuration, create a build directory and execute:
+To build ILAng with default configuration, create a build directory and make:
 
 ```bash
 mkdir -p build && cd build
@@ -78,7 +79,7 @@ cmake ..
 make
 ```
 
-If you are using git older than `1.8.4`, init the submodule from root and disable config-time submodule update:
+If you are using git older than `1.8.4`, init the submodule from root and disable config-time submodule fetching:
 ```bash
 git submodule update --init --recursive
 mkdir -p build && cd build
@@ -86,7 +87,7 @@ cmake .. -DILANG_FETCH_DEPS=OFF
 make
 ```
 
-After the build complete, run unit tests and install the library. 
+After the build complete, run unit tests (optional) and install the library. 
 
 ```bash
 make run_test
@@ -95,11 +96,12 @@ sudo make install
 
 ### Options
 
--   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time updating submodules for in-source dependencies.
+-   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time fetching submodules for in-source dependencies.
 -   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
 -   Use `-DILANG_BUILD_SYNTH=ON` to enable building the synthesis engine. 
 -   Use `-DILANG_BUILD_INVSYN=OFF` to disable building invariant synthesis feature.
 -   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) interface support. 
+-   Use `-DILANG_BUILD_COSIM=ON` to enable building [Xilinx cosimulation](https://www.linuxsecrets.com/xilinx/QEMU%20SystemC%20and%20TLM%20CoSimulation.html) support.
 -   Use `-DILANG_INSTALL_DEV=ON` to install working features. 
 
 ## CMake Integration

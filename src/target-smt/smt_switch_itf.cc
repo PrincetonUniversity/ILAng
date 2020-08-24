@@ -130,20 +130,17 @@ smt::Term SmtSwitchItf::ExprConst2Term(const ExprPtr& expr) {
 
 smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr& expr,
                                     const smt::TermVec& arg_terms) {
-
-  // XXX Boolector (maybe also others) doesn't accept INT sort for param.
-  // auto param_sort = solver_->make_sort(smt::INT);
-  auto param_sort = solver_->make_sort(smt::BV, PARAM_BIT_WIDTH);
-
+  // construct based on the operator
   switch (auto expr_op_uid = asthub::GetUidExprOp(expr); expr_op_uid) {
   case AstUidExprOp::kNegate: {
-    return solver_->make_term(smt::PrimOp::Negate, arg_terms.at(0));
+    return solver_->make_term(smt::PrimOp::BVNeg, arg_terms.at(0));
   }
   case AstUidExprOp::kNot: {
     return solver_->make_term(smt::PrimOp::Not, arg_terms.at(0));
   }
   case AstUidExprOp::kComplement: {
-    return solver_->make_term(smt::PrimOp::BVComp, arg_terms.at(0));
+    // PrimOp::BVComp seems to be compare (equal)
+    return solver_->make_term(smt::PrimOp::BVNot, arg_terms.at(0));
   }
   case AstUidExprOp::kAnd: {
     auto op = expr->is_bool() ? smt::PrimOp::And : smt::PrimOp::BVAnd;
@@ -236,25 +233,28 @@ smt::Term SmtSwitchItf::ExprOp2Term(const ExprPtr& expr,
                               arg_terms.at(1));
   }
   case AstUidExprOp::kExtract: {
-    auto p0 = solver_->make_term(expr->param(0), param_sort);
-    auto p1 = solver_->make_term(expr->param(1), param_sort);
-    return solver_->make_term(smt::PrimOp::Extract, arg_terms.at(0), p0, p1);
+    auto op = smt::Op(smt::PrimOp::Extract, expr->param(0), expr->param(1));
+    return solver_->make_term(op, arg_terms.at(0));
   }
   case AstUidExprOp::kZeroExtend: {
-    auto p0 = solver_->make_term(expr->param(0), param_sort);
-    return solver_->make_term(smt::PrimOp::Zero_Extend, arg_terms.at(0), p0);
+    // the param in smt-switch (at least for btor) is the diff
+    auto diff = expr->param(0) - expr->arg(0)->sort()->bit_width();
+    auto op = smt::Op(smt::PrimOp::Zero_Extend, diff);
+    return solver_->make_term(op, arg_terms.at(0));
   }
   case AstUidExprOp::kSignedExtend: {
-    auto p0 = solver_->make_term(expr->param(0), param_sort);
-    return solver_->make_term(smt::PrimOp::Sign_Extend, arg_terms.at(0), p0);
+    // the param in smt-switch (at least for btor) is the diff
+    auto diff = expr->param(0) - expr->arg(0)->sort()->bit_width();
+    auto op = smt::Op(smt::PrimOp::Sign_Extend, diff);
+    return solver_->make_term(op, arg_terms.at(0));
   }
   case AstUidExprOp::kRotateLeft: {
-    auto p0 = solver_->make_term(expr->param(0), param_sort);
-    return solver_->make_term(smt::PrimOp::Rotate_Left, arg_terms.at(0), p0);
+    auto op = smt::Op(smt::PrimOp::Rotate_Left, expr->param(0));
+    return solver_->make_term(op, arg_terms.at(0));
   }
   case AstUidExprOp::kRotateRight: {
-    auto p0 = solver_->make_term(expr->param(0), param_sort);
-    return solver_->make_term(smt::PrimOp::Rotate_Right, arg_terms.at(0), p0);
+    auto op = smt::Op(smt::PrimOp::Rotate_Right, expr->param(0));
+    return solver_->make_term(op, arg_terms.at(0));
   }
   case AstUidExprOp::kImply: {
     return solver_->make_term(smt::PrimOp::Implies, arg_terms.at(0),
