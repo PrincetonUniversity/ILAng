@@ -78,9 +78,7 @@ TEST_F(TestSmtShim, OpBvNeg) {
   auto neg_neg_a = -neg_a;
   auto prop = neg_neg_a != var_bv_a;
   CheckUnsatZ3(prop);
-#ifdef SMTSWITCH_TEST
-  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
-#endif // SMTSWITCH_TEST
+  CheckUnsatSwitch(prop);
 }
 
 TEST_F(TestSmtShim, OpBvComplement) {
@@ -88,9 +86,7 @@ TEST_F(TestSmtShim, OpBvComplement) {
   auto com_com_a = ~com_a;
   auto prop = com_com_a != var_bv_a;
   CheckUnsatZ3(prop);
-#ifdef SMTSWITCH_TEST
-  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
-#endif // SMTSWITCH_TEST
+  CheckUnsatSwitch(prop);
 }
 
 TEST_F(TestSmtShim, OpBoolAnd) {
@@ -298,9 +294,7 @@ TEST_F(TestSmtShim, OpBvExtract) {
   auto extract_a_con_b = Extract(a_con_b, BV_SIZE - 1, 0);
   auto prop = extract_a_con_b != var_bv_b;
   CheckUnsatZ3(prop);
-#ifdef SMTSWITCH_TEST
-  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
-#endif // SMTSWITCH_TEST
+  CheckUnsatSwitch(prop);
 }
 
 TEST_F(TestSmtShim, OpBvZext) {
@@ -308,9 +302,7 @@ TEST_F(TestSmtShim, OpBvZext) {
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), var_bv_a);
   auto prop = zext_a != zero_con_a;
   CheckUnsatZ3(prop);
-#ifdef SMTSWITCH_TEST
-  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
-#endif // SMTSWITCH_TEST
+  CheckUnsatSwitch(prop);
 }
 
 TEST_F(TestSmtShim, OpBvSext) {
@@ -319,9 +311,7 @@ TEST_F(TestSmtShim, OpBvSext) {
   auto zero_con_a = Concat(BvConst(0, BV_SIZE), pos_a);
   auto prop = sext_a != zero_con_a;
   CheckUnsatZ3(prop);
-#ifdef SMTSWITCH_TEST
-  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
-#endif // SMTSWITCH_TEST
+  CheckUnsatSwitch(prop);
 }
 
 TEST_F(TestSmtShim, OpBvRotate) {
@@ -329,9 +319,7 @@ TEST_F(TestSmtShim, OpBvRotate) {
   auto right_rotate_back = RRotate(left_rotate_1, 1);
   auto prop = right_rotate_back != var_bv_a;
   CheckUnsatZ3(prop);
-#ifdef SMTSWITCH_TEST
-  EXPECT_DEATH(CheckUnsatSwitch(prop), ".*");
-#endif // SMTSWITCH_TEST
+  CheckUnsatSwitch(prop);
 }
 
 TEST_F(TestSmtShim, OpBoolImply) {

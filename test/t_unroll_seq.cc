@@ -34,7 +34,7 @@ public:
 
   EqIlaGen ila_gen_;
   z3::context ctx_;
-  ExprPtr init_mem = NULL;
+  ExprPtr init_mem = nullptr;
 
 }; // class TestUnroll
 
@@ -48,6 +48,7 @@ TEST_F(TestUnroll, InstrSeqFlatSubs) {
 
   auto unroller = new PathUnroll(ctx_);
   auto cstr = unroller->PathSubs(seq);
+  delete unroller;
 }
 
 TEST_F(TestUnroll, InstrSeqFlatAssn) {
@@ -60,6 +61,7 @@ TEST_F(TestUnroll, InstrSeqFlatAssn) {
 
   auto unroller = new PathUnroll(ctx_);
   auto cstr = unroller->PathAssn(seq);
+  delete unroller;
 }
 
 TEST_F(TestUnroll, InstrSeqFlatNone) {
@@ -71,6 +73,7 @@ TEST_F(TestUnroll, InstrSeqFlatNone) {
 
   auto unroller = new PathUnroll(ctx_);
   auto cstr = unroller->PathNone(seq);
+  delete unroller;
 }
 
 TEST_F(TestUnroll, InstrSeqSolve) {
