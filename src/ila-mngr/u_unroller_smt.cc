@@ -71,15 +71,15 @@ UnrollerSmt<Generator>::UnrollWithStepsUnconnected_(const size_t& len,
   return smt_gen_.GetShimExpr(nullptr, "");
 }
 
+// Concretize SMT generators
+template class UnrollerSmt<Z3ExprAdapter>;
+#ifdef SMTSWITCH_INTERFACE
+template class UnrollerSmt<SmtSwitchItf>;
+#endif // SMTSWITCH_INTERFACE
+
 //
 // PathUnroller
 //
-
-// Concretize SMT generators
-template class PathUnroller<Z3ExprAdapter>;
-#ifdef SMTSWITCH_INTERFACE
-template class PathUnroller<SmtSwitchItf>;
-#endif // SMTSWITCH_INTERFACE
 
 template <class Generator> void PathUnroller<Generator>::SetDecidingVars() {
   ExprSet unique_vars;
@@ -115,5 +115,11 @@ void PathUnroller<Generator>::MakeOneTransition(const size_t& idx) {
   ILA_NOT_NULL(decode);
   this->assert_holder_.push_back(decode);
 }
+
+// Concretize SMT generators
+template class PathUnroller<Z3ExprAdapter>;
+#ifdef SMTSWITCH_INTERFACE
+template class PathUnroller<SmtSwitchItf>;
+#endif // SMTSWITCH_INTERFACE
 
 } // namespace ilang
