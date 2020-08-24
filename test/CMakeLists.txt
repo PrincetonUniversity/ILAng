@@ -79,6 +79,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
+  t_unroller_smt.cc
   t_util.cc
   t_verilog_analysis.cc
   t_verilog_analysis_error.cc

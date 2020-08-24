@@ -11,12 +11,11 @@
 #include <vector>
 
 #include <z3++.h>
-
-#include <ilang/config.h>
-
 #ifdef SMTSWITCH_INTERFACE
 #include <smt-switch/smt.h>
 #endif // SMTSWITCH_INTERFACE
+
+#include <ilang/config.h>
 
 /// \namespace ilang
 /// Defines the core data structure and APIs for constructing and storing ILA.
@@ -57,6 +56,7 @@ class Expr;
 class Instr;
 class InstrLvlAbs;
 class Unroller;
+
 // forward declaration
 class Ila;
 

@@ -32,6 +32,9 @@ public:
   /// Function object for getting z3 expression.
   void operator()(const ExprPtr& expr);
 
+  /// Return the underlying z3 context.
+  inline z3::context& context() const { return ctx_; }
+
   // ------------------------- SHIM INTERFACE ------------------------------- //
   /// Unified SmtShim interface to get z3::expr.
   inline auto GetShimExpr(const ExprPtr& expr, const std::string& suffix) {
@@ -41,6 +44,10 @@ public:
   inline auto GetShimFunc(const FuncPtr& func) {
     return func->GetZ3FuncDecl(ctx_);
   }
+  /// Unified SmtShim interface to AND two boolean z3::expr.
+  inline auto BoolAnd(const z3::expr& a, const z3::expr& b) { return a && b; }
+  /// Unified SmtShim interface to EQUAL two z3::expr.
+  inline auto Equal(const z3::expr& a, const z3::expr& b) { return a == b; }
 
 private:
   /// Type for caching the generated expressions.
