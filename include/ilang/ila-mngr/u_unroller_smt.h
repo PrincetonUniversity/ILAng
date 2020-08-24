@@ -91,29 +91,29 @@ protected:
   typedef std::vector<SmtExpr> SmtExprVec;
 
   // ------------------------- MEMBERS -------------------------------------- //
-  ///
+  /// Variables on which the instruction sequence depends
   IlaExprVec deciding_vars_;
-  ///
+  /// State update functions of the deciding variables
   IlaExprVec update_holder_;
-  ///
+  /// Non-execution semantics (state update) properties
   IlaExprVec assert_holder_;
 
   // ------------------------- METHODS -------------------------------------- //
-  ///
+  /// Setup the deciding variabels
   virtual void SetDecidingVars() = 0;
 
-  ///
+  /// Make one transition (step) and setup the update_holder_ and assert_holder_
+  /// accordingly
   virtual void MakeOneTransition(const size_t& idx) = 0;
 
-  ///
+  /// Unroll the whole sequence
   SmtExpr Unroll_(const size_t& len, const size_t& begin);
 
-  ///
+  /// Unroll the whole sequence without connecting the steps
   SmtExpr UnrollWithStepsUnconnected_(const size_t& len, const size_t& begin);
 
 private:
   // ------------------------- HELPERS -------------------------------------- //
-  ///
   inline void InterpIlaExprAndAppend(const IlaExprVec& ila_expr_src,
                                      const std::string& suffix,
                                      SmtExprVec& smt_expr_dst) {
@@ -122,7 +122,6 @@ private:
     }
   }
 
-  ///
   inline void InterpIlaExprAndAppend(const ExprSet& ila_expr_src,
                                      const std::string& suffix,
                                      SmtExprVec& smt_expr_dst) {
@@ -131,7 +130,6 @@ private:
     }
   }
 
-  ///
   inline void ElementWiseEqualAndAppend(const SmtExprVec& a,
                                         const SmtExprVec& b,
                                         SmtExprVec& smt_expr_dst) {
@@ -141,7 +139,6 @@ private:
     }
   }
 
-  ///
   inline SmtExpr ConjunctAll(const SmtExprVec& vec) const {
     auto conjunct_holder = smt_gen_.GetShimExpr(asthub::BoolConst(true));
     for (const auto& e : vec) {
@@ -161,13 +158,13 @@ public:
       : UnrollerSmt<Generator>(smt_shim, suffix) {}
 
   // ------------------------- METHODS -------------------------------------- //
-  ///
+  /// Unroll the sequence
   auto Unroll(const InstrVec& seq, const size_t& begin = 0) {
     seq_ = seq;
     return this->Unroll_(seq.size(), begin);
   }
 
-  ///
+  /// Unroll the sequence without connecting the steps
   auto UnrollWithStepsUnconnected(const InstrVec& seq, const size_t& begin) {
     seq_ = seq;
     return this->UnrollWithStepsUnconnected_(seq.size(), begin);
@@ -175,10 +172,10 @@ public:
 
 protected:
   // ------------------------- METHODS -------------------------------------- //
-  ///
+  /// Setup the deciding variables
   void SetDecidingVars();
 
-  ///
+  /// Make one transition and setup holders accordingly
   void MakeOneTransition(const size_t& idx);
 
 private:
