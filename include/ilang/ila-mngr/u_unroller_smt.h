@@ -3,7 +3,7 @@
 /// ILA unrollers with SmtShim support.
 
 #ifndef ILANG_ILA_MNGR_U_UNROLLER_SMT_H__
-#define ILANG_ILA_MNRG_U_UNROLLER_SMT_H__
+#define ILANG_ILA_MNGR_U_UNROLLER_SMT_H__
 
 #include <map>
 #include <string>
