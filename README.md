@@ -40,7 +40,7 @@ To install dependencies on Debian-based Linux:
 apt-get install bison flex z3 libz3-dev
 ```
 
-To install dependencies (except z3) on Fedora-based Linux:
+To install dependencies (besides [z3](https://github.com/Z3Prover/z3)) on Fedora-based Linux:
 
 ```bash
 yum install bison flex
@@ -52,22 +52,6 @@ To install dependencies on OSX:
 brew install bison flex z3
 ```
 
--   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
--   The [Boost](https://www.boost.org) package is required only if you want to build the synthesis engine (default `OFF`).
-
-#### CI Environments
-
-| OS                        | Compiler     | CMake  | z3    | Bison | Flex   | Build   |
-| ------------------------- | ------------ | ------ | ----- | ----- | ------ | ------- |
-| Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.12.4 | 4.4.1 | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 7.5.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.0  | Release |
-| Ubuntu 18.04 (Bionic)     | gcc 8.4.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Debug   |
-| Ubuntu 18.04 (Bionic)     | gcc 8.4.0    | 3.10.2 | 4.4.1 | 3.0.4 | 2.6.4  | Release |
-| Ubuntu 20.04 (Focal Fosa) | gcc 9.3.0    | 3.17.0 | 4.8.7 | 3.0.4 | 2.6.4  | Debug   |
-| Ubuntu 20.04 (Focal Fosa) | gcc 9.3.0    | 3.17.0 | 4.8.7 | 3.0.4 | 2.6.4  | Release |
-| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Debug   |
-| OSX 10.15.4 (Catalina)    | Xcode 11.4.1 | 3.17.2 | 4.8.8 | 3.6.2 | 2.5.35 | Release |
-| Windows Server 2016       | VS 2017      | 3.17.2 | 4.8.8 | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
 
@@ -96,9 +80,9 @@ sudo make install
 
 ### Options
 
--   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time fetching submodules for in-source dependencies.
+-   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time submodule fetching.
 -   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
--   Use `-DILANG_BUILD_SYNTH=ON` to enable building the synthesis engine. 
+-   Use `-DILANG_BUILD_SYNTH=ON` to enable building the synthesis engine (required [Boost](https://www.boost.org)). 
 -   Use `-DILANG_BUILD_INVSYN=OFF` to disable building invariant synthesis feature.
 -   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) interface support. 
 -   Use `-DILANG_BUILD_COSIM=ON` to enable building [Xilinx cosimulation](https://www.linuxsecrets.com/xilinx/QEMU%20SystemC%20and%20TLM%20CoSimulation.html) support.
