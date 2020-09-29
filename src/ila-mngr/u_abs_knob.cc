@@ -8,7 +8,7 @@
 
 namespace ilang {
 
-namespace AbsKnob {
+namespace absknob {
 
 ExprPtr DuplInp(const InstrLvlAbsPtr& m, const ExprPtr& inp) {
   ILA_ASSERT(inp->is_var()) << "Creating input from non-var Expr.";
@@ -392,6 +392,6 @@ void DuplInstrSeq(const InstrLvlAbsCnstPtr& src, const InstrLvlAbsPtr& dst) {
   // TODO
 }
 
-} // namespace AbsKnob
+} // namespace absknob
 
 } // namespace ilang

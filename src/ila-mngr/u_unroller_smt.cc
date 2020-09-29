@@ -84,7 +84,7 @@ template class UnrollerSmt<SmtSwitchItf>;
 template <class Generator> void PathUnroller<Generator>::SetDecidingVars() {
   ExprSet unique_vars;
   for (const auto& instr : seq_) {
-    AbsKnob::InsertStt(instr, unique_vars);
+    absknob::InsertStt(instr, unique_vars);
   }
   // move to global order
   this->deciding_vars_.clear();

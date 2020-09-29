@@ -78,7 +78,7 @@ void Ilator::Generate(const std::string& dst, bool opt) {
   ILA_INFO << "Start generating SystemC simulator of " << m_;
 
   // instruction semantics (decode and updates)
-  for (auto& instr : AbsKnob::GetInstrTree(m_)) {
+  for (auto& instr : absknob::GetInstrTree(m_)) {
     status &= GenerateInstrContent(instr, os_portable_append_dir(dst, kDirSrc));
   }
 
@@ -387,7 +387,7 @@ bool Ilator::GenerateInitialSetup(const std::string& dir) {
 
   std::map<ExprPtr, uint64_t> init_values;
   auto model = solver.get_model();
-  auto refer_vars = AbsKnob::GetVar(init);
+  auto refer_vars = absknob::GetVar(init);
   for (const auto& var : refer_vars) {
     auto var_value = model.eval(gen.GetExpr(var));
     try {
@@ -472,8 +472,8 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
         fmt::arg("instr_name", instr->name().str()));
   };
 
-  auto top_instrs = AbsKnob::GetInstr(m_);
-  auto all_instrs = AbsKnob::GetInstrTree(m_);
+  auto top_instrs = absknob::GetInstr(m_);
+  auto all_instrs = absknob::GetInstrTree(m_);
 
   // top-level instr
   for (auto& instr : top_instrs) {
@@ -518,7 +518,7 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
                  fmt::arg("project", GetProjectName()));
 
   // input
-  for (auto& var : AbsKnob::GetInp(m_)) {
+  for (auto& var : absknob::GetInp(m_)) {
     fmt::format_to(buff,
                    "  sc_in<{var_type}> {var_name}_in;\n"
                    "  {var_type} {var_name};\n",
@@ -527,7 +527,7 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
   }
 
   // state and global vars (e.g., CONCAT)
-  for (auto& var : AbsKnob::GetSttTree(m_)) {
+  for (auto& var : absknob::GetSttTree(m_)) {
     fmt::format_to(buff, "  {var_type} {var_name};\n",
                    fmt::arg("var_type", GetCxxType(var)),
                    fmt::arg("var_name", GetCxxName(var)));
@@ -563,7 +563,7 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
                  "    SC_METHOD(compute);\n"
                  "    sensitive",
                  fmt::arg("project", GetProjectName()));
-  for (auto& var : AbsKnob::GetInp(m_)) {
+  for (auto& var : absknob::GetInp(m_)) {
     fmt::format_to(buff, " << {input_name}_in",
                    fmt::arg("input_name", GetCxxName(var)));
   }

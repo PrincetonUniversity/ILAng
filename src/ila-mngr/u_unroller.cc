@@ -341,7 +341,7 @@ void PathUnroll::DefineDepVar() {
   // collect the set of vars
   auto dep_var = ExprSet();
   for (auto it = seq_.begin(); it != seq_.end(); it++) {
-    AbsKnob::InsertStt(*it, dep_var);
+    absknob::InsertStt(*it, dep_var);
   }
   // update to the global set
   vars_.clear();
@@ -404,7 +404,7 @@ ZExpr MonoUnroll::MonoIncr(const InstrLvlAbsPtr& top, const int& length,
 
 void MonoUnroll::DefineDepVar() {
   vars_.clear();
-  auto dep_var = AbsKnob::GetSttTree(top_);
+  auto dep_var = absknob::GetSttTree(top_);
   // update global
   ILA_ASSERT(!dep_var.empty()) << "No state var found.";
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
@@ -423,7 +423,7 @@ void MonoUnroll::Transition(const int& idx) {
   }
 
   // extract the set of insturctions
-  auto instr_set = AbsKnob::GetInstrTree(top_);
+  auto instr_set = absknob::GetInstrTree(top_);
 
   // create the set of selection bits
   std::vector<ExprPtr> sel_bits;
