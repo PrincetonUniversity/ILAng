@@ -19,7 +19,7 @@ void RefinementMap::set_tgt(const InstrLvlAbsPtr& tgt) {
 
 void RefinementMap::set_tgt(const InstrPtr& tgt) {
   ILA_ASSERT(tgt && tgt->host());
-  coi_ = AbsKnob::ExtrDeptModl(tgt, tgt->host()->name().str());
+  coi_ = absknob::ExtrDeptModl(tgt, tgt->host()->name().str());
 }
 
 void RefinementMap::set_appl(const ExprPtr& appl) {

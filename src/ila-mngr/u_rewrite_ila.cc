@@ -27,9 +27,9 @@ bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr& src) {
       << "Rewriting ILA to partially constructed ILA not support.";
 
   // input
-  AbsKnob::DuplInp(src, dst, expr_map_);
+  absknob::DuplInp(src, dst, expr_map_);
   // state
-  AbsKnob::DuplStt(src, dst, expr_map_);
+  absknob::DuplStt(src, dst, expr_map_);
 
   // child
   for (decltype(src->child_num()) i = 0; i != src->child_num(); i++) {
@@ -40,20 +40,20 @@ bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr& src) {
   }
 
   // fetch
-  AbsKnob::DuplFetch(src, dst, expr_map_);
+  absknob::DuplFetch(src, dst, expr_map_);
   // valid
-  AbsKnob::DuplValid(src, dst, expr_map_);
+  absknob::DuplValid(src, dst, expr_map_);
   // init
-  AbsKnob::DuplInit(src, dst, expr_map_);
+  absknob::DuplInit(src, dst, expr_map_);
 
   // instruction && child-program
   for (decltype(src->instr_num()) i = 0; i != src->instr_num(); i++) {
     auto i_src = src->instr(i);
-    AbsKnob::DuplInstr(i_src, dst, expr_map_, ila_map_);
+    absknob::DuplInstr(i_src, dst, expr_map_, ila_map_);
   }
 
   // sequence
-  AbsKnob::DuplInstrSeq(src, dst);
+  absknob::DuplInstrSeq(src, dst);
 
   return false;
 }
@@ -84,7 +84,7 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr& src) {
     valid_cond_ = asthub::BoolConst(true);
   }
 #ifdef VALID_STACK
-  valid_cond_ = AbsKnob::Rewrite(valid_cond_, expr_map_);
+  valid_cond_ = absknob::Rewrite(valid_cond_, expr_map_);
   valid_cond_stack_.push(asthub::And(valid_cond_stack_.top(), valid_cond_));
   const auto& hierarchical_valid_cond = valid_cond_stack_.top();
 #endif // VALID_STACK
@@ -92,7 +92,7 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr& src) {
   // instruction && child-program
   for (decltype(src->instr_num()) i = 0; i != src->instr_num(); i++) {
     auto i_src = src->instr(i);
-    auto i_dst = AbsKnob::DuplInstr(i_src, dst, expr_map_, ila_map_);
+    auto i_dst = absknob::DuplInstr(i_src, dst, expr_map_, ila_map_);
 #ifdef VALID_STACK
     auto new_decode = asthub::And(i_dst->decode(), hierarchical_valid_cond);
     i_dst->ForceSetDecode(new_decode);
@@ -100,7 +100,7 @@ bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr& src) {
   }
 
   // sequence - do we need to do this?
-  // AbsKnob::DuplInstrSeq(src, dst);
+  // absknob::DuplInstrSeq(src, dst);
 
   return false;
 }

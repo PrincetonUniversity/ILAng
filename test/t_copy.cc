@@ -19,7 +19,7 @@ void Copy(const std::string& dir, const std::string& file, bool check = true) {
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file).get();
 
-  auto copy = AbsKnob::CopyIlaTree(ila, "copied");
+  auto copy = absknob::CopyIlaTree(ila, "copied");
 
   if (check) {
     Check(ila, copy);

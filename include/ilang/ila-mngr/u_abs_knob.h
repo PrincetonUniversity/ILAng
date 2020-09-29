@@ -9,8 +9,8 @@
 /// \namespace ilang
 namespace ilang {
 
-/// \namespace AbsKnob
-namespace AbsKnob {
+/// \namespace absknob
+namespace absknob {
 /****************************************************************************/
 /// Add all dependent vars of the expr to the set.
 void InsertVar(const ExprPtr& e, ExprSet& vars);
@@ -108,7 +108,7 @@ InstrPtr DuplInstr(const InstrCnstPtr instr_src, const InstrLvlAbsPtr& dst,
 /// Duplicate instruction sequence to dst. NOT IMPLEMENTED YET.
 void DuplInstrSeq(const InstrLvlAbsCnstPtr& src, const InstrLvlAbsPtr& dst);
 
-}; // namespace AbsKnob
+}; // namespace absknob
 
 } // namespace ilang
 

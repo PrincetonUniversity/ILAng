@@ -65,7 +65,7 @@ bool SanityCheckAndFix(const InstrLvlAbsPtr& m) {
 
   // check completeness
   auto acc = asthub::BoolConst(false);
-  for (const auto& instr : AbsKnob::GetInstrTree(m)) {
+  for (const auto& instr : absknob::GetInstrTree(m)) {
     auto host = instr->host();
     ILA_NOT_NULL(host);
     auto valid = host->valid() ? host->valid() : asthub::BoolConst(true);
@@ -78,7 +78,7 @@ bool SanityCheckAndFix(const InstrLvlAbsPtr& m) {
   if (!is_complete) {
     ILA_WARN << "Incomplete instruction set - create default instruction";
     auto clean = true;
-    for (const auto& var : AbsKnob::GetVar(acc)) {
+    for (const auto& var : absknob::GetVar(acc)) {
       auto is_top_state = m->find_state(var->name());
       auto is_top_input = m->find_input(var->name());
       clean &= (is_top_state || is_top_input);
