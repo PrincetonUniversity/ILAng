@@ -1,5 +1,5 @@
 /// \file
-/// Tests for ILA manager utility - AbsKnob
+/// Tests for ILA manager utility -absknob
 
 #include <ilang/ilang++.h>
 
@@ -7,7 +7,7 @@
 
 namespace ilang {
 
-TEST(TestMngrAbsKnob, FlattenIla) {
+TEST(TestMngrabsknob, FlattenIla) {
   // parent
   auto m = Ila("parent");
   auto x = m.NewBvState("x", 8);

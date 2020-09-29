@@ -186,8 +186,8 @@ void CommDiag::Init() {
     un.AddGlobPred(ref->flush());
   }
   // state vars of each ILA
-  stts_a_ = AbsKnob::GetSttTree(crr_->refine_a()->ila());
-  stts_b_ = AbsKnob::GetSttTree(crr_->refine_b()->ila());
+  stts_a_ = absknob::GetSttTree(crr_->refine_a()->ila());
+  stts_b_ = absknob::GetSttTree(crr_->refine_b()->ila());
 }
 
 CommDiag::Unroll& CommDiag::GetUnrl(const UID& uid) {
@@ -322,8 +322,8 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
 
   const auto ma = crr_->refine_a()->coi(); // representative ILA
   const auto mb = crr_->refine_b()->coi();
-  const auto stts_a = AbsKnob::GetSttTree(ma); // used for marking
-  const auto stts_b = AbsKnob::GetSttTree(mb);
+  const auto stts_a = absknob::GetSttTree(ma); // used for marking
+  const auto stts_b = absknob::GetSttTree(mb);
 
   auto s = z3::solver(ctx_); // solver
   { // default basic condition (old/new/apply path & assm & prop)
@@ -528,7 +528,7 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   // check: /\s_n, a_n -> (a_n & f_o & eq_o_n)
   s.reset();
   auto appl_z3 = z3::expr_vector(ctx_);
-  auto appl_vars = AbsKnob::GetVar(a);
+  auto appl_vars = absknob::GetVar(a);
   for (auto it = appl_vars.begin(); it != appl_vars.end(); it++) {
     appl_z3.push_back(unroll_appl_.CurrState(*it, 0));
   }
@@ -550,11 +550,11 @@ bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr& ma,
 
   ILA_NOT_NULL(rel);
   auto rel_expr = rel->get();
-  auto rel_vars = AbsKnob::GetVar(rel_expr);
+  auto rel_vars = absknob::GetVar(rel_expr);
 
   auto ref_vars = ExprSet();
-  AbsKnob::InsertStt(ma, ref_vars);
-  AbsKnob::InsertStt(mb, ref_vars);
+  absknob::InsertStt(ma, ref_vars);
+  absknob::InsertStt(mb, ref_vars);
 
   // check: rel_vars <= ref_vars
   for (auto it = rel_vars.begin(); it != rel_vars.end(); it++) {
@@ -709,7 +709,7 @@ z3::expr CommDiag::GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref) {
 
 z3::expr CommDiag::GenInit(const RefPtr ref) {
   // default equivalence: state variables (not including inputs)
-  auto vars = AbsKnob::GetSttTree(ref->coi());
+  auto vars = absknob::GetSttTree(ref->coi());
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto so = unroll_orig_.CurrState(*it, 0);
@@ -833,7 +833,7 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
   // unroll
   auto path = unroller.MonoAssn(ref->coi(), length, base);
 
-  auto vars = AbsKnob::GetStt(ref->coi());
+  auto vars = absknob::GetStt(ref->coi());
   auto mark = ctx_.bool_val(true);
   // mark complete step with representing state
   for (auto i = start; i <= base + length; i++) {
