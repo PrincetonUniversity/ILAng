@@ -77,6 +77,9 @@ void Ilator::Generate(const std::string& dst, bool opt) {
   auto status = true;
   ILA_INFO << "Start generating SystemC simulator of " << m_;
 
+  // non-instruction basics
+  status &= GenerateIlaBasics(os_portable_append_dir(dst, kDirSrc));
+
   // instruction semantics (decode and updates)
   for (auto& instr : absknob::GetInstrTree(m_)) {
     status &= GenerateInstrContent(instr, os_portable_append_dir(dst, kDirSrc));
@@ -163,6 +166,38 @@ bool Ilator::Bootstrap(const std::string& root, bool opt) {
 
   ILA_ERROR_IF(!status) << "Fail bootstraping";
   return status;
+}
+
+bool Ilator::GenerateIlaBasics(const std::string& dir) {
+  StrBuff buff;
+
+  // include headers
+  fmt::format_to(buff, "#include <{}.h>\n", GetProjectName());
+
+  // generate valid func for each ILA
+  auto PerIla = [this, &buff](const InstrLvlAbsCnstPtr& m) {
+    ILA_NOT_NULL(m);
+    auto valid_expr = m->valid();
+    if (!valid_expr) {
+      valid_expr = asthub::BoolConst(true);
+      ILA_WARN << "Use default (true) valid for " << m;
+    }
+    auto valid_func = RegisterFunction(GetValidFuncName(m), valid_expr);
+    BeginFuncDef(valid_func, buff);
+    ExprVarMap lut;
+    ILA_CHECK(RenderExpr(valid_expr, buff, lut));
+    fmt::format_to(buff, "auto& {universal_name} = {local_name};\n",
+                   fmt::arg("universal_name", GetCxxName(valid_expr)),
+                   fmt::arg("local_name", LookUp(valid_expr, lut)));
+    EndFuncDef(valid_func, buff);
+  };
+
+  // traverse the hierarchy
+  m_->DepthFirstVisit(PerIla);
+
+  // record and write to file
+  CommitSource("all_valid_funcs_in_hier.cc", dir, buff);
+  return true;
 }
 
 bool Ilator::GenerateInstrContent(const InstrPtr& instr,
@@ -459,13 +494,14 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
   auto ExecInstr = [this, &buff](const InstrPtr& instr, bool child) {
     fmt::format_to(
         buff,
-        "if ({decode_func_name}()) {{\n"
+        "if ({valid_func_name}() && {decode_func_name}()) {{\n"
         "  {update_func_name}();\n"
         "  {child_counter}"
         "#ifdef ILATOR_VERBOSE\n"
         "  LogInstrSequence(\"{instr_name}\");\n"
         "#endif\n"
         "}}\n",
+        fmt::arg("valid_func_name", GetValidFuncName(instr->host())),
         fmt::arg("decode_func_name", GetDecodeFuncName(instr)),
         fmt::arg("update_func_name", GetUpdateFuncName(instr)),
         fmt::arg("child_counter", (child ? "schedule_counter++;\n" : "")),
@@ -782,6 +818,10 @@ std::string Ilator::GetCxxName(const ExprPtr& expr) {
   } else {
     return fmt::format("univ_var_{}", GetPivotalId(expr->name().id()));
   }
+}
+
+std::string Ilator::GetValidFuncName(const InstrLvlAbsCnstPtr& m) {
+  return fmt::format("valid_{host}", fmt::arg("host", m->name().str()));
 }
 
 std::string Ilator::GetDecodeFuncName(const InstrPtr& instr) {
