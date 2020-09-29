@@ -77,6 +77,8 @@ private:
   /// Generation bootstrap, e.g., creating directories.
   bool Bootstrap(const std::string& root, bool opt);
 
+  /// Interpret non-instr basics, e.g., valid.
+  bool GenerateIlaBasics(const std::string& dir);
   /// Interpret instruction semantics (decode and state updates).
   bool GenerateInstrContent(const InstrPtr& instr, const std::string& dir);
   /// Special handle for memory updates.
@@ -143,6 +145,8 @@ private:
   static std::string GetCxxType(const SortPtr& sort);
   /// Get the variable name in SystemC.
   static std::string GetCxxName(const ExprPtr& expr);
+  /// Get the valid function name of the ILA.
+  static std::string GetValidFuncName(const InstrLvlAbsCnstPtr& m);
   /// Get the decode function name of the instruction.
   static std::string GetDecodeFuncName(const InstrPtr& instr);
   /// Get the state update function name of the instruction.

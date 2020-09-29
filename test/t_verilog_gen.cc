@@ -66,8 +66,8 @@ public:
 
   void FlattenIla(const InstrLvlAbsPtr& ila) {
     for (auto i = 0; i < ila->instr_num(); i++) {
-      auto dep_ila = AbsKnob::ExtrDeptModl(ila->instr(i), "Flatten");
-      AbsKnob::FlattenIla(dep_ila);
+      auto dep_ila = absknob::ExtrDeptModl(ila->instr(i), "Flatten");
+      absknob::FlattenIla(dep_ila);
 
       auto vgen = VerilogGenerator();
       vgen.ExportIla(dep_ila);

@@ -100,7 +100,7 @@ TEST(TestCase, AES_V_C_EQ) {
     ref->set_flush(asthub::Not(has_instr));
 
     // ready
-    auto instrs = AbsKnob::GetInstrTree(ila);
+    auto instrs = absknob::GetInstrTree(ila);
     auto ready = asthub::BoolConst(true);
     for (auto it = instrs.begin(); it != instrs.end(); it++) {
       auto instr = *it;

@@ -584,8 +584,8 @@ void InstrRef::ExportToVerilog(std::ostream& fout) const {
 }
 
 void InstrRef::ExportToVerilogWithChild(std::ostream& fout) const {
-  auto dept_ila_ptr = AbsKnob::ExtrDeptModl(ptr_, ptr_->name().str() + "_ila_");
-  AbsKnob::FlattenIla(dept_ila_ptr);
+  auto dept_ila_ptr = absknob::ExtrDeptModl(ptr_, ptr_->name().str() + "_ila_");
+  absknob::FlattenIla(dept_ila_ptr);
 
   VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
       true)); // overwrite default configuration : memory is external
@@ -693,7 +693,7 @@ void Ila::ExportToVerilog(std::ostream& fout) const {
   vgen.DumpToFile(fout);
 }
 
-void Ila::FlattenHierarchy() { AbsKnob::FlattenIla(ptr_); }
+void Ila::FlattenHierarchy() { absknob::FlattenIla(ptr_); }
 
 bool Ila::ExecutePass(const std::vector<PassID>& passes) const {
   auto status = true;
