@@ -32,8 +32,8 @@ template <class T> std::vector<T> make_vector(smtlib2_vector* iv) {
 
 // ------------------ CALL BACK FUNCTIONS ------------- //
 
-smtlib2_term proxy_push_quantifier_scope(smtlib2_parser_interface* p) {
-  return (smtlib2_term)(PARSER(p)->push_quantifier_scope());
+void proxy_push_quantifier_scope(smtlib2_parser_interface* p) {
+  (PARSER(p)->push_quantifier_scope());
 }
 
 smtlib2_term proxy_pop_quantifier_scope(smtlib2_parser_interface* p) {

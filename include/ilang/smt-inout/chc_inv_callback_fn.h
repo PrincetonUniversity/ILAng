@@ -23,7 +23,7 @@ namespace smt {
 
 // --- for abstract parser
 // (forall
-smtlib2_term proxy_push_quantifier_scope(smtlib2_parser_interface* p);
+void proxy_push_quantifier_scope(smtlib2_parser_interface* p);
 
 // ) ; end of forall
 smtlib2_term proxy_pop_quantifier_scope(smtlib2_parser_interface* p);
