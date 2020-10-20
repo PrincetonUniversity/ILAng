@@ -26,33 +26,33 @@ template <class T> std::vector<T> make_vector(smtlib2_vector* iv) {
   return ret;
 }
 
+#define PARSER(x) ((SmtlibInvariantParser *)(((smtlib2_abstract_parser*)x)->termparser_->ctx_))
+#define TERM_T SmtlibInvariantParser::TermPtrT
+#define SORT_T SmtlibInvariantParser::SortPtrT
+
 // ------------------ CALL BACK FUNCTIONS ------------- //
 
 smtlib2_term proxy_push_quantifier_scope(smtlib2_parser_interface* p) {
-  return (smtlib2_term)(((smtlib2_abstract_parser_wrapper*)p)
-                            ->inv_parser->push_quantifier_scope());
+  return (smtlib2_term)(PARSER(p)->push_quantifier_scope());
 }
 
 smtlib2_term proxy_pop_quantifier_scope(smtlib2_parser_interface* p) {
-  return (smtlib2_term)(((smtlib2_abstract_parser_wrapper*)p)
-                            ->inv_parser->pop_quantifier_scope());
+  return (smtlib2_term)(PARSER(p)->pop_quantifier_scope());
 }
 
 // we will treat everything as an assert, although it does nothing
 void proxy_assert_formula(smtlib2_parser_interface* parser, smtlib2_term term) {
   // here it should be where we get our result
-  ((smtlib2_abstract_parser_wrapper*)parser)
-      ->inv_parser->assert_formula((SmtTermInfoVlgPtr)term);
+  PARSER(parser)->assert_formula((TERM_T)term);
 }
 
 void proxy_define_func(smtlib2_parser_interface* parser, const char* name,
                        smtlib2_vector* params, smtlib2_sort sort,
                        smtlib2_term term) {
 
-  auto idxv = make_vector<SmtTermInfoVlgPtr>(params);
-  ((smtlib2_abstract_parser_wrapper*)parser)
-      ->inv_parser->define_function(name, idxv, (var_type*)sort,
-                                    SmtTermInfoVlgPtr(term));
+  auto idxv = make_vector<TERM_T>(params);
+  PARSER(parser)->define_function(name, idxv, (SORT_T)(sort),
+                                    (TERM_T)(term));
   // check the idxv (params) type
 }
 
@@ -96,9 +96,8 @@ a_sort :
 smtlib2_sort proxy_make_sort(smtlib2_parser_interface* p, const char* sortname,
                              smtlib2_vector* index) {
   auto idxv = make_vector<int>(index);
-  smtlib2_sort ret =
-      (smtlib2_sort)(((smtlib2_abstract_parser_wrapper*)p)
-                         ->inv_parser->make_sort(sortname, idxv));
+  smtlib2_sort ret = 
+      (smtlib2_sort)(PARSER(p)->make_sort(sortname, idxv));
   return ret;
   // free((void *)sortname);
   // if(index)
@@ -108,15 +107,13 @@ smtlib2_sort proxy_make_sort(smtlib2_parser_interface* p, const char* sortname,
 
 void proxy_declare_variable(smtlib2_parser_interface* p, const char* name,
                             smtlib2_sort sort) {
-  ((smtlib2_abstract_parser_wrapper*)p)
-      ->inv_parser->declare_quantified_variable(name, (var_type*)sort);
+  PARSER(p)->declare_quantified_variable(name, (SORT_T)sort);
   // free((void *)name);
 }
 
 void proxy_declare_function(smtlib2_parser_interface* p, const char* name,
                             smtlib2_sort sort) {
-  ((smtlib2_abstract_parser_wrapper*)p)
-      ->inv_parser->declare_function(name, (var_type*)sort);
+  PARSER(p)->declare_function(name, (SORT_T)sort);
 }
 
 void proxy_check_sat(smtlib2_parser_interface* p) {
@@ -127,11 +124,10 @@ smtlib2_term proxy_mk_function(smtlib2_context ctx, const char* symbol,
                                smtlib2_sort sort, smtlib2_vector* index,
                                smtlib2_vector* args) {
   auto idxv = make_vector<int>(index);
-  auto argsv = make_vector<SmtTermInfoVlgPtr>(args);
+  auto argsv = make_vector<TERM_T>(args);
 
   smtlib2_term ret = (smtlib2_term)(
-      ((smtlib2_abstract_parser_wrapper*)ctx)
-          ->inv_parser->mk_function(symbol, (var_type*)sort, idxv, argsv));
+      ((SmtlibInvariantParser*)ctx)->mk_function(symbol, (SORT_T)sort, idxv, argsv));
   // free(symbol);
   // if(index)
   //   smtlib2_vector_delete(index);
@@ -143,8 +139,8 @@ smtlib2_term proxy_mk_function(smtlib2_context ctx, const char* symbol,
 smtlib2_term proxy_mk_number(smtlib2_context ctx, const char* rep,
                              unsigned int width, unsigned int base) {
   smtlib2_term ret =
-      (smtlib2_term)(((smtlib2_abstract_parser_wrapper*)ctx)
-                         ->inv_parser->mk_number(rep, width, base));
+      (smtlib2_term)(((SmtlibInvariantParser*)ctx)
+                         ->mk_number(rep, width, base));
   // free(rep);
   return ret;
 }
@@ -156,10 +152,10 @@ smtlib2_term proxy_mk_number(smtlib2_context ctx, const char* rep,
                                     smtlib2_sort sort, smtlib2_vector* idx,    \
                                     smtlib2_vector* args) {                    \
     auto idxv = make_vector<int>(idx);                                         \
-    auto argsv = make_vector<SmtTermInfoVlgPtr>(args);                         \
+    auto argsv = make_vector<TERM_T>(args);                                    \
     smtlib2_term ret = (smtlib2_term)(                                         \
-        ((smtlib2_abstract_parser_wrapper*)ctx)                                \
-            ->inv_parser->mk_##name(symbol, (var_type*)sort, idxv, argsv));    \
+        ((SmtlibInvariantParser*)ctx)                                          \
+            ->mk_##name(symbol, (SORT_T)sort, idxv, argsv));                   \
     return ret;                                                                \
   }
 
@@ -173,7 +169,7 @@ SMTLIB2_VERILOG_DEFHANDLER(not);
 SMTLIB2_VERILOG_DEFHANDLER(implies);
 SMTLIB2_VERILOG_DEFHANDLER(eq);
 SMTLIB2_VERILOG_DEFHANDLER(ite);
-SMTLIB2_VERILOG_DEFHANDLER (xor);
+SMTLIB2_VERILOG_DEFHANDLER(xor);
 SMTLIB2_VERILOG_DEFHANDLER(nand);
 SMTLIB2_VERILOG_DEFHANDLER(concat);
 SMTLIB2_VERILOG_DEFHANDLER(bvnot);
