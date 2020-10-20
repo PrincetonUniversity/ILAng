@@ -309,7 +309,6 @@ void SmtlibInvariantParser::declare_quantified_variable(const std::string& name,
   ILA_ASSERT(!quantifier_def_stack.empty());
   ILA_ASSERT(!quantifier_var_def_idx_stack.empty());
   // I assume it has nothing to do with hierarchy flattening
-  auto& top = quantifier_def_stack.back();
   if (datatype_flattened) {
     // we need to extract the name from verilog
     auto top_module = design_smt_info_ptr->get_module_def_orders().back();
@@ -366,7 +365,7 @@ SmtlibInvariantParser::mk_function(const std::string& name, SortPtrT sort,
   // if it is function call
   if (datatype_flattened) {
     if (IN(name, inv_pred_name))
-      return mk_true("true", NULL, {}, {});
+      return mk_true("true", 0, {}, {});
     ILA_CHECK(false) << "Fun:" << name << " called in flattened smt.";
     return 0; // should not be reachable
   } else {
@@ -375,7 +374,7 @@ SmtlibInvariantParser::mk_function(const std::string& name, SortPtrT sort,
     ILA_CHECK(t._type.is_datatype());
 
     if (IN(name, inv_pred_name))
-      return mk_true("true", NULL, {}, {});
+      return mk_true("true", 0, {}, {});
 
     // get it from the module_name
     const auto& module_name = t._type.module_name;

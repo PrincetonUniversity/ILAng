@@ -84,12 +84,12 @@ struct var_type {
   enum tp { Bool, BV, Datatype, Array } _type;
   /// bitwidth
   unsigned _width;
-  /// its datatype name (not including | _s|)
-  std::string module_name;
   /// array datatype : addr width
   unsigned addr_width;
   /// array datatype : addr width
   unsigned data_width;
+  /// its datatype name (not including | _s|)
+  std::string module_name;
   // ------------- FUNCTIONS ---------------- //
   /// contruct from
   static var_type ParseFromString(str_iterator&); // will update the iterator

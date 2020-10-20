@@ -56,9 +56,9 @@ public:
   /// the type for sort allocation
   typedef std::vector<var_type> sort_allocation_pool_t;
   /// the pointer type for terms (should not directly use the pointers)
-  typedef unsigned TermPtrT; // typedef term_container_t::iterator TermPtrT;
+  typedef size_t TermPtrT; // typedef term_container_t::iterator TermPtrT;
   /// the pointer type for sort
-  typedef unsigned SortPtrT; // typedef sort_container_t::iterator SortPtrT;
+  typedef size_t SortPtrT; // typedef sort_container_t::iterator SortPtrT;
 
   /// the type of container to hold the terms
   typedef std::map<std::string, TermPtrT> name2term_t;
@@ -155,8 +155,11 @@ protected:
   TermPtrT new_term(const std::string & search_name, const SmtTermInfoVerilog & term);
   /// From pointer to sort
   const var_type & get_sort(SortPtrT ptr) const;
+
+public:
   /// From pointer to term
   const SmtTermInfoVerilog & get_term(TermPtrT ptr) const;
+  // this has to be public, to allow external use by inv_obj
 
 public:
   /// check if this module is in a bad state
