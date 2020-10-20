@@ -35,13 +35,14 @@ static int smtlib2_sstream_getc(smtlib2_stream *s);
 static int smtlib2_sstream_putc(smtlib2_stream *s, char c);
 static bool smtlib2_sstream_eof(smtlib2_stream *s);
 
+#define SMTLIB2STREAM_PARENT(s) (&(s->parent_))
 
 smtlib2_fstream *smtlib2_fstream_new(FILE *f)
 {
     smtlib2_fstream *ret = (smtlib2_fstream *)malloc(sizeof(smtlib2_fstream));
-    ((smtlib2_stream *)ret)->get_char = smtlib2_fstream_getc;
-    ((smtlib2_stream *)ret)->put_char = smtlib2_fstream_putc;
-    ((smtlib2_stream *)ret)->eof = smtlib2_fstream_eof;
+    (SMTLIB2STREAM_PARENT(ret))->get_char = smtlib2_fstream_getc;
+    (SMTLIB2STREAM_PARENT(ret))->put_char = smtlib2_fstream_putc;
+    (SMTLIB2STREAM_PARENT(ret))->eof = smtlib2_fstream_eof;
     ret->f_ = f;
     return ret;
 }
@@ -56,9 +57,9 @@ void smtlib2_fstream_delete(smtlib2_fstream *s)
 smtlib2_sstream *smtlib2_sstream_new(smtlib2_charbuf *buf)
 {
     smtlib2_sstream *ret = (smtlib2_sstream *)malloc(sizeof(smtlib2_sstream));
-    ((smtlib2_stream *)ret)->get_char = smtlib2_sstream_getc;
-    ((smtlib2_stream *)ret)->put_char = smtlib2_sstream_putc;
-    ((smtlib2_stream *)ret)->eof = smtlib2_sstream_eof;
+    (SMTLIB2STREAM_PARENT(ret))->get_char = smtlib2_sstream_getc;
+    (SMTLIB2STREAM_PARENT(ret))->put_char = smtlib2_sstream_putc;
+    (SMTLIB2STREAM_PARENT(ret))->eof = smtlib2_sstream_eof;
     ret->buf_ = buf;
     ret->nextidx_ = 0;
     return ret;

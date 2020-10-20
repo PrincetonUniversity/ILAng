@@ -54,5 +54,6 @@ typedef struct smtlib2_yices_parser {
 
 smtlib2_yices_parser *smtlib2_yices_parser_new(void);
 void smtlib2_yices_parser_delete(smtlib2_yices_parser *p);
+smtlib2_parser_interface * SMTLIB2_PARSER_INTERFACE_YICES(smtlib2_yices_parser *p);
 
 #endif /* SMTLIB2YICES_H_INCLUDED */

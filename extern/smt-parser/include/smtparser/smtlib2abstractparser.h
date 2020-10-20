@@ -40,4 +40,6 @@ void smtlib2_abstract_parser_deinit(smtlib2_abstract_parser *p);
 void smtlib2_abstract_parser_parse(smtlib2_abstract_parser *p, FILE *src);
 void smtlib2_abstract_parser_parse_string(smtlib2_abstract_parser *p, const char * str);
 
+smtlib2_parser_interface * SMTLIB2_PARSER_INTERFACE(smtlib2_abstract_parser *p);
+
 #endif /* SMTLIB2ABSTRACTPARSER_H_INCLUDED */

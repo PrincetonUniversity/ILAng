@@ -34,7 +34,8 @@
 /* typedefs */
 typedef struct smtlib2_parser_interface smtlib2_parser_interface;
 
-#define SMTLIB2_PARSER_INTERFACE(p) ((smtlib2_parser_interface *)p)
+// let's replace this nasty pointer manipulation
+// #define SMTLIB2_PARSER_INTERFACE(p) ((smtlib2_parser_interface *)p)
 
 /**
  * Interface for SMT-LIB v2 parsers
@@ -213,7 +214,7 @@ struct smtlib2_parser_interface {
      * "forall" is parsed, and also when a "define-function" with parameters
      * is parsed
      */
-    smtlib2_term (*push_quantifier_scope)(smtlib2_parser_interface *parser);
+    void (*push_quantifier_scope)(smtlib2_parser_interface *parser);
 
     /**
      * pop a scope for quantified variabled. called when the closing
