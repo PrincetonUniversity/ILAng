@@ -250,14 +250,14 @@ SmtlibInvariantParser::make_sort(const std::string& name,
       }
       return name2sort_map.at("Bool");
     } else if (name == "BitVec") {
-      ILA_ASSERT(idx.size() == 1);
-      ILA_ASSERT(idx[0] > 0);
+      ILA_CHECK(idx.size() == 1);
+      ILA_CHECK(idx[0] > 0);
       std::string sortIdxName = "BV" + std::to_string(idx[0]);
       if (!IN(sortIdxName, name2sort_map)) 
         return new_sort(sortIdxName, var_type(var_type::tp::BV, idx[0], ""));
       return name2sort_map.at(sortIdxName);
     }
-    ILA_ASSERT(false) << "Unknown sort:" << name << " in flattened smt.";
+    ILA_CHECK(false) << "Unknown sort:" << name << " in flattened smt.";
     return 0; // should not be reachable
   } else {
     // if not flattened, there should only be one sort
@@ -363,7 +363,7 @@ SmtlibInvariantParser::mk_function(const std::string& name, SortPtrT sort,
     auto term_ptr = search_quantified_var_stack(name);
     if (term_ptr)
       return term_ptr;
-    ILA_ASSERT(false) << "unknown symbol:" << name;
+    ILA_CHECK(false) << "unknown symbol:" << name;
     return 0; // no use
   }
   // if it is function call
@@ -392,7 +392,7 @@ SmtlibInvariantParser::mk_function(const std::string& name, SortPtrT sort,
         else if (dt._type.is_bv())
           search_name = "##bv" + std::to_string(dt._type._width) + "_";
         else
-          ILA_ASSERT(false) << "unexpected type!";
+          ILA_CHECK(false) << "unexpected type!";
 
         search_name += dt.verilog_name;
         auto repl_name = dt.verilog_name;
@@ -423,7 +423,7 @@ SmtlibInvariantParser::mk_function(const std::string& name, SortPtrT sort,
         return name2term_map.at(search_name);
       } // if name matched
     }   // for all datatypes
-    ILA_ASSERT(false) << "unknown symbol:" << name;
+    ILA_CHECK(false) << "unknown symbol:" << name;
     return 0; // should not be reachable
   }                 // end of else
 } // mk_function
@@ -432,7 +432,7 @@ SmtlibInvariantParser::mk_function(const std::string& name, SortPtrT sort,
 SmtlibInvariantParser::TermPtrT 
 SmtlibInvariantParser::mk_number(const std::string& rep,
                                                    int width, int base) {
-  ILA_ASSERT(width > 0) << "Unable to translate Integer!";
+  ILA_CHECK(width > 0) << "Unable to translate Integer with width <=0!";
   char radix;
   switch (base) {
   case 2:
@@ -445,7 +445,7 @@ SmtlibInvariantParser::mk_number(const std::string& rep,
     radix = 'h';
     break;
   default:
-    ILA_ASSERT(false) << "unable to handle base:" << base;
+    ILA_CHECK(false) << "unable to handle base:" << base;
   }
   std::string vlg_expr = std::to_string(width) + "'" + radix + rep;
   std::string name = "##bv" + vlg_expr;
@@ -505,11 +505,11 @@ DEFINE_OPERATOR(implies) {
 }
 
 DEFINE_OPERATOR(eq) {
-  ILA_ASSERT(idx.empty());
-  ILA_ASSERT(args.size() == 2); // we don't require they are bv
+  ILA_CHECK(idx.empty());
+  ILA_CHECK(args.size() == 2); // we don't require they are bv
   const auto & t0 = get_term(args[0]);
   const auto & t1 = get_term(args[1]);
-  ILA_ASSERT(var_type::eqtype(t0._type, t1._type));
+  ILA_CHECK(var_type::eqtype(t0._type, t1._type));
 
 
   std::string vlg_expr =
@@ -518,13 +518,13 @@ DEFINE_OPERATOR(eq) {
   MAKE_BOOL_RESULT(vlg_expr);
 }
 DEFINE_OPERATOR(ite) {
-  ILA_ASSERT(idx.empty());
-  ILA_ASSERT(args.size() == 3);
+  ILA_CHECK(idx.empty());
+  ILA_CHECK(args.size() == 3);
   const auto & t0 = get_term(args[0]);
   const auto & t1 = get_term(args[1]);
   const auto & t2 = get_term(args[2]);
-  ILA_ASSERT(t0._type.is_bool());
-  ILA_ASSERT(var_type::eqtype(t1._type, t2._type));
+  ILA_CHECK(t0._type.is_bool());
+  ILA_CHECK(var_type::eqtype(t1._type, t2._type));
 
   auto vlg_expr = "(" + t0._translate + ") ? (" + t1._translate +
                   ") : (" + t2._translate + ")";
@@ -551,8 +551,8 @@ DEFINE_OPERATOR (xor) {
 } // xor
 
 DEFINE_OPERATOR(nand) {
-  ILA_ASSERT(idx.empty());
-  ILA_ASSERT(args.size() >= 2);
+  ILA_CHECK(idx.empty());
+  ILA_CHECK(args.size() >= 2);
 
   std::string vlg_expr;
   MAKE_MULTI_OP(vlg_expr, args, var_type::tp::Bool, "&&");
@@ -562,15 +562,15 @@ DEFINE_OPERATOR(nand) {
 } // nand
 
 DEFINE_OPERATOR(concat) {
-  ILA_ASSERT(idx.empty());
-  ILA_ASSERT(args.size() >= 2);
+  ILA_CHECK(idx.empty());
+  ILA_CHECK(args.size() >= 2);
 
   std::string vlg_expr = "{";
   unsigned total_width = 0;
   bool first = true;
   for (auto&& arg : (args)) {
     const auto & t = get_term(arg);
-    ILA_ASSERT(t._type.is_bv());
+    ILA_CHECK(t._type.is_bv());
     if (first)
       (vlg_expr) += t._translate;
     else
@@ -792,7 +792,7 @@ DEFINE_OPERATOR(bvurem) {
 } // bvurem
 
 DEFINE_OPERATOR(bvsrem) {
-  ILA_ASSERT(false) << "Unimplemented";
+  ILA_CHECK(false) << "Unimplemented";
   return 0;
 
   // CHECK_BV_TWO_ARG(idx,args);
@@ -830,19 +830,19 @@ DEFINE_OPERATOR(bvashr) {
 } // bvashr
 
 DEFINE_OPERATOR(extract) {
-  ILA_ASSERT(idx.size() == 2);
-  ILA_ASSERT(args.size() == 1);
+  ILA_CHECK(idx.size() == 2);
+  ILA_CHECK(args.size() == 1);
   const auto & arg0 = get_term(args[0]);
-  ILA_ASSERT(arg0._type.is_bv());
+  ILA_CHECK(arg0._type.is_bv());
   // || (args[0]->_type.is_bool() && idx[0] == 0 && idx[1] == 0 ) smt should ensure it is bv
-  ILA_ASSERT(idx[0] >= 0 && idx[1] >= 0);
+  ILA_CHECK(idx[0] >= 0 && idx[1] >= 0);
 
   unsigned left = idx[0];
   unsigned right = idx[1];
   unsigned new_width = std::max(left, right) - std::min(left, right) + 1;
-  ILA_ASSERT(new_width <= arg0._type._width);
-  ILA_ASSERT(idx[0] >= 0 && left < arg0._type._width);  // left >= 0, always true
-  ILA_ASSERT(idx[1] >= 0 && right < arg0._type._width); // right >= 0
+  ILA_CHECK(new_width <= arg0._type._width);
+  ILA_CHECK(idx[0] >= 0 && left < arg0._type._width);  // left >= 0, always true
+  ILA_CHECK(idx[1] >= 0 && right < arg0._type._width); // right >= 0
 
   std::string bitslice =
       "[" + std::to_string(left) + ":" + std::to_string(right) + "]";
@@ -892,14 +892,14 @@ DEFINE_OPERATOR(extract) {
 } // extract
 
 DEFINE_OPERATOR(bit2bool) {
-  ILA_ASSERT(idx.size() == 1);
-  ILA_ASSERT(args.size() == 1);
+  ILA_CHECK(idx.size() == 1);
+  ILA_CHECK(args.size() == 1);
   const auto & arg0 = get_term(args[0]);
-  ILA_ASSERT(arg0._type.is_bv());
-  ILA_ASSERT(idx[0] >= 0);
+  ILA_CHECK(arg0._type.is_bv());
+  ILA_CHECK(idx[0] >= 0);
 
   unsigned bitidx = idx[0];
-  ILA_ASSERT(idx[0] >= 0 && bitidx < arg0._type._width);
+  ILA_CHECK(idx[0] >= 0 && bitidx < arg0._type._width);
   // auto bitslice = "[" + std::to_string(bitidx)  + "]";
   auto bitslice =
       "[" + std::to_string(bitidx) + ":" + std::to_string(bitidx) + "]";
@@ -944,11 +944,11 @@ DEFINE_OPERATOR(bit2bool) {
 } // bit2bool
 
 DEFINE_OPERATOR(repeat) {
-  ILA_ASSERT(idx.size() == 1);
-  ILA_ASSERT(args.size() == 1);
+  ILA_CHECK(idx.size() == 1);
+  ILA_CHECK(args.size() == 1);
   const auto & arg0 = get_term(args[0]);
-  ILA_ASSERT(arg0._type.is_bv());
-  ILA_ASSERT(idx[0] > 0);
+  ILA_CHECK(arg0._type.is_bv());
+  ILA_CHECK(idx[0] > 0);
   auto n_times = idx[0];
   auto new_width = n_times * arg0._type.GetBoolBvWidth();
 
@@ -962,13 +962,13 @@ DEFINE_OPERATOR(repeat) {
 }
 
 DEFINE_OPERATOR(zero_extend) {
-  ILA_ASSERT(idx.size() == 1);
-  ILA_ASSERT(args.size() == 1);
+  ILA_CHECK(idx.size() == 1);
+  ILA_CHECK(args.size() == 1);
   const auto & t = get_term(args[0]);
-  ILA_ASSERT(t._type.is_bv());
+  ILA_CHECK(t._type.is_bv());
   auto extraw = idx[0];
   auto new_width = extraw + t._type.GetBoolBvWidth();
-  ILA_ASSERT(extraw > 0);
+  ILA_CHECK(extraw > 0);
   std::string vlg_expr = "{" + IntToStrCustomBase(extraw,10,false) + "'d0," + t._translate + "}";
   std::string search_name = "##bvzext" + std::to_string(new_width) + "{" + t._translate + "}";
   if (!IN(search_name, name2term_map)) {
@@ -978,14 +978,14 @@ DEFINE_OPERATOR(zero_extend) {
 }
 
 DEFINE_OPERATOR(sign_extend) {
-  ILA_ASSERT(idx.size() == 1);
-  ILA_ASSERT(args.size() == 1);
+  ILA_CHECK(idx.size() == 1);
+  ILA_CHECK(args.size() == 1);
   const auto & t = get_term(args[0]);
-  ILA_ASSERT(t._type.is_bv());
+  ILA_CHECK(t._type.is_bv());
   auto extraw = idx[0];
   auto oldw = t._type.GetBoolBvWidth();
   auto new_width = extraw + oldw;
-  ILA_ASSERT(extraw > 0);
+  ILA_CHECK(extraw > 0);
   TermPtrT inner_term_no = mk_extract("", 0, {(int)(oldw)-1,(int)(oldw)-1},{args[0]});//?;
   const auto & inner_term = get_term(inner_term_no);
   std::string vlg_expr = "{{" + IntToStrCustomBase(extraw,10,false) + "{" + inner_term._translate + "}}," + t._translate + "}";
@@ -996,11 +996,11 @@ DEFINE_OPERATOR(sign_extend) {
   return name2term_map.at(search_name);
 }
 DEFINE_OPERATOR(rotate_left) {
-  ILA_ASSERT(false) << "Unimplemented";
+  ILA_CHECK(false) << "Unimplemented";
   return 0;
 }
 DEFINE_OPERATOR(rotate_right) {
-  ILA_ASSERT(false) << "Unimplemented";
+  ILA_CHECK(false) << "Unimplemented";
   return 0;
 }
 
