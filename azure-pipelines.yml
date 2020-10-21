@@ -92,6 +92,7 @@ jobs:
       cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-8
       cmake --build .
       sudo cmake --build . --target install 
+      ./test/unit_tests
       cmake --build . --target test
     displayName: 'build'
 
