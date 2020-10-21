@@ -46,7 +46,8 @@ SmtlibInvariantParser::SmtlibInvariantParser(
   // the be
   smtlib2_abstract_parser_init(parser_wrapper,
                                (smtlib2_context)this);
-
+                               
+  parser_wrapper->print_success_ = false;
   smtlib2_parser_interface* pi;
   smtlib2_term_parser* tp;
 
@@ -309,17 +310,20 @@ void SmtlibInvariantParser::declare_quantified_variable(const std::string& name,
   ILA_ASSERT(!quantifier_def_stack.empty());
   ILA_ASSERT(!quantifier_var_def_idx_stack.empty());
   // I assume it has nothing to do with hierarchy flattening
+  auto& top = quantifier_def_stack.back();
   if (datatype_flattened) {
     // we need to extract the name from verilog
     auto top_module = design_smt_info_ptr->get_module_def_orders().back();
     auto vlg_name = (design_smt_info_ptr->get_module_flatten_dt(
                          top_module)[quantifier_var_def_idx_stack.back()])
                         .verilog_name;
-    new_term(name, SmtTermInfoVerilog(vlg_name, get_sort(sort), this));
+    top.emplace(name, 
+      new_term(name, SmtTermInfoVerilog(vlg_name, get_sort(sort), this)));
     quantifier_var_def_idx_stack.back()++;
   } else {
     // if not flattened, there should only be one sort
-    new_term(name, SmtTermInfoVerilog("", get_sort(sort), this));
+    top.emplace(name, 
+      new_term(name, SmtTermInfoVerilog("", get_sort(sort), this)));
     ILA_DLOG("SmtlibInvariantParser.declare_quantified_variable")
         << "make var :" << name << std::endl;
   }
@@ -940,9 +944,23 @@ DEFINE_OPERATOR(bit2bool) {
 } // bit2bool
 
 DEFINE_OPERATOR(repeat) {
-  ILA_ASSERT(false) << "Unimplemented";
-  return 0;
+  ILA_ASSERT(idx.size() == 1);
+  ILA_ASSERT(args.size() == 1);
+  const auto & arg0 = get_term(args[0]);
+  ILA_ASSERT(arg0._type.is_bv());
+  ILA_ASSERT(idx[0] > 0);
+  auto n_times = idx[0];
+  auto new_width = n_times * arg0._type.GetBoolBvWidth();
+
+  std::string vlg_expr = n_times == 1 ? arg0._translate :
+    "{" + IntToStrCustomBase(n_times,10,false) + "{" + arg0._translate + "}}";
+  std::string search_name = "##bvrepeat" + std::to_string(new_width) + "{" + arg0._translate + "}";
+  if (!IN(search_name, name2term_map)) {
+    return new_term(search_name, SmtTermInfoVerilog(vlg_expr, var_type(var_type::tp::BV, new_width, ""), this));
+  }
+  return name2term_map.at(search_name);
 }
+
 DEFINE_OPERATOR(zero_extend) {
   ILA_ASSERT(idx.size() == 1);
   ILA_ASSERT(args.size() == 1);
@@ -952,7 +970,7 @@ DEFINE_OPERATOR(zero_extend) {
   auto new_width = extraw + t._type.GetBoolBvWidth();
   ILA_ASSERT(extraw > 0);
   std::string vlg_expr = "{" + IntToStrCustomBase(extraw,10,false) + "'d0," + t._translate + "}";
-  std::string search_name = "##bv" + std::to_string(new_width) + "{" + t._translate + "}";
+  std::string search_name = "##bvzext" + std::to_string(new_width) + "{" + t._translate + "}";
   if (!IN(search_name, name2term_map)) {
     return new_term(search_name, SmtTermInfoVerilog(vlg_expr, var_type(var_type::tp::BV, new_width, ""), this));
   }
@@ -968,10 +986,10 @@ DEFINE_OPERATOR(sign_extend) {
   auto oldw = t._type.GetBoolBvWidth();
   auto new_width = extraw + oldw;
   ILA_ASSERT(extraw > 0);
-  TermPtrT inner_term_no = mk_extract("", 0, {(int)(oldw)-1},{args[0]});//?;
+  TermPtrT inner_term_no = mk_extract("", 0, {(int)(oldw)-1,(int)(oldw)-1},{args[0]});//?;
   const auto & inner_term = get_term(inner_term_no);
   std::string vlg_expr = "{{" + IntToStrCustomBase(extraw,10,false) + "{" + inner_term._translate + "}}," + t._translate + "}";
-  std::string search_name = "##bv" + std::to_string(new_width) + "{" + t._translate + "}";
+  std::string search_name = "##bvsext" + std::to_string(new_width) + "{" + t._translate + "}";
   if (!IN(search_name, name2term_map)) {
     return new_term(search_name, SmtTermInfoVerilog(vlg_expr, var_type(var_type::tp::BV, new_width, ""), this));
   }
