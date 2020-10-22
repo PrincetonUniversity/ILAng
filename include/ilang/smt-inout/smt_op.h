@@ -5,45 +5,45 @@
 #define SMT_OP_H__
 
 #define CHECK_EMPTY_PARAM(idx, args)                                           \
-  ILA_ASSERT((idx).empty());                                                   \
-  ILA_ASSERT((args).empty())
+  ILA_CHECK((idx).empty());                                                   \
+  ILA_CHECK((args).empty())
 
 #define CHECK_BV_MULTI_ARG(idx, args)                                          \
-  ILA_ASSERT((idx).empty());                                                   \
-  ILA_ASSERT((args).size() >= 2);
+  ILA_CHECK((idx).empty());                                                   \
+  ILA_CHECK((args).size() >= 2);
 
 #define CHECK_BOOL_MULTI_ARG(idx, args) CHECK_BV_MULTI_ARG(idx, args)
 
 #define CHECK_BOOL_ONE_ARG(idx, args)                                          \
-  ILA_ASSERT(idx.empty());                                                     \
-  ILA_ASSERT(args.size() == 1);                                                \
-  ILA_ASSERT(get_term(args[0])._type.is_bool())
+  ILA_CHECK(idx.empty());                                                     \
+  ILA_CHECK(args.size() == 1);                                                \
+  ILA_CHECK(get_term(args[0])._type.is_bool())
 
 #define CHECK_BOOL_TWO_ARG(idx, args)                                          \
-  ILA_ASSERT((idx).empty());                                                   \
-  ILA_ASSERT((args).size() == 2);                                              \
-  ILA_ASSERT(get_term((args)[0])._type.is_bool());                             \
-  ILA_ASSERT(get_term((args)[1])._type.is_bool())
+  ILA_CHECK((idx).empty());                                                   \
+  ILA_CHECK((args).size() == 2);                                              \
+  ILA_CHECK(get_term((args)[0])._type.is_bool());                             \
+  ILA_CHECK(get_term((args)[1])._type.is_bool())
 
 #define CHECK_BV_TWO_ARG(idx, args)                                            \
-  ILA_ASSERT((idx).empty());                                                   \
-  ILA_ASSERT((args).size() == 2);                                              \
-  ILA_ASSERT(get_term((args)[0])._type.is_bv());                               \
-  ILA_ASSERT(get_term((args)[1])._type.is_bv());                               \
-  ILA_ASSERT(var_type::eqtype(get_term((args)[0])._type, get_term((args)[1])._type))
+  ILA_CHECK((idx).empty());                                                   \
+  ILA_CHECK((args).size() == 2);                                              \
+  ILA_CHECK(get_term((args)[0])._type.is_bv());                               \
+  ILA_CHECK(get_term((args)[1])._type.is_bv());                               \
+  ILA_CHECK(var_type::eqtype(get_term((args)[0])._type, get_term((args)[1])._type))
 
 #define CHECK_BV_COMPARE(idx, args) CHECK_BV_TWO_ARG(idx, args)
 
 #define CHECK_BV_ONE_ARG(idx, args)                                            \
-  ILA_ASSERT(idx.empty());                                                     \
-  ILA_ASSERT(args.size() == 1);                                                \
-  ILA_ASSERT(get_term(args[0])._type.is_bv());
+  ILA_CHECK(idx.empty());                                                     \
+  ILA_CHECK(args.size() == 1);                                                \
+  ILA_CHECK(get_term(args[0])._type.is_bv());
 
 #define CHECK_BV_TWO_ARG_DIFF_WIDTH(idx, args)                                 \
-  ILA_ASSERT((idx).empty());                                                   \
-  ILA_ASSERT((args).size() == 2);                                              \
-  ILA_ASSERT(get_term((args)[0])._type.is_bv());                               \
-  ILA_ASSERT(get_term((args)[1])._type.is_bv());
+  ILA_CHECK((idx).empty());                                                   \
+  ILA_CHECK((args).size() == 2);                                              \
+  ILA_CHECK(get_term((args)[0])._type.is_bv());                               \
+  ILA_CHECK(get_term((args)[1])._type.is_bv());
 
 #define MAKE_BOOL_RESULT(vlg_expr)                                             \
   std::string search_name = "##bool_" + (vlg_expr);                            \
@@ -59,7 +59,7 @@
   bool first = true;                                                           \
   for (auto&& arg : (args)) {                                                  \
     const auto & t = get_term(arg);                                            \
-    ILA_ASSERT(t._type._type == (TYPE));                                       \
+    ILA_CHECK(t._type._type == (TYPE));                                       \
     if (first)                                                                 \
       (vlg_expr) = "(" +t._translate + ")";                                    \
     else                                                                       \
