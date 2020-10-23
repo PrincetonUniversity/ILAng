@@ -181,11 +181,12 @@ TEST_F(TestInvExtract, GrainInvExtract) {
     smt::YosysSmtParser design_info(buffer.str());
 
     auto inv_file = os_portable_append_dir(dirName, "repeat.result");
-    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(design_info, // smt
-                                                         "",          // tag
-                                                         inv_file // result file
-                                                         ),
-                 ".*");
+    inv_obj.AddInvariantFromGrainResultFile(design_info, // smt
+                                            "",          // tag
+                                            inv_file // result file
+                                            );
+    EXPECT_EQ(inv_obj.GetVlgConstraints().at(inv_obj.NumInvariant()-1),
+      "({m1.imp , m1.imp}) == ({2{m1.v}})");
   }
 
   {
@@ -214,22 +215,25 @@ TEST_F(TestInvExtract, GrainInvExtract) {
     smt::YosysSmtParser design_info(buffer.str());
 
     auto inv_file = os_portable_append_dir(dirName, "sign_extend.result");
-    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(design_info, // smt
-                                                         "",          // tag
-                                                         inv_file // result file
-                                                         ),
-                 ".*");
+    inv_obj.AddInvariantFromGrainResultFile(design_info, // smt
+                                            "",          // tag
+                                            inv_file // result file
+                                            );
+    EXPECT_EQ(inv_obj.GetVlgConstraints().at(inv_obj.NumInvariant()-1),
+      "({m1.imp , m1.imp}) == ({{4{m1.v[3:3]}},m1.v})");
   }
 
   {
     smt::YosysSmtParser design_info(buffer.str());
 
     auto inv_file = os_portable_append_dir(dirName, "zero_extend.result");
-    EXPECT_DEATH(inv_obj.AddInvariantFromGrainResultFile(design_info, // smt
-                                                         "",          // tag
-                                                         inv_file // result file
-                                                         ),
-                 ".*");
+    inv_obj.AddInvariantFromGrainResultFile(design_info, // smt
+                                            "",          // tag
+                                            inv_file // result file
+                                            );
+
+    EXPECT_EQ(inv_obj.GetVlgConstraints().at(inv_obj.NumInvariant()-1),
+      "({m1.imp , m1.imp}) == ({4'd0,m1.v})");
   }
 
   {
@@ -274,7 +278,12 @@ TEST_F(TestInvExtract, Z3InvExtract) {
                                           flatten_datatype, flatten_hierarchy);
 
     EXPECT_EQ(inv_obj.GetVlgConstraints().size(), 1);
-    ILA_DLOG("InvExtract") << inv_obj.GetVlgConstraints().at(0);
+    EXPECT_EQ(inv_obj.GetVlgConstraints().at(0), 
+      "(1'b1) == "
+      "(((m1.imp[1:1]) ||(!(m1.imp[0:0])) ||(m1.v[0:0]) ||(m1.v[1:1])) &&"
+      "((m1.imp[1:1]) ||(!(m1.v[0:0])) ||(m1.v[1:1]) ||(m1.imp[0:0])) &&"
+      "((m1.imp[0:0]) ||(!(m1.v[0:0])) ||(!(m1.v[1:1])) ||(!(m1.imp[1:1]))) &&"
+      "((m1.v[0:0]) ||(!(m1.v[1:1])) ||(!(m1.imp[0:0])) ||(!(m1.imp[1:1]))))");
     EXPECT_TRUE(inv_obj.GetExtraFreeVarDefs().empty());
     EXPECT_TRUE(inv_obj.GetExtraVarDefs().empty());
   }
@@ -341,13 +350,23 @@ TEST_F(TestInvExtract, Z3InvExtractRangeSpec) {
                                           flatten_datatype, flatten_hierarchy);
 
     EXPECT_EQ(inv_obj.GetVlgConstraints().size(), 1);
-    ILA_DLOG("InvExtract") << inv_obj.GetVlgConstraints().at(0);
+    EXPECT_EQ(inv_obj.GetVlgConstraints().at(0),
+    "(1'b1) == "
+      "(((__INV_EXT_new_local_var_1__[1:1]) ||(!(__INV_EXT_new_local_var_1__[0:0])) ||(__INV_EXT_new_local_var_2__[0:0]) ||(__INV_EXT_new_local_var_2__[1:1])) &&"
+      "((__INV_EXT_new_local_var_1__[1:1]) ||(!(__INV_EXT_new_local_var_2__[0:0])) ||(__INV_EXT_new_local_var_2__[1:1]) ||(__INV_EXT_new_local_var_1__[0:0])) &&"
+      "((__INV_EXT_new_local_var_1__[0:0]) ||(!(__INV_EXT_new_local_var_2__[0:0])) ||(!(__INV_EXT_new_local_var_2__[1:1])) ||(!(__INV_EXT_new_local_var_1__[1:1]))) &&"
+      "((__INV_EXT_new_local_var_2__[0:0]) ||(!(__INV_EXT_new_local_var_2__[1:1])) ||(!(__INV_EXT_new_local_var_1__[0:0])) ||(!(__INV_EXT_new_local_var_1__[1:1]))))"
+    );
     EXPECT_TRUE(inv_obj.GetExtraFreeVarDefs().empty());
     EXPECT_FALSE(inv_obj.GetExtraVarDefs().empty());
     for (auto&& var_expr_width : inv_obj.GetExtraVarDefs()) {
       ILA_DLOG("InvExtract") << "DEF: " << std::get<0>(var_expr_width)
                              << " (width=" << std::get<2>(var_expr_width)
                              << ") := " << std::get<1>(var_expr_width);
+      EXPECT_TRUE( std::get<0>(var_expr_width).find("__INV_EXT_new_local_var_") == 0);
+      EXPECT_EQ(std::get<2>(var_expr_width), 4);
+      EXPECT_TRUE( std::get<1>(var_expr_width).find("[") != std::string::npos);
+      EXPECT_TRUE( std::get<1>(var_expr_width).find("m1.") == 0);
     }
     EXPECT_TRUE(smt::SmtlibInvariantParserBase::get_local_ctr() >= 2);
     inv_obj.ExportToFile(os_portable_append_dir(dirName, "inv.txt"));
@@ -370,15 +389,34 @@ TEST_F(TestInvExtract, Z3InvExtractRangeSpec) {
                                            flatten_datatype, flatten_hierarchy);
 
     EXPECT_EQ(inv_obj2.GetVlgConstraints().size(), 2);
-    ILA_DLOG("InvExtract") << inv_obj2.GetVlgConstraints().at(0);
-    ILA_DLOG("InvExtract") << inv_obj2.GetVlgConstraints().at(1);
+    EXPECT_EQ(inv_obj2.GetVlgConstraints().at(0),
+    "(1'b1) == "
+      "(((__INV_EXT_new_local_var_1__[1:1]) ||(!(__INV_EXT_new_local_var_1__[0:0])) ||(__INV_EXT_new_local_var_2__[0:0]) ||(__INV_EXT_new_local_var_2__[1:1])) &&"
+      "((__INV_EXT_new_local_var_1__[1:1]) ||(!(__INV_EXT_new_local_var_2__[0:0])) ||(__INV_EXT_new_local_var_2__[1:1]) ||(__INV_EXT_new_local_var_1__[0:0])) &&"
+      "((__INV_EXT_new_local_var_1__[0:0]) ||(!(__INV_EXT_new_local_var_2__[0:0])) ||(!(__INV_EXT_new_local_var_2__[1:1])) ||(!(__INV_EXT_new_local_var_1__[1:1]))) &&"
+      "((__INV_EXT_new_local_var_2__[0:0]) ||(!(__INV_EXT_new_local_var_2__[1:1])) ||(!(__INV_EXT_new_local_var_1__[0:0])) ||(!(__INV_EXT_new_local_var_1__[1:1]))))"
+    );
+
+    EXPECT_EQ(inv_obj2.GetVlgConstraints().at(1),
+    "(1'b1) == "
+      "(((__INV_EXT_new_local_var_3__[1:1]) ||(!(__INV_EXT_new_local_var_3__[0:0])) ||(__INV_EXT_new_local_var_4__[0:0]) ||(__INV_EXT_new_local_var_4__[1:1])) &&"
+      "((__INV_EXT_new_local_var_3__[1:1]) ||(!(__INV_EXT_new_local_var_4__[0:0])) ||(__INV_EXT_new_local_var_4__[1:1]) ||(__INV_EXT_new_local_var_3__[0:0])) &&"
+      "((__INV_EXT_new_local_var_3__[0:0]) ||(!(__INV_EXT_new_local_var_4__[0:0])) ||(!(__INV_EXT_new_local_var_4__[1:1])) ||(!(__INV_EXT_new_local_var_3__[1:1]))) &&"
+      "((__INV_EXT_new_local_var_4__[0:0]) ||(!(__INV_EXT_new_local_var_4__[1:1])) ||(!(__INV_EXT_new_local_var_3__[0:0])) ||(!(__INV_EXT_new_local_var_3__[1:1]))))"
+    );
+    
     EXPECT_TRUE(inv_obj2.GetExtraFreeVarDefs().empty());
     EXPECT_FALSE(inv_obj2.GetExtraVarDefs().empty());
     for (auto&& var_expr_width : inv_obj2.GetExtraVarDefs()) {
       ILA_DLOG("InvExtract") << "DEF: " << std::get<0>(var_expr_width)
                              << " (width=" << std::get<2>(var_expr_width)
                              << ") := " << std::get<1>(var_expr_width);
+      EXPECT_TRUE( std::get<0>(var_expr_width).find("__INV_EXT_new_local_var_") == 0);
+      EXPECT_EQ(std::get<2>(var_expr_width), 4);
+      EXPECT_TRUE( std::get<1>(var_expr_width).find("[") != std::string::npos);
+      EXPECT_TRUE( std::get<1>(var_expr_width).find("m1.") != std::string::npos);
     }
+
     EXPECT_TRUE(smt::SmtlibInvariantParserBase::get_local_ctr() >= 4);
     inv_obj2.ExportToFile(os_portable_append_dir(dirName, "inv.txt"));
   }

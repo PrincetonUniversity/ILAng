@@ -49,7 +49,7 @@ jobs:
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DILANG_BUILD_INVSYN=OFF 
+      cmake .. -DCMAKE_BUILD_TYPE=Release
       cmake --build .
       cmake --build . --target install 
       ./test/unit_tests

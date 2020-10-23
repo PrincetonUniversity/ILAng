@@ -113,9 +113,10 @@ bool InvariantObject::AddInvariantFromChcResultFile(
   smt_formula_vec.push_back(raw_smt);
 
   for (auto&& name_vlg_pair : parser.GetLocalVarDefs()) {
+    const auto & t = parser.get_term(name_vlg_pair.second);
     inv_extra_vlg_vars.push_back(
-        std::make_tuple(name_vlg_pair.first, name_vlg_pair.second._translate,
-                        name_vlg_pair.second._type.GetBoolBvWidth()));
+        std::make_tuple(name_vlg_pair.first, t._translate,
+                        t._type.GetBoolBvWidth()));
   }
   for (auto&& name_w_pair : parser.GetFreeVarDefs()) {
     if (IN(name_w_pair.first, inv_extra_free_vars))
@@ -154,9 +155,10 @@ void InvariantObject::AddInvariantFromGrainResultFile(
   smt_formula_vec.push_back(""); // although we get it, we remove it here
 
   for (auto&& name_vlg_pair : parser.GetLocalVarDefs()) {
+    const auto & t = parser.get_term(name_vlg_pair.second);
     inv_extra_vlg_vars.push_back(
-        std::make_tuple(name_vlg_pair.first, name_vlg_pair.second._translate,
-                        name_vlg_pair.second._type.GetBoolBvWidth()));
+        std::make_tuple(name_vlg_pair.first, t._translate,
+                        t._type.GetBoolBvWidth()));
   }
   for (auto&& name_w_pair : parser.GetFreeVarDefs()) {
     if (IN(name_w_pair.first, inv_extra_free_vars))

@@ -71,34 +71,10 @@ bool GrainInvariantParser::ParseInvResultFromFile(const std::string& fname) {
 // -------------------------CALL BACK
 // FUNS--------------------------------------------------------------------
 
-/// call back function to create a sort
-var_type* GrainInvariantParser::make_sort(const std::string& name,
-                                          const std::vector<int>& idx) {
-  // ILA_CHECK(! quantifier_def_stack.empty());
-  // ILA_CHECK(! quantifier_var_def_idx_stack.empty());
-
-  // should should only be BitVec or Bool
-  if (name == "Bool") {
-    if (!IN("Bool", sort_container))
-      sort_container.insert(std::make_pair(
-          std::string("Bool"), var_type(var_type::tp::Bool, 1, "")));
-    return &(sort_container["Bool"]);
-  } else if (name == "BitVec") {
-    ILA_CHECK(idx.size() == 1);
-    ILA_CHECK(idx[0] > 0);
-    std::string sortIdxName = "BV" + std::to_string(idx[0]);
-    if (!IN(sortIdxName, sort_container))
-      sort_container.insert(
-          std::make_pair(sortIdxName, var_type(var_type::tp::BV, idx[0], "")));
-    return &(sort_container[sortIdxName]);
-  }
-  ILA_CHECK(false) << "Unknown sort:" << name << " in flattened smt.";
-  return nullptr; // should not be reachable
-} // make_sort
 
 /// this is actually declare variables
 void GrainInvariantParser::declare_function(const std::string& name,
-                                            var_type* sort) {
+                                            SortPtrT sort) {
   ILA_CHECK(quantifier_def_stack.size() == 1)
       << "There should only be a global quantified var list";
   // we need to extract the name from verilog
@@ -128,49 +104,36 @@ void GrainInvariantParser::declare_function(const std::string& name,
       } else {
         converted_name = "__TOP_dot_" + vlg_name + "__";
       }
-      free_vars.insert(std::make_pair(converted_name, sort->GetBoolBvWidth()));
+      free_vars.insert(std::make_pair(converted_name, get_sort(sort).GetBoolBvWidth()));
     } else // else do not convert
       converted_name = vlg_name;
   }
 
   // save it
-  quantifier_def_stack.back().insert(
-      std::make_pair(name, SmtTermInfoVerilog(converted_name, *sort, this)));
-}
+  term_pool.push_back(SmtTermInfoVerilog(converted_name, get_sort(sort), this));
+  quantifier_def_stack.back().emplace(name, term_pool.size()-1);
+} // declare_function
 
 // --------------------- DISABLE THESE FUNCTIONS ------------------------ //
 /// call back function to handle (forall
-SmtTermInfoVlgPtr GrainInvariantParser::push_quantifier_scope() {
+GrainInvariantParser::TermPtrT
+GrainInvariantParser::push_quantifier_scope() {
   ILA_CHECK(false)
       << "push_quantifier_scope should not appear in Grain CHC result";
-  return nullptr;
+  return 0;
 }
 /// call back function to handle ) of forall
-SmtTermInfoVlgPtr GrainInvariantParser::pop_quantifier_scope() {
+GrainInvariantParser::TermPtrT
+GrainInvariantParser::pop_quantifier_scope() {
   ILA_CHECK(false)
       << "pop_quantifier_scope should not appear in Grain CHC result";
-  return nullptr;
+  return 0;
 }
-
-SmtTermInfoVlgPtr
-GrainInvariantParser::search_quantified_var_stack(const std::string& name) {
-  ILA_DLOG("GrainInvariantParser.search_var")
-      << "Begin search var:" << name << std::endl;
-  for (auto mp_pos = quantifier_def_stack.rbegin();
-       mp_pos != quantifier_def_stack.rend();
-       ++mp_pos) { // search from the closest binding
-    if (IN(name, (*mp_pos)))
-      return &((*mp_pos)[name]);
-  }
-  ILA_DLOG("GrainInvariantParser.search_var")
-      << "Not found var:" << name << std::endl;
-  return nullptr;
-} // search_quantified_var_stack
 
 /// call back function to create a temporary (quantified variable)
 // for the flattened-datatype, this should be the same as the datatype order
 void GrainInvariantParser::declare_quantified_variable(const std::string& name,
-                                                       var_type* sort) {
+                                                       SortPtrT sort) {
   ILA_CHECK(false)
       << "declare_quantified_variable should not appear in Grain CHC result";
 } // declare_quantified_variable
@@ -181,10 +144,11 @@ void GrainInvariantParser::declare_quantified_variable(const std::string& name,
 /// it could be directly the (pred state)
 /// or (pred (pred state)) ... you need to pass the right instance name allow
 /// side
-SmtTermInfoVlgPtr
-GrainInvariantParser::mk_function(const std::string& name, var_type* sort,
-                                  const std::vector<int>& idx,
-                                  const std::vector<SmtTermInfoVlgPtr>& args) {
+GrainInvariantParser::TermPtrT
+GrainInvariantParser::mk_function(
+              const std::string& name, SortPtrT sort,
+              const std::vector<int>& idx,
+              const std::vector<TermPtrT>& args) {
   // we don't really rely on the sort here: actually it should be NULL
   ILA_DLOG("GrainInvariantParser.mk_function")
       << "make func:" << name << ", #arg" << args.size() << std::endl;
@@ -194,16 +158,18 @@ GrainInvariantParser::mk_function(const std::string& name, var_type* sort,
     if (term_ptr)
       return term_ptr;
     ILA_CHECK(false) << "unknown symbol:" << name;
-    return nullptr; // no use
+    return 0; // no use
   }
   // I'm assuming no func should be used
   ILA_CHECK(false) << "unknown symbol for function:" << name;
-  return nullptr; // should not be reachable
+  return 0; // should not be reachable
 } // mk_function
 
 void GrainInvariantParser::define_function(
-    const std::string& func_name, const std::vector<SmtTermInfoVlgPtr>& args,
-    var_type* ret_type, SmtTermInfoVlgPtr func_body) {
+    const std::string& func_name,
+    const std::vector<TermPtrT>& args,
+    SortPtrT ret_type,
+    TermPtrT func_body) {
   ILA_CHECK(false)
       << "define_function should not appear in Grain CHC result, func:"
       << func_name;

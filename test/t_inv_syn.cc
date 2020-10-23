@@ -837,6 +837,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntRelChc) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.CosaAddKeep = false;
+  cfg.YosysPath = "N/A";
   cfg.YosysSmtFlattenHierarchy = false;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
@@ -858,6 +859,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntRelChcNoStart) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.CosaAddKeep = false;
+  cfg.YosysPath = "N/A";
   cfg.YosysSmtFlattenHierarchy = false;
   cfg.VerificationSettingAvoidIssueStage = true;
 
