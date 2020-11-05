@@ -36,6 +36,14 @@ SortPtr Sort::MakeMemSort(const int& addr_width, const int& data_width) {
   return std::make_shared<SortMem>(addr_width, data_width);
 }
 
+SortPtr Sort::MakeStructSort(
+  std::initializer_list<std::pair<std::string, SortPtr>> members
+) { return std::make_shared<SortStruct>(members); }
+
+SortPtr Sort::MakeVectorSort(const SortPtr& da, const int vec_size) {
+  return std::make_shared<SortVector>(da, vec_size);
+}
+
 SortBool::SortBool() {}
 
 SortBool::~SortBool() {}
@@ -95,6 +103,72 @@ bool SortMem::Equal(const SortPtr rhs) const {
 
 std::ostream& SortMem::Print(std::ostream& out) const {
   return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
+}
+
+SortStruct::SortStruct(
+  std::initializer_list<std::pair<std::string, SortPtr>> members
+): members_(members.begin(), members.end()) {}
+// above, we use the range constructor in order to allow casting 
+// of std::string (if necessary).
+
+const SortPtr SortStruct::get_member_sort(const std::string& name) const {
+  for (const auto& [n, sort] : members_) {
+    if (n == name) return sort;
+  }
+  ILA_ASSERT(false) << "member not found: " << name;
+  return {nullptr};
+}
+
+z3::sort SortStruct::GetZ3Sort(z3::context& ctx) const {
+  // TODO: consider switching to z3 tuples
+  return ctx.uninterpreted_sort(id_.c_str());
+}
+
+z3::expr SortStruct::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  // TODO: figure out how to avoid producing any new z3 constants here
+  //       since they should not be used.
+  return ctx.constant(name.c_str(), GetZ3Sort(ctx));
+}
+
+bool SortStruct::Equal(const SortPtr rhs) const {
+  if (!rhs->is_struct()) return false;
+  auto ssp = cast_sort<SortStruct>(rhs);
+  return members_ == ssp->members_;
+}
+
+std::ostream& SortStruct::Print(std::ostream& out) const {
+  out << "{ ";
+  bool first = true;
+  for (auto& [name, sort] : members_) {
+    if (first) first = false;
+    else out << ", ";
+    out << name << ": " << sort;
+  }
+  out << " }";
+  return out;
+}
+
+SortVector::SortVector(const SortPtr& da, const int& vec_size)
+  : da_ {da}, size_ {vec_size} {
+  ILA_ASSERT(da) << "Can't create a vector with empty data-atom.";
+}
+
+bool SortVector::Equal(const SortPtr rhs) const {
+  if (!rhs->is_vec()) return false;
+  auto sv = cast_sort<SortVector>(rhs);
+  return size_ == sv->size_ && da_ == sv->da_;
+}
+
+std::ostream& SortVector::Print(std::ostream& out) const {
+  return out << "Array[" << size_ << "](" << da_ << ")";
+}
+
+z3::sort SortVector::GetZ3Sort(z3::context& ctx) const {
+  return ctx.uninterpreted_sort(id_.c_str());
+}
+
+z3::expr SortVector::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  return ctx.constant(name.c_str(), GetZ3Sort(ctx));
 }
 
 } // namespace ilang

@@ -6,6 +6,8 @@
 
 #include <memory>
 #include <ostream>
+#include <utility>
+#include <vector>
 
 #include <z3++.h>
 
@@ -15,7 +17,7 @@
 namespace ilang {
 
 /// Unified ID for Sort.
-enum AstUidSort { kBool = 1, kBv, kMem };
+enum AstUidSort { kBool = 1, kBv, kMem, kStruct, kVec };
 
 /// \brief The class for sort (type for expr, and the range/domain of
 /// functions).
@@ -23,6 +25,7 @@ class Sort : public Ast {
 public:
   /// Pointer type for storing/passing Sort.
   typedef std::shared_ptr<Sort> SortPtr;
+
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -37,6 +40,19 @@ public:
   static SortPtr MakeBvSort(const int& bit_width);
   /// Create a memory (array) Sort.
   static SortPtr MakeMemSort(const int& addr_width, const int& data_width);
+  
+  /// A sort representing a composite data-type.
+  static SortPtr MakeStructSort(
+    std::initializer_list<std::pair<std::string, SortPtr>> members);
+  
+  /// A sort representing a vector of data-atoms of the same struct sort.
+  static SortPtr MakeVectorSort(const SortPtr& data_atom, const int vec_size);
+
+  template<typename T> 
+  static std::shared_ptr<T> cast_sort(const SortPtr& s) {
+    return std::dynamic_pointer_cast<T>(s);
+  }
+
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the unified ID of Sort.
@@ -47,6 +63,14 @@ public:
   virtual bool is_bv(const int& width = 0) const { return false; }
   /// Return true if have memory (array) sort.
   virtual bool is_mem() const { return false; }
+  /// Returns true if is the sort of a struct.
+  virtual bool is_struct() const { return false; }
+  /// Returns true if is the sort of a vector of multiple instances
+  /// of some data-atom.
+  virtual bool is_vec() const { return false; }
+  /// Returns true if is the sort of a vector of multiple instances 
+  /// of a given data-atom.
+  virtual bool is_vec(const SortPtr& data_atom) const { return false; }
 
   /// Return the bit-width of bit-vector sort.
   virtual int bit_width() const;
@@ -64,7 +88,7 @@ public:
 
   /// Compare two Sorts.
   virtual bool Equal(const SortPtr rhs) const = 0;
-  /// Overlaod comparison.
+  /// Overload comparison.
   friend bool operator==(const SortPtr lhs, const SortPtr rhs) {
     return lhs->Equal(rhs);
   }
@@ -104,7 +128,7 @@ public:
   /// Compare with another Sort.
   bool Equal(const SortPtr rhs) const;
   /// Print out to output stream.
-  std::ostream& Print(std::ostream& out) const;
+  std::ostream& Print(std::ostream& out) const; 
 }; // class SortBool
 
 /// \brief The class of bit-vector Sort.
@@ -176,6 +200,80 @@ private:
   /// Bit-width of the data.
   int data_width_;
 }; // class SortMem
+
+/// \brief A class for defining a composite sort
+class SortStruct : public Sort {
+
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructs a StructSort from a list of members. 
+  SortStruct(std::initializer_list<std::pair<std::string, SortPtr>> members);
+  /* Note: we create a struct all at once to prevent any weirdness from recursive 
+     sorts. (I.e. we don't want to be able to create a StructSort, and then add
+     itself as a member.) */
+
+  /// Default destructor.
+  ~SortStruct()=default;
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the unified ID of SortStruct.
+  AstUidSort uid() const { return AstUidSort::kStruct; }
+  /// Returns true, since this is a SortStruct.
+  bool is_struct() const { return true; }
+
+  // Returns the sort of a member of this struct, or nullptr if not found.
+  const SortPtr get_member_sort(const std::string& name) const;
+
+  // ------------------------- METHODS -------------------------------------- //  
+  /// Return the z3::sort of a SortStruct.
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
+  /// Compare with another Sort.
+  bool Equal(const SortPtr rhs) const;
+  /// Print out to output stream.
+  std::ostream& Print(std::ostream& out) const;
+
+private:
+  const std::vector<std::pair<std::string, SortPtr>> members_;
+  const Symbol id_ {};
+};
+
+/// \brief A class for defining vectors of data-atoms.
+class SortVector : public Sort {
+
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Creates a sort representing a vector having the given number of the
+  /// given type of data-atom.
+  SortVector(const SortPtr& data_atom, const int& vec_size);
+  /// Default destructor.
+  ~SortVector()=default;
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the unified ID of SortVector.
+  AstUidSort uid() const { return AstUidSort::kVec; }
+  /// Returns true if is a vector of data-atoms.
+  bool is_vec() const { return true; }
+
+  /// Returns the data-atom describing each element of the vector.
+  SortPtr data_atom() const { return da_; }
+  /// Returns the size of the vector of data-atoms.
+  int vec_size() const { return size_; }
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return the z3::sort of Vector Sort.
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
+  /// Compare with another Sort.
+  bool Equal(const SortPtr rhs) const;
+  /// Print out to output stream.
+  std::ostream& Print(std::ostream& out) const;
+private:
+  SortPtr da_;
+  int size_;  // the number of data-atoms in the vector
+  const Symbol id_ {};
+};
 
 } // namespace ilang
 

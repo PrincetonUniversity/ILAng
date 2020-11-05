@@ -47,6 +47,7 @@ private:
   typedef KeyVec<Symbol, ExprPtr> VarMap;
   /// Type for storing a set of Instr.
   typedef KeyVec<Symbol, InstrPtr> InstrMap;
+  
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
