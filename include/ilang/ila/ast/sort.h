@@ -25,6 +25,7 @@ class Sort : public Ast {
 public:
   /// Pointer type for storing/passing Sort.
   typedef std::shared_ptr<Sort> SortPtr;
+  typedef std::vector<std::pair<std::string, SortPtr>> StructImpl;
 
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -47,11 +48,6 @@ public:
   
   /// A sort representing a vector of data-atoms of the same struct sort.
   static SortPtr MakeVectorSort(const SortPtr& data_atom, const int vec_size);
-
-  template<typename T> 
-  static std::shared_ptr<T> cast_sort(const SortPtr& s) {
-    return std::dynamic_pointer_cast<T>(s);
-  }
 
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -79,6 +75,16 @@ public:
   /// Return the bit-width of the data (value).
   virtual int data_width() const;
 
+  // Returns the sort of a member of a struct sort, or nullptr if not found.
+  virtual const SortPtr get_member_sort(const std::string& name) const;
+  // Gives access to the underlying list of (name, sort) pairs of a struct sort.
+  virtual const StructImpl members() const;
+
+  /// Returns the data-atom describing an element of a vector sort, or nullptr.
+  virtual SortPtr data_atom() const;
+  /// Returns the number of elements in a given vector sort.
+  virtual int vec_size() const;
+
   // ------------------------- METHODS -------------------------------------- //
   /// Return z3::sort of the Sort.
   virtual z3::sort GetZ3Sort(z3::context& ctx) const = 0;
@@ -99,6 +105,12 @@ public:
   friend std::ostream& operator<<(std::ostream& out, const SortPtr s) {
     return s->Print(out);
   }
+
+// protected:
+//   template<typename T> 
+//   static std::shared_ptr<T> cast_sort(const SortPtr& s) {
+//     return std::dynamic_pointer_cast<T>(s);
+//   }
 
 }; // class Sort
 
@@ -223,6 +235,8 @@ public:
 
   // Returns the sort of a member of this struct, or nullptr if not found.
   const SortPtr get_member_sort(const std::string& name) const;
+  // Gives access to the underlying list of (name, sort) pairs of a struct sort.
+  const StructImpl members() const { return members_; }
 
   // ------------------------- METHODS -------------------------------------- //  
   /// Return the z3::sort of a SortStruct.
@@ -235,7 +249,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 
 private:
-  const std::vector<std::pair<std::string, SortPtr>> members_;
+  const StructImpl members_;
   const Symbol id_ {};
 };
 

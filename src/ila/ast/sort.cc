@@ -26,6 +26,27 @@ int Sort::data_width() const {
   return 0;
 }
 
+const SortPtr Sort::get_member_sort(const std::string& name) const {
+  ILA_ASSERT(false) << "Can't get the member of a sort that's not a struct.";
+  return nullptr;
+}
+
+const Sort::StructImpl Sort::members() const {
+  ILA_ASSERT(false) << "Can't get the members of a sort that's not a struct.";
+  static Sort::StructImpl empty {};
+  return empty;
+}
+
+SortPtr Sort::data_atom() const {
+  ILA_ASSERT(false) << "Can't get the data-atom of a sort that's not a vector.";
+  return nullptr;
+}
+
+int Sort::vec_size() const {
+  ILA_ASSERT(false) << "Can't get the vector size of a sort that's not a vector.";
+  return 0;
+}
+
 SortPtr Sort::MakeBoolSort() { return std::make_shared<SortBool>(); }
 
 SortPtr Sort::MakeBvSort(const int& bit_width) {
@@ -132,8 +153,7 @@ z3::expr SortStruct::GetZ3Expr(z3::context& ctx, const std::string& name) const 
 
 bool SortStruct::Equal(const SortPtr rhs) const {
   if (!rhs->is_struct()) return false;
-  auto ssp = cast_sort<SortStruct>(rhs);
-  return members_ == ssp->members_;
+  return members() == rhs->members();
 }
 
 std::ostream& SortStruct::Print(std::ostream& out) const {
@@ -155,8 +175,7 @@ SortVector::SortVector(const SortPtr& da, const int& vec_size)
 
 bool SortVector::Equal(const SortPtr rhs) const {
   if (!rhs->is_vec()) return false;
-  auto sv = cast_sort<SortVector>(rhs);
-  return size_ == sv->size_ && da_ == sv->da_;
+  return vec_size() == rhs->vec_size() && data_atom() == rhs->data_atom();
 }
 
 std::ostream& SortVector::Print(std::ostream& out) const {
