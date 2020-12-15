@@ -39,59 +39,59 @@ endmacro()
 set(ILANG_TEST_MAIN unit_tests)
 
 package_add_test(${ILANG_TEST_MAIN} 
-  # unit-src/eq_ilas.cc
-  # unit-src/ila_sim_test.cc
-  # unit-src/mcm_ilas.cc
-  # unit-src/memswap.cc
-  # unit-src/pipe_ila.cc
-  # unit-src/simple_cpu.cc
-  # unit-src/stream_buffer.cc
-  # unit-src/util.cc
-  # t_ast_hub.cc
-  # t_api.cc
-  # t_case_aes_eq.cc
-  # t_copy.cc
-  # t_crr.cc
-  # t_eq_check.cc
-  # t_expr.cc
-  # t_expr_const.cc
-  # t_expr_op.cc
-  # t_expr_var.cc
-  # t_func.cc
-  # t_hash_ast.cc
-  # t_ila.cc
-  # t_ilator.cc
-  # t_instr.cc
-  # t_instr_seq.cc
-  # t_keyvec.cc
-  # t_legacy_bmc.cc
-  # t_log.cc
-  # t_main.cc
-  # t_mapset.cc
-  # t_mcm.cc
-  # t_mngr_absknob.cc
-  # t_pass.cc
-  # t_portable.cc
-  # t_smt_in.cc
-  # t_smt_shim.cc
-  # t_smt_switch_itf.cc
-  # t_smt_trans.cc
+  unit-src/eq_ilas.cc
+  unit-src/ila_sim_test.cc
+  unit-src/mcm_ilas.cc
+  unit-src/memswap.cc
+  unit-src/pipe_ila.cc
+  unit-src/simple_cpu.cc
+  unit-src/stream_buffer.cc
+  unit-src/util.cc
+  t_ast_hub.cc
+  t_api.cc
+  t_case_aes_eq.cc
+  t_copy.cc
+  t_crr.cc
+  t_eq_check.cc
+  t_expr.cc
+  t_expr_const.cc
+  t_expr_op.cc
+  t_expr_var.cc
+  t_func.cc
+  t_hash_ast.cc
+  t_ila.cc
+  t_ilator.cc
+  t_instr.cc
+  t_instr_seq.cc
+  t_keyvec.cc
+  t_legacy_bmc.cc
+  t_log.cc
+  t_main.cc
+  t_mapset.cc
+  t_mcm.cc
+  t_mngr_absknob.cc
+  t_pass.cc
+  t_portable.cc
+  t_smt_in.cc
+  t_smt_shim.cc
+  t_smt_switch_itf.cc
+  t_smt_trans.cc
   t_sort.cc
-  # t_symbol.cc
-  # t_unroll_seq.cc
-  # t_unroller_smt.cc
-  # t_util.cc
+  t_symbol.cc
+  t_unroll_seq.cc
+  t_unroller_smt.cc
+  t_util.cc
   t_var_container.cc
-  # t_verilog_analysis.cc
-  # t_verilog_analysis_error.cc
-  # t_verilog_gen.cc
-  # t_verilog_mod.cc
-  # t_vtarget_gen.cc
-  # t_inv_extract.cc
-  # t_z3adapter.cc
-  # t_z3sanity.cc
-  # t_inv_syn.cc
-  # t_inv_obj.cc
+  t_verilog_analysis.cc
+  t_verilog_analysis_error.cc
+  t_verilog_gen.cc
+  t_verilog_mod.cc
+  t_vtarget_gen.cc
+  t_inv_extract.cc
+  t_z3adapter.cc
+  t_z3sanity.cc
+  t_inv_syn.cc
+  t_inv_obj.cc
 )
 
 if(${ILANG_BUILD_SYNTH})
