@@ -6,7 +6,7 @@
 
 namespace ilang {
 
-VarContainerPtr VarContainer::Make(const types::Type& t, const std::string& name) {
+VarContainerPtr VarContainer::Make(const std::string& name, const types::Type& t) {
   std::string prefix = name + "_";  // also makes name a bit more private if last variable.
   switch (t->uid()) {
     case AstUidSort::kBool:
@@ -19,7 +19,7 @@ VarContainerPtr VarContainer::Make(const types::Type& t, const std::string& name
       {
         vector_container vc {};
         for (int i = 0; i != t->vec_size(); ++i) {
-          vc.push_back(Make(t->data_atom(), prefix + std::to_string(i) + "_"));
+          vc.push_back(Make(prefix + std::to_string(i) + "_", t->data_atom()));
         }
         return VarContainerPtr{new VarVector{t, std::move(vc)}};
       }
@@ -27,7 +27,7 @@ VarContainerPtr VarContainer::Make(const types::Type& t, const std::string& name
       {
         struct_container sc {};
         for (auto& [name, type] : t->members()) {
-          sc.push_back({name, Make(type, prefix + name + "_")});
+          sc.push_back({name, Make(prefix + name + "_", type)});
         }
         return VarContainerPtr{new VarStruct(t, std::move(sc))};
       }
@@ -73,17 +73,17 @@ const VarContainer::struct_container& VarContainer::members() {
 
 VarPrimitive::VarPrimitive(ExprPtr var):  VarContainer(var->sort()), impl_ {var} {}
 
-void VarPrimitive::visit_with(VarContainer::visitor& v) { v.visit(*this); }
+void VarPrimitive::visit_with(const VarContainer::visitor& visit) { visit(this); }
 
 /* VarVector */
 
 VarVector::VarVector(const types::Type& t, vector_container&& elems): 
   VarContainer(t), impl_ {elems} {}
 
-void VarVector::visit_with(VarContainer::visitor& v) {
-  v.visit(*this);
+void VarVector::visit_with(const VarContainer::visitor& visit) {
+  visit(this);
   for (auto& elem : impl_) {
-    elem->visit_with(v);
+    elem->visit_with(visit);
   }
 }
 
@@ -97,10 +97,10 @@ VarContainerPtr VarVector::nth(size_t idx) {
 VarStruct::VarStruct(const types::Type& t, struct_container&& members): 
   VarContainer(t), impl_ {members} {}
 
-void VarStruct::visit_with(visitor& v) {
-  v.visit(*this);
+void VarStruct::visit_with(const visitor& visit) {
+  visit(this);
   for (auto& [_, elem] : impl_) {
-    elem->visit_with(v);
+    elem->visit_with(visit);
   }
 }
 

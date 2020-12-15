@@ -1,13 +1,14 @@
 /// \file
 /// Containers for ILA variables
 
-#ifndef ILANG_ILA_VAR_CONTAINERS_H__
-#define ILANG_ILA_VAR_CONTAINERS_H__
+#ifndef ILANG_ILA_VAR_CONTAINER_H__
+#define ILANG_ILA_VAR_CONTAINER_H__
+
+#include <functional>
 
 #include<ilang/ila/symbol.h>
 #include<ilang/ila/ast/sort.h>
 #include<ilang/ila/ast/expr.h>
-#include<ilang/ila/instr_lvl_abs.h>
 #include<ilang/util/log.h>
 
 namespace ilang {
@@ -32,8 +33,6 @@ namespace types {
     return Sort::MakeStructSort(members); 
   }
 };
-
-struct VCVisitor;
 
 /// A container holding ILA state/input variables in order to be 
 /// able to represent some complex object.
@@ -64,7 +63,14 @@ public:
 
   enum class ContainerType { primitive, vector, structure };
   
-  typedef VCVisitor visitor;
+  /// The type of visitors to containers. This is sufficient because the 
+  /// type() and container_type() functions can be used to get the specific
+  /// kind of object/container being referred to.
+  typedef std::function<void(VarContainer* const)> visitor;
+  // The visitor function accepts a VarContainer* instead of a VarContainerPtr to save
+  // space during iteration. When the container is visited, it feels expensive to create a
+  // new shared_ptr object for each of its children.
+  // TODO: actually measure whether this makes a difference.
 
   // container may change, but will continue to support list access and forward iteration.
   typedef std::vector<VarContainerPtr> vector_container;
@@ -79,7 +85,7 @@ public:
   /// Makes a VarContainer representing a complex object of the given type, 
   /// using the given name as a prefix for the state/input variables needed to 
   /// define the object.
-  static VarContainerPtr Make(const types::Type& t, const std::string& name);
+  static VarContainerPtr Make(const std::string& name, const types::Type& t);
 
   /// Destroys a VarContainer.
   ~VarContainer()=default;
@@ -99,8 +105,8 @@ public:
   /// Returns true if this container is a structure
   virtual bool is_struct() const { return false; }
 
-  /// Visits the object with the given visitor (https://en.wikipedia.org/wiki/Visitor_pattern).
-  virtual void visit_with(visitor& v)=0;
+  /// Visits this object with the given visitor.
+  virtual void visit_with(const visitor& visit)=0;
   // dunno if we need this much flexibility, but it's nice to have.
 
   /// If this container holds a primitive, returns the primitive.
@@ -152,7 +158,7 @@ class VarPrimitive: public VarContainer {
 public:
   ~VarPrimitive()=default;
 
-  void visit_with(visitor& v) override;
+  void visit_with(const visitor& visit) override;
   ContainerType container_type() const override { return ContainerType::primitive; }
   bool is_primitive() const override { return true; }
 
@@ -173,7 +179,7 @@ struct VarVector: public VarContainer {
   friend VarContainer;
 
 public:
-  void visit_with(visitor& v) override;
+  void visit_with(const visitor& visit) override;
   ContainerType container_type() const override { return ContainerType::vector; }
   bool is_vector() const override { return true; }
 
@@ -195,7 +201,7 @@ struct VarStruct: public VarContainer {
 
   friend VarContainer;
 
-  void visit_with(visitor& v) override;
+  void visit_with(const visitor& visit) override;
   ContainerType container_type() const override { return ContainerType::structure; }
   bool is_struct() const override { return true; }
 
@@ -210,14 +216,6 @@ private:
   struct_container impl_;
 };
 
-struct VCVisitor {
-  VCVisitor()=default;
-  ~VCVisitor()=default;
-  virtual void visit(VarPrimitive& vc) {};
-  virtual void visit(VarVector& vc) {};
-  virtual void visit(VarStruct& vc) {};
-};
-
 } // namespace ilang
 
-#endif // ILANG_ILA_VAR_CONTAINERS_H__
+#endif // ILANG_ILA_VAR_CONTAINER_H__

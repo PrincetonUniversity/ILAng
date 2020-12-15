@@ -15,7 +15,7 @@ namespace ilang {
 
 /* Checks that there is exactly one type function that is true for a 
    given VarContainerPtr. */
-void type_check(const VarContainerPtr& p) {
+void check_container_type(const VarContainerPtr& p) {
   std::vector<std::pair<VarContainer::ContainerType, bool>> is_known_types = {
     {VarContainer::ContainerType::primitive, p->is_primitive()},
     {VarContainer::ContainerType::structure, p->is_struct()},
@@ -48,7 +48,7 @@ void test_not_struct(const VarContainerPtr& p) {
 }
 
 void basic_tests(const VarContainerPtr& p) {
-  type_check(p);
+  check_container_type(p);
   test_not_primitive(p);
   test_not_vector(p);
   test_not_struct(p);
@@ -56,12 +56,12 @@ void basic_tests(const VarContainerPtr& p) {
 
 
 TEST(TestVarContainer, Primitive) {
-  auto e1 = VarContainer::Make(types::Bool(), "a");
+  auto e1 = VarContainer::Make("a", types::Bool());
   basic_tests(e1);
   EXPECT_EQ(e1->type(), types::Bool());
   EXPECT_NE(e1->type(), types::Memory(5, 10));
 
-  auto e2 = VarContainer::Make(types::Bitvector(3), "b");
+  auto e2 = VarContainer::Make("b", types::Bitvector(3));
   basic_tests(e2);
   EXPECT_EQ(e2->type(), types::Bitvector(3));
   EXPECT_NE(e2->type(), types::Bitvector(5));
@@ -71,7 +71,7 @@ TEST(TestVarContainer, Primitive) {
 }
 
 TEST(TestVarContainer, Vector) {
-  auto xs = VarContainer::Make(types::Vector(3, types::Bool()), "xs");
+  auto xs = VarContainer::Make("xs", types::Vector(3, types::Bool()));
   basic_tests(xs);
 
   // size
@@ -109,7 +109,7 @@ TEST(TestVarContainer, Vector) {
   EXPECT_FALSE(asthub::TopEq(e2, e3));
 
   // vectors of vectors
-  auto m = VarContainer::Make(types::Vector(16, types::Vector(16, types::Bitvector(8))), "m");
+  auto m = VarContainer::Make("m", types::Vector(16, types::Vector(16, types::Bitvector(8))));
   for (auto& row : m->elements()) {
     for (auto& x : row->elements()) {
       EXPECT_EQ(x->type(), types::Bitvector(8));
@@ -118,7 +118,7 @@ TEST(TestVarContainer, Vector) {
 
   // TODO: consider testing for collision avoidance?
   // This passes but is brittle and may be incorrect:
-  // auto row = VarContainer::Make(types::Vector(5, types::Bool()), "m_0_");
+  // auto row = VarContainer::Make("m_0_", types::Vector(5, types::Bool()));
   // for (int i = 0; i != row->size(); ++i) {
   //   EXPECT_FALSE(asthub::TopEq(row->nth(i), m->nth(0)->nth(i)));
   // }
@@ -130,8 +130,8 @@ TEST(TestVarContainer, Struct) {
   auto Point = types::Struct({
     {"x", types::Bitvector(bvsize)}, {"y", types::Bitvector(bvsize)}
   });
-  auto p1 = VarContainer::Make(Point, "p1");
-  auto p2 = VarContainer::Make(Point, "p2");
+  auto p1 = VarContainer::Make("p1", Point);
+  auto p2 = VarContainer::Make("p2", Point);
   basic_tests(p1);
   EXPECT_EQ(p1->type(), Point);
   EXPECT_EQ(p1->type(), p2->type());
@@ -162,16 +162,6 @@ TEST(TestVarContainer, Struct) {
 
 }
 
-struct CountVisits: public VCVisitor {
-  int num_primitives {0};
-  int num_vectors {0};
-  int num_structs {0};
-
-  void visit(VarPrimitive&) override { ++num_primitives; }
-  void visit(VarVector&) override { ++num_vectors; }
-  void visit(VarStruct&) override { ++num_structs; }
-};
-
 TEST(TestVarContainer, Visitor) {
   std::vector<std::tuple<types::Type, int, int, int>> examples {
     {types::Memory(5, 4), 1, 0, 0},
@@ -188,12 +178,22 @@ TEST(TestVarContainer, Visitor) {
   };
 
   for (auto& [t, np, nv, ns] : examples) {
-    CountVisits cv {};
-    auto expr {VarContainer::Make(t, "ex")};
-    expr->visit_with(cv);
-    EXPECT_EQ(cv.num_primitives, np);
-    EXPECT_EQ(cv.num_vectors, nv);
-    EXPECT_EQ(cv.num_structs, ns);
+    int num_primitives {0};
+    int num_vectors {0};
+    int num_structs {0};
+    VarContainer::visitor vis = 
+      [&num_primitives, &num_vectors, &num_structs](VarContainer* const vc) {
+        num_primitives += vc->is_primitive();
+        num_vectors += vc->is_vector();
+        num_structs += vc->is_struct();
+      }
+    ;
+
+    auto expr {VarContainer::Make("ex", t)};
+    expr->visit_with(vis);
+    EXPECT_EQ(num_primitives, np);
+    EXPECT_EQ(num_vectors, nv);
+    EXPECT_EQ(num_structs, ns);
   }
 
 }

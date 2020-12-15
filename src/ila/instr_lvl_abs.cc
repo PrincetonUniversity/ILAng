@@ -37,6 +37,10 @@ const ExprPtr InstrLvlAbs::state(const std::string& name) const {
   return stt;
 }
 
+const VarContainerPtr InstrLvlAbs::object(const std::string& name) const {
+  return find_object(Symbol(name));
+}
+
 const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
   auto instr = find_instr(Symbol(name));
   return instr;
@@ -55,6 +59,11 @@ const ExprPtr InstrLvlAbs::find_input(const Symbol& name) const {
 const ExprPtr InstrLvlAbs::find_state(const Symbol& name) const {
   auto pos = states_.find(name);
   return (pos == states_.end()) ? nullptr : pos->second;
+}
+
+const VarContainerPtr InstrLvlAbs::find_object(const Symbol& name) const {
+  auto pos = objects_.find(name);
+  return (pos == objects_.end()) ? nullptr : pos->second;
 }
 
 const InstrPtr InstrLvlAbs::find_instr(const Symbol& name) const {
@@ -95,6 +104,36 @@ void InstrLvlAbs::AddState(const ExprPtr& state_var) {
   auto var = Unify(state_var);
   // register to States
   states_.push_back(name, var);
+}
+
+void InstrLvlAbs::AddInputObject(const std::string& name, const VarContainerPtr& obj) {
+  ILA_NOT_NULL(obj);
+
+  // ensure not already added
+  ILA_ASSERT(objects_.find(name) == objects_.end()) << "object name already taken";
+
+  // add all primitive children
+  obj->visit_with([this](VarContainer* const vc) { 
+    if (vc->is_primitive()) { this->AddInput(vc->to_primitive_expr()); }
+  });
+
+  // record object
+  objects_.push_back(name, obj);
+}
+
+void InstrLvlAbs::AddStateObject(const std::string& name, const VarContainerPtr& obj) {
+  ILA_NOT_NULL(obj);
+
+  // ensure not already added
+  ILA_ASSERT(objects_.find(name) == objects_.end()) << "object name already taken";
+
+  // add all primitive children
+  obj->visit_with([this](VarContainer* const vc) { 
+    if (vc->is_primitive()) { this->AddState(vc->to_primitive_expr()); }
+  });
+
+  // record object
+  objects_.push_back(name, obj);
 }
 
 void InstrLvlAbs::AddInit(const ExprPtr& cntr_expr) {
@@ -161,6 +200,13 @@ const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
   return mem_input;
 }
 
+const VarContainerPtr InstrLvlAbs::NewObjectInput(const std::string& name,
+                                                  const types::Type& type) {
+  VarContainerPtr obj = VarContainer::Make(name, type);
+  AddInputObject(name, obj);
+  return obj;
+}
+
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
   ExprPtr bool_state = asthub::NewBoolVar(name);
   // set host
@@ -191,6 +237,13 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
   return mem_state;
 }
 
+const VarContainerPtr InstrLvlAbs::NewObjectState(const std::string& name,
+                                                  const types::Type& type) {
+  VarContainerPtr obj = VarContainer::Make(name, type);
+  AddStateObject(name, obj);
+  return obj;
+}
+
 const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
   // create new var
   ExprPtr bool_var = asthub::NewBoolVar(name);
@@ -216,6 +269,15 @@ const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
   // set host
   mem_var->set_host(shared_from_this());
   return mem_var;
+}
+
+const VarContainerPtr InstrLvlAbs::NewObjectFreeVar(const std::string& name,
+                                                    const types::Type& type) {
+  VarContainerPtr obj = VarContainer::Make(name, type);
+  obj->visit_with( [p=shared_from_this()](VarContainer* const vc) {
+    if (vc->is_primitive()) vc->to_primitive_expr()->set_host(p);
+  } );
+  return obj;
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
