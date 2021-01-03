@@ -467,7 +467,7 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
       buff,
       "static int instr_cntr = 0;\n"
       "void {project}::LogInstrSequence(const std::string& instr_name) {{\n"
-      "  instr_log << \"Instr No.\" << std::setw(5) << instr_cntr;\n"
+      "  instr_log << \"Instr No.\" << std::setw(5) << instr_cntr << '\\t';\n"
       "  instr_log << instr_name << \" is activated\\n\";\n"
       "  instr_cntr++;\n"
       "}}\n",
