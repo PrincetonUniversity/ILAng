@@ -13,6 +13,9 @@
 
 namespace ilang {
 
+/// Check if path exist.
+bool os_portable_exist(const std::string& path);
+
 /// Create a dir, true -> suceeded , ow false
 bool os_portable_mkdir(const std::string& dir);
 
@@ -22,6 +25,16 @@ bool os_portable_copy_dir(const std::string& src, const std::string& dst);
 /// Copy one file to the destination dir
 bool os_portable_copy_file_to_dir(const std::string& src,
                                   const std::string& dst);
+
+/// Move one file to the destination dir
+bool os_portable_move_file_to_dir(const std::string& src,
+                                  const std::string& dst);
+
+/// Remove one file
+bool os_portable_remove_file(const std::string& file);
+
+/// Remove one directory
+bool os_portable_remove_directory(const std::string& dir);
 
 /// Append two paths
 std::string os_portable_append_dir(const std::string& dir1,
@@ -42,7 +55,7 @@ struct execute_result {
   /// has timeout
   bool timeout;
   /// failed execution
-  enum _failure {PREIO = 0, FORK = 1, ALARM, ARG, EXEC, WAIT, NONE } failure;
+  enum _failure { PREIO = 0, FORK = 1, ALARM, ARG, EXEC, WAIT, NONE } failure;
   /// return value
   unsigned ret;
   /// true if it exits with _exit() call
@@ -52,13 +65,15 @@ struct execute_result {
 };
 
 /// the type of redirect
-enum redirect_t {NONE = 0 , STDOUT = 1 , STDERR = 2, BOTH = 3};
+enum redirect_t { NONE = 0, STDOUT = 1, STDERR = 2, BOTH = 3 };
 /// execute some executables that are shell scripts,
 /// timeout (if 0 will wait forever)
-execute_result os_portable_execute_shell(const std::vector<std::string> & cmdargs, 
-    const std::string & redirect_output_file = "", redirect_t rdt = redirect_t::BOTH,
-    unsigned timeout = 0,
-    const std::string & pid_file_name = "");
+execute_result
+os_portable_execute_shell(const std::vector<std::string>& cmdargs,
+                          const std::string& redirect_output_file = "",
+                          redirect_t rdt = redirect_t::BOTH,
+                          unsigned timeout = 0,
+                          const std::string& pid_file_name = "");
 
 /// Extract filename from path
 /// C:\a\b\c.txt -> c.txt
@@ -72,22 +87,20 @@ std::string os_portable_file_name_from_path(const std::string& path);
 std::string os_portable_path_from_path(const std::string& path);
 
 /// read the last meaningful line from a file
-std::string os_portable_read_last_line(const std::string  & filename);
+std::string os_portable_read_last_line(const std::string& filename);
 
 /// Change current directory: true if success
-bool os_portable_chdir(const std::string  & dirname);
+bool os_portable_chdir(const std::string& dirname);
 
 /// Get the current directory
 std::string os_portable_getcwd();
 
-
-
-
-#if ( defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) ) && ! defined(__linux__) 
+#if (defined(__unix__) || defined(unix) || defined(__APPLE__) ||               \
+     defined(__MACH__) || defined(__FreeBSD__)) &&                             \
+    !defined(__linux__)
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -103,21 +116,21 @@ extern "C"
  *
  * You must call fclose on the returned file pointer or memory will be leaked.
  *
- *      @param buf The data that will be used to back the FILE* methods. Must be at least
+ *      @param buf The data that will be used to back the FILE* methods. Must be
+ * at least
  *                 @c size bytes.
  *      @param size The size of the @c buf data.
  *      @param mode The permitted stream operation modes.
- *      @returns A pointer that can be used in the fread/fwrite/fseek/fclose family of methods.
- *               If a failure occurred NULL will be returned.
+ *      @returns A pointer that can be used in the fread/fwrite/fseek/fclose
+ * family of methods. If a failure occurred NULL will be returned.
  */
-FILE *fmemopen_osx(void *buf, size_t size, const char *mode);
+FILE* fmemopen_osx(void* buf, size_t size, const char* mode);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // fmemopen_osx guard
-
 
 }; // namespace ilang
 

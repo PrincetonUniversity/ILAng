@@ -1,15 +1,17 @@
 /// \file
 /// Unit test for unrolling a sequence of instruction.
 
+#include <iostream>
+
+#include <ilang/ila-mngr/u_unroller.h>
+
 #include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
-#include <ilang/verification/unroller.h>
-#include <iostream>
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 class TestUnroll : public ::testing::Test {
 public:
@@ -26,17 +28,17 @@ public:
     init_mem = MemConst(init_mem_val, 8, 8);
   }
   void TearDown() {
-    SetToStdErr(0);
+    // SetToStdErr(0);
     DebugLog::Disable("Unroller");
   }
 
   EqIlaGen ila_gen_;
   z3::context ctx_;
-  ExprPtr init_mem = NULL;
+  ExprPtr init_mem = nullptr;
 
 }; // class TestUnroll
 
-TEST_F(TestUnroll, InsteSeqFlatSubs) {
+TEST_F(TestUnroll, InstrSeqFlatSubs) {
   auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
@@ -46,9 +48,10 @@ TEST_F(TestUnroll, InsteSeqFlatSubs) {
 
   auto unroller = new PathUnroll(ctx_);
   auto cstr = unroller->PathSubs(seq);
+  delete unroller;
 }
 
-TEST_F(TestUnroll, InsteSeqFlatAssn) {
+TEST_F(TestUnroll, InstrSeqFlatAssn) {
   auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
@@ -58,6 +61,7 @@ TEST_F(TestUnroll, InsteSeqFlatAssn) {
 
   auto unroller = new PathUnroll(ctx_);
   auto cstr = unroller->PathAssn(seq);
+  delete unroller;
 }
 
 TEST_F(TestUnroll, InstrSeqFlatNone) {
@@ -69,10 +73,11 @@ TEST_F(TestUnroll, InstrSeqFlatNone) {
 
   auto unroller = new PathUnroll(ctx_);
   auto cstr = unroller->PathNone(seq);
+  delete unroller;
 }
 
 TEST_F(TestUnroll, InstrSeqSolve) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
   auto m0 = SimpleCpu("m0");
   auto m1 = SimpleCpu("m1");
 
@@ -170,7 +175,7 @@ TEST_F(TestUnroll, MonoFlatNone) {
 }
 
 TEST_F(TestUnroll, MonoSolve) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
   auto m0 = SimpleCpu("m0");
   auto m1 = SimpleCpu("m1");
 
@@ -245,7 +250,7 @@ TEST_F(TestUnroll, MonoSolve) {
 }
 
 TEST_F(TestUnroll, PathMonoSolve) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
   auto m0 = SimpleCpu("m0");
   auto m1 = SimpleCpu("m1");
 

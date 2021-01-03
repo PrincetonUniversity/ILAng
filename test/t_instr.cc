@@ -1,9 +1,10 @@
 /// \file
 /// Unit test for class Instr.
 
-#include "unit-include/util.h"
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/ila/instr.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -28,41 +29,11 @@ TEST_F(TestInstr, Construct) {
   EXPECT_FALSE(sptr->is_instr_lvl_abs());
   EXPECT_FALSE(sptr->is_ast());
 
-  EXPECT_FALSE(sptr->has_view());
-
   InstrPtr eptr = std::make_shared<Instr>("raw_instr");
 
   EXPECT_TRUE(eptr->is_instr());
   EXPECT_FALSE(eptr->is_instr_lvl_abs());
   EXPECT_FALSE(eptr->is_ast());
-
-  EXPECT_FALSE(eptr->has_view());
-
-#if 0
-  InstrPtr nptr = std::make_shared<Instr>();
-
-  EXPECT_TRUE(nptr->is_instr());
-  EXPECT_FALSE(nptr->is_instr_lvl_abs());
-  EXPECT_FALSE(nptr->is_ast());
-
-  EXPECT_FALSE(nptr->has_view());
-
-  InstrPtr hptr = Instr::New();
-
-  EXPECT_TRUE(hptr->is_instr());
-  EXPECT_FALSE(hptr->is_instr_lvl_abs());
-  EXPECT_FALSE(hptr->is_ast());
-
-  EXPECT_FALSE(hptr->has_view());
-#endif
-}
-
-TEST_F(TestInstr, View) {
-  InstrPtr ptr = std::make_shared<Instr>("dummy");
-
-  EXPECT_FALSE(ptr->has_view());
-  ptr->set_view(true);
-  EXPECT_TRUE(ptr->has_view());
 }
 
 TEST_F(TestInstr, DecodeSimplified) {
@@ -75,19 +46,19 @@ TEST_F(TestInstr, DecodeSimplified) {
 #endif
 
   // set with bitvector update function (forbiddened)
-  ExprPtr bv_expr = ExprFuse::BvConst(0, 8);
+  ExprPtr bv_expr = asthub::BvConst(0, 8);
 #ifndef NDEBUG
   EXPECT_DEATH(ptr->set_decode(bv_expr), ".*");
   EXPECT_DEATH(ptr->ForceSetDecode(bv_expr), ".*");
 #endif
 
   // set with bool update function
-  ExprPtr bool_expr = ExprFuse::BoolConst(true);
+  ExprPtr bool_expr = asthub::BoolConst(true);
   ptr->set_decode(bool_expr);
   EXPECT_EQ(bool_expr, ptr->decode());
 
   // try to overwrite
-  ExprPtr new_bool_expr = ExprFuse::BoolConst(false);
+  ExprPtr new_bool_expr = asthub::BoolConst(false);
   std::string msg;
 #ifndef NDEBUG
   GET_STDERR_MSG(ptr->set_decode(new_bool_expr), msg);
@@ -113,19 +84,19 @@ TEST_F(TestInstr, DecodeNonSimplified) {
 #endif
 
   // set with bitvector update function (forbiddened)
-  ExprPtr bv_expr = ExprFuse::BvConst(0, 8);
+  ExprPtr bv_expr = asthub::BvConst(0, 8);
 #ifndef NDEBUG
   EXPECT_DEATH(ptr->set_decode(bv_expr), ".*");
   EXPECT_DEATH(ptr->ForceSetDecode(bv_expr), ".*");
 #endif
 
   // set with bool update function
-  ExprPtr bool_expr = ExprFuse::BoolConst(true);
+  ExprPtr bool_expr = asthub::BoolConst(true);
   ptr->set_decode(bool_expr);
   EXPECT_EQ(bool_expr, ptr->decode());
 
   // try to overwrite
-  ExprPtr new_bool_expr = ExprFuse::BoolConst(false);
+  ExprPtr new_bool_expr = asthub::BoolConst(false);
   std::string msg;
 #ifndef NDEBUG
   GET_STDERR_MSG(ptr->set_decode(new_bool_expr), msg);
@@ -144,11 +115,11 @@ TEST_F(TestInstr, DecodeNonSimplified) {
 TEST_F(TestInstr, UpdateSimplified) {
   InstrPtr ptr = std::make_shared<Instr>("dummy");
 
-  ExprPtr bv_var = ExprFuse::NewBvVar("bv_var", 8);
-  ExprPtr bool_var = ExprFuse::NewBoolVar("bool_var");
+  ExprPtr bv_var = asthub::NewBvVar("bv_var", 8);
+  ExprPtr bool_var = asthub::NewBoolVar("bool_var");
 
   // add by name
-  ExprPtr bv_update = ExprFuse::BvConst(0, 8);
+  ExprPtr bv_update = asthub::BvConst(0, 8);
   ptr->set_update("bv_var", bv_update);
   // get by name
   EXPECT_EQ(bv_update, ptr->update("bv_var"));
@@ -156,7 +127,7 @@ TEST_F(TestInstr, UpdateSimplified) {
   EXPECT_EQ(bv_update, ptr->update(bv_var));
 
   // add with node
-  ExprPtr bool_update = ExprFuse::BoolConst(true);
+  ExprPtr bool_update = asthub::BoolConst(true);
   ptr->set_update(bool_var, bool_update);
   // get by name
   EXPECT_EQ(bool_update, ptr->update("bool_var"));
@@ -165,7 +136,7 @@ TEST_F(TestInstr, UpdateSimplified) {
 
   // try to overwrite (with var)
   std::string msg;
-  ExprPtr new_bv_update = ExprFuse::NewBvVar("non-det-bv", 8);
+  ExprPtr new_bv_update = asthub::NewBvVar("non-det-bv", 8);
 #ifndef NDEBUG
   GET_STDERR_MSG(ptr->set_update(bv_var, new_bv_update), msg);
   EXPECT_FALSE(msg.empty());
@@ -183,11 +154,11 @@ TEST_F(TestInstr, UpdateSimplified) {
 TEST_F(TestInstr, UpdateNonSimplified) {
   InstrPtr ptr = std::make_shared<Instr>("dummy");
 
-  ExprPtr bv_var = ExprFuse::NewBvVar("bv_var", 8);
-  ExprPtr bool_var = ExprFuse::NewBoolVar("bool_var");
+  ExprPtr bv_var = asthub::NewBvVar("bv_var", 8);
+  ExprPtr bool_var = asthub::NewBoolVar("bool_var");
 
   // add by name
-  ExprPtr bv_update = ExprFuse::BvConst(0, 8);
+  ExprPtr bv_update = asthub::BvConst(0, 8);
   ptr->set_update("bv_var", bv_update);
   // get by name
   EXPECT_EQ(bv_update, ptr->update("bv_var"));
@@ -195,7 +166,7 @@ TEST_F(TestInstr, UpdateNonSimplified) {
   EXPECT_EQ(bv_update, ptr->update(bv_var));
 
   // add with node
-  ExprPtr bool_update = ExprFuse::BoolConst(true);
+  ExprPtr bool_update = asthub::BoolConst(true);
   ptr->set_update(bool_var, bool_update);
   // get by name
   EXPECT_EQ(bool_update, ptr->update("bool_var"));
@@ -204,7 +175,7 @@ TEST_F(TestInstr, UpdateNonSimplified) {
 
   // try to overwrite (with var)
   std::string msg;
-  ExprPtr new_bv_update = ExprFuse::NewBvVar("non-det-bv", 8);
+  ExprPtr new_bv_update = asthub::NewBvVar("non-det-bv", 8);
 #ifndef NDEBUG
   GET_STDERR_MSG(ptr->set_update(bv_var, new_bv_update), msg);
   EXPECT_FALSE(msg.empty());

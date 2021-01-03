@@ -8,9 +8,9 @@ pr:
 
 jobs:
 
-- job: macOS
+- job: macOS_Catalina_Debug
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-10.15'
   steps:
   - script: |
       brew update

@@ -1,13 +1,15 @@
 /// \file
 /// Source for the base class of memory model
 
-#include "ilang/mcm/memory_model.h"
-#include "ilang/mcm/inter_ila_unroller.h"
-#include "ilang/mcm/set_op.h"
-#include "ilang/util/log.h"
-#include <ilang/mcm/axiom_helper.h>
-#include <ilang/util/z3_helper.h>
+#include <ilang/mcm/memory_model.h>
+
 #include <string>
+
+#include <ilang/mcm/axiom_helper.h>
+#include <ilang/mcm/inter_ila_unroller.h>
+#include <ilang/mcm/set_op.h>
+#include <ilang/util/log.h>
+#include <ilang/util/z3_helper.h>
 
 namespace ilang {
 
@@ -413,8 +415,8 @@ void MemoryModel::SetLocalState(const std::vector<bool>& ordered)
         // trace_steps.pos_suffix()
         for (auto&& sname : private_write_set) {
           auto conditional_update =
-              ExprFuse::Ite(ts->inst()->decode(), ts->inst()->update(sname),
-                            ts->host()->state(sname));
+              asthub::Ite(ts->inst()->decode(), ts->inst()->update(sname),
+                          ts->host()->state(sname));
           // NOT using its direct form
           //  -- last_update_of_a_state[sname] = std::make_pair(
           //  ts->inst()->update(sname) , ts->pos_suffix() );
@@ -454,7 +456,7 @@ void MemoryModel::SetLocalState(const std::vector<bool>& ordered)
           UpdateDecodeTsPosList;
       std::map<std::string, UpdateDecodeTsPosList> all_update_of_a_state;
       // one pass to identify all defines of a state
-      ExprPtr decode_true = ExprFuse::BoolConst(
+      ExprPtr decode_true = asthub::BoolConst(
           true); // std::make_shared<ExprConst>( BoolVal(true) );
       z3::expr time_0 = _ctx_.int_val(0);
       for (auto&& sname : private_state_name) {

@@ -1,7 +1,10 @@
+#include <queue>
+
+#include <fmt/format.h>
+
 #include <ilang/target-sc/ila_sim.h>
 
-#include <ilang/ila/ast_fuse.h>
-#include <queue>
+#include "ast_fuse.h"
 
 namespace ilang {
 
@@ -52,11 +55,11 @@ bool IlaSim::load_from_store_analysis(const ExprPtr& expr) {
   return ld_st_counter_ != 0;
 }
 
-void IlaSim::declare_variable_with_id(size_t id, std::string v_type,
-                                      std::string v_name) {
+void IlaSim::declare_variable_with_id(size_t id, const std::string& v_type,
+                                      const std::string& v_name) {
   if (declared_id_set_.find(id) == declared_id_set_.end()) {
     declared_id_set_.insert(id);
-    header_ << header_indent_ << v_type << v_name << ";" << std::endl;
+    header_ << header_indent_ << fmt::format("{} {};\n", v_type, v_name);
   }
 }
 

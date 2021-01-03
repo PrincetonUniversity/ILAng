@@ -7,21 +7,19 @@
 #include <cmath>
 #include <iostream>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
 #include <ilang/vtarget-out/vtarget_gen_jasper.h>
+#include <ilang/vtarget-out/vtarget_gen_relchc.h>
 #include <ilang/vtarget-out/vtarget_gen_yosys.h>
 // for invariant synthesis
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_abc.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_enhance.h>
-
-#include <cmath>
-#include <iostream>
 
 namespace ilang {
 
@@ -56,16 +54,28 @@ VlgVerifTgtGen::VlgVerifTgtGen(
     ILA_ERROR << "ILA should not be none";
     _bad_state = true;
   }
-  // check for json file -- global invariants
-  if (!IN("global invariants", rf_cond)) {
-    ILA_ERROR << "'global invariants' must exist, can be an empty array";
+  // check for json file -- global-invariants
+  if (!IN("global invariants", rf_cond) && !IN("global-invariants", rf_cond)) {
+    ILA_ERROR << "'global-invariants' must exist, can be an empty array";
     _bad_state = true;
-  } else if (!rf_cond["global invariants"].is_array()) {
+  } else if (IN("global invariants", rf_cond) &&
+             !rf_cond["global invariants"].is_array()) {
     ILA_ERROR << "'global invariants' must be an array of string";
     _bad_state = true;
-  } else if (rf_cond["global invariants"].size() != 0) {
+  } else if (IN("global-invariants", rf_cond) &&
+             !rf_cond["global-invariants"].is_array()) {
+    ILA_ERROR << "'global-invariants' must be an array of string";
+    _bad_state = true;
+  } else if (IN("global invariants", rf_cond) &&
+             rf_cond["global invariants"].size() != 0) {
     if (!rf_cond["global invariants"][0].is_string()) {
       ILA_ERROR << "'global invariants' must be an array of string";
+      _bad_state = true;
+    }
+  } else if (IN("global-invariants", rf_cond) &&
+             rf_cond["global-invariants"].size() != 0) {
+    if (!rf_cond["global-invariants"][0].is_string()) {
+      ILA_ERROR << "'global-invariants' must be an array of string";
       _bad_state = true;
     }
   }
@@ -105,8 +115,11 @@ VlgVerifTgtGen::VlgVerifTgtGen(
                  "-> 'instance name' ";
     _bad_state = true;
   }
-  if (!IN("state mapping", rf_vmap) || !rf_vmap["state mapping"].is_object()) {
-    ILA_ERROR << "'state mapping' field must exist in vmap and be a map : "
+  if (!((IN("state mapping", rf_vmap) &&
+         rf_vmap["state mapping"].is_object()) ||
+        (IN("state-mapping", rf_vmap) &&
+         rf_vmap["state-mapping"].is_object()))) {
+    ILA_ERROR << "'state-mapping' field must exist in vmap and be a map : "
                  "ila_var -> impl_var";
     _bad_state = true;
   }
@@ -149,8 +162,10 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       _vtg_config.target_select == vtg_config_t::INV) {
     // check if there are really invariants:
     bool invariantExists = false;
-    if (IN("global invariants", rf_cond)) {
-      auto& inv = rf_cond["global invariants"];
+    if (IN("global invariants", rf_cond) || IN("global-invariants", rf_cond)) {
+      nlohmann::json& inv = IN("global invariants", rf_cond)
+                                ? rf_cond["global invariants"]
+                                : rf_cond["global-invariants"];
       if (inv.is_array() && inv.size() != 0)
         invariantExists = true;
       else if (inv.is_string() && inv.get<std::string>() != "")
@@ -198,6 +213,20 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
       target.do_not_instantiate();
+    } else if (_backend == backend_selector::RELCHC && invariantExists) {
+      // will actually fail : not supported for using relchc for invariant
+      // targets
+      auto target = VlgSglTgtGen_Relchc(
+          sub_output_path,
+          NULL, // invariant
+          _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+          _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+          _vlg_impl_include_path, _vtg_config, _backend,
+          target_type_t::INVARIANTS, _advanced_param_ptr);
+      target.ConstructWrapper();
+      target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2",
+                       "absmem.v");
+      target.do_not_instantiate();
     } else if ((_backend & backend_selector::YOSYS) ==
                    backend_selector::YOSYS &&
                invariantExists) {
@@ -223,6 +252,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ExportAll("wrapper.v", "ila.v", "run.sh", design_file, "absmem.v");
       target.do_not_instantiate();
     }
+
     if (invariantExists)
       runnable_script_name.push_back(
           os_portable_append_dir(sub_output_path, "run.sh"));
@@ -271,6 +301,20 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             target_type_t::INSTRUCTIONS, _advanced_param_ptr);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
+        target.do_not_instantiate();
+      } else if (_backend == backend_selector::RELCHC) {
+        // will actually fail : not supported for using relchc for invariant
+        // targets
+        auto target = VlgSglTgtGen_Relchc(
+            sub_output_path,
+            instr_ptr, // instruction
+            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
+            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INSTRUCTIONS, _advanced_param_ptr);
+        target.ConstructWrapper();
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2",
+                         "absmem.v");
         target.do_not_instantiate();
       } else if ((_backend & backend_selector::YOSYS) ==
                  backend_selector::YOSYS) {

@@ -10,7 +10,12 @@
 #include <string>
 #include <vector>
 
-#include "z3++.h"
+#include <z3++.h>
+#ifdef SMTSWITCH_INTERFACE
+#include <smt-switch/smt.h>
+#endif // SMTSWITCH_INTERFACE
+
+#include <ilang/config.h>
 
 /// \namespace ilang
 /// Defines the core data structure and APIs for constructing and storing ILA.
@@ -51,6 +56,7 @@ class Expr;
 class Instr;
 class InstrLvlAbs;
 class Unroller;
+
 // forward declaration
 class Ila;
 
@@ -60,7 +66,7 @@ private:
   typedef std::shared_ptr<Sort> SortPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Sort pointer.
-  SortPtr ptr_ = NULL;
+  SortPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -88,7 +94,7 @@ private:
   typedef std::shared_ptr<Expr> ExprPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Expr pointer.
-  ExprPtr ptr_ = NULL;
+  ExprPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -106,6 +112,8 @@ public:
   int addr_width() const;
   /// Return the data bit-width if is memory; return -1 otherwise.
   int data_width() const;
+  /// Return the expression name as std::string.
+  std::string name() const;
 
   // ------------------------- METHODS -------------------------------------- //
   /****************************************************************************/
@@ -370,7 +378,7 @@ private:
   typedef std::shared_ptr<Func> FuncPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Func pointer.
-  FuncPtr ptr_ = NULL;
+  FuncPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -387,6 +395,12 @@ public:
   /// Default destructor.
   ~FuncRef();
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the function name as std::string.
+  std::string name() const;
+  /// Return the wrapped Func pointer.
+  inline FuncPtr get() const { return ptr_; }
+
   // ------------------------- METHODS -------------------------------------- //
   /// Apply the function with no argument.
   ExprRef operator()() const;
@@ -397,11 +411,6 @@ public:
   /// Apply the function with multiple arguments.
   ExprRef operator()(const std::vector<ExprRef>& argvec) const;
 
-private:
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the wrapped Func pointer.
-  inline FuncPtr get() const { return ptr_; }
-
 }; // class FuncRef
 
 /// \brief The wrapper of Instr (instruction).
@@ -410,7 +419,7 @@ private:
   typedef std::shared_ptr<Instr> InstrPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Instr pointer.
-  InstrPtr ptr_ = NULL;
+  InstrPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -455,6 +464,9 @@ public:
   /// Return the wrapped ILA pointer.
   inline InstrPtr get() const { return ptr_; }
 
+  /// Return the instruction name as std::string.
+  std::string name() const;
+
 }; // class InstrRef
 
 /// \brief The wrapper of InstrLvlAbs (ILA).
@@ -463,7 +475,7 @@ private:
   typedef std::shared_ptr<InstrLvlAbs> IlaPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped InstrLvlAbs pointer.
-  IlaPtr ptr_ = NULL;
+  IlaPtr ptr_ = nullptr;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -517,11 +529,6 @@ public:
   /// \param[in] name child-ILA name.
   Ila NewChild(const std::string& name);
 
-  // ------------------------- GENERATORS --------------------------------- //
-  /// \brief Export an ILA as Verilog
-  /// \param[in] fout the output stream of the generated Verilog source.
-  void ExportToVerilog(std::ostream& fout) const;
-
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the number of input variables.
   size_t input_num() const;
@@ -564,6 +571,28 @@ public:
   /// Return the wrapped ILA pointer.
   inline IlaPtr get() const { return ptr_; }
 
+  // ------------------------- UTILITIES ------------------------------------ //
+  /// \brief Export an ILA as Verilog
+  /// \param[in] fout the output stream of the generated Verilog source.
+  void ExportToVerilog(std::ostream& fout) const;
+
+  /// \brief Flatten the hierarchy by lifting child-instructions as the
+  /// top-level parent instructions.
+  void FlattenHierarchy();
+
+  /// \brief Supported pass ID.
+  typedef enum PassID {
+    SANITY_CHECK_AND_FIX = 0,
+    SIMPLIFY_SYNTACTIC,
+    SIMPLIFY_SEMANTIC,
+    REWRITE_CONDITIONAL_STORE,
+    REWRITE_LOAD_FROM_STORE
+  } PassID;
+
+  /// \brief Execute the specified passes in order.
+  /// \param[in] passes the list of passes to execute.
+  bool ExecutePass(const std::vector<PassID>& passes) const;
+
 }; // class Ila
 
 /******************************************************************************/
@@ -588,6 +617,7 @@ bool ExportIlaPortable(const Ila& ila, const std::string& file_name);
 /// \param[in] file_name the name of the ILA portable (JSON) file to import.
 Ila ImportIlaPortable(const std::string& file_name);
 
+#ifdef SYNTH_INTERFACE
 /// \brief Import the synthesized abstraction from file.
 /// \param[in] file_name the name of the synthesized abstraction (.ila) file.
 /// \param[in] ila_name the name of the generated ILA.
@@ -601,6 +631,14 @@ Ila ImportSynthAbstraction(const std::string& file_name,
 /// \param[in] ila_name the name pf the generated child-ILA.
 void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name);
+#endif // SYNTH_INTERFACE
+
+/// \brief Generate the SystemC simulator.
+/// \param [in] ila the top-level ILA to generate.
+/// \param [in] dir_path directory path of the generated simulator.
+/// \param [in] optimize set true to enable optimization.
+void ExportSysCSim(const Ila& ila, const std::string& dir_path,
+                   bool optimize = false);
 
 /******************************************************************************/
 // Verification.
@@ -648,6 +686,12 @@ public:
   z3::expr UnrollPathConn(const std::vector<InstrRef>& path,
                           const int& init = 0);
 
+  /// \brief Unroll a path with each step connected with rewriting.
+  /// \param[in] path the sequence of instructions.
+  /// \param[in] init the starting time frame.
+  z3::expr UnrollPathSubs(const std::vector<InstrRef>& path,
+                          const int& init = 0);
+
   /// \brief Unroll a path with each step freely defined.
   /// \param[in] path the sequence of instructions.
   /// \param[in] init the starting time frame.
@@ -664,6 +708,8 @@ public:
   /// Return the z3::expr representing a and b are equal at their time.
   z3::expr Equal(const ExprRef& va, const int& ta, const ExprRef& vb,
                  const int& tb);
+  /// Return the z3::func_decl representing f.
+  z3::func_decl GetZ3FuncDecl(const FuncRef& f) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -680,7 +726,7 @@ private:
   std::string extra_suff_;
 
   /// Pointer for calling universal functions.
-  std::shared_ptr<Unroller> univ_ = NULL;
+  std::shared_ptr<Unroller> univ_ = nullptr;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Initialize the unroller based on its dynamic type.
@@ -698,6 +744,17 @@ private:
   }
 
 }; // class IlaZ3Unroller
+
+#ifdef SMTSWITCH_INTERFACE
+
+/// \brief Reset the solver and generate the SMT Term (for smt-switch).
+/// \param[in] solver The SMT solver in smt-switch.
+/// \param[in] expr The target ILA expression.
+/// \param[in] suffix The suffix to add on SMT symbols' name.
+smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
+                             const std::string& suffix = "");
+
+#endif // SMTSWITCH_INTERFACE
 
 } // namespace ilang
 

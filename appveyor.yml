@@ -1,0 +1,21 @@
+version: 1.0.{build}
+image: Ubuntu2004
+clone_depth: 1
+
+configuration:
+- Debug
+- Release
+
+install:
+- sudo apt update --yes
+- sudo apt install --yes z3 libz3-dev bison flex gcc g++
+
+build_script:
+- cd $APPVEYOR_BUILD_FOLDER
+- mkdir -p build
+- cd build
+- cmake .. -DCMAKE_CXX_COMPILER=g++-9
+- make -j$(nproc)
+- sudo make install
+- make test
+- cmake --version

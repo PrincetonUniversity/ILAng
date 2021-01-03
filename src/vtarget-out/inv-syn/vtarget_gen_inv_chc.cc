@@ -33,7 +33,7 @@ opt_expr -mux_undef
 opt
 opt
 %flatten%
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
 proc
@@ -49,7 +49,7 @@ opt_expr -mux_undef
 opt
 opt
 %flatten%
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory_dff -wr_only
 memory_collect;
@@ -517,9 +517,9 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(const std::string& smt_name,
                                       _vtg_config.YosysSmtFlattenHierarchy
                                           ? "flatten;"
                                           : ""),
-                           "%setundef -undriven -expose%",
+                           "%setundef -undriven -init -expose%",
                            _vtg_config.YosysUndrivenNetAsInput
-                               ? "setundef -undriven -expose"
+                               ? "setundef -undriven -init -expose"
                                : ""),
                 "%rstlen%",
                 std::to_string(

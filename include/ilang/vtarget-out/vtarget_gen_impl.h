@@ -202,7 +202,7 @@ protected:
                                  nlohmann::json& m, bool is_assert = false);
   /// add a start condition if it is given
   void handle_start_condition(nlohmann::json& dc);
-  /// Find the current instruction mapping
+  /// Find the current instruction-mapping
   nlohmann::json& get_current_instruction_rf();
 
 protected:

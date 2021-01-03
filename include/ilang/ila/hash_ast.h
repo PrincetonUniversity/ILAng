@@ -1,12 +1,15 @@
 /// \file
-/// Header for the class ExprMngr and the corresponding hash
+/// Class ExprMngr - organize and share Expr nodes based on their syntactic
+/// structures.
 
 #ifndef ILANG_ILA_HASH_AST_H__
 #define ILANG_ILA_HASH_AST_H__
 
+#include <memory>
+#include <string>
 #include <unordered_map>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -14,16 +17,14 @@ namespace ilang {
 /// \brief Simplifier for AST trees by sharing nodes based on the hash value.
 class ExprMngr {
 public:
+  /// Pointer type for passing shared ast simplifier.
+  typedef std::shared_ptr<ExprMngr> ExprMngrPtr;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   ExprMngr();
   /// Default destructor.
   ~ExprMngr();
-
-  /// Pointer type for passing shared ast simplifier.
-  typedef std::shared_ptr<ExprMngr> ExprMngrPtr;
-  /// Type for cacheing the AST node hashing.
-  typedef std::unordered_map<size_t, const ExprPtr> HashTable;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create an object and return the pointer. Used for hiding
@@ -36,18 +37,18 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the AST node representative.
-  ExprPtr GetRep(const ExprPtr node);
+  ExprPtr GetRep(const ExprPtr& node);
   /// Function object for sharing ast nodes.
-  void operator()(const ExprPtr node);
+  void operator()(const ExprPtr& node);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The map for AST nodes.
-  HashTable map_;
+  std::unordered_map<std::string, ExprPtr> map_;
 
   // ------------------------- HELPER FUNCTIONS ----------------------------- //
   /// Hash function.
-  size_t Hash(const ExprPtr node) const;
+  static std::string Hash(const ExprPtr& node);
 
 }; // class ExprMngr
 

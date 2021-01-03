@@ -1,12 +1,13 @@
 /// \file
 /// Unit test for hashing ast sub-trees
 
-#include "unit-include/util.h"
 #include <ilang/ila/instr_lvl_abs.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 class TestHashApi : public ::testing::Test {
 public:
@@ -27,12 +28,12 @@ public:
 
   void SetUp() {
     DebugLog::Enable("HashApi");
-    SetToStdErr(1);
+    // SetToStdErr(1);
   }
 
   void TearDown() {
     DebugLog::Disable("HashApi");
-    SetToStdErr(0);
+    // SetToStdErr(0);
   }
 
   InstrLvlAbsPtr ila = NULL;

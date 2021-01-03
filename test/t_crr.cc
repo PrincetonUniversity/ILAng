@@ -1,9 +1,10 @@
 /// \file
 /// Unit test for compositional refinement relation.
 
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
+
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
-#include <ilang/ila/comp_ref_rel.h>
 
 namespace ilang {
 
@@ -27,15 +28,15 @@ TEST_F(TestCrr, Refinement) {
   ref->set_appl(m0->instr(0)->decode());
   EXPECT_EQ(ref->appl(), m0->instr(0)->decode());
 
-  auto flush = ExprFuse::BoolConst(true);
+  auto flush = asthub::BoolConst(true);
   for (size_t i = 0; i != m0->instr_num(); i++) {
-    flush = ExprFuse::And(flush, ExprFuse::Not(m0->instr(0)->decode()));
+    flush = asthub::And(flush, asthub::Not(m0->instr(0)->decode()));
   }
   ref->set_flush(flush);
   EXPECT_TRUE(ref->flush()->is_bool());
 
-  ref->set_cmpl(ExprFuse::BoolConst(true));
-  EXPECT_TRUE(ExprFuse::TopEq(ExprFuse::BoolConst(true), ref->cmpl()));
+  ref->set_cmpl(asthub::BoolConst(true));
+  EXPECT_TRUE(asthub::TopEq(asthub::BoolConst(true), ref->cmpl()));
 
   EXPECT_EQ(-1, ref->step_appl());
   ref->set_step_appl(1);
@@ -47,10 +48,10 @@ TEST_F(TestCrr, Relation) {
   auto rel = RelationMap::New();
 
   for (size_t i = 0; i != m0->state_num(); i++) {
-    rel->add(ExprFuse::Eq(m0->state(i), m1->state(i)));
+    rel->add(asthub::Eq(m0->state(i), m1->state(i)));
   }
 
-  EXPECT_FALSE(ExprFuse::TopEq(ExprFuse::BoolConst(true), rel->get()));
+  EXPECT_FALSE(asthub::TopEq(asthub::BoolConst(true), rel->get()));
 }
 
 TEST_F(TestCrr, CompRefRel) {

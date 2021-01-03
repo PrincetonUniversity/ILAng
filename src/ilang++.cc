@@ -4,13 +4,20 @@
 #include <ilang/ilang++.h>
 
 #include <ilang/config.h>
+#include <ilang/ila-mngr/pass.h>
+#include <ilang/ila-mngr/u_abs_knob.h>
+#include <ilang/ila-mngr/u_unroller.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
+#include <ilang/target-sc/ilator.h>
+#include <ilang/target-smt/smt_switch_itf.h>
 #include <ilang/util/log.h>
-#include <ilang/verification/abs_knob.h>
-#include <ilang/verification/unroller.h>
 #include <ilang/verilog-out/verilog_gen.h>
+
+#ifdef SMTSWITCH_INTERFACE
+#include <smt-switch/smt.h>
+#endif // SMTSWITCH_INTERFACE
 
 namespace ilang {
 
@@ -62,47 +69,49 @@ int ExprRef::data_width() const {
   return ptr_->is_mem() ? ptr_->sort()->data_width() : -1;
 }
 
+std::string ExprRef::name() const { return ptr_->name().str(); }
+
 ExprRef ExprRef::Load(const ExprRef& addr) const {
-  auto v = ExprFuse::Load(get(), addr.get());
+  auto v = asthub::Load(get(), addr.get());
   return ExprRef(v);
 }
 
 ExprRef ExprRef::Store(const ExprRef& addr, const ExprRef& data) const {
-  auto v = ExprFuse::Store(get(), addr.get(), data.get());
+  auto v = asthub::Store(get(), addr.get(), data.get());
   return ExprRef(v);
 }
 
 ExprRef ExprRef::Load(const NumericType& addr) const {
-  auto v = ExprFuse::Load(get(), addr);
+  auto v = asthub::Load(get(), addr);
   return ExprRef(v);
 }
 
 ExprRef ExprRef::Store(const NumericType& addr, const NumericType& data) const {
-  auto v = ExprFuse::Store(get(), addr, data);
+  auto v = asthub::Store(get(), addr, data);
   return ExprRef(v);
 }
 
 ExprRef ExprRef::Append(const ExprRef& lsbv) const {
-  auto v = ExprFuse::Concat(get(), lsbv.get());
+  auto v = asthub::Concat(get(), lsbv.get());
   return ExprRef(v);
 }
 
 ExprRef ExprRef::operator()(const int& hi, const int& lo) const {
-  auto v = ExprFuse::Extract(get(), hi, lo);
+  auto v = asthub::Extract(get(), hi, lo);
   return ExprRef(v);
 }
 
 ExprRef ExprRef::operator()(const int& idx) const {
-  return ExprFuse::Extract(get(), idx, idx);
+  return asthub::Extract(get(), idx, idx);
 }
 
 ExprRef ExprRef::ZExt(const int& length) const {
-  auto v = ExprFuse::ZExt(get(), length);
+  auto v = asthub::ZExt(get(), length);
   return ExprRef(v);
 }
 
 ExprRef ExprRef::SExt(const int& length) const {
-  auto v = ExprFuse::SExt(get(), length);
+  auto v = asthub::SExt(get(), length);
   return ExprRef(v);
 }
 
@@ -115,381 +124,381 @@ void ExprRef::ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg) {
 }
 
 bool ExprRef::SetEntryNum(const int& num) {
-  auto res = ExprFuse::SetMemSize(get(), num);
+  auto res = asthub::SetMemSize(get(), num);
   return res;
 }
 
 int ExprRef::GetEntryNum() {
-  auto num = ExprFuse::GetMemSize(get());
+  auto num = asthub::GetMemSize(get());
   return num;
 }
 
 ExprRef operator-(const ExprRef& a) {
-  auto v = ExprFuse::Negate(a.get());
+  auto v = asthub::Negate(a.get());
   return ExprRef(v);
 }
 
 ExprRef operator!(const ExprRef& a) {
-  auto v = ExprFuse::Not(a.get());
+  auto v = asthub::Not(a.get());
   return ExprRef(v);
 }
 
 ExprRef operator~(const ExprRef& a) {
-  auto v = ExprFuse::Complement(a.get());
+  auto v = asthub::Complement(a.get());
   return ExprRef(v);
 }
 
 ExprRef operator&(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::And(a.get(), b.get());
+  auto v = asthub::And(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator|(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Or(a.get(), b.get());
+  auto v = asthub::Or(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator^(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Xor(a.get(), b.get());
+  auto v = asthub::Xor(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator<<(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Shl(a.get(), b.get());
+  auto v = asthub::Shl(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator>>(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Ashr(a.get(), b.get());
+  auto v = asthub::Ashr(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Lshr(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Lshr(a.get(), b.get());
+  auto v = asthub::Lshr(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator+(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Add(a.get(), b.get());
+  auto v = asthub::Add(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator-(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Sub(a.get(), b.get());
+  auto v = asthub::Sub(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator/(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Div(a.get(), b.get());
+  auto v = asthub::Div(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef SRem(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::SRem(a.get(), b.get());
+  auto v = asthub::SRem(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef URem(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::URem(a.get(), b.get());
+  auto v = asthub::URem(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef SMod(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::SMod(a.get(), b.get());
+  auto v = asthub::SMod(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator*(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Mul(a.get(), b.get());
+  auto v = asthub::Mul(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator&(const ExprRef& a, const bool& b) {
-  auto v = ExprFuse::And(a.get(), b);
+  auto v = asthub::And(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator|(const ExprRef& a, const bool& b) {
-  auto v = ExprFuse::Or(a.get(), b);
+  auto v = asthub::Or(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator^(const ExprRef& a, const bool& b) {
-  auto v = ExprFuse::Xor(a.get(), b);
+  auto v = asthub::Xor(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator<<(const ExprRef& a, const int& b) {
-  auto v = ExprFuse::Shl(a.get(), b);
+  auto v = asthub::Shl(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator>>(const ExprRef& a, const int& b) {
-  auto v = ExprFuse::Ashr(a.get(), b);
+  auto v = asthub::Ashr(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Lshr(const ExprRef& a, const int& b) {
-  auto v = ExprFuse::Lshr(a.get(), b);
+  auto v = asthub::Lshr(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator+(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Add(a.get(), b);
+  auto v = asthub::Add(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator-(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Sub(a.get(), b);
+  auto v = asthub::Sub(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator*(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Mul(a.get(), b);
+  auto v = asthub::Mul(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator==(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Eq(a.get(), b.get());
+  auto v = asthub::Eq(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator!=(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Ne(a.get(), b.get());
+  auto v = asthub::Ne(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator<(const ExprRef& a, const ExprRef& b) {
-  auto v = UnsignedComparison ? ExprFuse::Ult(a.get(), b.get())
-                              : ExprFuse::Lt(a.get(), b.get());
+  auto v = UnsignedComparison ? asthub::Ult(a.get(), b.get())
+                              : asthub::Lt(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator>(const ExprRef& a, const ExprRef& b) {
 
-  auto v = UnsignedComparison ? ExprFuse::Ugt(a.get(), b.get())
-                              : ExprFuse::Gt(a.get(), b.get());
+  auto v = UnsignedComparison ? asthub::Ugt(a.get(), b.get())
+                              : asthub::Gt(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator<=(const ExprRef& a, const ExprRef& b) {
-  auto v = UnsignedComparison ? ExprFuse::Ule(a.get(), b.get())
-                              : ExprFuse::Le(a.get(), b.get());
+  auto v = UnsignedComparison ? asthub::Ule(a.get(), b.get())
+                              : asthub::Le(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator>=(const ExprRef& a, const ExprRef& b) {
-  auto v = UnsignedComparison ? ExprFuse::Uge(a.get(), b.get())
-                              : ExprFuse::Ge(a.get(), b.get());
+  auto v = UnsignedComparison ? asthub::Uge(a.get(), b.get())
+                              : asthub::Ge(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Ult(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Ult(a.get(), b.get());
+  auto v = asthub::Ult(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Ugt(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Ugt(a.get(), b.get());
+  auto v = asthub::Ugt(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Ule(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Ule(a.get(), b.get());
+  auto v = asthub::Ule(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Uge(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Uge(a.get(), b.get());
+  auto v = asthub::Uge(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Slt(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Lt(a.get(), b.get());
+  auto v = asthub::Lt(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Sgt(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Gt(a.get(), b.get());
+  auto v = asthub::Gt(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Sle(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Le(a.get(), b.get());
+  auto v = asthub::Le(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef Sge(const ExprRef& a, const ExprRef& b) {
-  auto v = ExprFuse::Ge(a.get(), b.get());
+  auto v = asthub::Ge(a.get(), b.get());
   return ExprRef(v);
 }
 
 #if 0
 ExprRef operator==(const ExprRef& a, const bool& b) {
-  auto v = ExprFuse::Eq(a.get(), b);
+  auto v = asthub::Eq(a.get(), b);
   return ExprRef(v);
 }
 #endif
 
 ExprRef operator==(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Eq(a.get(), b);
+  auto v = asthub::Eq(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator!=(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Ne(a.get(), b);
+  auto v = asthub::Ne(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator<(const ExprRef& a, const NumericType& b) {
   auto v =
-      UnsignedComparison ? ExprFuse::Ult(a.get(), b) : ExprFuse::Lt(a.get(), b);
+      UnsignedComparison ? asthub::Ult(a.get(), b) : asthub::Lt(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator>(const ExprRef& a, const NumericType& b) {
   auto v =
-      UnsignedComparison ? ExprFuse::Ugt(a.get(), b) : ExprFuse::Gt(a.get(), b);
+      UnsignedComparison ? asthub::Ugt(a.get(), b) : asthub::Gt(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator<=(const ExprRef& a, const NumericType& b) {
   auto v =
-      UnsignedComparison ? ExprFuse::Ule(a.get(), b) : ExprFuse::Le(a.get(), b);
+      UnsignedComparison ? asthub::Ule(a.get(), b) : asthub::Le(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator>=(const ExprRef& a, const NumericType& b) {
   auto v =
-      UnsignedComparison ? ExprFuse::Uge(a.get(), b) : ExprFuse::Ge(a.get(), b);
+      UnsignedComparison ? asthub::Uge(a.get(), b) : asthub::Ge(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Ult(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Ult(a.get(), b);
+  auto v = asthub::Ult(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Ugt(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Ugt(a.get(), b);
+  auto v = asthub::Ugt(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Ule(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Ule(a.get(), b);
+  auto v = asthub::Ule(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Uge(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Uge(a.get(), b);
+  auto v = asthub::Uge(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Slt(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Lt(a.get(), b);
+  auto v = asthub::Lt(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Sgt(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Gt(a.get(), b);
+  auto v = asthub::Gt(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Sle(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Le(a.get(), b);
+  auto v = asthub::Le(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Sge(const ExprRef& a, const NumericType& b) {
-  auto v = ExprFuse::Ge(a.get(), b);
+  auto v = asthub::Ge(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef Load(const ExprRef& mem, const ExprRef& addr) {
-  auto v = ExprFuse::Load(mem.get(), addr.get());
+  auto v = asthub::Load(mem.get(), addr.get());
   return ExprRef(v);
 }
 
 ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data) {
-  auto v = ExprFuse::Store(mem.get(), addr.get(), data.get());
+  auto v = asthub::Store(mem.get(), addr.get(), data.get());
   return ExprRef(v);
 }
 
 ExprRef Load(const ExprRef& mem, const NumericType& addr) {
-  auto v = ExprFuse::Load(mem.get(), addr);
+  auto v = asthub::Load(mem.get(), addr);
   return ExprRef(v);
 }
 
 ExprRef Store(const ExprRef& mem, const NumericType& addr,
               const NumericType& data) {
-  auto v = ExprFuse::Store(mem.get(), addr, data);
+  auto v = asthub::Store(mem.get(), addr, data);
   return ExprRef(v);
 }
 
 ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv) {
-  auto v = ExprFuse::Concat(msbv.get(), lsbv.get());
+  auto v = asthub::Concat(msbv.get(), lsbv.get());
   return ExprRef(v);
 }
 
 ExprRef Extract(const ExprRef& bv, const int& hi, const int& lo) {
-  auto v = ExprFuse::Extract(bv.get(), hi, lo);
+  auto v = asthub::Extract(bv.get(), hi, lo);
   return ExprRef(v);
 }
 
 ExprRef SelectBit(const ExprRef& bv, const int& idx) {
-  auto v = ExprFuse::Extract(bv.get(), idx, idx);
+  auto v = asthub::Extract(bv.get(), idx, idx);
   return ExprRef(v);
 }
 
 ExprRef ZExt(const ExprRef& bv, const int& length) {
-  auto v = ExprFuse::ZExt(bv.get(), length);
+  auto v = asthub::ZExt(bv.get(), length);
   return ExprRef(v);
 }
 
 ExprRef SExt(const ExprRef& bv, const int& length) {
-  auto v = ExprFuse::SExt(bv.get(), length);
+  auto v = asthub::SExt(bv.get(), length);
   return ExprRef(v);
 }
 
 ExprRef LRotate(const ExprRef& bv, const int& immediate) {
-  auto v = ExprFuse::LRotate(bv.get(), immediate);
+  auto v = asthub::LRotate(bv.get(), immediate);
   return ExprRef(v);
 }
 
 ExprRef RRotate(const ExprRef& bv, const int& immediate) {
-  auto v = ExprFuse::RRotate(bv.get(), immediate);
+  auto v = asthub::RRotate(bv.get(), immediate);
   return ExprRef(v);
 }
 
 ExprRef Imply(const ExprRef& ante, const ExprRef& cons) {
-  auto v = ExprFuse::Imply(ante.get(), cons.get());
+  auto v = asthub::Imply(ante.get(), cons.get());
   return ExprRef(v);
 }
 
 ExprRef Ite(const ExprRef& cond, const ExprRef& t, const ExprRef& f) {
-  auto v = ExprFuse::Ite(cond.get(), t.get(), f.get());
+  auto v = asthub::Ite(cond.get(), t.get(), f.get());
   return ExprRef(v);
 }
 
 ExprRef BoolConst(bool val) {
-  auto v = ExprFuse::BoolConst(val);
+  auto v = asthub::BoolConst(val);
   return ExprRef(v);
 }
 
 ExprRef BvConst(const NumericType& bv_val, const int& bit_width) {
-  auto v = ExprFuse::BvConst(bv_val, bit_width);
+  auto v = asthub::BvConst(bv_val, bit_width);
   return ExprRef(v);
 }
 
 ExprRef MemConst(const NumericType& def_val,
                  const std::map<NumericType, NumericType>& vals,
                  const int& addr_width, const int& data_width) {
-  auto v = ExprFuse::MemConst(MemVal(def_val, vals), addr_width, data_width);
+  auto v = asthub::MemConst(MemVal(def_val, vals), addr_width, data_width);
   return ExprRef(v);
 }
 
 bool TopEqual(const ExprRef& a, const ExprRef& b) {
-  return ExprFuse::TopEq(a.get(), b.get());
+  return asthub::TopEq(a.get(), b.get());
 }
 
 /******************************************************************************/
@@ -517,20 +526,22 @@ FuncRef::FuncRef(const std::string& name, const SortRef& range,
   ptr_ = Func::New(name, range.get(), args);
 }
 
+std::string FuncRef::name() const { return ptr_->name().str(); }
+
 FuncRef::~FuncRef() {}
 
 ExprRef FuncRef::operator()() const {
-  auto v = ExprFuse::AppFunc(get());
+  auto v = asthub::AppFunc(get());
   return ExprRef(v);
 }
 
 ExprRef FuncRef::operator()(const ExprRef& arg0) const {
-  auto v = ExprFuse::AppFunc(get(), arg0.get());
+  auto v = asthub::AppFunc(get(), arg0.get());
   return ExprRef(v);
 }
 
 ExprRef FuncRef::operator()(const ExprRef& arg0, const ExprRef& arg1) const {
-  auto v = ExprFuse::AppFunc(get(), arg0.get(), arg1.get());
+  auto v = asthub::AppFunc(get(), arg0.get(), arg1.get());
   return ExprRef(v);
 }
 
@@ -538,7 +549,7 @@ ExprRef FuncRef::operator()(const std::vector<ExprRef>& argvec) const {
   std::vector<ExprPtr> args;
   for (size_t i = 0; i != argvec.size(); i++)
     args.push_back(argvec[i].get());
-  auto v = ExprFuse::AppFunc(get(), args);
+  auto v = asthub::AppFunc(get(), args);
   return ExprRef(v);
 }
 
@@ -573,14 +584,16 @@ void InstrRef::ExportToVerilog(std::ostream& fout) const {
 }
 
 void InstrRef::ExportToVerilogWithChild(std::ostream& fout) const {
-  auto dept_ila_ptr = AbsKnob::ExtrDeptModl(ptr_, ptr_->name().str() + "_ila_");
-  AbsKnob::FlattenIla(dept_ila_ptr);
+  auto dept_ila_ptr = absknob::ExtrDeptModl(ptr_, ptr_->name().str() + "_ila_");
+  absknob::FlattenIla(dept_ila_ptr);
 
   VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
       true)); // overwrite default configuration : memory is external
   vgen.ExportIla(dept_ila_ptr);
   vgen.DumpToFile(fout);
 }
+
+std::string InstrRef::name() const { return ptr_->name().str(); }
 
 /******************************************************************************/
 // Ila
@@ -680,6 +693,37 @@ void Ila::ExportToVerilog(std::ostream& fout) const {
   vgen.DumpToFile(fout);
 }
 
+void Ila::FlattenHierarchy() { absknob::FlattenIla(ptr_); }
+
+bool Ila::ExecutePass(const std::vector<PassID>& passes) const {
+  auto status = true;
+  for (const auto& id : passes) {
+    switch (id) {
+    case PassID::SANITY_CHECK_AND_FIX: {
+      status &= pass::SanityCheckAndFix(ptr_);
+      break;
+    }
+    case PassID::SIMPLIFY_SYNTACTIC: {
+      status &= pass::SimplifySyntactic(ptr_);
+      break;
+    }
+    case PassID::SIMPLIFY_SEMANTIC: {
+      status &= pass::SimplifySemantic(ptr_);
+      break;
+    }
+    case PassID::REWRITE_CONDITIONAL_STORE: {
+      status &= pass::RewriteConditionalStore(ptr_);
+      break;
+    }
+    case PassID::REWRITE_LOAD_FROM_STORE: {
+      status &= pass::RewriteStoreLoad(ptr_);
+      break;
+    }
+    };
+  }
+  return status;
+}
+
 std::ostream& operator<<(std::ostream& out, const ExprRef& expr) {
   return out << expr.get();
 }
@@ -701,29 +745,24 @@ Ila ImportIlaPortable(const std::string& file_name) {
   return Ila(m);
 }
 
+#ifdef SYNTH_INTERFACE
 Ila ImportSynthAbstraction(const std::string& file_name,
                            const std::string& ila_name) {
-#ifdef SYNTH_INTERFACE
   auto m = ImportSynthAbsFromFile(file_name, ila_name);
   return Ila(m);
-#else  // SYNTH_INTERFACE
-  auto m = Ila(ila_name);
-  ILA_ERROR << "Synthesis interface not built.";
-  ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
-  return m;
-#endif // SYNTH_INTERFACE
 }
 
 void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
                                  const std::string& ila_name) {
-#ifdef SYNTH_INTERFACE
   auto m = ImportSynthAbsFromFileHier(file_name, parent.get(), ila_name);
   ILA_NOT_NULL(m);
   return;
-#else
-  ILA_ERROR << "Synthesis interface not built.";
-  ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
-#endif
+}
+#endif // SYNTH_INTERFACE
+
+void ExportSysCSim(const Ila& ila, const std::string& dir_path, bool opt) {
+  auto ilator = Ilator(ila.get());
+  ilator.Generate(dir_path, opt);
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
@@ -732,18 +771,6 @@ IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
 }
 
 IlaZ3Unroller::~IlaZ3Unroller() {}
-
-#if 0
-void IlaZ3Unroller::SetExtraSuffix(const std::string& suff) {
-  extra_suff_ = suff;
-  univ_->SetExtraSuffix(suff);
-}
-
-void IlaZ3Unroller::ResetExtraSuffix() {
-  extra_suff_ = "";
-  univ_->ResetExtraSuffix();
-}
-#endif
 
 z3::expr IlaZ3Unroller::UnrollMonoConn(const Ila& top, const int& k,
                                        const int& init) {
@@ -768,6 +795,17 @@ z3::expr IlaZ3Unroller::UnrollPathConn(const std::vector<InstrRef>& path,
     seq.push_back(path.at(i).get());
   }
   return u->PathAssn(seq, init);
+}
+
+z3::expr IlaZ3Unroller::UnrollPathSubs(const std::vector<InstrRef>& path,
+                                       const int& init) {
+  auto u = std::make_shared<PathUnroll>(ctx_, extra_suff_);
+  InitializeUnroller(u);
+  std::vector<InstrPtr> seq;
+  for (auto& instr : path) {
+    seq.push_back(instr.get());
+  }
+  return u->PathSubs(seq, init);
 }
 
 z3::expr IlaZ3Unroller::UnrollPathFree(const std::vector<InstrRef>& path,
@@ -798,6 +836,10 @@ z3::expr IlaZ3Unroller::Equal(const ExprRef& va, const int& ta,
   return univ_->Equal(va.get(), ta, vb.get(), tb);
 }
 
+z3::func_decl IlaZ3Unroller::GetZ3FuncDecl(const FuncRef& f) const {
+  return univ_->GetZ3FuncDecl(f.get());
+}
+
 void LogLevel(const int& lvl) { SetLogLevel(lvl); }
 
 void LogPath(const std::string& path) { SetLogPath(path); }
@@ -816,5 +858,14 @@ void LogToErr(bool to_err) {
 void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
 
 void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
+
+#ifdef SMTSWITCH_INTERFACE
+smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
+                             const std::string& suffix) {
+  solver->reset();
+  auto itf = SmtSwitchItf(solver);
+  return itf.GetSmtTerm(expr.get(), suffix);
+}
+#endif // SMTSWITCH_INTERFACE
 
 } // namespace ilang

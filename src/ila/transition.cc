@@ -10,8 +10,8 @@ namespace ilang {
 // ------------------------- InstrTranEdge ---------------------------------- //
 // typedef InstrTranEdge::ItEdgePtr ItEdgePtr;
 
-InstrTranEdge::InstrTranEdge(const InstrPtr src, const InstrPtr dst,
-                             const ExprPtr cnd)
+InstrTranEdge::InstrTranEdge(const InstrPtr& src, const InstrPtr& dst,
+                             const ExprPtr& cnd)
     : src_(src), dst_(dst), cnd_(cnd) {}
 
 InstrTranEdge::~InstrTranEdge() {}
@@ -25,7 +25,7 @@ const ExprPtr InstrTranEdge::cnd() const { return cnd_; }
 // ------------------------- InstrTranNode ---------------------------------- //
 typedef InstrTranNode::ItNodePtr ItNodePtr;
 
-InstrTranNode::InstrTranNode(const InstrPtr instr) : instr_(instr) {
+InstrTranNode::InstrTranNode(const InstrPtr& instr) : instr_(instr) {
   next_.clear();
   prev_.clear();
 }
@@ -51,13 +51,11 @@ const ItNodePtr InstrTranNode::prev(const size_t& i) const {
   return prev_.at(i);
 }
 
-void InstrTranNode::AddNext(const ItNodePtr next) { next_.push_back(next); }
+void InstrTranNode::AddNext(const ItNodePtr& next) { next_.push_back(next); }
 
-void InstrTranNode::AddPrev(const ItNodePtr prev) { prev_.push_back(prev); }
+void InstrTranNode::AddPrev(const ItNodePtr& prev) { prev_.push_back(prev); }
 
 // ------------------------- InstrSeq --------------------------------------- //
-typedef InstrSeq::InstrIdxKeyVec InstrIdxKeyVec;
-typedef InstrSeq::InstrIdxKeyVecPtr InstrIdxKeyVecPtr;
 
 InstrSeq::InstrSeq() { clear(); }
 
@@ -66,20 +64,19 @@ InstrSeq::~InstrSeq() { clear(); }
 void InstrSeq::clear() {
   edges_.clear();
   nodes_.clear();
-  sorted_->clear();
 }
 
 InstrSeqPtr InstrSeq::New() { return std::make_shared<InstrSeq>(); }
 
-void InstrSeq::AddTran(const InstrPtr src, const InstrPtr dst,
-                       const ExprPtr cnd) {
+void InstrSeq::AddTran(const InstrPtr& src, const InstrPtr& dst,
+                       const ExprPtr& cnd) {
   // update edges
   auto edge = std::make_shared<InstrTranEdge>(src, dst, cnd);
   edges_.insert(edge);
 
   // update nodes
-  ItNodePtr src_node = NULL;
-  ItNodePtr dst_node = NULL;
+  ItNodePtr src_node = nullptr;
+  ItNodePtr dst_node = nullptr;
 
   auto src_it = nodes_.find(src);
   if (src_it == nodes_.end()) { // instr first seen
@@ -101,14 +98,9 @@ void InstrSeq::AddTran(const InstrPtr src, const InstrPtr dst,
   dst_node->AddPrev(src_node);
 }
 
-bool InstrSeq::CheckTransition() const {
-  // TODO
-  return true;
-}
-
-InstrIdxKeyVecPtr InstrSeq::Sort() {
-  // TODO
-  return sorted_;
+void InstrSeq::set_root(const InstrPtr& i) {
+  ILA_WARN_IF(root_) << "Overwriting root node " << root_ << " to " << i;
+  root_ = i;
 }
 
 } // namespace ilang

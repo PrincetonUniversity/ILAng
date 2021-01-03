@@ -1,14 +1,13 @@
 /// \file
 /// Unit tests for exporting and importing ILA portables.
 
-#include <ilang/verification/abs_knob.h>
-
-#include "unit-include/config.h"
-#include "unit-include/util.h"
-#include <ilang/ila-handler/eq_check.h>
+#include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
+
+#include "unit-include/config.h"
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -20,13 +19,11 @@ void Copy(const std::string& dir, const std::string& file, bool check = true) {
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file).get();
 
-  auto copy = AbsKnob::CopyIlaTree(ila, "copied");
+  auto copy = absknob::CopyIlaTree(ila, "copied");
 
   if (check) {
     Check(ila, copy);
   }
-
-  EXPECT_TRUE(CheckEqSameMicroArch(ila, copy, check));
 }
 
 TEST(TestCopyTree, AES_V_TOP) { Copy("aes", "aes_v_top.json"); }

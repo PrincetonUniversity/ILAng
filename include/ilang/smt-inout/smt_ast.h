@@ -81,9 +81,13 @@ struct line_comment : public smt_item {
 /// the type Bool or (_ BitVec)
 struct var_type {
   /// type
-  enum tp { Bool, BV, Datatype } _type;
+  enum tp { Bool, BV, Datatype, Array } _type;
   /// bitwidth
   unsigned _width;
+  /// array datatype : addr width
+  unsigned addr_width;
+  /// array datatype : addr width
+  unsigned data_width;
   /// its datatype name (not including | _s|)
   std::string module_name;
   // ------------- FUNCTIONS ---------------- //
@@ -98,17 +102,21 @@ struct var_type {
   static bool eqtype(const var_type& l, const var_type& r);
   /// return a verilog-use width
   unsigned GetBoolBvWidth() const;
+  /// test if it is array
+  bool is_array() const;
   /// test if it is bv
   bool is_bv() const;
-  /// test if it is bv
+  /// test if it is bool
   bool is_bool() const;
-  /// test if it is bv
+  /// test if it is datatype
   bool is_datatype() const;
   // ------------- CONSTRUCTOR ---------------- //
   // default constructor
   var_type();
-  // complete constructor
+  // bitvector/bool constructor : 
   var_type(tp vtype, unsigned width, const std::string mod_name);
+  // array constructor
+  var_type(tp vtype, unsigned addr_width, unsigned data_width, const std::string mod_name);
   // copy constructor
   var_type(const var_type& vp);
   // assignment operator

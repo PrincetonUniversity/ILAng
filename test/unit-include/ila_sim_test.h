@@ -25,16 +25,16 @@ using namespace ilang;
 class IlaSimTest {
 
 public:
-  IlaSimTest();
+  IlaSimTest(const std::string& name = "TEST");
   Ila model;
 
 protected:
-  static ExprRef slice_read(const ExprRef &reg, const ExprRef &idx,
+  static ExprRef slice_read(const ExprRef& reg, const ExprRef& idx,
                             unsigned long base_addr, unsigned no_slice,
                             unsigned slice_width);
 
-  static ExprRef slice_update(const ExprRef &reg, const ExprRef &idx,
-                              const ExprRef &input_slice,
+  static ExprRef slice_update(const ExprRef& reg, const ExprRef& idx,
+                              const ExprRef& input_slice,
                               unsigned long base_addr, unsigned no_slice,
                               unsigned slice_width);
 

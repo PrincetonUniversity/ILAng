@@ -188,10 +188,13 @@ unsigned var_type::GetBoolBvWidth() const {
   return 0;
 }
 
+/// test if it is array
+bool var_type::is_array() const { return _type == tp::Array; }
+/// test if it is bv
 bool var_type::is_bv() const { return _type == tp::BV; }
-/// test if it is bv
+/// test if it is bool
 bool var_type::is_bool() const { return _type == tp::Bool; }
-/// test if it is bv
+/// test if it is dataype
 bool var_type::is_datatype() const { return _type == tp::Datatype; }
 
 bool var_type::eqtype(const var_type& l, const var_type& r) {
@@ -203,6 +206,10 @@ bool var_type::eqtype(const var_type& l, const var_type& r) {
     if (r.is_bv() && l._width == r._width)
       return true;
     return false;
+  } else if (l.is_array()) {
+    return (r.is_array() && 
+      l.data_width == r.data_width &&
+      l.addr_width == r.addr_width);
   }
   // else datatype
   return l.module_name == r.module_name;
@@ -210,9 +217,12 @@ bool var_type::eqtype(const var_type& l, const var_type& r) {
 // ------------- CONSTRUCTOR ---------------- //
 // default constructor
 var_type::var_type() {}
-// complete constructor
+// constructor for bitvector/bool
 var_type::var_type(tp vtype, unsigned width, const std::string mod_name)
     : _type(vtype), _width(width), module_name(mod_name) {}
+// constructor for array
+var_type::var_type(tp vtype, unsigned addr_width, unsigned data_width, const std::string mod_name)
+    : _type(vtype), addr_width(addr_width), data_width(data_width), module_name(mod_name) {}
 // copy constructor
 var_type::var_type(const var_type& vp)
     : _type(vp._type), _width(vp._width), module_name(vp.module_name) {}
@@ -222,13 +232,33 @@ var_type var_type::ParseFromString(str_iterator& it) {
 
   it.skip(); // skip spaces
   if (it.head() == '(') {
-    // bitvector
-    it.accept("(_ BitVec ");
-    auto width = it.head_word(")");
-    it.skip_m(width);
-    it.accept(")");
-    ret._type = tp::BV;
-    ret._width = StrToInt(width);
+    // bitvector or array
+    if (it.head_word() == "(Array") {
+      it.accept("(Array");
+      it.skip();
+      it.accept("(_ BitVec ");
+      auto addr_width = it.head_word(")");
+      it.skip_m(addr_width);
+      it.accept(")");
+
+      it.skip();
+      it.accept("(_ BitVec ");
+      auto data_width = it.head_word(")");
+      it.skip_m(data_width);
+      it.accept(")");
+      it.skip();
+      it.accept(")");
+      ret._type = tp::Array;
+      ret.addr_width = StrToInt(addr_width);
+      ret.data_width = StrToInt(data_width);
+    } else {
+      it.accept("(_ BitVec ");
+      auto width = it.head_word(")");
+      it.skip_m(width);
+      it.accept(")");
+      ret._type = tp::BV;
+      ret._width = StrToInt(width);
+    }
   } else if (it.head() == '|') {
     auto dtname = it.accept_current_and_read_untill("|");
     ret._type = tp::Datatype;
@@ -245,6 +275,9 @@ std::string var_type::toString() const {
     return "Bool";
   else if (is_bv())
     return "(_ BitVec " + std::to_string(_width) + ")";
+  else if (is_array())
+    return "(Array (_ BitVec " + std::to_string(addr_width)+
+           ") (_ BitVec " +  std::to_string(data_width) + "))";
   else if (is_datatype())
     return "|" + module_name + "_s|";
   ILA_ASSERT(false) << "Unknown type";

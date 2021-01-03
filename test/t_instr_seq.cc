@@ -1,10 +1,11 @@
 /// \file
 /// Unit test for instruction sequencing
 
-#include "unit-include/util.h"
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
 #include <ilang/ila/instr.h>
 #include <ilang/ila/transition.h>
+
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -14,13 +15,13 @@ public:
   ~TestInstrSeq() {}
 
   void SetUp() {
-    counter = ExprFuse::NewBvVar("counter", 8);
-    const_0 = ExprFuse::BvConst(0, 8);
-    const_1 = ExprFuse::BvConst(1, 8);
-    const_2 = ExprFuse::BvConst(2, 8);
-    const_3 = ExprFuse::BvConst(3, 8);
-    const_4 = ExprFuse::BvConst(4, 8);
-    const_5 = ExprFuse::BvConst(5, 8);
+    counter = asthub::NewBvVar("counter", 8);
+    const_0 = asthub::BvConst(0, 8);
+    const_1 = asthub::BvConst(1, 8);
+    const_2 = asthub::BvConst(2, 8);
+    const_3 = asthub::BvConst(3, 8);
+    const_4 = asthub::BvConst(4, 8);
+    const_5 = asthub::BvConst(5, 8);
 
     instr_0 = Instr::New("instr_0");
     instr_1 = Instr::New("instr_1");
@@ -36,10 +37,10 @@ public:
     auto seq = InstrSeq::New();
 
     // construct graph
-    seq->AddTran(instr_0, instr_1, ExprFuse::Eq(counter, const_1));
-    seq->AddTran(instr_1, instr_2, ExprFuse::Eq(counter, const_2));
-    seq->AddTran(instr_2, instr_3, ExprFuse::Eq(counter, const_3));
-    seq->AddTran(instr_2, instr_0, ExprFuse::Eq(counter, const_0));
+    seq->AddTran(instr_0, instr_1, asthub::Eq(counter, const_1));
+    seq->AddTran(instr_1, instr_2, asthub::Eq(counter, const_2));
+    seq->AddTran(instr_2, instr_3, asthub::Eq(counter, const_3));
+    seq->AddTran(instr_2, instr_0, asthub::Eq(counter, const_0));
 
     return seq;
   }
@@ -65,7 +66,7 @@ public:
 }; // class TestInstrSeq
 
 TEST_F(TestInstrSeq, ItEdge) {
-  auto cnd = ExprFuse::Eq(counter, const_0);
+  auto cnd = asthub::Eq(counter, const_0);
   auto edge = std::make_shared<InstrTranEdge>(instr_0, instr_1, cnd);
 
   EXPECT_EQ(instr_0, edge->src());
@@ -112,17 +113,5 @@ TEST_F(TestInstrSeq, ItNode) {
 }
 
 TEST_F(TestInstrSeq, AddTran) { auto seq = InitSeq(); }
-
-TEST_F(TestInstrSeq, CheckTran) {
-  auto seq = InitSeq();
-  // TODO
-  EXPECT_TRUE(seq->CheckTransition());
-}
-
-TEST_F(TestInstrSeq, Sort) {
-  auto seq = InitSeq();
-  // TODO
-  auto sorted_seq = seq->Sort();
-}
 
 } // namespace ilang

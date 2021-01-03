@@ -39,15 +39,19 @@ public:
     std::string mem_map;
   } st_info;
 
-  /// TODO
+  /// Default constructor.
   IlaSim();
-  /// TODO
+  /// Construct with the target ILA model.
   IlaSim(const InstrLvlAbsPtr& model_ptr);
-  /// TODO
+  /// Set the target ILA model.
   void set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr);
-  /// TODO
+  /// (To be deprecated) set the path to SystemC library.
   void set_systemc_path(std::string systemc_path);
-  /// TODO
+
+  /// Set to CMake build mode.
+  void enable_cmake_support();
+
+  /// Generate the simulator.
   void sim_gen(std::string export_dir, bool external_mem = false,
                bool readable = false, bool qemu_device = false);
 
@@ -182,15 +186,19 @@ private:
   void dfs_func_op_check(const ExprPtr& expr);
   void dfs_ite_op(std::stringstream& dfs_simulator, std::string& indent,
                   const ExprPtr& expr);
+  std::string get_type_str(const ExprPtr& expr);
 
   std::string get_arg_str(const ExprPtr& arg);
   void increase_indent(std::string& indent);
   void decrease_indent(std::string& indent);
   int get_update_state_num(const InstrPtr& instr_expr);
   bool load_from_store_analysis(const ExprPtr& expr);
-  void declare_variable_with_id(size_t id, std::string v_type,
-                                std::string v_name);
+  void declare_variable_with_id(size_t id, const std::string& v_type,
+                                const std::string& v_name);
   void int_var_width_scan();
+
+  /// Generate files required by CMake
+  void generate_cmake_support();
 
   std::string export_dir_;
   std::string systemc_path_;
@@ -199,6 +207,10 @@ private:
   std::stringstream mk_script_;
   std::stringstream obj_list_;
   std::string header_indent_;
+
+  bool cmake_support_ = false;
+  std::vector<std::string> source_file_list_;
+  std::vector<std::string> header_file_list_;
 
   std::set<size_t> searched_id_set_;
   std::set<size_t> store_ite_set_;

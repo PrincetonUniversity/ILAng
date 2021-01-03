@@ -11,7 +11,7 @@ endif()
 # PROJECT
 # name version language
 # ---------------------------------------------------------------------------- #
-project(ilang VERSION     1.0.2
+project(ilang VERSION     1.1.4
               LANGUAGES   CXX
 )
 
@@ -22,12 +22,14 @@ project(ilang VERSION     1.0.2
 # ---------------------------------------------------------------------------- #
 option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
-option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
+option(ILANG_BUILD_SYNTH "Build the synthesis engine."                      OFF)
 option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
 option(ILANG_COVERITY    "Build for Coverity static analysis."              OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries."                           ON)
-option(ILANG_BUILD_INVSYN  "Build invariant synthesis feature."              ON)
+option(ILANG_BUILD_INVSYN "Build invariant synthesis feature."               ON)
+option(ILANG_BUILD_SWITCH "Build smt-switch interface."                     OFF)
+option(ILANG_BUILD_COSIM "Build QEMU-based co-simulation support."          OFF)
 
 include(CMakeDependentOption)
 
@@ -114,7 +116,7 @@ add_subdirectory(src)
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   ${ILANG_CMAKE_VERSION_CONFIG_FILE} 
-  COMPATIBILITY SameMajorVersion # AnyNewVersion
+  COMPATIBILITY AnyNewerVersion
 )
 
 ##

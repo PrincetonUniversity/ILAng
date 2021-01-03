@@ -1,10 +1,9 @@
 [![ILAng](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png)](https://bo-yuan-huang.gitbook.io/ilang/)
 
 [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)
-[![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)
-[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)
+[![Build Status](https://travis-ci.com/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.com/Bo-Yuan-Huang/ILAng)
+[![Build Status](https://ilang.semaphoreci.com/badges/ILAng.svg)](https://ilang.semaphoreci.com/projects/ILAng)
 [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/17719/badge.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ilang)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/Bo-Yuan-Huang/ILAng.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Bo-Yuan-Huang/ILAng/context:cpp)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
@@ -33,45 +32,29 @@
 
 ### Prerequisites
 
-ILAng requires CMake (3.9.6 or above) and compilers with CXX11 support.
+ILAng requires CMake (3.9.6 or above) and compilers with C++17 support.
 To install dependencies on Debian-based Linux:
 
 ```bash
-apt-get install bison flex libboost-all-dev z3 libz3-dev
+apt-get install bison flex z3 libz3-dev
 ```
 
-To install dependencies (except z3) on Fedora-based Linux:
+To install dependencies (besides [z3](https://github.com/Z3Prover/z3)) on Fedora-based Linux:
 
 ```bash
-yum install bison flex boost boost-python boost-devel
+yum install bison flex
 ```
 
 To install dependencies on OSX:
 
 ```bash
-brew install bison flex boost boost-python z3
+brew install bison flex z3
 ```
 
--   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
--   The [Boost](https://www.boost.org) package is required only if you want to build the synthesis engine.
-
-#### Regression Environments
-
-| OS                        | Compiler     | CMake  | z3    | Boost | Bison | Flex   | Build   |
-| ------------------------- | ------------ | ------ | ----- | ----- | ----- | ------ | ------- |
-| Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.8.6 | 1.54  | 3.0.4 | 2.5.25 | Release |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Release |
-| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.15.2 | 4.8.6 | 1.65  | 3.0.4 | 2.6.4  | Release |
-| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Debug   |
-| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.16.2 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Release |
-| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.16.2 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Release |
-| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.6 | -     | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
 
-To build ILAng with default configuration, create a build directory and execute:
+To build ILAng with default configuration, create a build directory and make:
 
 ```bash
 mkdir -p build && cd build
@@ -79,7 +62,7 @@ cmake ..
 make
 ```
 
-If you are using git older than `1.8.4`, init the submodule from root and disable config-time submodule update:
+If you are using git older than `1.8.4`, init the submodule from root and disable config-time submodule fetching:
 ```bash
 git submodule update --init --recursive
 mkdir -p build && cd build
@@ -87,7 +70,7 @@ cmake .. -DILANG_FETCH_DEPS=OFF
 make
 ```
 
-After the build complete, run unit tests and install the library. 
+After the build complete, run unit tests (optional) and install the library. 
 
 ```bash
 make run_test
@@ -96,10 +79,13 @@ sudo make install
 
 ### Options
 
--   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time updating submodules for in-source dependencies.
+-   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time submodule fetching.
 -   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
--   Use `-DILANG_BUILD_SYNTH=OFF` to disable building the synthesis engine. 
--   Use `-DILANG_INSTALL_DEV=ON` to enable installing working features. 
+-   Use `-DILANG_BUILD_SYNTH=ON` to enable building the synthesis engine (required [Boost](https://www.boost.org)). 
+-   Use `-DILANG_BUILD_INVSYN=OFF` to disable building invariant synthesis feature.
+-   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) interface support. 
+-   Use `-DILANG_BUILD_COSIM=ON` to enable building [Xilinx cosimulation](https://www.linuxsecrets.com/xilinx/QEMU%20SystemC%20and%20TLM%20CoSimulation.html) support.
+-   Use `-DILANG_INSTALL_DEV=ON` to install working features. 
 
 ## CMake Integration
 
@@ -196,7 +182,7 @@ source init.sh
 ```
 
 to initialize the environment settings. 
-This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3).
+This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solver [z3](https://github.com/Z3Prover/z3).
 
 ## License
 
@@ -235,6 +221,9 @@ Copyright 2008, Google Inc.
 ILAng contains the [JSON library](https://github.com/nlohmann/json), which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
 Copyright (c) 2013-2019 Niels Lohmann.
 
+ILAng contains the [fmt](https://github.com/fmtlib/fmt.git), which is licensed under [License](https://github.com/fmtlib/fmt/blob/master/LICENSE.rst).
+Copyright (c) 2012-present, Victor Zverovich.
+
 ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
 Copyright (c) 2016 Ben Marshall.
 
@@ -243,6 +232,9 @@ Copyright (c) 2018 Ben Marshall.
 
 ILAng uses the [SMT parser](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html), which is licensed under the [MIT License](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html).
 Copyright (c) 2010 Alberto Griggio.
+
+ILAng uses the [smt-switch](https://github.com/makaimann/smt-switch.git), which is licensed under the [BSD 3-Clause License](https://github.com/makaimann/smt-switch/blob/master/LICENSE).
+Copyright (c) 2019-2020 the authors.
 
 ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
 Copyright (c) 2016 Princeton University.

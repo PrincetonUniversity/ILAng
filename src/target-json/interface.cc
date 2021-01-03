@@ -52,7 +52,7 @@ InstrLvlAbsPtr IlaSerDesMngr::DesFromFile(const std::string& file_name) {
     return m;
   }
 
-  return NULL;
+  return nullptr;
 }
 
-}; // namespace ilang
+} // namespace ilang

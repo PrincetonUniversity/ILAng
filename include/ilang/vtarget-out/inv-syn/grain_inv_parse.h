@@ -56,12 +56,9 @@ public:
 
   // -------------- CALLBACK FNs ------------------- //
 
-  /// override!
-  /// call back function to create a sort
-  virtual var_type* make_sort(const std::string& name,
-                              const std::vector<int>&) override;
+
   /// this is actually declare variables
-  void declare_function(const std::string& name, var_type* sort) override;
+  virtual void declare_function(const std::string& name, SortPtrT sort) override;
 
   /// this function receives the final assert result
   // virtual void assert_formula(SmtTermInfoVlgPtr result) override; -- use the
@@ -69,33 +66,29 @@ public:
 
   // -------------- Below are Disabled!--------------------- //
   /// call back function to handle (define-fun
-  virtual SmtTermInfoVlgPtr push_quantifier_scope() override;
+  virtual TermPtrT push_quantifier_scope() override;
   /// call back function to handle ) of define-fun
-  virtual SmtTermInfoVlgPtr pop_quantifier_scope() override;
+  virtual TermPtrT pop_quantifier_scope() override;
 
   /// call back function to create a temporary (function-arg variable)
   virtual void declare_quantified_variable(const std::string& name,
-                                           var_type* sort) override;
+                                           SortPtrT sort) override;
   /// call back function to apply an uninterpreted function
   /// fall-through case if it is not an defined op, if failed, return NULL
-  virtual SmtTermInfoVlgPtr
-  mk_function(const std::string& name, var_type* sort,
+  virtual TermPtrT
+  mk_function(const std::string& name, SortPtrT sort,
               const std::vector<int>& idx,
-              const std::vector<SmtTermInfoVlgPtr>& args) override;
+              const std::vector<TermPtrT>& args) override;
 
   /// call back function to make a number term
   // virtual SmtTermInfoVlgPtr mk_number(const std::string & rep, int width, int
   // base) override;
 
-  /// find if a certain var is a function-arg variable
-  virtual SmtTermInfoVlgPtr
-  search_quantified_var_stack(const std::string& name) override;
-
   /// this function receives the final result
   virtual void define_function(const std::string& func_name,
-                               const std::vector<SmtTermInfoVlgPtr>& args,
-                               var_type* ret_type,
-                               SmtTermInfoVlgPtr func_body) override;
+                               const std::vector<TermPtrT>& args,
+                               SortPtrT ret_type,
+                               TermPtrT func_body) override;
 
 }; // class GrainInvariantParser
 

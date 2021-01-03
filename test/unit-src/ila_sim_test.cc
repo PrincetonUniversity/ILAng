@@ -1,8 +1,11 @@
-#include "../unit-include/ila_sim_test.h"
-#include <ilang/ila/expr_fuse.h>
 #include <string>
-IlaSimTest::IlaSimTest()
-    : model("TEST"), cmd(model.NewBvInput("cmd", 2)),
+
+#include <ilang/ila/ast_hub.h>
+
+#include "../unit-include/ila_sim_test.h"
+
+IlaSimTest::IlaSimTest(const std::string& name)
+    : model(name), cmd(model.NewBvInput("cmd", 2)),
       cmdaddr(model.NewBvInput("cmdaddr", 16)),
       cmddata(model.NewBvInput("cmddata", 8)),
       cmdflag(model.NewBoolInput("cmdflag")), flag(model.NewBoolState("flag")),
@@ -22,17 +25,18 @@ IlaSimTest::IlaSimTest()
 
   { // WRITE_ADDRESS
     auto instr = model.NewInstr("WRITE_ADDRESS");
-    auto flag_true = ExprFuse::BoolConst(true);
-    auto flag_false = ExprFuse::BoolConst(false);
+    auto flag_true = asthub::BoolConst(true);
+    auto flag_false = asthub::BoolConst(false);
 
     instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= ADDR) &
                     (cmdaddr < ADDR + 2));
 
     instr.SetUpdate(
-        address, Ite(is_status_idle,
-                     Concat(Ite(cmdaddr == ADDR + 1, cmddata, address(15, 8)),
-                            Ite(cmdaddr == ADDR, cmddata, address(7, 0))),
-                     address));
+        address,
+        Ite(is_status_idle,
+            Concat(Ite(cmdaddr == ADDR + 1, cmddata / cmddata, address(15, 8)),
+                   Ite(cmdaddr == ADDR, cmddata * cmddata, address(7, 0))),
+            address));
 
     instr.SetUpdate(flag, Ite(is_status_idle, flag_true, flag_false));
 

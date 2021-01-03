@@ -1,65 +1,61 @@
+# File: azure-pipelines.yml
+
 trigger:
 - master
 
 pr:
 - master
 
-# File: azure-pipelines.yml
-
 jobs:
-- job: macOS_High_Sierra
+- job: macOS_Catalina_Debug
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-10.15'
   steps:
   - script: |
       brew update
       brew install bison
-      brew install boost
-      brew install boost-python
       brew install z3
     displayName: 'package'
-  - script: | 
+  - script: |
       cmake --version
       z3 --version
     displayName: 'printout'
   - script: |
       export PATH="/usr/local/opt/bison/bin:$PATH"
       export LDFLAGS="-L/usr/local/opt/bison/lib"
-      mkdir -p build 
+      mkdir -p build
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DILANG_BUILD_INVSYN=OFF
+      cmake .. -DCMAKE_BUILD_TYPE=Debug
       cmake --build .
-      cmake --build . --target install 
+      cmake --build . --target install
       cmake --build . --target test
     displayName: 'build'
 
-- job: macOS_Mojave
+- job: macOS_Catalina_Release
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-10.15'
   steps:
   - script: |
       brew update
       brew install bison
-      brew install boost
-      brew install boost-python
       brew install z3
     displayName: 'package'
-  - script: | 
+  - script: |
       cmake --version
       z3 --version
     displayName: 'printout'
   - script: |
       export PATH="/usr/local/opt/bison/bin:$PATH"
       export LDFLAGS="-L/usr/local/opt/bison/lib"
-      mkdir -p build 
+      mkdir -p build
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DBoost_NO_BOOST_CMAKE=ON -DILANG_BUILD_INVSYN=OFF
+      cmake .. -DCMAKE_BUILD_TYPE=Release
       cmake --build .
       cmake --build . --target install 
-      cmake --build . --target test
+      ./test/unit_tests
     displayName: 'build'
 
-- job: Linux
+- job: Ubuntu_1604_LTS
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
@@ -67,20 +63,39 @@ jobs:
       sudo apt-get update
       sudo apt-get install bison
       sudo apt-get install flex
-      sudo apt-get install libboost-all-dev
       sudo apt-get install z3
       sudo apt-get install libz3-dev
     displayName: 'package'
   - script: |
       mkdir -p build 
       cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-7
       cmake --build .
       sudo cmake --build . --target install 
       cmake --build . --target test
     displayName: 'build'
 
-- job: Windows
+- job: Ubuntu_1804_LTS
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install bison
+      sudo apt-get install flex
+      sudo apt-get install z3
+      sudo apt-get install libz3-dev
+    displayName: 'package'
+  - script: |
+      mkdir -p build
+      cd build
+      cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-8
+      cmake --build .
+      sudo cmake --build . --target install 
+      cmake --build . --target test
+    displayName: 'build'
+
+- job: Windows_2016
   pool:
     vmImage: 'vs2017-win2016'
   steps:
@@ -91,35 +106,35 @@ jobs:
     displayName: 'package'
 
   - script: |
-      wget https://github.com/Z3Prover/z3/releases/download/z3-4.8.6/z3-4.8.6-x86-win.zip
-      unzip z3-4.8.6-x86-win.zip
-      move z3-4.8.6-x86-win z3
+      wget https://github.com/Z3Prover/z3/releases/download/z3-4.8.8/z3-4.8.8-x86-win.zip
+      unzip z3-4.8.8-x86-win.zip
+      move z3-4.8.8-x86-win z3
     displayName: 'z3'
 
   - script: |
-      cd extern 
+      cd extern
       cd glog
-      md build 
+      md build
       cd build
-      cmake .. 
+      cmake ..
       cmake --build . --target install
     displayName: 'glog'
 
   - script: |
-      cd extern 
+      cd extern
       cd json
-      md build 
+      md build
       cd build
       cmake .. -DJSON_BuildTests=OFF
       cmake --build . --target install
     displayName: 'json'
 
   - script: |
-      cd extern 
+      cd extern
       cd vlog-parser
-      md build 
+      md build
       cd build
-      cmake .. 
+      cmake ..
       cmake --build . --target install
     displayName: 'vlog-parser'
 
@@ -127,7 +142,7 @@ jobs:
       md build
       cd build
       # For building the test, we need CMAKE_MSVC_RUNTIME_LIBRARY (which will be supported in CMake 3.15+)
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
+      cmake .. -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
       cmake --build .
       cmake --build . --target install
     displayName: 'build'

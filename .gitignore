@@ -38,6 +38,9 @@
 # Build directory
 build/*
 
+# other dir
+.vscode/*
+
 # Doxygen output
 #html/
 #latex/
@@ -62,3 +65,5 @@ tags
 *.cubin
 *.fatbin
 
+# Project files
+.vscode/*

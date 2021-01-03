@@ -1,0 +1,26 @@
+version: v1.0
+name: ILAng default build
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: build
+    task:
+      prologue:
+        commands:
+          - checkout
+      jobs:
+        - name: build_install_test
+          commands:
+            - sudo apt-get update
+            - sudo apt-get install -y bison flex z3 libz3-dev
+            - export CC=gcc-8
+            - export CXX=g++-8
+            - mkdir build
+            - cd build
+            - cmake .. -DCMAKE_BUILD_TYPE=Debug
+            - make -j$(nproc)
+            - sudo make install
+            - make run_test
+            - ctest -R ExampleCMakeBuild

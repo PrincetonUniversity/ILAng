@@ -9,12 +9,12 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 ## source files
 ##
 add_subdirectory(ila)
-add_subdirectory(ila-handler)
+add_subdirectory(ila-mngr)
 add_subdirectory(mcm)
 add_subdirectory(target-json)
 add_subdirectory(target-sc)
+add_subdirectory(target-smt)
 add_subdirectory(util)
-add_subdirectory(verification)
 add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
@@ -27,7 +27,7 @@ endif()
 ##
 ## compile features/options
 ##
-target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
+target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_17)
 
 set_property(
   TARGET ${ILANG_LIB_NAME}
@@ -58,10 +58,23 @@ target_include_directories(${ILANG_LIB_NAME}
     $<BUILD_INTERFACE:${ILANG_INCLUDE_BUILD_DIR}>
 )
 
+# check if c++17 filesystem is available
+CHECK_INCLUDE_FILE_CXX(filesystem FS_INCLUDE)
+if(${FS_INCLUDE})
+  target_compile_definitions(${ILANG_LIB_NAME} PRIVATE FS_INCLUDE)
+endif()
+
 # ---------------------------------------------------------------------------- #
 # LINK LIBRARIES
 # external dependencies
 # ---------------------------------------------------------------------------- #
+##
+## std::filesystem
+##
+if(NOT APPLE)
+target_link_libraries(${ILANG_LIB_NAME} PRIVATE stdc++fs)
+endif()
+
 ##
 ## gcov 
 ##
@@ -107,6 +120,15 @@ if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV})
 else()
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
 endif()
+
+##
+## fmt lib
+##
+if(NOT TARGET fmt::fmt)
+  find_package(fmt REQUIRED)
+endif()
+
+target_link_libraries(${ILANG_LIB_NAME} PUBLIC fmt::fmt)
 
 ##
 ## verilog parser
@@ -166,11 +188,40 @@ else()
   set(SYNTH_INTERFACE FALSE)
 endif()
 
-
+##
+## invariant synthesis
+##
 if(${ILANG_BUILD_INVSYN})
   set(INVSYN_INTERFACE TRUE)
 else()
   set(INVSYN_INTERFACE FALSE)
+endif()
+
+##
+## smt-switch
+##
+if(${ILANG_BUILD_SWITCH})
+
+  find_package(smtswitch REQUIRED)
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch)
+  target_compile_definitions(${ILANG_LIB_NAME} PUBLIC SMTSWITCH_INTERFACE)
+
+  if(${SMTSWITCH_BTOR_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-btor)
+  endif()
+
+  if(${SMTSWITCH_CVC4_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-cvc4)
+  endif()
+
+  if(${SMTSWITCH_MSAT_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-msat)
+  endif()
+
+  if(${SMTSWITCH_YICES2_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-yices2)
+  endif()
+
 endif()
 
 ##
@@ -215,6 +266,11 @@ else()
 
   install(
     FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
+  )
+
+  install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/config.h
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
   )
 

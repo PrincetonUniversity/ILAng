@@ -4,10 +4,14 @@
 #ifndef ILANG_ILA_AST_FUNC_H__
 #define ILANG_ILA_AST_FUNC_H__
 
-#include "z3++.h"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <z3++.h>
+
 #include <ilang/ila/ast/ast.h>
 #include <ilang/ila/ast/sort.h>
-#include <ilang/ila/defines.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -61,7 +65,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 
   /// Overload output stream.
-  friend std::ostream& operator<<(std::ostream& out, const FuncPtr f) {
+  friend std::ostream& operator<<(std::ostream& out, const FuncPtr& f) {
     return f->Print(out);
   }
 
@@ -77,6 +81,14 @@ private:
 
 /// Pointer type for normal use of Func.
 typedef Func::FuncPtr FuncPtr;
+
+/// \brief The function object for hashing Func. The hash value is the id of the
+/// symbol, which is supposed to be unique.
+class FuncHash {
+public:
+  /// Function object for hashing
+  size_t operator()(const FuncPtr& func) const { return func->name().id(); }
+}; // class FuncHash
 
 } // namespace ilang
 

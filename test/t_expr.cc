@@ -1,12 +1,13 @@
 /// \file
 /// Unit test for Expr
 
-#include "unit-include/expr_bank.h"
 #include <ilang/ila/hash_ast.h>
+
+#include "unit-include/expr_bank.h"
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 class TestExpr : public ::testing::Test, public ExprBank<8> {
 public:

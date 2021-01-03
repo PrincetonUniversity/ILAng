@@ -2,15 +2,17 @@
 /// the inv-syn related HC generation is located in inv_syn.cc
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/vtarget_gen_yosys.h>
+
 #include <algorithm>
 #include <fstream>
+#include <iostream>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/absmem.h>
-#include <ilang/vtarget-out/vtarget_gen_yosys.h>
-#include <iostream>
 
 namespace ilang {
 
@@ -26,7 +28,7 @@ opt_expr -mux_undef
 opt
 opt
 %flatten%
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory -nordff
 proc
@@ -42,7 +44,7 @@ opt_expr -mux_undef
 opt
 opt
 %flatten%
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 memory_dff -wr_only
 memory_collect;
@@ -165,7 +167,7 @@ prep -top %module%
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 miter -assert %module%
 flatten
-%setundef -undriven -expose%
+%setundef -undriven -init -expose%
 memory -nordff
 opt_clean
 techmap
@@ -242,51 +244,51 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
   ILA_CHECK(chc_target == _chc_target_t::GENERAL_PROPERTY);
 
   ILA_CHECK(target_tp == target_type_t::INVARIANTS ||
-             target_tp == target_type_t::INSTRUCTIONS)
+            target_tp == target_type_t::INSTRUCTIONS)
       << "Unknown target type: " << target_tp;
 
   ILA_CHECK((vbackend & backend_selector::YOSYS) == backend_selector::YOSYS)
       << "Must use Yosys as vbackend";
 
   ILA_CHECK(s_backend == synthesis_backend_selector::ABC ||
-             s_backend == synthesis_backend_selector::Z3 ||
-             s_backend == synthesis_backend_selector::GRAIN ||
-             s_backend == synthesis_backend_selector::ELDERICA ||
-             s_backend == synthesis_backend_selector::NOSYN);
+            s_backend == synthesis_backend_selector::Z3 ||
+            s_backend == synthesis_backend_selector::GRAIN ||
+            s_backend == synthesis_backend_selector::ELDERICA ||
+            s_backend == synthesis_backend_selector::NOSYN);
 
   ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::GRAIN,
-                   vtg_config.YosysSmtFlattenDatatype &&
-                       vtg_config.YosysSmtFlattenHierarchy))
+                  vtg_config.YosysSmtFlattenDatatype &&
+                      vtg_config.YosysSmtFlattenHierarchy))
       << "Grain requires not to flatten hierarchy/datatype";
 
   ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::ABC,
-                   _vtg_config.AbcUseAiger))
+                  _vtg_config.AbcUseAiger))
       << "Currently only support using AIGER";
 
   ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::ABC,
-                   vtg_config.YosysSmtFlattenHierarchy))
+                  vtg_config.YosysSmtFlattenHierarchy))
       << "ABC requires to flatten hierarchy";
   // This is hard-coded in the Yosys script
   // if not flattened, abc will be unhappy
 
   ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::ABC,
-                   vbackend == backend_selector::ABCPDR));
+                  vbackend == backend_selector::ABCPDR));
 
   ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::GRAIN,
-                   vbackend == backend_selector::GRAIN_SYGUS &&
-                       _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes));
+                  vbackend == backend_selector::GRAIN_SYGUS &&
+                      _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes));
 
   ILA_CHECK(IMPLY(s_backend == synthesis_backend_selector::Z3,
-                   vbackend == backend_selector::Z3PDR));
+                  vbackend == backend_selector::Z3PDR));
 
   ILA_CHECK(IMPLY(vbackend == backend_selector::BTOR_GENERIC,
-                   s_backend == synthesis_backend_selector::NOSYN));
+                  s_backend == synthesis_backend_selector::NOSYN));
 
   ILA_CHECK(s_backend != synthesis_backend_selector::ELDERICA)
       << "Bug : not implemented yet!";
 
   ILA_CHECK(!(_vtg_config.YosysSmtFlattenDatatype &&
-               _vtg_config.YosysSmtStateSort != _vtg_config.Datatypes))
+              _vtg_config.YosysSmtStateSort != _vtg_config.Datatypes))
       << "Must use Datatypes to encode state in order to flatten";
 } // VlgSglTgtGen_Yosys
 
@@ -570,8 +572,14 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
   } else if (s_backend == synthesis_backend_selector::ELDERICA) {
     ILA_CHECK(false) << "Not implemented.";
   } else if (s_backend == synthesis_backend_selector::NOSYN) {
-    runnable = "echo";
-    options = " \"btor file is available as: " + prob_fname + "\"";
+    if (!_vtg_config.BtorGenericCmdline.empty()) {
+      runnable =
+          ReplaceAll(_vtg_config.BtorGenericCmdline, "%btorfile%", prob_fname);
+      options = "";
+    } else {
+      runnable = "echo";
+      options = " \"btor file is available as: " + prob_fname + "\"";
+    }
   }
 
   if (prob_fname != "") {
@@ -589,7 +597,7 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
 std::shared_ptr<smt::YosysSmtParser>
 VlgSglTgtGen_Yosys::GetDesignSmtInfo() const {
   ILA_CHECK((_backend & backend_selector::CHC) == backend_selector::CHC &&
-             _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
+            _vtg_config.YosysSmtStateSort == _vtg_config.Datatypes)
       << "Only CHC target with datatypes will generate suitable smt-lib2.";
   ILA_CHECK(design_smt_info != nullptr);
   return design_smt_info;
@@ -681,9 +689,9 @@ void VlgSglTgtGen_Yosys::design_only_gen_btor(
                                       _vtg_config.YosysSmtFlattenHierarchy
                                           ? "flatten;"
                                           : ""),
-                           "%setundef -undriven -expose%",
+                           "%setundef -undriven -init -expose%",
                            _vtg_config.YosysUndrivenNetAsInput
-                               ? "setundef -undriven -expose"
+                               ? "setundef -undriven -init -expose"
                                : ""),
                 "%rstlen%",
                 std::to_string(
@@ -693,6 +701,9 @@ void VlgSglTgtGen_Yosys::design_only_gen_btor(
                 supplementary_info.cosa_yosys_reset_config.reset_cycles)),
         "%module%", top_mod_name);
 
+    // this is for cosa2, I don't know why it is unhappy, but we need fix this
+    // in the long run
+    ys_script_fout << "setundef -undriven -zero\n";
     ys_script_fout << "write_btor " << write_btor_options << " " << btor_name;
   } // finish writing
 
@@ -729,7 +740,7 @@ void VlgSglTgtGen_Yosys::design_only_gen_smt(
       write_smt2_options += "-stbv ";
     else
       ILA_CHECK(false) << "Unsupported smt state sort encoding:"
-                        << _vtg_config.YosysSmtStateSort;
+                       << _vtg_config.YosysSmtStateSort;
 
     ys_script_fout << "read_verilog -sv "
                    << os_portable_append_dir(_output_path, top_file_name)
@@ -747,9 +758,9 @@ void VlgSglTgtGen_Yosys::design_only_gen_smt(
                                       _vtg_config.YosysSmtFlattenHierarchy
                                           ? "flatten;"
                                           : ""),
-                           "%setundef -undriven -expose%",
+                           "%setundef -undriven -init -expose%",
                            _vtg_config.YosysUndrivenNetAsInput
-                               ? "setundef -undriven -expose"
+                               ? "setundef -undriven -init -expose"
                                : ""),
                 "%rstlen%",
                 std::to_string(
@@ -983,9 +994,9 @@ void VlgSglTgtGen_Yosys::generate_aiger(const std::string& blif_name,
                             "%blifname%", blif_name),
                         "%aigname%", aiger_name),
                     "%mapname%", map_name),
-                "%setundef -undriven -expose%",
+                "%setundef -undriven -init -expose%",
                 _vtg_config.YosysUndrivenNetAsInput
-                    ? "setundef -undriven -expose"
+                    ? "setundef -undriven -init -expose"
                     : ""),
             "%rstlen%",
             std::to_string(

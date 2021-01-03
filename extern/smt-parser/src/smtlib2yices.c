@@ -164,6 +164,11 @@ static uint32_t smtlib2_yices_parametric_sort_hashfun(intptr_t s);
 static bool smtlib2_yices_parametric_sort_eqfun(intptr_t s1, intptr_t s2);
 
 
+
+smtlib2_parser_interface * SMTLIB2_PARSER_INTERFACE_YICES(smtlib2_yices_parser *p) {
+    return &(p->parent_->parent_);
+}
+
 smtlib2_yices_parser *smtlib2_yices_parser_new(void)
 {
     smtlib2_yices_parser *ret =
@@ -195,7 +200,7 @@ smtlib2_yices_parser *smtlib2_yices_parser_new(void)
     ret->names_ = smtlib2_vector_new();
 
     /* initialize the term parser and override virtual methods */
-    pi = SMTLIB2_PARSER_INTERFACE(ret);
+    pi = SMTLIB2_PARSER_INTERFACE_YICES(ret);
     pi->set_logic = smtlib2_yices_parser_set_logic;
     pi->declare_sort = smtlib2_yices_parser_declare_sort;
     pi->declare_function = smtlib2_yices_parser_declare_function;

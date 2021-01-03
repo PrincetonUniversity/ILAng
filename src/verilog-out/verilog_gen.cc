@@ -9,11 +9,11 @@
 #include <string>
 #include <type_traits>
 
-#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/ast_hub.h>
+#include <ilang/mcm/ast_helper.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/mcm/ast_helper.h>
 
 namespace ilang {
 
@@ -57,15 +57,16 @@ bool VerilogGeneratorBase::check_reserved_name(const vlg_name_t& n) const {
 }
 
 // static helper function
-std::map<char, std::string> sanitizeTable(
-    {{'.', "__DOT__"},   {'<', "__LT__"},    {'>', "__GT__"},
-     {'!', "__NOT__"},   {'~', "__NEG__"},   {'-', "__DASH__"},
-     {'&', "__AND__"},   {'|', "__SEP__"},   {' ', "__SPACE__"},
-     {'*', "__STAR__"},  {'%', "__PERC__"},  {'#', "__BANG__"},
-     {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
-     {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
-     {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
-     {'8', "__EIGHT__"}, {'9', "__NINE__"},  {'$', "__DOLLAR__"}});
+std::map<char, std::string> sanitizeTable({
+    {'.', "__DOT__"},   {'<', "__LT__"},    {'>', "__GT__"},
+    {'!', "__NOT__"},   {'~', "__NEG__"},   {'-', "__DASH__"},
+    {'&', "__AND__"},   {'|', "__SEP__"},   {' ', "__SPACE__"},
+    {'*', "__STAR__"},  {'%', "__PERC__"},  {'#', "__BANG__"},
+    {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
+    {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
+    {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
+    {'8', "__EIGHT__"}, {'9', "__NINE__"} //,  {'$', "__DOLLAR__"}
+});
 
 unsigned symbol_cnt = 0;
 static std::string get_symbol_new() {
@@ -83,7 +84,7 @@ VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
       continue;
     }
 
-    if (isalnum(c) || c == '_') {
+    if (isalnum(c) || c == '_' || c == '$') {
       outStr += c;
       continue;
     }
@@ -452,7 +453,7 @@ void VerilogGenerator::insertInput(const ExprPtr& input) {
     // when in expr parse, remember it is (EXTERNAL mem)
     add_external_mem(sanitizeName(input),         // name
                      input->sort()->addr_width(), // addr_width
-                     input->sort()->data_width(), ExprFuse::GetMemSize(input));
+                     input->sort()->data_width(), asthub::GetMemSize(input));
   } else {
     add_input(sanitizeName(input), get_width(input));
     add_wire(sanitizeName(input), get_width(input));
@@ -472,18 +473,16 @@ void VerilogGenerator::insertState(const ExprPtr& state) {
     if (external) {
       add_external_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
-                       state->sort()->data_width(),
-                       ExprFuse::GetMemSize(state));
+                       state->sort()->data_width(), asthub::GetMemSize(state));
       ILA_DLOG("VerilogGen.insertState")
           << "insert emem:" << state->name().str();
     } else {
       add_internal_mem(sanitizeName(state),         // name
                        state->sort()->addr_width(), // addr_width
-                       state->sort()->data_width(),
-                       ExprFuse::GetMemSize(state));
+                       state->sort()->data_width(), asthub::GetMemSize(state));
       if (cfg_.expand_mem) { // vtg should put it to be true here
         // add output
-        int n_elem_specified = ExprFuse::GetMemSize(state);
+        int n_elem_specified = asthub::GetMemSize(state);
         int addr_range = std::pow(2, state->sort()->addr_width());
         if (n_elem_specified != 0 && n_elem_specified <= addr_range)
           addr_range = n_elem_specified;
@@ -1014,13 +1013,13 @@ void VerilogGenerator::VisitMemNodes(
     std::shared_ptr<ExprOp> expr_op_ptr = std::dynamic_pointer_cast<ExprOp>(e);
     ILA_NOT_NULL(expr_op_ptr);
     if (expr_op_ptr->op_name() == "ITE") {
-      ExprPtr ctrue = ExprFuse::And(
+      ExprPtr ctrue = asthub::And(
           cond, expr_op_ptr->arg(0)); // the writes in the true-branch conforms
                                       // to these conditions
-      ExprPtr cfalse = ExprFuse::And(
+      ExprPtr cfalse = asthub::And(
           cond,
-          ExprFuse::Not(expr_op_ptr->arg(0))); // the writes in the false-branch
-                                               // conforms to these conditions
+          asthub::Not(expr_op_ptr->arg(0))); // the writes in the false-branch
+                                             // conforms to these conditions
 
       mem_write_entry_list_t writes = writesStack.back();
       writesStack.push_back(
@@ -1204,7 +1203,7 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
   // add valid signal
   auto valid_ptr = ila_ptr_->valid();
   if (!valid_ptr) {
-    valid_ptr = ExprFuse::BoolConst(true);
+    valid_ptr = asthub::BoolConst(true);
     ILA_WARN << "Valid condition for ILA: " << ila_ptr_->name().str()
              << " is unset";
   }
@@ -1233,7 +1232,7 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
     auto instr_ptr_ = ila_ptr_->instr(instIdx);
     auto decode_ptr = instr_ptr_->decode();
     if (!decode_ptr) { // make sure decode is not null
-      decode_ptr = ExprFuse::BoolConst(true);
+      decode_ptr = asthub::BoolConst(true);
       ILA_WARN << "Decode condition for instr: " << (instr_ptr_->name().str())
                << " is unset";
     }
@@ -1265,9 +1264,9 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
           continue; // will not generate state <= state; // no use
         auto decode_cond = ila_ptr_->instr(instIdx)->decode();
         mem_update_expr =
-            ExprFuse::Ite(decode_cond, update_expr, mem_update_expr);
+            asthub::Ite(decode_cond, update_expr, mem_update_expr);
       } // end for all instructions
-      ParseMemUpdateNode(ExprFuse::BoolConst(true), mem_update_expr,
+      ParseMemUpdateNode(asthub::BoolConst(true), mem_update_expr,
                          state->name().str());
       ExportCondWrites(state, current_writes);
       // done export memory
@@ -1335,7 +1334,7 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
   // add valid signal
   auto valid_ptr = ila_ptr_->valid();
   if (!valid_ptr) {
-    valid_ptr = ExprFuse::BoolConst(true);
+    valid_ptr = asthub::BoolConst(true);
     ILA_WARN << "Valid condition for ILA: " << ila_ptr_->name().str()
              << " is unset";
   }
@@ -1349,7 +1348,7 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
   // decode conditions
   auto decode_ptr = instr_ptr_->decode();
   if (!decode_ptr) {
-    decode_ptr = ExprFuse::BoolConst(true);
+    decode_ptr = asthub::BoolConst(true);
     ILA_WARN << "Decode condition for instr: " << (instr_ptr_->name().str())
              << " is unset";
   }
@@ -1386,15 +1385,14 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
       auto sig_name = "__ite_ukn_cond_" + original_cond_sig;
       auto reg_name = "__ite_ukn_cond_reg_" + original_cond_sig;
       state_update_ite_unknown.insert(
-        std::make_pair(var->name().str(),
-          state_update_unknown(sig_name)));
+          std::make_pair(var->name().str(), state_update_unknown(sig_name)));
       add_output(sig_name, 1);
       add_wire(sig_name, 1);
       add_assign_stmt(sig_name, reg_name);
       add_ite_stmt(decodeName, reg_name + " <= " + original_cond_sig, "");
     }
 
-  }   // for (size_t idx = 0;  ...
+  } // for (size_t idx = 0;  ...
 
   // Func Defs
   ExportFuncDefs();

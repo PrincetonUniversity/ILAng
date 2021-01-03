@@ -1,17 +1,19 @@
 /// \file
 /// Unit test for commutating diagram-based equivalence checking
 
+#include <z3++.h>
+
+#include <ilang/ila-mngr/u_abs_knob.h>
+#include <ilang/ila-mngr/u_unroller.h>
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
+
 #include "unit-include/eq_ilas.h"
 #include "unit-include/stream_buffer.h"
 #include "unit-include/util.h"
-#include "z3++.h"
-#include <ilang/verification/abs_knob.h>
-#include <ilang/verification/eq_check_crr.h>
-#include <ilang/verification/unroller.h>
 
 namespace ilang {
 
-using namespace ExprFuse;
+using namespace asthub;
 
 class TestEqCheck : public ::testing::Test {
 public:
@@ -22,7 +24,6 @@ public:
     DebugLog::Enable("Verbose-CrrEqCheck");
   }
   void TearDown() {
-    SetToStdErr(0);
     DebugLog::Disable("EqCheck");
     DebugLog::Disable("Verbose-CrrEqCheck");
   }
@@ -35,7 +36,6 @@ public:
   InstrLvlAbsPtr f1 = ila_gen.GetIlaFlat1("f1");
   InstrLvlAbsPtr f2 = ila_gen.GetIlaFlat2("f2");
   InstrLvlAbsPtr h1 = ila_gen.GetIlaHier1("h1");
-  // InstrLvlAbsPtr h2 = ila_gen.GetIlaHier2("h2");
 
   RefPtr GetRefine(const InstrLvlAbsPtr top, const int& instr_idx, bool comp,
                    bool flat);
@@ -47,7 +47,6 @@ public:
 };
 
 TEST_F(TestEqCheck, FF_Mono) {
-  SetToStdErr(0);
   for (auto instr_idx : {0, 1, 2, 3}) {
     // refinement
     auto ref1 = GetRefine(f1, instr_idx, false, true);
@@ -67,7 +66,6 @@ TEST_F(TestEqCheck, FF_Mono) {
 }
 
 TEST_F(TestEqCheck, CommDiag_HF) {
-  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -83,12 +81,10 @@ TEST_F(TestEqCheck, CommDiag_HF) {
     CustH1(ref2);
 
     EXPECT_TRUE(cd.EqCheck(100));
-    // EXPECT_TRUE(cd.EqCheck(20));
   }
 }
 
 TEST_F(TestEqCheck, IncCommDiag_HF) {
-  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -103,13 +99,11 @@ TEST_F(TestEqCheck, IncCommDiag_HF) {
     CustF1(ref1);
     CustH1(ref2);
 
-    // EXPECT_TRUE(cd.IncEqCheck(0, 20));
     EXPECT_TRUE(cd.IncEqCheck(0, 90, 10));
   }
 }
 
 TEST_F(TestEqCheck, NewIncCommDiag_HF) {
-  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -129,17 +123,6 @@ TEST_F(TestEqCheck, NewIncCommDiag_HF) {
   }
 }
 
-TEST_F(TestEqCheck, CommDiag_HH) {
-  // TODO
-  // with and without completion
-}
-
-TEST_F(TestEqCheck, CommDiag_Pipeline) {
-  ExmpStrmBuff sb;
-  auto m = sb.GetStrmBuffSpecRaw("spec");
-  // TODO
-}
-
 RefPtr TestEqCheck::GetRefine(const InstrLvlAbsPtr top, const int& instr_idx,
                               bool comp, bool flat) {
   auto ref = RefinementMap::New();
@@ -154,7 +137,7 @@ RefPtr TestEqCheck::GetRefine(const InstrLvlAbsPtr top, const int& instr_idx,
   // flush
   ref->set_flush(Not(top->input("start")));
   // complete
-  auto instrs = AbsKnob::GetInstrTree(top);
+  auto instrs = absknob::GetInstrTree(top);
   auto cmpl = BoolConst(true);
   for (auto it = instrs.begin(); it != instrs.end(); it++) {
     auto instr = *it;
