@@ -49,6 +49,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/util.cc
   t_ast_hub.cc
   t_api.cc
+  t_api_objects.cc
   t_case_aes_eq.cc
   t_copy.cc
   t_crr.cc

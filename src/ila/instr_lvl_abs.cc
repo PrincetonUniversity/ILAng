@@ -201,8 +201,8 @@ const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
 }
 
 const VarContainerPtr InstrLvlAbs::NewObjectInput(const std::string& name,
-                                                  const types::Type& type) {
-  VarContainerPtr obj = VarContainer::Make(name, type);
+                                                  const SortPtr& sort) {
+  VarContainerPtr obj = VarContainer::Make(name, sort);
   AddInputObject(name, obj);
   return obj;
 }
@@ -238,8 +238,8 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
 }
 
 const VarContainerPtr InstrLvlAbs::NewObjectState(const std::string& name,
-                                                  const types::Type& type) {
-  VarContainerPtr obj = VarContainer::Make(name, type);
+                                                  const SortPtr& sort) {
+  VarContainerPtr obj = VarContainer::Make(name, sort);
   AddStateObject(name, obj);
   return obj;
 }
@@ -272,8 +272,8 @@ const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
 }
 
 const VarContainerPtr InstrLvlAbs::NewObjectFreeVar(const std::string& name,
-                                                    const types::Type& type) {
-  VarContainerPtr obj = VarContainer::Make(name, type);
+                                                    const SortPtr& sort) {
+  VarContainerPtr obj = VarContainer::Make(name, sort);
   obj->visit_with( [p=shared_from_this()](VarContainer* const vc) {
     if (vc->is_primitive()) vc->to_primitive_expr()->set_host(p);
   } );

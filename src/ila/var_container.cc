@@ -6,7 +6,7 @@
 
 namespace ilang {
 
-VarContainerPtr VarContainer::Make(const std::string& name, const types::Type& t) {
+VarContainerPtr VarContainer::Make(const std::string& name, const SortPtr& t) {
   std::string prefix = name + "_";  // also makes name a bit more private if last variable.
   switch (t->uid()) {
     case AstUidSort::kBool:
@@ -37,6 +37,10 @@ VarContainerPtr VarContainer::Make(const std::string& name, const types::Type& t
   }
 }
 
+VarContainerPtr VarContainer::from_primitive_expr(const ExprPtr& p) {
+  return VarContainerPtr{new VarPrimitive{p}};
+}
+
 ExprPtr VarContainer::to_primitive_expr() {
   invalid_operation_error_("conversion to primitive expr");
   return {nullptr};
@@ -54,6 +58,13 @@ size_t VarContainer::size() const {
 
 const VarContainer::vector_container& VarContainer::elements() {
   invalid_operation_error_("getting vector elements");
+  return empty_vec_;
+}
+
+std::vector<VarContainerPtr> VarContainer::order_preserving_partition(
+  size_t n_parts, std::function<size_t(size_t)> which_part
+) {
+  invalid_operation_error_("partitioning");
   return empty_vec_;
 }
 
@@ -77,7 +88,7 @@ void VarPrimitive::visit_with(const VarContainer::visitor& visit) { visit(this);
 
 /* VarVector */
 
-VarVector::VarVector(const types::Type& t, vector_container&& elems): 
+VarVector::VarVector(const SortPtr& t, vector_container&& elems): 
   VarContainer(t), impl_ {elems} {}
 
 void VarVector::visit_with(const VarContainer::visitor& visit) {
@@ -92,9 +103,26 @@ VarContainerPtr VarVector::nth(size_t idx) {
   return impl_[idx];
 }
 
+std::vector<VarContainerPtr> VarVector::order_preserving_partition(
+    size_t n_parts, std::function<size_t(size_t)> which_part
+) {
+  std::vector<vector_container> parts(n_parts);
+  for (int i = 0; i != size(); ++i) {
+    size_t index = which_part(i);
+    ILA_ASSERT(index >= 0 && index < n_parts) << "partition function out of bounds";
+    parts[index].push_back(impl_[i]);
+  }
+  std::vector<VarContainerPtr> result;
+  for (int i = 0; i != n_parts; ++i) {
+    auto s = Sort::MakeVectorSort(sort()->data_atom(), parts[i].size());
+    result.emplace_back(new VarVector{s, std::move(parts[i])});
+  }
+  return result;
+}
+
 /* VarStruct */
 
-VarStruct::VarStruct(const types::Type& t, struct_container&& members): 
+VarStruct::VarStruct(const SortPtr& t, struct_container&& members): 
   VarContainer(t), impl_ {members} {}
 
 void VarStruct::visit_with(const visitor& visit) {
