@@ -61,6 +61,10 @@ SortPtr Sort::MakeStructSort(
   std::initializer_list<std::pair<std::string, SortPtr>> members
 ) { return std::make_shared<SortStruct>(members); }
 
+SortPtr Sort::MakeStructSort(
+  std::vector<std::pair<std::string, SortPtr>> members
+) { return std::make_shared<SortStruct>(members); }
+
 SortPtr Sort::MakeVectorSort(const SortPtr& da, const int vec_size) {
   return std::make_shared<SortVector>(da, vec_size);
 }
@@ -128,6 +132,12 @@ std::ostream& SortMem::Print(std::ostream& out) const {
 
 SortStruct::SortStruct(
   std::initializer_list<std::pair<std::string, SortPtr>> members
+): members_(members.begin(), members.end()) {}
+// above, we use the range constructor in order to allow casting 
+// of std::string (if necessary).
+
+SortStruct::SortStruct(
+  std::vector<std::pair<std::string, SortPtr>> members
 ): members_(members.begin(), members.end()) {}
 // above, we use the range constructor in order to allow casting 
 // of std::string (if necessary).

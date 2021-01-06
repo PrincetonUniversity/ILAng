@@ -13,27 +13,6 @@
 
 namespace ilang {
 
-/// Defines type constructors for use in producing complex state/input objects.
-namespace types {
-  typedef SortPtr Type;
-
-  /// Returns the boolean type.
-  inline Type Bool() { return Sort::MakeBoolSort(); }
-  /// Returns a type representing a bitvector of the given size.
-  inline Type Bitvector(size_t nbits) { return Sort::MakeBvSort(nbits); }
-  /// Returns a type representing a memory bank with given width addresses,
-  /// each address representing a bitvector of given width data.
-  inline Type Memory(size_t addr_width, size_t data_width) { return Sort::MakeMemSort(addr_width, data_width); }
-  /// Returns a type representing a vector of given size with elements
-  /// of the given type.
-  inline Type Vector(size_t size, const Type& elem_type) { return Sort::MakeVectorSort(elem_type, size); }
-  /// Returns a type representing a struct whose members have the given types,
-  /// as determined by the list of (member_name, member_type) pairs given as input. 
-  inline Type Struct(const std::initializer_list<std::pair<std::string, Type>>& members) { 
-    return Sort::MakeStructSort(members); 
-  }
-};
-
 /// A container holding ILA state/input variables in order to be 
 /// able to represent some complex object.
 class VarContainer {
@@ -64,7 +43,7 @@ public:
   enum class ContainerType { primitive, vector, structure };
   
   /// The type of visitors to containers. This is sufficient because the 
-  /// type() and container_type() functions can be used to get the specific
+  /// sort() and container_type() functions can be used to get the specific
   /// kind of object/container being referred to.
   typedef std::function<void(VarContainer* const)> visitor;
   // The visitor function accepts a VarContainer* instead of a VarContainerPtr to save
@@ -85,13 +64,15 @@ public:
   /// Makes a VarContainer representing a complex object of the given type, 
   /// using the given name as a prefix for the state/input variables needed to 
   /// define the object.
-  static VarContainerPtr Make(const std::string& name, const types::Type& t);
+  static VarContainerPtr Make(const std::string& name, const SortPtr& sort);
+
+  static VarContainerPtr from_primitive_expr(const ExprPtr& p);
 
   /// Destroys a VarContainer.
   ~VarContainer()=default;
 
   /// Returns the type of object this container represents.
-  const types::Type& type() { return type_; }
+  const SortPtr& sort() { return sort_; }
 
   /// Returns the type of container used to manage this object.
   virtual ContainerType container_type() const = 0;
@@ -122,6 +103,14 @@ public:
   // the vector functions. Both the vector and struct implementations
   // should support range-based for loops, but would need to implement
   // different type begin() and end() functions.
+  
+  /// If this container is a vector, partitions each element such that
+  /// the ith element is assigned to the which_part(i)th part.
+  /// The result is not a VarContainer Vector because partitions may
+  /// have different size.
+  virtual std::vector<VarContainerPtr> order_preserving_partition(
+    size_t n_parts, std::function<size_t(size_t)> which_part
+  );
 
   /// If this container is a struct, returns the given member.
   virtual VarContainerPtr member(const std::string& name);
@@ -130,7 +119,7 @@ public:
   // [HACK] see the elements() function above.
 
 protected:
-  VarContainer(const types::Type& type): type_ {type} {}
+  VarContainer(const SortPtr& sort): sort_ {sort} {}
 
   /// Produces an error that the given operation is invalid for the
   /// given type of container.
@@ -142,7 +131,7 @@ protected:
   virtual const char* container_typename_() const = 0;
 
 private:
-  types::Type type_;
+  const SortPtr sort_;
   inline static const vector_container empty_vec_ {};
   inline static const struct_container empty_struct_ {};
 };
@@ -187,8 +176,12 @@ public:
   size_t size() const override { return impl_.size(); }
   const vector_container& elements() override { return impl_; }
 
+  std::vector<VarContainerPtr> order_preserving_partition(
+    size_t n_parts, std::function<size_t(size_t)> which_part
+  ) override;
+
 protected:
-  VarVector(const types::Type& t, vector_container&& elems);
+  VarVector(const SortPtr& sort, vector_container&& elems);
   const char* container_typename_() const override { return "vector"; }
 
 private:
@@ -209,7 +202,7 @@ struct VarStruct: public VarContainer {
   const struct_container& members() override { return impl_; }
 
 protected:
-  VarStruct(const types::Type& t, struct_container&& elems);
+  VarStruct(const SortPtr& sort, struct_container&& elems);
   const char* container_typename_() const override { return "struct"; }
 
 private:

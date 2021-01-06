@@ -42,11 +42,14 @@ public:
   /// Create a memory (array) Sort.
   static SortPtr MakeMemSort(const int& addr_width, const int& data_width);
   
-  /// A sort representing a composite data-type.
+  /// Create a Struct Sort, representing a composite data-type.
   static SortPtr MakeStructSort(
     std::initializer_list<std::pair<std::string, SortPtr>> members);
   
-  /// A sort representing a vector of data-atoms of the same struct sort.
+  /// Create a Struct Sort, representing a composite data-type.
+  static SortPtr MakeStructSort(std::vector<std::pair<std::string, SortPtr>> members);
+  
+  /// Create Vector Sort; a sort for a vector of data_atoms with the given sort.
   static SortPtr MakeVectorSort(const SortPtr& data_atom, const int vec_size);
 
 
@@ -220,6 +223,7 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructs a StructSort from a list of members. 
   SortStruct(std::initializer_list<std::pair<std::string, SortPtr>> members);
+  SortStruct(std::vector<std::pair<std::string, SortPtr>> members);
   /* Note: we create a struct all at once to prevent any weirdness from recursive 
      sorts. (I.e. we don't want to be able to create a StructSort, and then add
      itself as a member.) */

@@ -127,7 +127,7 @@ TEST(TestInstrLvlAbs, Objects) {
   
   /* AddObject */
   
-  VarContainerPtr obj1 = VarContainer::Make("blah", types::Vector(5, types::Bool()));
+  VarContainerPtr obj1 = VarContainer::Make("blah", Sort::MakeVectorSort(Sort::MakeBoolSort(), 5));
   ila->AddInputObject("blah", obj1);
 
   // ensure inputs were added.
@@ -135,31 +135,33 @@ TEST(TestInstrLvlAbs, Objects) {
     EXPECT_TRUE(ila->find_input(x->to_primitive_expr()->name()));
   }
 
-  auto obj2 = VarContainer::Make("hello", types::Bitvector(6));
+  auto obj2 = VarContainer::Make("hello", Sort::MakeBvSort(6));
   ila->AddStateObject("hello", obj2);
 
   // ensure states were added.
   EXPECT_TRUE(ila->find_state(obj2->to_primitive_expr()->name()));
   EXPECT_FALSE(ila->find_state(
-    VarContainer::Make("world", types::Bool())->to_primitive_expr()->name()
+    VarContainer::Make("world", Sort::MakeBoolSort())->to_primitive_expr()->name()
   ));
 
   #ifndef NDEBUG
     // duplicate names
-    EXPECT_DEATH(ila->AddInputObject("blah", VarContainer::Make("awef", types::Bool())), ".*");
-    EXPECT_DEATH(ila->AddInputObject("hello", VarContainer::Make("awef", types::Bool())), ".*");
-    EXPECT_DEATH(ila->AddStateObject("blah", VarContainer::Make("awef", types::Bool())), ".*");
+    EXPECT_DEATH(ila->AddInputObject("blah", VarContainer::Make("awef", Sort::MakeBoolSort())), ".*");
+    EXPECT_DEATH(ila->AddInputObject("hello", VarContainer::Make("awef", Sort::MakeBoolSort())), ".*");
+    EXPECT_DEATH(ila->AddStateObject("blah", VarContainer::Make("awef", Sort::MakeBoolSort())), ".*");
     // double-adding same object
     EXPECT_DEATH(ila->AddInputObject("awef", obj1), ".*");
     // new object, same primitive variable names
-    EXPECT_DEATH(ila->AddInputObject("awef", VarContainer::Make("blah", types::Vector(5, types::Bool()))), ".*");
+    EXPECT_DEATH(
+      ila->AddInputObject("awef", VarContainer::Make("blah", Sort::MakeVectorSort(Sort::MakeBoolSort(),5))), 
+      ".*");
   #endif
   // different object, different primitive names
-  ila->AddInputObject("awef", VarContainer::Make("qwert", types::Vector(5, types::Bool())));
+  ila->AddInputObject("awef", VarContainer::Make("qwert", Sort::MakeVectorSort(Sort::MakeBoolSort(), 5)));
 
   /* NewObject */
   
-  auto pair = types::Struct({{"x", types::Bitvector(8)}, {"y", types::Bitvector(8)}});
+  auto pair = Sort::MakeStructSort({{"x", Sort::MakeBvSort(8)}, {"y", Sort::MakeBvSort(8)}});
   auto a = ila->NewObjectInput("a", pair);
   auto b = ila->NewObjectState("b", pair);
   #ifndef NDEBUG

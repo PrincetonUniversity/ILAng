@@ -88,6 +88,8 @@ public:
   inline size_t input_num() const { return inputs_.size(); }
   /// Return the number of state variables.
   inline size_t state_num() const { return states_.size(); }
+  /// Return the number of objects.
+  inline size_t objects_num() const { return objects_.size(); }
   /// Return the number of instructions.
   inline size_t instr_num() const { return instrs_.size(); }
   /// Return the number of child-ILAs.
@@ -202,10 +204,10 @@ public:
                             const int& data_width);
 
   /// \brief Create a multi-variable object and register as an input.
-  /// \param[in] name of the memory input.
-  /// \param[in] type type of the object.
+  /// \param[in] name of the object input.
+  /// \param[in] sort of the object.
   /// \return pointer to the object.
-  const VarContainerPtr NewObjectInput(const std::string& name, const types::Type& type);
+  const VarContainerPtr NewObjectInput(const std::string& name, const SortPtr& sort);
 
   /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
@@ -227,10 +229,10 @@ public:
                             const int& data_width);
 
   /// \brief Create a multi-variable object and register as a state.
-  /// \param[in] name of the memory input.
-  /// \param[in] type type of the object.
+  /// \param[in] name of the object state.
+  /// \param[in] sort of the object.
   /// \return pointer to the object.
-  const VarContainerPtr NewObjectState(const std::string& name, const types::Type& type);
+  const VarContainerPtr NewObjectState(const std::string& name, const SortPtr& sort);
 
   /// \brief Create one free Boolean variable.
   /// \param[in] name of the Boolean variable.
@@ -252,11 +254,11 @@ public:
                               const int& data_width);
 
   /// \brief Create a multi-variable object.
-  /// \param[in] name of the memory input.
-  /// \param[in] type type of the object.
+  /// \param[in] name of the object of free variables.
+  /// \param[in] sort of the object.
   /// \return pointer to the object.
   const VarContainerPtr NewObjectFreeVar(const std::string& name, 
-                                         const types::Type& type);
+                                         const SortPtr& sort);
 
   /// \brief Create and register one instruction.
   /// \param[in] name of the instruction.

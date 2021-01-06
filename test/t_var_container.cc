@@ -56,22 +56,22 @@ void basic_tests(const VarContainerPtr& p) {
 
 
 TEST(TestVarContainer, Primitive) {
-  auto e1 = VarContainer::Make("a", types::Bool());
+  auto e1 = VarContainer::Make("a", Sort::MakeBoolSort());
   basic_tests(e1);
-  EXPECT_EQ(e1->type(), types::Bool());
-  EXPECT_NE(e1->type(), types::Memory(5, 10));
+  EXPECT_EQ(e1->sort(), Sort::MakeBoolSort());
+  EXPECT_NE(e1->sort(), Sort::MakeMemSort(5, 10));
 
-  auto e2 = VarContainer::Make("b", types::Bitvector(3));
+  auto e2 = VarContainer::Make("b", Sort::MakeBvSort(3));
   basic_tests(e2);
-  EXPECT_EQ(e2->type(), types::Bitvector(3));
-  EXPECT_NE(e2->type(), types::Bitvector(5));
+  EXPECT_EQ(e2->sort(), Sort::MakeBvSort(3));
+  EXPECT_NE(e2->sort(), Sort::MakeBvSort(5));
 
   // check conversion to exprs
   auto f = asthub::And(e1, asthub::NewBoolVar("b"));
 }
 
 TEST(TestVarContainer, Vector) {
-  auto xs = VarContainer::Make("xs", types::Vector(3, types::Bool()));
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
   basic_tests(xs);
 
   // size
@@ -109,37 +109,48 @@ TEST(TestVarContainer, Vector) {
   EXPECT_FALSE(asthub::TopEq(e2, e3));
 
   // vectors of vectors
-  auto m = VarContainer::Make("m", types::Vector(16, types::Vector(16, types::Bitvector(8))));
+  auto m = VarContainer::Make("m", 
+    Sort::MakeVectorSort(Sort::MakeVectorSort(Sort::MakeBvSort(8), 16),16));
   for (auto& row : m->elements()) {
     for (auto& x : row->elements()) {
-      EXPECT_EQ(x->type(), types::Bitvector(8));
+      EXPECT_EQ(x->sort(), Sort::MakeBvSort(8));
     }
   }
 
   // TODO: consider testing for collision avoidance?
   // This passes but is brittle and may be incorrect:
-  // auto row = VarContainer::Make("m_0_", types::Vector(5, types::Bool()));
+  // auto row = VarContainer::Make("m_0_", Sort::MakeVectorSort(Sort::MakeBoolSort(), 5));
   // for (int i = 0; i != row->size(); ++i) {
   //   EXPECT_FALSE(asthub::TopEq(row->nth(i), m->nth(0)->nth(i)));
   // }
 
 }
 
+TEST(TestVarContainer, VectorPartitioning) {
+  int n_elems = 16, n_parts = 4;
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), n_elems));
+  auto xs_parted = 
+    xs->order_preserving_partition(n_parts, [n_parts](size_t n) {return n / n_parts;});
+  for (int i = 0; i != n_elems; ++i) {
+    EXPECT_EQ(xs->nth(i), xs_parted[i / n_parts]->nth(i % n_parts));
+  }
+}
+
 TEST(TestVarContainer, Struct) {
   int bvsize = 8;
-  auto Point = types::Struct({
-    {"x", types::Bitvector(bvsize)}, {"y", types::Bitvector(bvsize)}
+  auto Point = Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(bvsize)}, {"y", Sort::MakeBvSort(bvsize)}
   });
   auto p1 = VarContainer::Make("p1", Point);
   auto p2 = VarContainer::Make("p2", Point);
   basic_tests(p1);
-  EXPECT_EQ(p1->type(), Point);
-  EXPECT_EQ(p1->type(), p2->type());
-  EXPECT_EQ(p1->type(), types::Struct({
-    {"x", types::Bitvector(bvsize)}, {"y", types::Bitvector(bvsize)}
+  EXPECT_EQ(p1->sort(), Point);
+  EXPECT_EQ(p1->sort(), p2->sort());
+  EXPECT_EQ(p1->sort(), Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(bvsize)}, {"y", Sort::MakeBvSort(bvsize)}
   }));
-  EXPECT_NE(p1->type(), types::Struct({
-    {"x", types::Bitvector(bvsize)}, {"z", types::Bitvector(bvsize)}
+  EXPECT_NE(p1->sort(), Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(bvsize)}, {"z", Sort::MakeBvSort(bvsize)}
   }));
 
   // member
@@ -163,18 +174,19 @@ TEST(TestVarContainer, Struct) {
 }
 
 TEST(TestVarContainer, Visitor) {
-  std::vector<std::tuple<types::Type, int, int, int>> examples {
-    {types::Memory(5, 4), 1, 0, 0},
-    {types::Vector(3, types::Bool()), 3, 1, 0},
-    {types::Struct(
-        {{"x", types::Vector(3, types::Bitvector(4))}, {"y", types::Bitvector(5)}}
+  std::vector<std::tuple<SortPtr, int, int, int>> examples {
+    {Sort::MakeMemSort(5, 4), 1, 0, 0},
+    {Sort::MakeVectorSort(Sort::MakeBoolSort(), 3), 3, 1, 0},
+    {Sort::MakeStructSort(
+        {{"x", Sort::MakeVectorSort(Sort::MakeBvSort(4), 3)}, {"y", Sort::MakeBvSort(5)}}
       ), 4, 1, 1},
-    {types::Vector(3, types::Struct(
-        {{"x", types::Bool()}, {"y", types::Bitvector(3)}}
-      )), 6, 1, 3},
-    {types::Vector(3, types::Struct(
-        {{"x", types::Vector(2, types::Bool())}, {"y", types::Vector(3, types::Bool())}}
-      )), 15, 7, 3}
+    {Sort::MakeVectorSort(Sort::MakeStructSort(
+        {{"x", Sort::MakeBoolSort()}, {"y", Sort::MakeBvSort(3)}}
+      ), 3), 6, 1, 3},
+    {Sort::MakeVectorSort(Sort::MakeStructSort(
+        {{"x", Sort::MakeVectorSort(Sort::MakeBoolSort(), 2)}, 
+         {"y", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3)}}
+      ), 3), 15, 7, 3}
   };
 
   for (auto& [t, np, nv, ns] : examples) {
