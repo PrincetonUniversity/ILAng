@@ -61,13 +61,6 @@ const VarContainer::vector_container& VarContainer::elements() {
   return empty_vec_;
 }
 
-std::vector<VarContainerPtr> VarContainer::order_preserving_partition(
-  size_t n_parts, std::function<size_t(size_t)> which_part
-) {
-  invalid_operation_error_("partitioning");
-  return empty_vec_;
-}
-
 
 VarContainerPtr VarContainer::member(const std::string& name) {
   invalid_operation_error_("struct member access");
@@ -77,6 +70,40 @@ VarContainerPtr VarContainer::member(const std::string& name) {
 const VarContainer::struct_container& VarContainer::members() {
   invalid_operation_error_("getting struct members");
   return empty_struct_;
+}
+
+VarContainer::partition VarContainer::order_preserving_partition(
+  size_t n_parts, std::function<size_t(size_t)> which_part
+) {
+  invalid_operation_error_("partitioning");
+  return empty_vec_;
+}
+
+VarContainerPtr VarContainer::zip() {
+  invalid_operation_error_("zipping members");
+  return {nullptr};
+}
+
+VarContainerPtr VarContainer::unzip() {
+  invalid_operation_error_("unzipping elements");
+  return {nullptr};
+}
+
+ VarContainerPtr VarContainer::project(const std::vector<std::string>& names) {
+   invalid_operation_error_("projection");
+   return {nullptr};
+ }
+
+VarContainerPtr VarContainer::project_without(
+    const std::vector<std::string>& names
+) {
+  invalid_operation_error_("projection");
+  return {nullptr};
+}
+
+VarContainerPtr VarContainer::join_with(const VarContainerPtr& b) {
+  invalid_operation_error_("struct joining");
+  return {nullptr};
 }
 
 
@@ -103,7 +130,7 @@ VarContainerPtr VarVector::nth(size_t idx) {
   return impl_[idx];
 }
 
-std::vector<VarContainerPtr> VarVector::order_preserving_partition(
+VarContainer::partition VarVector::order_preserving_partition(
     size_t n_parts, std::function<size_t(size_t)> which_part
 ) {
   std::vector<vector_container> parts(n_parts);
@@ -118,6 +145,26 @@ std::vector<VarContainerPtr> VarVector::order_preserving_partition(
     result.emplace_back(new VarVector{s, std::move(parts[i])});
   }
   return result;
+}
+
+VarContainerPtr VarVector::unzip() {
+  ILA_ASSERT (sort()->data_atom()->is_struct()) 
+    << "can't unzip vector of data-atoms if they aren't structs";
+  ILA_ASSERT (!sort()->data_atom()->members().empty()) 
+    << "can't unzip vector of empty structs";
+  std::vector<std::pair<std::string, SortPtr>> res_sort {};
+  std::unordered_map<std::string, vector_container> res {};
+  for (const auto& [name, da] : sort()->data_atom()->members()) {
+    std::cout << name << ": " << Sort::MakeVectorSort(da, size()) << std::endl;
+    res_sort.emplace_back(name, Sort::MakeVectorSort(da, size()));
+    res[name].reserve(size());
+  }
+  for (auto& x : elements()) {
+    for (auto& [name, m] : x->members()) {
+      res[name].push_back(m);
+    }
+  }
+  return from_cpp_obj(Sort::MakeStructSort(res_sort), res);
 }
 
 /* VarStruct */
@@ -138,6 +185,73 @@ VarContainerPtr VarStruct::member(const std::string& name) {
   }
   ILA_ASSERT(false) << "member '" + name + "' not found";
   return nullptr;
+}
+
+VarContainerPtr VarStruct::zip() {
+  ILA_ASSERT (!members().empty()) << "can't zip empty struct";
+  int size = -1;
+  std::vector<std::pair<std::string, SortPtr>> da {};
+  for (const auto& [name, v] : sort()->members()) {
+    ILA_ASSERT(v->is_vec()) << "expected vector";
+    if (size < 0) size = v->vec_size();
+    else { 
+      ILA_ASSERT(size == v->vec_size())
+        << "expected vector of size " << size
+        << "got vector of size " << v->vec_size();
+    }
+    da.emplace_back(name, v->data_atom());
+  }
+
+  std::vector<std::vector<std::pair<std::string, VarContainerPtr>>> vec(size);
+  for (const auto& [name, v] : members()) {
+    for (int i = 0; i != size; ++i) {
+      vec[i].emplace_back(name, v->nth(i));
+    }
+  }
+  return from_cpp_obj(Sort::MakeVectorSort(Sort::MakeStructSort(da), size), vec);
+}
+
+ VarContainerPtr VarStruct::project(const std::vector<std::string>& names) {
+  std::unordered_map<std::string, VarContainerPtr> ms {members().begin(), members().end()};
+  std::vector<std::pair<std::string, SortPtr>> srt;
+  struct_container projection {};
+  for (const auto& name : names) {
+    ILA_ASSERT(ms.find(name) != ms.end()) 
+      << "member with name " << name << " not found";
+    srt.emplace_back(name, ms[name]->sort());
+    projection.emplace_back(name, ms[name]);
+  }
+  return from_cpp_obj(Sort::MakeStructSort(srt), projection);
+ }
+
+VarContainerPtr VarStruct::project_without(
+    const std::vector<std::string>& names
+) {
+  std::unordered_map<std::string, VarContainerPtr> 
+    ms {members().begin(), members().end()};
+  for (const auto& name : names) ms.erase(name);
+
+  std::vector<std::pair<std::string, SortPtr>> projsort {};
+  for (const auto& [name, s] : sort()->members()) {
+    if (ms.find(name) != ms.end()) projsort.emplace_back(name, s);
+  }
+  return from_cpp_obj(Sort::MakeStructSort(projsort), ms);
+}
+
+VarContainerPtr VarStruct::join_with(const VarContainerPtr& b) {
+  ILA_ASSERT (b->is_struct()) << "can't join non-structs";
+  std::unordered_map<std::string, VarContainerPtr> ms {members().begin(), members().end()};
+  ms.insert(b->members().begin(), b->members().end());
+  
+  if (ms.size() != members().size() + b->members().size()) {
+    ILA_ASSERT(false) << "structs being merged contained duplicate keys";
+    return {nullptr};
+  }
+
+  auto joinsort {sort()->members()};
+  auto bsort_members {b->sort()->members()};
+  joinsort.insert(joinsort.end(), bsort_members.begin(), bsort_members.end());
+  return from_cpp_obj(Sort::MakeStructSort(joinsort), ms);
 }
 
 }
