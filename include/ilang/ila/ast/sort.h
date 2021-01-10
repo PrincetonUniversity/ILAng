@@ -109,11 +109,12 @@ public:
     return s->Print(out);
   }
 
-// protected:
-//   template<typename T> 
-//   static std::shared_ptr<T> cast_sort(const SortPtr& s) {
-//     return std::dynamic_pointer_cast<T>(s);
-//   }
+  // /// Casts a SortPtr to a pointer to a subtype of Sort.
+  // /// Use cautiously.
+  // template<typename T> 
+  // static std::shared_ptr<T> cast_sort(const SortPtr& s) {
+  //   return std::dynamic_pointer_cast<T>(s);
+  // }
 
 }; // class Sort
 

@@ -39,15 +39,26 @@ void test_not_vector(const VarContainerPtr& p) {
   EXPECT_DEATH_OR_DEFAULT(p->nth(0), nullptr);
   EXPECT_DEATH_OR_DEFAULT(p->size(), 0);
   EXPECT_DEATH_OR_DEFAULT(p->elements().size(), 0);
+  EXPECT_DEATH_OR_DEFAULT(
+    p->order_preserving_partition(3, [](size_t n) { return 0; }).size(), 0);
+  EXPECT_DEATH_OR_DEFAULT(p->unzip(), nullptr);
 }
 
 void test_not_struct(const VarContainerPtr& p) {
   if (p->is_struct()) return;
   EXPECT_DEATH_OR_DEFAULT(p->member("a"), nullptr);
   EXPECT_DEATH_OR_DEFAULT(p->members().size(), 0);
+  EXPECT_DEATH_OR_DEFAULT(p->zip(), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(p->project({}), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(p->project_without({}), nullptr);
+  // join_with is not tested here because it takes 
+  // in a VarContainerPtr as an argument.
+  // An issue in VarContainer::Make for structs would 
+  // cause confusing failures in many unrelated tests.
 }
 
 void basic_tests(const VarContainerPtr& p) {
+  EXPECT_TRUE(bool(p));
   check_container_type(p);
   test_not_primitive(p);
   test_not_vector(p);
@@ -126,16 +137,6 @@ TEST(TestVarContainer, Vector) {
 
 }
 
-TEST(TestVarContainer, VectorPartitioning) {
-  int n_elems = 16, n_parts = 4;
-  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), n_elems));
-  auto xs_parted = 
-    xs->order_preserving_partition(n_parts, [n_parts](size_t n) {return n / n_parts;});
-  for (int i = 0; i != n_elems; ++i) {
-    EXPECT_EQ(xs->nth(i), xs_parted[i / n_parts]->nth(i % n_parts));
-  }
-}
-
 TEST(TestVarContainer, Struct) {
   int bvsize = 8;
   auto Point = Sort::MakeStructSort({
@@ -207,6 +208,158 @@ TEST(TestVarContainer, Visitor) {
     EXPECT_EQ(num_vectors, nv);
     EXPECT_EQ(num_structs, ns);
   }
+
+}
+
+TEST(TestVarContainerTransformers, Partitioning) {
+  int n_elems = 16, n_parts = 4;
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), n_elems));
+  auto xs_parted = 
+    xs->order_preserving_partition(n_parts, [n_parts](size_t n) {return n / n_parts;});
+  for (int i = 0; i != n_parts; ++i) basic_tests(xs_parted[i]);
+  for (int i = 0; i != n_elems; ++i) {
+    EXPECT_EQ(xs->nth(i), xs_parted[i / n_parts]->nth(i % n_parts));
+  }
+}
+
+TEST(TestVarContainerTransformers, Zips) {
+  // can't unzip a vector if it's not a vector of structs
+  EXPECT_DEATH_OR_DEFAULT(VarContainer::Make(
+    "xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3)
+  )->unzip(), nullptr);
+
+  // base correctness of zip
+  auto zipped = VarContainer::Make("zipped", 
+    Sort::MakeVectorSort(Sort::MakeStructSort({
+      {"a", Sort::MakeBoolSort()},
+      {"b", Sort::MakeVectorSort(Sort::MakeMemSort(3, 4), 5)}
+    }), 4)
+  );
+  auto expected_unzipped_sort = Sort::MakeStructSort({
+    {"a", Sort::MakeVectorSort(Sort::MakeBoolSort(), 4)},
+    {"b", Sort::MakeVectorSort(Sort::MakeVectorSort(Sort::MakeMemSort(3, 4), 5), 4)}
+  });
+
+  basic_tests(zipped);
+  EXPECT_TRUE(zipped->sort()->is_vec());
+  EXPECT_TRUE(zipped->sort()->data_atom()->is_struct());
+  basic_tests(zipped->unzip());
+  EXPECT_EQ(zipped->unzip()->sort(), expected_unzipped_sort);
+
+  // basic correctness of unzip
+  auto unzipped = VarContainer::Make("unzipped", expected_unzipped_sort);
+  basic_tests(unzipped);
+  basic_tests(unzipped->zip());
+  EXPECT_EQ(unzipped->zip()->sort(), zipped->sort());
+  // [TODO] extend topological equivalence to VarContainerPtrs
+  // so that we can easily check same shape zipped->unzip(), unzipped.
+  
+  // zip-unzip inverse
+  auto rezipped = zipped->unzip()->zip();
+  EXPECT_EQ(zipped->sort(), rezipped->sort());
+  for (int i = 0; i != zipped->size(); ++i) {
+    EXPECT_EQ(zipped->nth(i)->member("a"), rezipped->nth(i)->member("a"));
+    EXPECT_EQ(zipped->nth(i)->member("b"), rezipped->nth(i)->member("b"));
+  }
+
+  auto reunzipped = unzipped->zip()->unzip();
+  EXPECT_EQ(unzipped->sort(), reunzipped->sort());
+  for (int i = 0; i != zipped->size(); ++i) {
+    EXPECT_EQ(unzipped->member("a")->nth(i), reunzipped->member("a")->nth(i));
+    EXPECT_EQ(unzipped->member("b")->nth(i), reunzipped->member("b")->nth(i));
+  }
+}
+
+TEST(TestVarContainerTransformers, Projections) {
+  auto obj {VarContainer::Make("obj", Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(8)},
+    {"y", Sort::MakeBvSort(8)},
+    {"z", Sort::MakeBvSort(8)}
+  }))};
+
+  // standard projections
+  EXPECT_EQ(obj->project({})->sort(), Sort::MakeStructSort({}));
+  EXPECT_EQ(obj->project({"z"})->sort(), 
+            Sort::MakeStructSort({{"z", Sort::MakeBvSort(8)}}));
+  EXPECT_EQ(obj->project({"x", "y"})->sort(), Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(8)}, {"y", Sort::MakeBvSort(8)}
+  }));
+  EXPECT_EQ(obj->project({"x", "y", "z"})->sort(), obj->sort());
+
+  // more projections
+  EXPECT_EQ(obj->project({"y", "z"})->project({"y"})->sort(), 
+            Sort::MakeStructSort({{"y", Sort::MakeBvSort(8)}}));
+  EXPECT_DEATH_OR_DEFAULT(obj->project({"x", "q"}), nullptr);
+
+  // standard projections
+  EXPECT_EQ(obj->project_without({"x", "y", "z"})->sort(), 
+            Sort::MakeStructSort({}));
+  EXPECT_EQ(obj->project_without({"y", "z"})->sort(), 
+            Sort::MakeStructSort({{"x", Sort::MakeBvSort(8)}}));
+  EXPECT_EQ(obj->project_without({"x"})->sort(), Sort::MakeStructSort({
+    {"y", Sort::MakeBvSort(8)}, {"z", Sort::MakeBvSort(8)}
+  }));
+  EXPECT_EQ(obj->project_without({})->sort(), obj->sort());
+  
+  // more projections
+  EXPECT_EQ(obj->project_without({"x"})->project_without({"x", "z"})->sort(), 
+            Sort::MakeStructSort({{"y", Sort::MakeBvSort(8)}}));
+  EXPECT_EQ(obj->project_without({"y", "q"})->sort(), Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(8)}, {"z", Sort::MakeBvSort(8)}
+  }));
+}
+
+TEST(TestVarContainerTransformers, Joins) {
+  auto xyz {VarContainer::Make("xyz", Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(8)},
+    {"y", Sort::MakeBvSort(8)},
+    {"z", Sort::MakeBvSort(8)}
+  }))};
+  
+  auto abcd {VarContainer::Make("abcd", Sort::MakeStructSort({
+    {"a", Sort::MakeBvSort(8)},
+    {"b", Sort::MakeBvSort(8)},
+    {"c", Sort::MakeBvSort(8)},
+    {"d", Sort::MakeBvSort(8)}
+  }))};
+
+  EXPECT_EQ(xyz->join_with(abcd)->sort(), Sort::MakeStructSort({
+    {"x", Sort::MakeBvSort(8)},
+    {"y", Sort::MakeBvSort(8)},
+    {"z", Sort::MakeBvSort(8)},
+    {"a", Sort::MakeBvSort(8)},
+    {"b", Sort::MakeBvSort(8)},
+    {"c", Sort::MakeBvSort(8)},
+    {"d", Sort::MakeBvSort(8)}
+  }));
+
+  EXPECT_EQ(abcd->join_with(xyz)->sort(), Sort::MakeStructSort({
+    {"a", Sort::MakeBvSort(8)},
+    {"b", Sort::MakeBvSort(8)},
+    {"c", Sort::MakeBvSort(8)},
+    {"d", Sort::MakeBvSort(8)},
+    {"x", Sort::MakeBvSort(8)},
+    {"y", Sort::MakeBvSort(8)},
+    {"z", Sort::MakeBvSort(8)}
+  }));
+
+  EXPECT_EQ(
+    abcd->project({"c"})->join_with(abcd->project_without({"c"}))->sort(),
+    Sort::MakeStructSort({
+      {"c", Sort::MakeBvSort(8)},
+      {"a", Sort::MakeBvSort(8)},
+      {"b", Sort::MakeBvSort(8)},
+      {"d", Sort::MakeBvSort(8)}
+    })
+  );
+
+  EXPECT_DEATH_OR_DEFAULT(xyz->join_with(xyz), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(
+    abcd->join_with(VarContainer::Make("blah", Sort::MakeBoolSort())
+  ), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(abcd->join_with(
+    VarContainer::Make("blah", Sort::MakeStructSort({{"c", Sort::MakeBoolSort()}}))
+  ), nullptr);
 
 }
 
