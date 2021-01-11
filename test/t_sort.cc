@@ -260,12 +260,16 @@ TEST(TestSort, Vector2) {
 
   // z3 sort should be constant, at least for the same pointer.
   z3::context c {};
-  EXPECT_EQ(s->GetZ3Sort(c).name(), s->GetZ3Sort(c).name());
+  EXPECT_EQ(Z3_get_sort_id(c, s->GetZ3Sort(c)), Z3_get_sort_id(c, s->GetZ3Sort(c)));
 
   // Note that z3 sort is not the same for an identical sort:
 
-  // EXPECT_EQ(s->GetZ3Sort(c).name(), 
-  //   (Sort::MakeVectorSort(Sort::MakeBoolSort(), 12))->GetZ3Sort(c).name());
+  // EXPECT_EQ(
+  //   Z3_get_sort_id(c, s->GetZ3Sort(c)), 
+  //   Z3_get_sort_id(
+  //     (Sort::MakeVectorSort(Sort::MakeBoolSort(), 12))->GetZ3Sort(c)
+  //   )
+  // );
 
   // test vectors of structs containing vectors
   auto da = Sort::MakeStructSort({
