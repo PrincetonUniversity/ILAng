@@ -34,6 +34,7 @@ public:
   struct VarContainerPtr: public std::shared_ptr<VarContainer> {
     // inherit all constructors
     using std::shared_ptr<VarContainer>::shared_ptr;
+    // default destructor
     ~VarContainerPtr()=default;
     // implicit casting hack
     inline operator ExprPtr() { return get()->to_primitive_expr(); }
@@ -140,7 +141,7 @@ public:
 
 
   /// Destroys a VarContainer.
-  ~VarContainer()=default;
+  virtual ~VarContainer()=default;
 
   /// Returns the type of object this container represents.
   const SortPtr& sort() { return sort_; }
@@ -186,7 +187,7 @@ public:
     Q. Given that it is possible to transform one container to 
     another, why not allow ILAs to register containers after 
     they've been constructed?
-    Ans. We don't want updating one state of an ILA to implicitly
+    A. We don't want updating one state of an ILA to implicitly
     update another. This is why variables within a container are
     deliberately obfuscated (a little), and why we don't want to
     allow multiple objects of an ILA to share state variables. 
