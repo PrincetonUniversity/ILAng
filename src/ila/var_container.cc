@@ -125,8 +125,11 @@ void VarVector::visit_with(const VarContainer::visitor& visit) {
   }
 }
 
-VarContainerPtr VarVector::nth(size_t idx) { 
-  ILA_ASSERT (idx < impl_.size()) << " array access out of bounds";
+VarContainerPtr VarVector::nth(size_t idx) {
+  if (idx >= impl_.size()) {
+    ILA_ASSERT(false) << " index out of bounds: " << idx;
+    return nullptr;
+  }
   return impl_[idx];
 }
 
