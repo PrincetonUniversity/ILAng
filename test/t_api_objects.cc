@@ -318,6 +318,7 @@ TEST(TestApiObjects, Unrolling) {
 
   z3::context ctx;
   z3::solver solver(ctx);
+  solver.set(":timeout", 100u); // 100ms timeout
 
   auto unroller = IlaZ3Unroller(ctx);
   
