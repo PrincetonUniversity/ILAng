@@ -155,10 +155,14 @@ VarContainer::partition VarVector::order_preserving_partition(
 }
 
 VarContainerPtr VarVector::unzip() {
-  ILA_ASSERT (sort()->data_atom()->is_struct()) 
-    << "can't unzip vector of data-atoms if they aren't structs";
-  ILA_ASSERT (!sort()->data_atom()->members().empty()) 
-    << "can't unzip vector of empty structs";
+  if (!sort()->data_atom()->is_struct()) {
+    ILA_ASSERT(false) << "can't unzip vector of data-atoms if they aren't structs";
+    return nullptr;
+  }
+  if (sort()->data_atom()->members().empty()) {
+    ILA_ASSERT(false) << "can't unzip vector of empty structs";
+    return nullptr;
+  }
   std::vector<std::pair<std::string, SortPtr>> res_sort {};
   std::unordered_map<std::string, vector_container> res {};
   for (const auto& [name, da] : sort()->data_atom()->members()) {
@@ -194,16 +198,23 @@ VarContainerPtr VarStruct::member(const std::string& name) {
 }
 
 VarContainerPtr VarStruct::zip() {
-  ILA_ASSERT (!members().empty()) << "can't zip empty struct";
+  if (members().empty()) {
+    ILA_ASSERT(false) << "can't zip empty struct";
+    return nullptr;
+  }
   int sz = -1;
   std::vector<std::pair<std::string, SortPtr>> da {};
   for (const auto& [name, v] : sort()->members()) {
-    ILA_ASSERT(v->is_vec()) << "expected vector";
+    if (!v->is_vec()) {
+      ILA_ASSERT(false) << "expected vector";
+      return nullptr;
+    }
     if (sz < 0) sz = v->vec_size();
-    else { 
-      ILA_ASSERT(sz == v->vec_size())
+    else if (sz != v->vec_size()) {
+      ILA_ASSERT(false)
         << "expected vector of size " << sz
         << "got vector of size " << v->vec_size();
+      return nullptr;
     }
     da.emplace_back(name, v->data_atom());
   }
@@ -222,8 +233,10 @@ VarContainerPtr VarStruct::zip() {
   std::vector<std::pair<std::string, SortPtr>> srt;
   struct_container projection {};
   for (const auto& name : names) {
-    ILA_ASSERT(ms.find(name) != ms.end()) 
-      << "member with name " << name << " not found";
+    if (ms.find(name) == ms.end()) {
+      ILA_ASSERT(false) << "member with name " << name << " not found";
+      return nullptr;
+    }
     srt.emplace_back(name, ms[name]->sort());
     projection.emplace_back(name, ms[name]);
   }
@@ -245,7 +258,11 @@ VarContainerPtr VarStruct::project_without(
 }
 
 VarContainerPtr VarStruct::join_with(const VarContainerPtr& b) {
-  ILA_ASSERT (b->is_struct()) << "can't join non-structs";
+  if (!b->is_struct()) {
+    ILA_ASSERT (false) << "can't join non-structs";
+    return {nullptr};
+  }
+  
   std::unordered_map<std::string, VarContainerPtr> ms {members().begin(), members().end()};
   ms.insert(b->members().begin(), b->members().end());
   
