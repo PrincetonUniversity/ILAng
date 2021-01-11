@@ -133,18 +133,20 @@ VarContainerPtr VarVector::nth(size_t idx) {
 VarContainer::partition VarVector::order_preserving_partition(
     size_t n_parts, std::function<size_t(size_t)> which_part
 ) {
-  std::vector<vector_container> parts;
-  parts.reserve(n_parts);
-  for (int i = 0; i != size(); ++i) {
+  std::vector<vector_container> parts(n_parts);
+  for (size_t i = 0; i != size(); ++i) {
     size_t index = which_part(i);
-    ILA_ASSERT(index < n_parts) << "partition function out of bounds";
+    if (index >= n_parts) {
+      ILA_ASSERT(false) << "partition function out of bounds";
+      return {};
+    }
     parts[index].push_back(impl_[i]);
   }
   std::vector<VarContainerPtr> result;
   result.reserve(n_parts);
-  for (int i = 0; i != n_parts; ++i) {
+  for (size_t i = 0; i != n_parts; ++i) {
     auto s = Sort::MakeVectorSort(sort()->data_atom(), parts[i].size());
-    result.emplace_back(new VarVector{s, parts[i]});
+    result.push_back(from_cpp_obj(s, parts[i]));
   }
   return result;
 }
@@ -157,7 +159,6 @@ VarContainerPtr VarVector::unzip() {
   std::vector<std::pair<std::string, SortPtr>> res_sort {};
   std::unordered_map<std::string, vector_container> res {};
   for (const auto& [name, da] : sort()->data_atom()->members()) {
-    std::cout << name << ": " << Sort::MakeVectorSort(da, size()) << std::endl;
     res_sort.emplace_back(name, Sort::MakeVectorSort(da, size()));
     res[name].reserve(size());
   }
@@ -191,26 +192,26 @@ VarContainerPtr VarStruct::member(const std::string& name) {
 
 VarContainerPtr VarStruct::zip() {
   ILA_ASSERT (!members().empty()) << "can't zip empty struct";
-  int size = -1;
+  int sz = -1;
   std::vector<std::pair<std::string, SortPtr>> da {};
   for (const auto& [name, v] : sort()->members()) {
     ILA_ASSERT(v->is_vec()) << "expected vector";
-    if (size < 0) size = v->vec_size();
+    if (sz < 0) sz = v->vec_size();
     else { 
-      ILA_ASSERT(size == v->vec_size())
-        << "expected vector of size " << size
+      ILA_ASSERT(sz == v->vec_size())
+        << "expected vector of size " << sz
         << "got vector of size " << v->vec_size();
     }
     da.emplace_back(name, v->data_atom());
   }
 
-  std::vector<std::vector<std::pair<std::string, VarContainerPtr>>> vec(size);
+  std::vector<std::vector<std::pair<std::string, VarContainerPtr>>> vec(sz);
   for (const auto& [name, v] : members()) {
-    for (int i = 0; i != size; ++i) {
+    for (int i = 0; i != sz; ++i) {
       vec[i].emplace_back(name, v->nth(i));
     }
   }
-  return from_cpp_obj(Sort::MakeVectorSort(Sort::MakeStructSort(da), size), vec);
+  return from_cpp_obj(Sort::MakeVectorSort(Sort::MakeStructSort(da), sz), vec);
 }
 
  VarContainerPtr VarStruct::project(const std::vector<std::string>& names) {
