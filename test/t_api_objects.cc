@@ -318,7 +318,7 @@ TEST(TestApiObjects, Unrolling) {
 
   z3::context ctx;
   z3::solver solver(ctx);
-  z3::params p;
+  z3::params ps(ctx);
   ps.set(":timeout", 100u);  // 100ms timeout
   solver.set(ps);
 
