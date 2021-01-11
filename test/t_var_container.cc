@@ -34,13 +34,15 @@ void test_not_primitive(const VarContainerPtr& p) {
   EXPECT_DEATH_OR_DEFAULT(p->to_primitive_expr(), nullptr);
 }
 
+size_t test_not_vector_partfunc(size_t n) { return 0; }
+
 void test_not_vector(const VarContainerPtr& p) {
   if (p->is_vector()) return;
   EXPECT_DEATH_OR_DEFAULT(p->nth(0), nullptr);
   EXPECT_DEATH_OR_DEFAULT(p->size(), 0);
   EXPECT_DEATH_OR_DEFAULT(p->elements().size(), 0);
   EXPECT_DEATH_OR_DEFAULT(
-    p->order_preserving_partition(3, [](size_t n) { return 0; }).size(), 0);
+    p->order_preserving_partition(3, test_not_vector_partfunc).size(), 0);
   EXPECT_DEATH_OR_DEFAULT(p->unzip(), nullptr);
 }
 
