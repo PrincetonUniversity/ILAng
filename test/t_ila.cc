@@ -122,6 +122,63 @@ TEST(TestInstrLvlAbs, State) {
   EXPECT_DEATH(ILA_NOT_NULL(ila->state("non-exist")), ".*");
 }
 
+TEST(TestInstrLvlAbs, Objects) {
+  auto ila = InstrLvlAbs::New("ila");
+  
+  /* AddObject */
+  
+  VarContainerPtr obj1 = VarContainer::Make("blah", Sort::MakeVectorSort(Sort::MakeBoolSort(), 5));
+  ila->AddInputObject("blah", obj1);
+
+  // ensure inputs were added.
+  for (auto& x : obj1->elements()) {
+    EXPECT_TRUE(ila->find_input(x->to_primitive_expr()->name()));
+  }
+
+  auto obj2 = VarContainer::Make("hello", Sort::MakeBvSort(6));
+  ila->AddStateObject("hello", obj2);
+
+  // ensure states were added.
+  EXPECT_TRUE(ila->find_state(obj2->to_primitive_expr()->name()));
+  EXPECT_FALSE(ila->find_state(
+    VarContainer::Make("world", Sort::MakeBoolSort())->to_primitive_expr()->name()
+  ));
+
+  #ifndef NDEBUG
+    // duplicate names
+    EXPECT_DEATH(ila->AddInputObject("blah", VarContainer::Make("awef", Sort::MakeBoolSort())), ".*");
+    EXPECT_DEATH(ila->AddInputObject("hello", VarContainer::Make("awef", Sort::MakeBoolSort())), ".*");
+    EXPECT_DEATH(ila->AddStateObject("blah", VarContainer::Make("awef", Sort::MakeBoolSort())), ".*");
+    // double-adding same object
+    EXPECT_DEATH(ila->AddInputObject("awef", obj1), ".*");
+    // new object, same primitive variable names
+    EXPECT_DEATH(
+      ila->AddInputObject("awef", VarContainer::Make("blah", Sort::MakeVectorSort(Sort::MakeBoolSort(),5))), 
+      ".*");
+  #endif
+  // different object, different primitive names
+  ila->AddInputObject("awef", VarContainer::Make("qwert", Sort::MakeVectorSort(Sort::MakeBoolSort(), 5)));
+
+  /* NewObject */
+  
+  auto pair = Sort::MakeStructSort({{"x", Sort::MakeBvSort(8)}, {"y", Sort::MakeBvSort(8)}});
+  auto a = ila->NewObjectInput("a", pair);
+  auto b = ila->NewObjectState("b", pair);
+  #ifndef NDEBUG
+    EXPECT_DEATH(ila->NewObjectInput("a", pair), ".*");
+    EXPECT_DEATH(ila->NewObjectState("a", pair), ".*");
+  #endif
+
+  // TODO: test InstrLvlAbs::NewObjectFreeVar?
+
+  /* GetObject */ 
+  EXPECT_EQ(ila->object("a"), a);
+  EXPECT_NE(ila->object("b"), a);
+  EXPECT_EQ(ila->object("b"), b);
+  EXPECT_EQ(ila->object("c"), nullptr);
+  EXPECT_EQ(ila->object("blah")->nth(0), obj1->nth(0));
+}
+
 TEST(TestInstrLvlAbs, Init) {
   auto ila = InstrLvlAbs::New("ila");
   auto varx = ila->NewBvState("varx", 8);
