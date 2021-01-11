@@ -83,7 +83,127 @@ TEST(TestVarContainer, Primitive) {
   auto f = asthub::And(e1, asthub::NewBoolVar("b"));
 }
 
-TEST(TestVarContainer, Vector) {
+TEST(TestVarContainer, Vector0) {
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
+  basic_tests(xs);
+
+  // size
+  EXPECT_EQ(xs->size(), 3);
+}
+
+TEST(TestVarContainer, Vector1) {
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
+  basic_tests(xs);
+
+  // size
+  EXPECT_EQ(xs->size(), 3);
+
+  // nth
+  auto e0 = 
+    asthub::Or(asthub::Or(asthub::Or(
+      asthub::BoolConst(false), xs->nth(0)), xs->nth(1)), xs->nth(2))
+    ;
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(1000), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(-1), nullptr);
+}
+
+TEST(TestVarContainer, Vector2) {
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
+  basic_tests(xs);
+
+  // size
+  EXPECT_EQ(xs->size(), 3);
+
+  // nth
+  auto e0 = 
+    asthub::Or(asthub::Or(asthub::Or(
+      asthub::BoolConst(false), xs->nth(0)), xs->nth(1)), xs->nth(2))
+    ;
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(1000), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(-1), nullptr);
+
+  // size and nth
+  auto e1 = asthub::BoolConst(false);
+  for (int i = 0; i != xs->size(); ++i) {
+    e1 = asthub::Or(e1, xs->nth(i));
+  }
+
+  EXPECT_TRUE(asthub::TopEq(e0, e1));
+}
+
+TEST(TestVarContainer, Vector3) {
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
+  basic_tests(xs);
+
+  // size
+  EXPECT_EQ(xs->size(), 3);
+
+  // nth
+  auto e0 = 
+    asthub::Or(asthub::Or(asthub::Or(
+      asthub::BoolConst(false), xs->nth(0)), xs->nth(1)), xs->nth(2))
+    ;
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(1000), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(-1), nullptr);
+
+  // size and nth
+  auto e1 = asthub::BoolConst(false);
+  for (int i = 0; i != xs->size(); ++i) {
+    e1 = asthub::Or(e1, xs->nth(i));
+  }
+
+  EXPECT_TRUE(asthub::TopEq(e0, e1));
+
+  // elements
+  auto e2 = asthub::BoolConst(false);
+  for (auto& x : xs->elements()) {
+    e2 = asthub::Or(e2, x);
+  }
+
+  EXPECT_TRUE(asthub::TopEq(e1, e2));
+}
+
+TEST(TestVarContainer, Vector4) {
+  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
+  basic_tests(xs);
+
+  // size
+  EXPECT_EQ(xs->size(), 3);
+
+  // nth
+  auto e0 = 
+    asthub::Or(asthub::Or(asthub::Or(
+      asthub::BoolConst(false), xs->nth(0)), xs->nth(1)), xs->nth(2))
+    ;
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(1000), nullptr);
+  EXPECT_DEATH_OR_DEFAULT(xs->nth(-1), nullptr);
+
+  // size and nth
+  auto e1 = asthub::BoolConst(false);
+  for (int i = 0; i != xs->size(); ++i) {
+    e1 = asthub::Or(e1, xs->nth(i));
+  }
+
+  EXPECT_TRUE(asthub::TopEq(e0, e1));
+
+  // elements
+  auto e2 = asthub::BoolConst(false);
+  for (auto& x : xs->elements()) {
+    e2 = asthub::Or(e2, x);
+  }
+
+  EXPECT_TRUE(asthub::TopEq(e1, e2));
+
+  // different computations
+  auto e3 = asthub::BoolConst(true);
+  for (auto& x : xs->elements()) {
+    e3 = asthub::Or(e3, x);
+  }
+  EXPECT_FALSE(asthub::TopEq(e2, e3));
+
+}
+
+TEST(TestVarContainer, Vector5) {
   auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
   basic_tests(xs);
 
