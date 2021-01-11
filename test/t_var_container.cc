@@ -84,51 +84,51 @@ TEST(TestVarContainer, Primitive) {
 }
 
 TEST(TestVarContainer, Vector) {
-  auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
-  basic_tests(xs);
+  // auto xs = VarContainer::Make("xs", Sort::MakeVectorSort(Sort::MakeBoolSort(), 3));
+  // basic_tests(xs);
 
-  // size
-  EXPECT_EQ(xs->size(), 3);
+  // // size
+  // EXPECT_EQ(xs->size(), 3);
 
-  // nth
-  auto e0 = 
-    asthub::Or(asthub::Or(asthub::Or(
-      asthub::BoolConst(false), xs->nth(0)), xs->nth(1)), xs->nth(2))
-    ;
-  EXPECT_DEATH_OR_DEFAULT(xs->nth(1000), nullptr);
-  EXPECT_DEATH_OR_DEFAULT(xs->nth(-1), nullptr);
+  // // nth
+  // auto e0 = 
+  //   asthub::Or(asthub::Or(asthub::Or(
+  //     asthub::BoolConst(false), xs->nth(0)), xs->nth(1)), xs->nth(2))
+  //   ;
+  // EXPECT_DEATH_OR_DEFAULT(xs->nth(1000), nullptr);
+  // EXPECT_DEATH_OR_DEFAULT(xs->nth(-1), nullptr);
 
-  // size and nth
-  auto e1 = asthub::BoolConst(false);
-  for (int i = 0; i != xs->size(); ++i) {
-    e1 = asthub::Or(e1, xs->nth(i));
-  }
+  // // size and nth
+  // auto e1 = asthub::BoolConst(false);
+  // for (int i = 0; i != xs->size(); ++i) {
+  //   e1 = asthub::Or(e1, xs->nth(i));
+  // }
 
-  EXPECT_TRUE(asthub::TopEq(e0, e1));
+  // EXPECT_TRUE(asthub::TopEq(e0, e1));
 
-  // elements
-  auto e2 = asthub::BoolConst(false);
-  for (auto& x : xs->elements()) {
-    e2 = asthub::Or(e2, x);
-  }
+  // // elements
+  // auto e2 = asthub::BoolConst(false);
+  // for (auto& x : xs->elements()) {
+  //   e2 = asthub::Or(e2, x);
+  // }
 
-  EXPECT_TRUE(asthub::TopEq(e1, e2));
+  // EXPECT_TRUE(asthub::TopEq(e1, e2));
 
-  // different computations
-  auto e3 = asthub::BoolConst(true);
-  for (auto& x : xs->elements()) {
-    e3 = asthub::Or(e3, x);
-  }
-  EXPECT_FALSE(asthub::TopEq(e2, e3));
+  // // different computations
+  // auto e3 = asthub::BoolConst(true);
+  // for (auto& x : xs->elements()) {
+  //   e3 = asthub::Or(e3, x);
+  // }
+  // EXPECT_FALSE(asthub::TopEq(e2, e3));
 
-  // vectors of vectors
-  auto m = VarContainer::Make("m", 
-    Sort::MakeVectorSort(Sort::MakeVectorSort(Sort::MakeBvSort(8), 16),16));
-  for (auto& row : m->elements()) {
-    for (auto& x : row->elements()) {
-      EXPECT_EQ(x->sort(), Sort::MakeBvSort(8));
-    }
-  }
+  // // vectors of vectors
+  // auto m = VarContainer::Make("m", 
+  //   Sort::MakeVectorSort(Sort::MakeVectorSort(Sort::MakeBvSort(8), 16),16));
+  // for (auto& row : m->elements()) {
+  //   for (auto& x : row->elements()) {
+  //     EXPECT_EQ(x->sort(), Sort::MakeBvSort(8));
+  //   }
+  // }
 
   // TODO: consider testing for collision avoidance?
   // This passes but is brittle and may be incorrect:
