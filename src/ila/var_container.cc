@@ -136,7 +136,7 @@ VarContainer::partition VarVector::order_preserving_partition(
   std::vector<vector_container> parts(n_parts);
   for (int i = 0; i != size(); ++i) {
     size_t index = which_part(i);
-    ILA_ASSERT(index >= 0 && index < n_parts) << "partition function out of bounds";
+    ILA_ASSERT(index < n_parts) << "partition function out of bounds";
     parts[index].push_back(impl_[i]);
   }
   std::vector<VarContainerPtr> result;

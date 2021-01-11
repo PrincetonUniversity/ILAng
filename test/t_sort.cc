@@ -209,12 +209,12 @@ TEST(TestSort, Struct2) {
   
   // z3 sort should be constant, at least for the same pointer.
   z3::context c {};
-  EXPECT_EQ(s->GetZ3Sort(c).name(), s->GetZ3Sort(c).name());
+  EXPECT_EQ(Z3_get_sort_id(c, s->GetZ3Sort(c)), Z3_get_sort_id(c, s->GetZ3Sort(c)));
 
   // TODO: consider making the following test pass (though it 
   // doesn't really matter, since both sorts are uninterpreted).
 
-  // EXPECT_EQ(s->GetZ3Sort(c).name(), s2->GetZ3Sort(c).name());
+  // EXPECT_EQ(Z3_get_sort_id(c, s->GetZ3Sort(c)), Z3_get_sort_id(c, s2->GetZ3Sort(c)));
 }
 
 TEST(TestSort, Vector) {
