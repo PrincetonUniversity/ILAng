@@ -180,7 +180,8 @@ std::ostream& SortStruct::Print(std::ostream& out) const {
 
 SortVector::SortVector(const SortPtr& da, const int& vec_size)
   : da_ {da}, size_ {vec_size} {
-  ILA_ASSERT(da) << "Can't create a vector with empty data-atom.";
+  ILA_ASSERT(da) << "Can't define a vector with null data-atom";
+  ILA_ASSERT(0 <= vec_size) << "Can't define a vector of negative size";
 }
 
 bool SortVector::Equal(const SortPtr rhs) const {

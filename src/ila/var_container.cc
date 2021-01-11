@@ -21,7 +21,7 @@ VarContainerPtr VarContainer::Make(const std::string& name, const SortPtr& t) {
         for (int i = 0; i != t->vec_size(); ++i) {
           vc.push_back(Make(prefix + std::to_string(i) + "_", t->data_atom()));
         }
-        return VarContainerPtr{new VarVector{t, std::move(vc)}};
+        return VarContainerPtr{new VarVector{t, vc}};
       }
     case AstUidSort::kStruct:
       {
@@ -29,7 +29,7 @@ VarContainerPtr VarContainer::Make(const std::string& name, const SortPtr& t) {
         for (auto& [name, type] : t->members()) {
           sc.push_back({name, Make(prefix + name + "_", type)});
         }
-        return VarContainerPtr{new VarStruct(t, std::move(sc))};
+        return VarContainerPtr{new VarStruct(t, sc)};
       }
     default:
       ILA_ASSERT(false) << "can't make VarContainer: recieved unknown type";
@@ -115,7 +115,7 @@ void VarPrimitive::visit_with(const VarContainer::visitor& visit) { visit(this);
 
 /* VarVector */
 
-VarVector::VarVector(const SortPtr& t, vector_container&& elems): 
+VarVector::VarVector(const SortPtr& t, const vector_container& elems): 
   VarContainer(t), impl_ {elems} {}
 
 void VarVector::visit_with(const VarContainer::visitor& visit) {
@@ -142,7 +142,7 @@ VarContainer::partition VarVector::order_preserving_partition(
   std::vector<VarContainerPtr> result;
   for (int i = 0; i != n_parts; ++i) {
     auto s = Sort::MakeVectorSort(sort()->data_atom(), parts[i].size());
-    result.emplace_back(new VarVector{s, std::move(parts[i])});
+    result.emplace_back(new VarVector{s, parts[i]});
   }
   return result;
 }
@@ -169,7 +169,7 @@ VarContainerPtr VarVector::unzip() {
 
 /* VarStruct */
 
-VarStruct::VarStruct(const SortPtr& t, struct_container&& members): 
+VarStruct::VarStruct(const SortPtr& t, const struct_container& members): 
   VarContainer(t), impl_ {members} {}
 
 void VarStruct::visit_with(const visitor& visit) {

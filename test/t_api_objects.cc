@@ -358,18 +358,20 @@ TEST(TestApiObjects, Unrolling) {
   }
   unroller.AddInitPred(same_state);
 
-  // Uncomment to populate solver with example matrix and vector
-  // for (int r = 0; r != MAT_ROWS; ++r) {
-  //   for (int c = 0; c != MAT_COLS; ++c) {
-  //     unroller.AddInitPred(
-  //       ila1.object("mat").nth(r).nth(c) == BvConst(r * MAT_ROWS + c + 1, BITS_DATA)
-  //     );
-  //   }
-  // }
+  // Populate solver with example matrix and vector
+  // Also works if you comment out, but may timeout
+  
+  for (int r = 0; r != MAT_ROWS; ++r) {
+    for (int c = 0; c != MAT_COLS; ++c) {
+      unroller.AddInitPred(
+        ila1.object("mat").nth(r).nth(c) == BvConst(r * MAT_ROWS + c + 1, BITS_DATA)
+      );
+    }
+  }
 
-  // for (int i = 0; i != VEC_SIZE; ++i) {
-  //   unroller.AddInitPred(ila1.object("vec").nth(i) == BvConst(i + 1, BITS_DATA));
-  // }
+  for (int i = 0; i != VEC_SIZE; ++i) {
+    unroller.AddInitPred(ila1.object("vec").nth(i) == BvConst(i + 1, BITS_DATA));
+  }
 
   // create smt problem
 
