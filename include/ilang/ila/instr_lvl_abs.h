@@ -16,6 +16,7 @@
 #include <ilang/ila/instr.h>
 #include <ilang/ila/object.h>
 #include <ilang/ila/transition.h>
+#include <ilang/ila/var_container.h>
 #include <ilang/util/container.h>
 
 /// \namespace ilang
@@ -47,6 +48,9 @@ private:
   typedef KeyVec<Symbol, ExprPtr> VarMap;
   /// Type for storing a set of Instr.
   typedef KeyVec<Symbol, InstrPtr> InstrMap;
+  /// Type for storing a set of complex objects (VarContainers).
+  typedef KeyVec<Symbol, VarContainerPtr> ContainerMap;
+  
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -84,6 +88,8 @@ public:
   inline size_t input_num() const { return inputs_.size(); }
   /// Return the number of state variables.
   inline size_t state_num() const { return states_.size(); }
+  /// Return the number of objects.
+  inline size_t objects_num() const { return objects_.size(); }
   /// Return the number of instructions.
   inline size_t instr_num() const { return instrs_.size(); }
   /// Return the number of child-ILAs.
@@ -100,6 +106,8 @@ public:
   inline const ExprPtr input(const size_t& i) const { return inputs_[i]; }
   /// Access the i-th state variable.
   inline const ExprPtr state(const size_t& i) const { return states_[i]; }
+  /// Access the i-th variable object.
+  inline const VarContainerPtr object(const size_t& i) const { return objects_[i]; }
   /// Access the i-th instruction.
   inline const InstrPtr instr(const size_t& i) const { return instrs_[i]; }
   /// Access the i-th child-ILA.
@@ -113,6 +121,8 @@ public:
   const ExprPtr input(const std::string& name) const;
   /// Return the named state variable; return NULL if not registered.
   const ExprPtr state(const std::string& name) const;
+  /// Return the named complex object; return nullptr if not registered.
+  const VarContainerPtr object(const std::string& name) const;
   /// Return the named instruction; return NULL if not registered.
   const InstrPtr instr(const std::string& name) const;
   /// Return the named child-ILA; return NULL if not registered.
@@ -122,6 +132,8 @@ public:
   const ExprPtr find_input(const Symbol& name) const;
   /// Return the named state variable; return NULL if not registered.
   const ExprPtr find_state(const Symbol& name) const;
+    /// Return the named state variable; return NULL if not registered.
+  const VarContainerPtr find_object(const Symbol& name) const;
   /// Return the named instruction; return NULL if not registered.
   const InstrPtr find_instr(const Symbol& name) const;
   /// Return the named child-ILA; return NULL if not registered.
@@ -137,6 +149,18 @@ public:
   /// \brief Add one state variable to the ILA, and register to the simplifier.
   /// \param[in] state_var pointer to the state variable being added.
   void AddState(const ExprPtr& state_var);
+
+  /// \brief Add the input variables associated with an object to the ILA, 
+  /// registering both them and the object.
+  /// \param[in] name  the name to bind the object to
+  /// \param[in] obj   the object to bind
+  void AddInputObject(const std::string& name, const VarContainerPtr& obj);
+
+  /// \brief Add the state variables associated with an object to the ILA, 
+  /// registering both them and the object.
+  /// \param[in] name  the name to bind the object to
+  /// \param[in] obj   the object to bind
+  void AddStateObject(const std::string& name, const VarContainerPtr& obj);
 
   /// \brief Add one constraint to the initial condition, i.e. no contraint
   /// means arbitrary initial values to the state variables.
@@ -179,6 +203,12 @@ public:
   const ExprPtr NewMemInput(const std::string& name, const int& addr_width,
                             const int& data_width);
 
+  /// \brief Create a multi-variable object and register as an input.
+  /// \param[in] name of the object input.
+  /// \param[in] sort of the object.
+  /// \return pointer to the object.
+  const VarContainerPtr NewObjectInput(const std::string& name, const SortPtr& sort);
+
   /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
   /// \return pointer to the state variable.
@@ -198,6 +228,12 @@ public:
   const ExprPtr NewMemState(const std::string& name, const int& addr_width,
                             const int& data_width);
 
+  /// \brief Create a multi-variable object and register as a state.
+  /// \param[in] name of the object state.
+  /// \param[in] sort of the object.
+  /// \return pointer to the object.
+  const VarContainerPtr NewObjectState(const std::string& name, const SortPtr& sort);
+
   /// \brief Create one free Boolean variable.
   /// \param[in] name of the Boolean variable.
   /// \return pointer to the variable.
@@ -216,6 +252,13 @@ public:
   /// \return pointer to the variable.
   const ExprPtr NewMemFreeVar(const std::string& name, const int& addr_width,
                               const int& data_width);
+
+  /// \brief Create a multi-variable object.
+  /// \param[in] name of the object of free variables.
+  /// \param[in] sort of the object.
+  /// \return pointer to the object.
+  const VarContainerPtr NewObjectFreeVar(const std::string& name, 
+                                         const SortPtr& sort);
 
   /// \brief Create and register one instruction.
   /// \param[in] name of the instruction.
@@ -291,6 +334,8 @@ private:
   VarMap inputs_;
   /// The set of state variables.
   VarMap states_;
+  /// The set of known objects.
+  ContainerMap objects_;
   /// The set of initial constraints (not neccessary per-state).
   ExprPtrVec inits_;
   /// The fetch function.
@@ -319,7 +364,6 @@ private:
   void CheckInstr(const InstrPtr& instr);
   /// Simplify instruction if not already.
   void SimplifyInstr(const InstrPtr& instr);
-
 }; // class InstrLvlAbs
 
 /// Pointer type for normal use of InstrLvlAbs.
