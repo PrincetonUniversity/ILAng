@@ -262,8 +262,8 @@ TEST(TestSort, Vector2) {
   z3::context c {};
   EXPECT_EQ(Z3_get_sort_id(c, s->GetZ3Sort(c)), Z3_get_sort_id(c, s->GetZ3Sort(c)));
 
-  // Note that z3 sort is not the same for an identical sort:
-
+  // Note that z3 sort is not the same for an identical sort.  
+  // Will fail:
   // EXPECT_EQ(
   //   Z3_get_sort_id(c, s->GetZ3Sort(c)), 
   //   Z3_get_sort_id(

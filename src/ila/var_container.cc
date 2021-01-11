@@ -27,7 +27,7 @@ VarContainerPtr VarContainer::Make(const std::string& name, const SortPtr& t) {
       {
         struct_container sc {};
         for (auto& [name, type] : t->members()) {
-          sc.push_back({name, Make(prefix + name + "_", type)});
+          sc.emplace_back(name, Make(prefix + name + "_", type));
         }
         return VarContainerPtr{new VarStruct(t, sc)};
       }
@@ -133,13 +133,15 @@ VarContainerPtr VarVector::nth(size_t idx) {
 VarContainer::partition VarVector::order_preserving_partition(
     size_t n_parts, std::function<size_t(size_t)> which_part
 ) {
-  std::vector<vector_container> parts(n_parts);
+  std::vector<vector_container> parts;
+  parts.reserve(n_parts);
   for (int i = 0; i != size(); ++i) {
     size_t index = which_part(i);
     ILA_ASSERT(index < n_parts) << "partition function out of bounds";
     parts[index].push_back(impl_[i]);
   }
   std::vector<VarContainerPtr> result;
+  result.reserve(n_parts);
   for (int i = 0; i != n_parts; ++i) {
     auto s = Sort::MakeVectorSort(sort()->data_atom(), parts[i].size());
     result.emplace_back(new VarVector{s, parts[i]});
