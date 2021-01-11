@@ -298,7 +298,7 @@ public:
   VarContainerPtr unzip() override;
 
 protected:
-  VarVector(const SortPtr& sort, vector_container&& elems);
+  VarVector(const SortPtr& sort, const vector_container& elems);
   const char* container_typename_() const override { return "vector"; }
 
 private:
@@ -333,7 +333,7 @@ struct VarStruct: public VarContainer {
   VarContainerPtr join_with(const VarContainerPtr& b) override;
 
 protected:
-  VarStruct(const SortPtr& sort, struct_container&& elems);
+  VarStruct(const SortPtr& sort, const struct_container& elems);
   const char* container_typename_() const override { return "struct"; }
 
 private:
@@ -348,7 +348,7 @@ VarContainerPtr VarContainer::from_cpp_obj(const SortPtr& sort, std::vector<T> o
   ILA_ASSERT(sort->vec_size() == v.size()) << 
     "expected vector-like of size " << sort->vec_size()
     << " got size " << v.size();
-  return VarContainerPtr{new VarVector{sort, std::move(v)}};
+  return VarContainerPtr{new VarVector{sort, v}};
 }
 
 template<typename It>
@@ -367,7 +367,7 @@ VarContainerPtr VarContainer::from_cpp_obj(const SortPtr& sort, It map_begin, It
     ILA_ASSERT(x != members.end()) << "missing member named " << name;
     res.emplace_back(name, members[name]);
   }
-  return VarContainerPtr{new VarStruct{sort, std::move(res)}};
+  return VarContainerPtr{new VarStruct{sort, res}};
 }
 
 // these functions were inlined in order to keep all the from_cpp_obj definitions together
