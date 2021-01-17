@@ -14,15 +14,25 @@ TEST(TestSort, Boolean) {
   EXPECT_TRUE(bool_sort->is_bool());
   EXPECT_FALSE(bool_sort->is_bv());
   EXPECT_FALSE(bool_sort->is_mem());
+  EXPECT_FALSE(bool_sort->is_struct());
+  EXPECT_FALSE(bool_sort->is_vec());
 
 #ifndef NDEBUG
   EXPECT_DEATH(bool_sort->bit_width(), ".*");
   EXPECT_DEATH(bool_sort->addr_width(), ".*");
   EXPECT_DEATH(bool_sort->data_width(), ".*");
+  EXPECT_DEATH(bool_sort->get_member_sort("a"), ".*");
+  EXPECT_DEATH(bool_sort->members().size(), ".*");
+  EXPECT_DEATH(bool_sort->data_atom(), ".*");
+  EXPECT_DEATH(bool_sort->vec_size(), ".*");
 #else
   EXPECT_EQ(0, bool_sort->bit_width());
   EXPECT_EQ(0, bool_sort->addr_width());
   EXPECT_EQ(0, bool_sort->data_width());
+  EXPECT_EQ(nullptr, bool_sort->get_member_sort("a"));
+  EXPECT_EQ(bool_sort->members().size(), 0);
+  EXPECT_EQ(nullptr, bool_sort->data_atom());
+  EXPECT_EQ(0, bool_sort->vec_size());
 #endif
 
   std::string msg;
@@ -42,14 +52,24 @@ TEST(TestSort, Bitvector) {
   EXPECT_FALSE(s->is_bool());
   EXPECT_TRUE(s->is_bv());
   EXPECT_FALSE(s->is_mem());
+  EXPECT_FALSE(s->is_struct());
+  EXPECT_FALSE(s->is_vec());
 
   EXPECT_EQ(8, s->bit_width());
 #ifndef NDEBUG
   EXPECT_DEATH(s->addr_width(), ".*");
   EXPECT_DEATH(s->data_width(), ".*");
+  EXPECT_DEATH(s->get_member_sort("a"), ".*");
+  EXPECT_DEATH(s->members().size(), ".*");
+  EXPECT_DEATH(s->data_atom(), ".*");
+  EXPECT_DEATH(s->vec_size(), ".*");
 #else
   EXPECT_EQ(0, s->addr_width());
   EXPECT_EQ(0, s->data_width());
+  EXPECT_EQ(nullptr, s->get_member_sort("a"));
+  EXPECT_EQ(0, s->members().size());
+  EXPECT_EQ(nullptr, s->data_atom());
+  EXPECT_EQ(0, s->vec_size());
 #endif
 
   std::string msg;
@@ -72,11 +92,21 @@ TEST(TestSort, Memory) {
   EXPECT_FALSE(s->is_bool());
   EXPECT_FALSE(s->is_bv());
   EXPECT_TRUE(s->is_mem());
+  EXPECT_FALSE(s->is_struct());
+  EXPECT_FALSE(s->is_vec());
 
 #ifndef NDEBUG
   EXPECT_DEATH(s->bit_width(), ".*");
+  EXPECT_DEATH(s->get_member_sort("a"), ".*");
+  EXPECT_DEATH(s->members().size(), ".*");
+  EXPECT_DEATH(s->data_atom(), ".*");
+  EXPECT_DEATH(s->vec_size(), ".*");
 #else
   EXPECT_EQ(0, s->bit_width());
+  EXPECT_EQ(nullptr, s->get_member_sort("a"));
+  EXPECT_EQ(0, s->members().size());
+  EXPECT_EQ(nullptr, s->data_atom());
+  EXPECT_EQ(0, s->vec_size());
 #endif
   EXPECT_EQ(2, s->addr_width());
   EXPECT_EQ(32, s->data_width());
@@ -91,6 +121,166 @@ TEST(TestSort, Memory) {
   z3::context c;
   auto z = s->GetZ3Sort(c);
   EXPECT_TRUE(z.is_array());
+}
+
+TEST(TestSort, Struct) {
+  auto s = Sort::MakeStructSort({
+    {"a", Sort::MakeBoolSort()},
+    {"b", Sort::MakeBvSort(8)},
+    {"c", Sort::MakeMemSort(2, 4)}
+  });
+  EXPECT_TRUE(s->is_ast());
+  EXPECT_FALSE(s->is_expr());
+  EXPECT_FALSE(s->is_func());
+  EXPECT_FALSE(s->is_bool());
+  EXPECT_FALSE(s->is_bv());
+  EXPECT_FALSE(s->is_mem());
+  EXPECT_TRUE(s->is_struct());
+  EXPECT_FALSE(s->is_vec());
+
+#ifndef NDEBUG
+  EXPECT_DEATH(s->bit_width(), ".*");
+  EXPECT_DEATH(s->addr_width(), ".*");
+  EXPECT_DEATH(s->data_width(), ".*");
+  EXPECT_DEATH(s->data_atom(), ".*");
+  EXPECT_DEATH(s->vec_size(), ".*");
+#else
+  EXPECT_EQ(0, s->bit_width());
+  EXPECT_EQ(0, s->addr_width());
+  EXPECT_EQ(0, s->data_width());
+  EXPECT_EQ(nullptr, s->data_atom());
+  EXPECT_EQ(0, s->vec_size());
+#endif
+}
+
+TEST(TestSort, Struct2) {
+  auto s = Sort::MakeStructSort({
+    {"a", Sort::MakeBoolSort()},
+    {"b", Sort::MakeBvSort(8)},
+    {"c", Sort::MakeMemSort(2, 4)}
+  });
+
+  // s2 is identical to s
+  auto s2 = Sort::MakeStructSort({
+    {"a", Sort::MakeBoolSort()},
+    {"b", Sort::MakeBvSort(8)},
+    {"c", Sort::MakeMemSort(2, 4)}
+  });
+  EXPECT_EQ(s, s2);
+
+  // reorder shouldn't be the same
+  EXPECT_NE(s, Sort::MakeStructSort({
+    {"b", Sort::MakeBvSort(8)},
+    {"a", Sort::MakeBoolSort()},
+    {"c", Sort::MakeMemSort(2, 4)}
+  }));
+
+  EXPECT_NE(s, Sort::MakeStructSort({
+    {"a", Sort::MakeBoolSort()},
+    {"b", Sort::MakeBvSort(5)}, // different from s.b
+    {"c", Sort::MakeMemSort(2, 4)}
+  }));
+
+  // nested structs
+  auto t = Sort::MakeStructSort({
+    {"a", s2}, {"b", Sort::MakeBoolSort()}, {"c", s}}
+  );
+  
+  // test get_member_sort
+  EXPECT_NE(s, t);
+  EXPECT_EQ(s, t->get_member_sort("a"));
+  EXPECT_NE(s, t->get_member_sort("b"));
+  EXPECT_EQ(t->get_member_sort("b"), Sort::MakeBoolSort());
+  EXPECT_EQ(s, t->get_member_sort("c"));
+#ifndef NDEBUG
+  EXPECT_DEATH(t->get_member_sort("d"), ".*");
+#else
+  EXPECT_FALSE(t->get_member_sort("d"));
+#endif
+
+  // printing
+  std::string msg, a_sort, b_sort, c_sort;
+  GET_STDOUT_MSG(std::cout << s, msg);
+  GET_STDOUT_MSG(std::cout << s->get_member_sort("a"), a_sort);
+  GET_STDOUT_MSG(std::cout << s->get_member_sort("b"), b_sort);
+  GET_STDOUT_MSG(std::cout << s->get_member_sort("c"), c_sort);
+  EXPECT_EQ("{ a: " + a_sort + ", b: " + b_sort 
+            + ", c: " + c_sort + " }", msg);
+  
+  // z3 sort should be constant, at least for the same pointer.
+  z3::context c {};
+  EXPECT_EQ(Z3_get_sort_id(c, s->GetZ3Sort(c)), Z3_get_sort_id(c, s->GetZ3Sort(c)));
+
+  // TODO: consider making the following test pass (though it 
+  // doesn't really matter, since both sorts are uninterpreted).
+
+  // EXPECT_EQ(Z3_get_sort_id(c, s->GetZ3Sort(c)), Z3_get_sort_id(c, s2->GetZ3Sort(c)));
+}
+
+TEST(TestSort, Vector) {
+  auto s = Sort::MakeVectorSort(Sort::MakeBoolSort(), 12);
+  EXPECT_TRUE(s->is_ast());
+  EXPECT_FALSE(s->is_expr());
+  EXPECT_FALSE(s->is_func());
+  EXPECT_FALSE(s->is_bool());
+  EXPECT_FALSE(s->is_bv());
+  EXPECT_FALSE(s->is_mem());
+  EXPECT_FALSE(s->is_struct());
+  EXPECT_TRUE(s->is_vec());
+
+#ifndef NDEBUG
+  EXPECT_DEATH(s->bit_width(), ".*");
+  EXPECT_DEATH(s->addr_width(), ".*");
+  EXPECT_DEATH(s->data_width(), ".*");
+  EXPECT_DEATH(s->get_member_sort("a"), ".*");
+  EXPECT_DEATH(s->members().size(), ".*");
+#else
+  EXPECT_EQ(0, s->bit_width());
+  EXPECT_EQ(0, s->addr_width());
+  EXPECT_EQ(0, s->data_width());
+  EXPECT_EQ(nullptr, s->get_member_sort("a"));
+  EXPECT_EQ(0, s->members().size());
+#endif
+
+  EXPECT_EQ(s, Sort::MakeVectorSort(Sort::MakeBoolSort(), 12));
+  EXPECT_NE(s, Sort::MakeVectorSort(Sort::MakeBoolSort(), 5));
+}
+
+TEST(TestSort, Vector2) {
+  auto s = Sort::MakeVectorSort(Sort::MakeBoolSort(), 12);
+
+  EXPECT_EQ(s->data_atom(), Sort::MakeBoolSort());
+  EXPECT_EQ(s->vec_size(), 12);
+
+  // printing
+  std::string msg, da_sort;
+  GET_STDOUT_MSG(std::cout << s, msg);
+  GET_STDOUT_MSG(std::cout << s->data_atom(), da_sort);
+  EXPECT_EQ("Array[12](" + da_sort + ")", msg);
+
+  // z3 sort should be constant, at least for the same pointer.
+  z3::context c {};
+  EXPECT_EQ(Z3_get_sort_id(c, s->GetZ3Sort(c)), Z3_get_sort_id(c, s->GetZ3Sort(c)));
+
+  // Note that z3 sort is not the same for an identical sort.  
+  // Will fail:
+  // EXPECT_EQ(
+  //   Z3_get_sort_id(c, s->GetZ3Sort(c)), 
+  //   Z3_get_sort_id(
+  //     (Sort::MakeVectorSort(Sort::MakeBoolSort(), 12))->GetZ3Sort(c)
+  //   )
+  // );
+
+  // test vectors of structs containing vectors
+  auto da = Sort::MakeStructSort({
+    {"a", Sort::MakeBoolSort()},
+    {"b", s}
+  });
+  auto t1 = Sort::MakeVectorSort(da, 10);
+  auto t2 = Sort::MakeVectorSort(da, 10);
+  EXPECT_EQ(t1, t2);
+  
+  EXPECT_EQ(s, t1->data_atom()->get_member_sort("b"));
 }
 
 } // namespace ilang
