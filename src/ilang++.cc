@@ -50,10 +50,28 @@ SortRef SortRef::MEM(const int& addr_w, const int& data_w) {
   return SortRef(s);
 }
 
+SortRef SortRef::VECTOR(size_t size, const SortRef& elem_type) {
+  // We switched the argument order because giving the smaller argument first is
+  // easier to read when elem_type takes multiple lines.
+  auto s = Sort::MakeVectorSort(elem_type.get(), size);
+  return SortRef(s);
+}
+
+SortRef SortRef::STRUCT(
+    const std::initializer_list<std::pair<std::string, SortRef>>& members
+) {
+  std::vector<std::pair<std::string, SortPtr>> mbrs;
+  for (auto& [name, sref] : members) mbrs.emplace_back(name, sref.get());
+  auto s = Sort::MakeStructSort(mbrs);
+  return SortRef(s);
+}
+
 /******************************************************************************/
 // ExprRef
 /******************************************************************************/
 ExprRef::ExprRef(ExprPtr ptr) : ptr_(ptr) {}
+
+ExprRef::ExprRef(ExprObjectRef eor) : ExprRef(eor.to_primitive_expr()) {}
 
 ExprRef::~ExprRef() {}
 
@@ -502,6 +520,55 @@ bool TopEqual(const ExprRef& a, const ExprRef& b) {
 }
 
 /******************************************************************************/
+// ExprObjectRef
+/******************************************************************************/
+
+ExprObjectRef::ExprObjectRef(ExprObjPtr ptr): ptr_(ptr) {}
+
+ExprObjectRef::ExprObjectRef(ExprRef er): 
+  ptr_(VarContainer::from_primitive_expr(er.ptr_)) {}
+
+SortRef ExprObjectRef::sort() const { return SortRef(ptr_->sort()); }
+
+bool ExprObjectRef::is_primitive() const { return ptr_->is_primitive(); }
+
+bool ExprObjectRef::is_vector() const { return ptr_->is_vector(); }
+
+bool ExprObjectRef::is_struct() const { return ptr_->is_struct(); }
+
+ExprRef ExprObjectRef::to_primitive_expr() {
+  return ExprRef(ptr_->to_primitive_expr());
+}
+
+ExprObjectRef ExprObjectRef::nth(size_t idx) {
+  return ExprObjectRef(ptr_->nth(idx));
+}
+
+size_t ExprObjectRef::size() const { return ptr_->size(); }
+
+const ExprObjectRef::vector_container& ExprObjectRef::elements() {
+  // [TODO] consider lifting VarContainer to the facade to avoid 
+  // this copying.
+  if (!elems_.empty()) return elems_;
+  for (auto& e : ptr_->elements()) elems_.emplace_back(e);
+  return elems_; 
+}
+
+ExprObjectRef ExprObjectRef::member(const std::string& name) {
+  return ExprObjectRef(ptr_->member(name)); 
+}
+
+const ExprObjectRef::struct_container& ExprObjectRef::members() {
+  // [TODO] consider lifting VarContainer to the facade to avoid 
+  // this copying.
+  if (!membs_.empty()) return membs_;
+  for (auto& [name, m] : ptr_->members()) {
+    membs_.emplace_back(name, ExprObjectRef{m});
+  }
+  return membs_;
+}
+
+/******************************************************************************/
 // FuncRef
 /******************************************************************************/
 FuncRef::FuncRef(const std::string& name, const SortRef& range) {
@@ -620,6 +687,12 @@ ExprRef Ila::NewMemState(const std::string& name, const int& addr_width,
   return ExprRef(v);
 }
 
+ExprObjectRef Ila::NewStateObject(const std::string& name, 
+                                  const SortRef& sort) {
+  auto v = ptr_->NewStateObject(name, sort.get());
+  return ExprObjectRef(v);
+}
+
 ExprRef Ila::NewBoolInput(const std::string& name) {
   auto v = ptr_->NewBoolInput(name);
   return ExprRef(v);
@@ -628,6 +701,12 @@ ExprRef Ila::NewBoolInput(const std::string& name) {
 ExprRef Ila::NewBvInput(const std::string& name, const int& bit_width) {
   auto v = ptr_->NewBvInput(name, bit_width);
   return ExprRef(v);
+}
+
+ExprObjectRef Ila::NewInputObject(const std::string& name, 
+                                  const SortRef& sort) {
+  auto v = ptr_->NewInputObject(name, sort.get());
+  return ExprObjectRef(v);
 }
 
 void Ila::AddInit(const ExprRef& init) { ptr_->AddInit(init.get()); }
@@ -650,6 +729,8 @@ size_t Ila::input_num() const { return ptr_->input_num(); }
 
 size_t Ila::state_num() const { return ptr_->state_num(); }
 
+size_t Ila::objects_num() const { return ptr_->objects_num(); }
+
 size_t Ila::instr_num() const { return ptr_->instr_num(); }
 
 size_t Ila::child_num() const { return ptr_->child_num(); }
@@ -666,6 +747,10 @@ ExprRef Ila::input(const size_t& i) const { return ExprRef(ptr_->input(i)); }
 
 ExprRef Ila::state(const size_t& i) const { return ExprRef(ptr_->state(i)); }
 
+ExprObjectRef Ila::object(const size_t& i) const { 
+  return ExprObjectRef(ptr_->object(i)); 
+}
+
 InstrRef Ila::instr(const size_t& i) const { return InstrRef(ptr_->instr(i)); }
 
 Ila Ila::child(const size_t& i) const { return Ila(ptr_->child(i)); }
@@ -678,6 +763,10 @@ ExprRef Ila::input(const std::string& name) const {
 
 ExprRef Ila::state(const std::string& name) const {
   return ExprRef(ptr_->state(name));
+}
+
+ExprObjectRef Ila::object(const std::string& name) const { 
+  return ExprObjectRef(ptr_->object(name)); 
 }
 
 InstrRef Ila::instr(const std::string& name) const {
