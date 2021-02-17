@@ -574,7 +574,7 @@ public:
   /// \param[in] name of the object state.
   /// \param[in] sort of the object.
   /// \return the object
-  ExprObjectRef NewObjectState(const std::string& name, const SortRef& sort);
+  ExprObjectRef NewStateObject(const std::string& name, const SortRef& sort);
 
   /// \brief Declare an input of Boolean type.
   /// \param[in] name input name.
@@ -588,7 +588,7 @@ public:
   /// \param[in] name of the object input.
   /// \param[in] sort of the object.
   /// \return the object.
-  ExprObjectRef NewObjectInput(const std::string& name, const SortRef& sort);
+  ExprObjectRef NewInputObject(const std::string& name, const SortRef& sort);
 
   /// \brief Add one initial constraint.
   /// \param[in] init the Boolean type initial constraint.

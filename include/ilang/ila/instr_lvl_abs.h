@@ -150,14 +150,14 @@ public:
   /// \param[in] state_var pointer to the state variable being added.
   void AddState(const ExprPtr& state_var);
 
-  /// \brief Add the input variables associated with an object to the ILA, 
-  /// registering both them and the object.
+  /// \brief Register an object to the ILA, and register all its variables as 
+  /// inputs.
   /// \param[in] name  the name to bind the object to
   /// \param[in] obj   the object to bind
   void AddInputObject(const std::string& name, const VarContainerPtr& obj);
 
-  /// \brief Add the state variables associated with an object to the ILA, 
-  /// registering both them and the object.
+  /// \brief Register an object to the ILA, and register all its variables as 
+  /// states.
   /// \param[in] name  the name to bind the object to
   /// \param[in] obj   the object to bind
   void AddStateObject(const std::string& name, const VarContainerPtr& obj);
@@ -203,11 +203,11 @@ public:
   const ExprPtr NewMemInput(const std::string& name, const int& addr_width,
                             const int& data_width);
 
-  /// \brief Create a multi-variable object and register as an input.
+  /// \brief Create a multi-variable object and register its variables as inputs.
   /// \param[in] name of the object input.
   /// \param[in] sort of the object.
   /// \return pointer to the object.
-  const VarContainerPtr NewObjectInput(const std::string& name, const SortPtr& sort);
+  const VarContainerPtr NewInputObject(const std::string& name, const SortPtr& sort);
 
   /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
@@ -228,11 +228,11 @@ public:
   const ExprPtr NewMemState(const std::string& name, const int& addr_width,
                             const int& data_width);
 
-  /// \brief Create a multi-variable object and register as a state.
+  /// \brief Create a multi-variable object and register its variables as states.
   /// \param[in] name of the object state.
   /// \param[in] sort of the object.
   /// \return pointer to the object.
-  const VarContainerPtr NewObjectState(const std::string& name, const SortPtr& sort);
+  const VarContainerPtr NewStateObject(const std::string& name, const SortPtr& sort);
 
   /// \brief Create one free Boolean variable.
   /// \param[in] name of the Boolean variable.
@@ -257,7 +257,7 @@ public:
   /// \param[in] name of the object of free variables.
   /// \param[in] sort of the object.
   /// \return pointer to the object.
-  const VarContainerPtr NewObjectFreeVar(const std::string& name, 
+  const VarContainerPtr NewFreeVarObject(const std::string& name, 
                                          const SortPtr& sort);
 
   /// \brief Create and register one instruction.

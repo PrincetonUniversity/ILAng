@@ -200,7 +200,7 @@ const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
   return mem_input;
 }
 
-const VarContainerPtr InstrLvlAbs::NewObjectInput(const std::string& name,
+const VarContainerPtr InstrLvlAbs::NewInputObject(const std::string& name,
                                                   const SortPtr& sort) {
   VarContainerPtr obj = VarContainer::Make(name, sort);
   AddInputObject(name, obj);
@@ -237,7 +237,7 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
   return mem_state;
 }
 
-const VarContainerPtr InstrLvlAbs::NewObjectState(const std::string& name,
+const VarContainerPtr InstrLvlAbs::NewStateObject(const std::string& name,
                                                   const SortPtr& sort) {
   VarContainerPtr obj = VarContainer::Make(name, sort);
   AddStateObject(name, obj);
@@ -271,7 +271,7 @@ const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
   return mem_var;
 }
 
-const VarContainerPtr InstrLvlAbs::NewObjectFreeVar(const std::string& name,
+const VarContainerPtr InstrLvlAbs::NewFreeVarObject(const std::string& name,
                                                     const SortPtr& sort) {
   VarContainerPtr obj = VarContainer::Make(name, sort);
   obj->visit_with( [p=shared_from_this()](VarContainer* const vc) {

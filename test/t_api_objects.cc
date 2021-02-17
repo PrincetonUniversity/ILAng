@@ -39,17 +39,17 @@ Ila mat_vec_mult_impl_objects() {
   auto action = ila.NewBvInput("action", BITS_STATE);
 
   // state set by previous instructions
-  auto vec = ila.NewObjectState("vec", SortRef::VECTOR(VEC_SIZE, SortRef::BV(BITS_DATA)));
-  auto mat = ila.NewObjectState("mat", 
+  auto vec = ila.NewStateObject("vec", SortRef::VECTOR(VEC_SIZE, SortRef::BV(BITS_DATA)));
+  auto mat = ila.NewStateObject("mat", 
     SortRef::VECTOR(MAT_ROWS, SortRef::VECTOR(MAT_COLS, SortRef::BV(BITS_DATA)))
   );
 
   // states
   auto todo = ila.NewBvState("todo", BITS_STATE);
   auto idle = ila.NewBoolState("idle");
-  auto out = ila.NewObjectState("outq", SortRef::VECTOR(OUT_SIZE, SortRef::BV(BITS_DATA)));
+  auto out = ila.NewStateObject("outq", SortRef::VECTOR(OUT_SIZE, SortRef::BV(BITS_DATA)));
 
-  auto pes = ila.NewObjectState("pes", SortRef::VECTOR(NUM_PES, SortRef::STRUCT({
+  auto pes = ila.NewStateObject("pes", SortRef::VECTOR(NUM_PES, SortRef::STRUCT({
     {"state", SortRef::BV(BITS_STATE)},
     {"acc", SortRef::VECTOR(ROWS_PER_PE, SortRef::BV(BITS_DATA))},
   })));

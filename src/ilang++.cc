@@ -687,9 +687,9 @@ ExprRef Ila::NewMemState(const std::string& name, const int& addr_width,
   return ExprRef(v);
 }
 
-ExprObjectRef Ila::NewObjectState(const std::string& name, 
+ExprObjectRef Ila::NewStateObject(const std::string& name, 
                                   const SortRef& sort) {
-  auto v = ptr_->NewObjectState(name, sort.get());
+  auto v = ptr_->NewStateObject(name, sort.get());
   return ExprObjectRef(v);
 }
 
@@ -703,9 +703,9 @@ ExprRef Ila::NewBvInput(const std::string& name, const int& bit_width) {
   return ExprRef(v);
 }
 
-ExprObjectRef Ila::NewObjectInput(const std::string& name, 
+ExprObjectRef Ila::NewInputObject(const std::string& name, 
                                   const SortRef& sort) {
-  auto v = ptr_->NewObjectInput(name, sort.get());
+  auto v = ptr_->NewInputObject(name, sort.get());
   return ExprObjectRef(v);
 }
 

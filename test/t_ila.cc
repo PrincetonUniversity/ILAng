@@ -162,14 +162,14 @@ TEST(TestInstrLvlAbs, Objects) {
   /* NewObject */
   
   auto pair = Sort::MakeStructSort({{"x", Sort::MakeBvSort(8)}, {"y", Sort::MakeBvSort(8)}});
-  auto a = ila->NewObjectInput("a", pair);
-  auto b = ila->NewObjectState("b", pair);
+  auto a = ila->NewInputObject("a", pair);
+  auto b = ila->NewStateObject("b", pair);
   #ifndef NDEBUG
-    EXPECT_DEATH(ila->NewObjectInput("a", pair), ".*");
-    EXPECT_DEATH(ila->NewObjectState("a", pair), ".*");
+    EXPECT_DEATH(ila->NewInputObject("a", pair), ".*");
+    EXPECT_DEATH(ila->NewStateObject("a", pair), ".*");
   #endif
 
-  // TODO: test InstrLvlAbs::NewObjectFreeVar?
+  // TODO: test InstrLvlAbs::NewFreeVarObject?
 
   /* GetObject */ 
   EXPECT_EQ(ila->object("a"), a);
