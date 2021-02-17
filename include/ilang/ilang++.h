@@ -53,11 +53,13 @@ void DisableDebug(const std::string& tag);
 class Sort;
 class Func;
 class Expr;
+class VarContainer;
 class Instr;
 class InstrLvlAbs;
 class Unroller;
 
-// forward declaration
+// forward declarations
+class ExprObjectRef;
 class Ila;
 
 /// \brief The wrapper of Sort (type for different AST nodes).
@@ -82,6 +84,10 @@ public:
   static SortRef BV(const int& bit_w);
   /// Return a memory (array) Sort of the given address/data bit-width.
   static SortRef MEM(const int& addr_w, const int& data_w);
+  /// Return a Sort of a vector of elem_type with the given size.
+  static SortRef VECTOR(size_t size, const SortRef& elem_type);
+  /// Return a Sort of a struct with the given members, each given a name and sort.
+  static SortRef STRUCT(const std::initializer_list<std::pair<std::string, SortRef>>& members);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped Sort pointer.
@@ -96,10 +102,15 @@ private:
   /// Wrapped Expr pointer.
   ExprPtr ptr_ = nullptr;
 
+  friend ExprObjectRef;
+
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the pointer of the actual data.
   ExprRef(ExprPtr ptr);
+  /// [TECHDEBT] Casting from a ExprObjectRef Primitive to an Expr.
+  /// necessary because ExprObjectRefs aren't Exprs.
+  ExprRef(ExprObjectRef eor);
   /// Default destructor
   ~ExprRef();
 
@@ -366,6 +377,64 @@ ExprRef MemConst(const NumericType& def_val,
                  const std::map<NumericType, NumericType>& vals,
                  const int& addr_width, const int& data_width);
 
+/// \brief The wrapper of ExprObject (struct, vector, primitive)
+class ExprObjectRef {
+private:
+  typedef std::shared_ptr<VarContainer> ExprObjPtr;
+  // container may change, but will continue to support list access and forward iteration.
+  typedef std::vector<ExprObjectRef> vector_container;
+  // container may change, but will continue to support *ordered* iteration over name, container pairs.
+  typedef std::vector<std::pair<std::string, ExprObjectRef>> struct_container;
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// Wrapped Expr pointer.
+  ExprObjPtr ptr_ = nullptr;
+  
+  /// Caching elements and members
+  vector_container elems_ {};
+  struct_container membs_ {};
+
+public:
+  /// Constructor with the pointer of the actual data.
+  ExprObjectRef(ExprObjPtr ptr);
+  /// [TECHDEBT] Casting from an ExprRef to an ExprObjectRef Primitive.
+  /// necessary because ExprObjectRefs aren't Exprs.
+  ExprObjectRef(ExprRef er);
+  /// Default destructor
+  ~ExprObjectRef()=default;
+
+  /// Returns the sort of this object
+  SortRef sort() const;
+
+  /// Returns true if this object is a (boxed) primitive
+  bool is_primitive() const;
+
+  /// Returns true if this object is a vector
+  bool is_vector() const;
+
+  /// Returns true if this object is a structure
+  bool is_struct() const;
+
+  /// If this object holds a primitive, returns the primitive.
+  ExprRef to_primitive_expr();
+
+  /// If this object is a vector, returns the nth element.
+  ExprObjectRef nth(size_t idx);
+  /// If this object is a vector, returns its size.
+  size_t size() const;
+  /// If this object is a vector, returns the underlying implementation.
+  const vector_container& elements();
+  // [HACK] This breaks encapsulation, but we don't can't include all 
+  // the vector functions. Both the vector and struct implementations
+  // should support range-based for loops, but would need to implement
+  // different type begin() and end() functions.
+
+  /// If this object is a struct, returns the given member.
+  ExprObjectRef member(const std::string& name);
+  /// If this object is a struct, returns the underlying implementation.
+  const struct_container& members();
+  // [HACK] see the elements() function above.
+};
+
 /******************************************************************************/
 // Non-AST-construction
 /******************************************************************************/
@@ -500,6 +569,12 @@ public:
   /// \param[in] data_width data bit-width.
   ExprRef NewMemState(const std::string& name, const int& addr_width,
                       const int& data_width);
+  
+  /// \brief Create a multi-variable object and register as a state.
+  /// \param[in] name of the object state.
+  /// \param[in] sort of the object.
+  /// \return the object
+  ExprObjectRef NewStateObject(const std::string& name, const SortRef& sort);
 
   /// \brief Declare an input of Boolean type.
   /// \param[in] name input name.
@@ -508,6 +583,12 @@ public:
   /// \param[in] name input name.
   /// \param[in] bit_width bit-vector bit-width.
   ExprRef NewBvInput(const std::string& name, const int& bit_width);
+
+  /// \brief Create a multi-variable object and register as an input.
+  /// \param[in] name of the object input.
+  /// \param[in] sort of the object.
+  /// \return the object.
+  ExprObjectRef NewInputObject(const std::string& name, const SortRef& sort);
 
   /// \brief Add one initial constraint.
   /// \param[in] init the Boolean type initial constraint.
@@ -534,6 +615,8 @@ public:
   size_t input_num() const;
   /// Return the number of state variables.
   size_t state_num() const;
+  /// Return the number of registered objects.
+  size_t objects_num() const;
   /// Return the number of instructions.
   size_t instr_num() const;
   /// Return the number of child-ILAs.
@@ -552,6 +635,8 @@ public:
   ExprRef input(const size_t& i) const;
   /// Access the i-th state variable.
   ExprRef state(const size_t& i) const;
+  /// Access the i-th variable object.
+  ExprObjectRef object(const size_t& i) const;
   /// Access the i-th instruction.
   InstrRef instr(const size_t& i) const;
   /// Access the i-th child-ILA.
@@ -563,6 +648,8 @@ public:
   ExprRef input(const std::string& name) const;
   /// Return the named state variable; return NULL if not registered.
   ExprRef state(const std::string& name) const;
+  /// Access the i-th variable object; return NULL if not registered.
+  ExprObjectRef object(const std::string& name) const;
   /// Return the named instruction; return NULL if not registered.
   InstrRef instr(const std::string& name) const;
   /// Return the named child-ILA; return NULL if not registered.
