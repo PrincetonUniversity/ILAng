@@ -3,6 +3,7 @@ branches:
     - master
     - travis
     - coverity_scan
+    - fix-ci
 
 git:
   depth: 1
