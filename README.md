@@ -1,7 +1,7 @@
 [![ILAng](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png)](https://bo-yuan-huang.gitbook.io/ilang/)
 
 [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)
-[![Build Status](https://travis-ci.com/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.com/Bo-Yuan-Huang/ILAng)
+[![Build Status](https://api.travis-ci.com/PrincetonUniversity/ILAng.svg?branch=master)](https://travis-ci.com/PrincetonUniversity/ILAng)
 [![Build Status](https://ilang.semaphoreci.com/badges/ILAng.svg)](https://ilang.semaphoreci.com/projects/ILAng)
 [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
