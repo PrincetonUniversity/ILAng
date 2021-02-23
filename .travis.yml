@@ -4,6 +4,8 @@ branches:
     - travis
     - coverity_scan
     - fix-ci
+    - fix-ci
+    
 
 git:
   depth: 1
