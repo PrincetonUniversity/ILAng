@@ -37,6 +37,14 @@ const ExprPtr InstrLvlAbs::state(const std::string& name) const {
   return stt;
 }
 
+const VarContainerPtr InstrLvlAbs::input_object(const std::string& name) const {
+  return find_input_object(Symbol(name));
+}
+
+const VarContainerPtr InstrLvlAbs::state_object(const std::string& name) const {
+  return find_state_object(Symbol(name));
+}
+
 const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
   auto instr = find_instr(Symbol(name));
   return instr;
@@ -55,6 +63,16 @@ const ExprPtr InstrLvlAbs::find_input(const Symbol& name) const {
 const ExprPtr InstrLvlAbs::find_state(const Symbol& name) const {
   auto pos = states_.find(name);
   return (pos == states_.end()) ? nullptr : pos->second;
+}
+
+const VarContainerPtr InstrLvlAbs::find_input_object(const Symbol& name) const {
+  auto pos = input_objects_.find(name);
+  return (pos == input_objects_.end()) ? nullptr : pos->second;
+}
+
+const VarContainerPtr InstrLvlAbs::find_state_object(const Symbol& name) const {
+  auto pos = state_objects_.find(name);
+  return (pos == state_objects_.end()) ? nullptr : pos->second;
 }
 
 const InstrPtr InstrLvlAbs::find_instr(const Symbol& name) const {
@@ -95,6 +113,38 @@ void InstrLvlAbs::AddState(const ExprPtr& state_var) {
   auto var = Unify(state_var);
   // register to States
   states_.push_back(name, var);
+}
+
+void InstrLvlAbs::AddInputObject(const std::string& name, const VarContainerPtr& obj) {
+  ILA_NOT_NULL(obj);
+
+  // ensure not already added
+  ILA_ASSERT(input_objects_.find(name) == input_objects_.end()) << "object name already taken";
+  ILA_ASSERT(state_objects_.find(name) == state_objects_.end()) << "object name already taken";
+
+  // add all primitive children
+  obj->visit_with([this](VarContainer* const vc) { 
+    if (vc->is_primitive()) { this->AddInput(vc->to_primitive_expr()); }
+  });
+
+  // record object
+  input_objects_.push_back(name, obj);
+}
+
+void InstrLvlAbs::AddStateObject(const std::string& name, const VarContainerPtr& obj) {
+  ILA_NOT_NULL(obj);
+
+  // ensure not already added
+  ILA_ASSERT(input_objects_.find(name) == input_objects_.end()) << "object name already taken";
+  ILA_ASSERT(state_objects_.find(name) == state_objects_.end()) << "object name already taken";
+
+  // add all primitive children
+  obj->visit_with([this](VarContainer* const vc) { 
+    if (vc->is_primitive()) { this->AddState(vc->to_primitive_expr()); }
+  });
+
+  // record object
+  state_objects_.push_back(name, obj);
 }
 
 void InstrLvlAbs::AddInit(const ExprPtr& cntr_expr) {
@@ -161,6 +211,13 @@ const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
   return mem_input;
 }
 
+const VarContainerPtr InstrLvlAbs::NewInputObject(const std::string& name,
+                                                  const SortPtr& sort) {
+  VarContainerPtr obj = VarContainer::Make(name, sort);
+  AddInputObject(name, obj);
+  return obj;
+}
+
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
   ExprPtr bool_state = asthub::NewBoolVar(name);
   // set host
@@ -191,6 +248,13 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
   return mem_state;
 }
 
+const VarContainerPtr InstrLvlAbs::NewStateObject(const std::string& name,
+                                                  const SortPtr& sort) {
+  VarContainerPtr obj = VarContainer::Make(name, sort);
+  AddStateObject(name, obj);
+  return obj;
+}
+
 const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
   // create new var
   ExprPtr bool_var = asthub::NewBoolVar(name);
@@ -216,6 +280,15 @@ const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
   // set host
   mem_var->set_host(shared_from_this());
   return mem_var;
+}
+
+const VarContainerPtr InstrLvlAbs::NewFreeVarObject(const std::string& name,
+                                                    const SortPtr& sort) {
+  VarContainerPtr obj = VarContainer::Make(name, sort);
+  obj->visit_with( [p=shared_from_this()](VarContainer* const vc) {
+    if (vc->is_primitive()) vc->to_primitive_expr()->set_host(p);
+  } );
+  return obj;
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
@@ -304,6 +377,8 @@ void InstrLvlAbs::InitObject() {
   // local
   inputs_.clear();
   states_.clear();
+  input_objects_.clear();
+  state_objects_.clear();
   inits_.clear();
   instrs_.clear();
   childs_.clear();
