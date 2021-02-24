@@ -111,14 +111,14 @@ VarContainerPtr VarContainer::join_with(const VarContainerPtr& b) {
 
 VarPrimitive::VarPrimitive(ExprPtr var):  VarContainer(var->sort()), impl_ {var} {}
 
-void VarPrimitive::visit_with(const VarContainer::visitor& visit) { visit(this); }
+void VarPrimitive::visit_with(const VarContainer::Visitor& visit) { visit(this); }
 
 /* VarVector */
 
 VarVector::VarVector(const SortPtr& t, const vector_container& elems): 
   VarContainer(t), impl_ {elems} {}
 
-void VarVector::visit_with(const VarContainer::visitor& visit) {
+void VarVector::visit_with(const VarContainer::Visitor& visit) {
   visit(this);
   for (auto& elem : impl_) {
     elem->visit_with(visit);
@@ -182,7 +182,7 @@ VarContainerPtr VarVector::unzip() {
 VarStruct::VarStruct(const SortPtr& t, const struct_container& members): 
   VarContainer(t), impl_ {members} {}
 
-void VarStruct::visit_with(const visitor& visit) {
+void VarStruct::visit_with(const Visitor& visit) {
   visit(this);
   for (auto& [_, elem] : impl_) {
     elem->visit_with(visit);

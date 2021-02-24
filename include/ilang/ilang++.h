@@ -615,8 +615,10 @@ public:
   size_t input_num() const;
   /// Return the number of state variables.
   size_t state_num() const;
-  /// Return the number of registered objects.
-  size_t objects_num() const;
+  /// Return the number of input objects.
+  size_t input_objects_num() const;
+  /// Return the number of state objects.
+  size_t state_objects_num() const;
   /// Return the number of instructions.
   size_t instr_num() const;
   /// Return the number of child-ILAs.
@@ -635,8 +637,10 @@ public:
   ExprRef input(const size_t& i) const;
   /// Access the i-th state variable.
   ExprRef state(const size_t& i) const;
-  /// Access the i-th variable object.
-  ExprObjectRef object(const size_t& i) const;
+  /// Access the i-th input object.
+  ExprObjectRef input_object(const size_t& i) const;
+  /// Access the i-th state object.
+  ExprObjectRef state_object(const size_t& i) const;
   /// Access the i-th instruction.
   InstrRef instr(const size_t& i) const;
   /// Access the i-th child-ILA.
@@ -648,8 +652,10 @@ public:
   ExprRef input(const std::string& name) const;
   /// Return the named state variable; return NULL if not registered.
   ExprRef state(const std::string& name) const;
-  /// Access the i-th variable object; return NULL if not registered.
-  ExprObjectRef object(const std::string& name) const;
+  /// Return the named input object; return NULL if not registered.
+  ExprObjectRef input_object(const std::string& name) const;
+  /// Return the named state object; return NULL if not registered.
+  ExprObjectRef state_object(const std::string& name) const;
   /// Return the named instruction; return NULL if not registered.
   InstrRef instr(const std::string& name) const;
   /// Return the named child-ILA; return NULL if not registered.

@@ -729,7 +729,9 @@ size_t Ila::input_num() const { return ptr_->input_num(); }
 
 size_t Ila::state_num() const { return ptr_->state_num(); }
 
-size_t Ila::objects_num() const { return ptr_->objects_num(); }
+size_t Ila::input_objects_num() const { return ptr_->input_objects_num(); }
+
+size_t Ila::state_objects_num() const { return ptr_->state_objects_num(); }
 
 size_t Ila::instr_num() const { return ptr_->instr_num(); }
 
@@ -747,8 +749,12 @@ ExprRef Ila::input(const size_t& i) const { return ExprRef(ptr_->input(i)); }
 
 ExprRef Ila::state(const size_t& i) const { return ExprRef(ptr_->state(i)); }
 
-ExprObjectRef Ila::object(const size_t& i) const { 
-  return ExprObjectRef(ptr_->object(i)); 
+ExprObjectRef Ila::input_object(const size_t& i) const { 
+  return ExprObjectRef(ptr_->input_object(i)); 
+}
+
+ExprObjectRef Ila::state_object(const size_t& i) const { 
+  return ExprObjectRef(ptr_->state_object(i)); 
 }
 
 InstrRef Ila::instr(const size_t& i) const { return InstrRef(ptr_->instr(i)); }
@@ -765,8 +771,12 @@ ExprRef Ila::state(const std::string& name) const {
   return ExprRef(ptr_->state(name));
 }
 
-ExprObjectRef Ila::object(const std::string& name) const { 
-  return ExprObjectRef(ptr_->object(name)); 
+ExprObjectRef Ila::input_object(const std::string& name) const { 
+  return ExprObjectRef(ptr_->input_object(name)); 
+}
+
+ExprObjectRef Ila::state_object(const std::string& name) const { 
+  return ExprObjectRef(ptr_->state_object(name)); 
 }
 
 InstrRef Ila::instr(const std::string& name) const {

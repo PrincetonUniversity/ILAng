@@ -89,7 +89,9 @@ public:
   /// Return the number of state variables.
   inline size_t state_num() const { return states_.size(); }
   /// Return the number of objects.
-  inline size_t objects_num() const { return objects_.size(); }
+  inline size_t input_objects_num() const { return input_objects_.size(); }
+  /// Return the number of objects.
+  inline size_t state_objects_num() const { return state_objects_.size(); }
   /// Return the number of instructions.
   inline size_t instr_num() const { return instrs_.size(); }
   /// Return the number of child-ILAs.
@@ -106,8 +108,10 @@ public:
   inline const ExprPtr input(const size_t& i) const { return inputs_[i]; }
   /// Access the i-th state variable.
   inline const ExprPtr state(const size_t& i) const { return states_[i]; }
-  /// Access the i-th variable object.
-  inline const VarContainerPtr object(const size_t& i) const { return objects_[i]; }
+  /// Access the i-th input object.
+  inline const VarContainerPtr input_object(const size_t& i) const { return input_objects_[i]; }
+  /// Access the i-th state object.
+  inline const VarContainerPtr state_object(const size_t& i) const { return state_objects_[i]; }
   /// Access the i-th instruction.
   inline const InstrPtr instr(const size_t& i) const { return instrs_[i]; }
   /// Access the i-th child-ILA.
@@ -121,8 +125,10 @@ public:
   const ExprPtr input(const std::string& name) const;
   /// Return the named state variable; return NULL if not registered.
   const ExprPtr state(const std::string& name) const;
-  /// Return the named complex object; return nullptr if not registered.
-  const VarContainerPtr object(const std::string& name) const;
+  /// Return the named input object; return nullptr if not registered.
+  const VarContainerPtr input_object(const std::string& name) const;
+  /// Return the named state object; return nullptr if not registered.
+  const VarContainerPtr state_object(const std::string& name) const;
   /// Return the named instruction; return NULL if not registered.
   const InstrPtr instr(const std::string& name) const;
   /// Return the named child-ILA; return NULL if not registered.
@@ -132,8 +138,10 @@ public:
   const ExprPtr find_input(const Symbol& name) const;
   /// Return the named state variable; return NULL if not registered.
   const ExprPtr find_state(const Symbol& name) const;
-    /// Return the named state variable; return NULL if not registered.
-  const VarContainerPtr find_object(const Symbol& name) const;
+  /// Return the named input object; return NULL if not registered.
+  const VarContainerPtr find_input_object(const Symbol& name) const;
+ /// Return the named state object; return NULL if not registered.
+  const VarContainerPtr find_state_object(const Symbol& name) const;
   /// Return the named instruction; return NULL if not registered.
   const InstrPtr find_instr(const Symbol& name) const;
   /// Return the named child-ILA; return NULL if not registered.
@@ -334,8 +342,10 @@ private:
   VarMap inputs_;
   /// The set of state variables.
   VarMap states_;
-  /// The set of known objects.
-  ContainerMap objects_;
+  /// The set of known input objects.
+  ContainerMap input_objects_;
+  /// The set of known state objects.
+  ContainerMap state_objects_;
   /// The set of initial constraints (not neccessary per-state).
   ExprPtrVec inits_;
   /// The fetch function.

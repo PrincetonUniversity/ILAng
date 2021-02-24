@@ -172,11 +172,14 @@ TEST(TestInstrLvlAbs, Objects) {
   // TODO: test InstrLvlAbs::NewFreeVarObject?
 
   /* GetObject */ 
-  EXPECT_EQ(ila->object("a"), a);
-  EXPECT_NE(ila->object("b"), a);
-  EXPECT_EQ(ila->object("b"), b);
-  EXPECT_EQ(ila->object("c"), nullptr);
-  EXPECT_EQ(ila->object("blah")->nth(0), obj1->nth(0));
+  EXPECT_EQ(ila->input_object("a"), a);
+  EXPECT_EQ(ila->state_object("a"), nullptr);
+  EXPECT_EQ(ila->state_object("b"), b);
+  EXPECT_NE(ila->state_object("b"), a);
+  EXPECT_EQ(ila->input_object("b"), nullptr);
+  EXPECT_EQ(ila->state_object("c"), nullptr);
+  EXPECT_EQ(ila->input_object("c"), nullptr);
+  EXPECT_EQ(ila->input_object("blah")->nth(0), obj1->nth(0));
 }
 
 TEST(TestInstrLvlAbs, Init) {

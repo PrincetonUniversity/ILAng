@@ -46,7 +46,7 @@ public:
   /// The type of visitors to containers. This is sufficient because the 
   /// sort() and container_type() functions can be used to get the specific
   /// kind of object/container being referred to.
-  typedef std::function<void(VarContainer* const)> visitor;
+  typedef std::function<void(VarContainer* const)> Visitor;
   // The visitor function accepts a VarContainer* instead of a VarContainerPtr to save
   // space during iteration. When the container is visited, it feels expensive to create a
   // new shared_ptr object for each of its children.
@@ -159,7 +159,7 @@ public:
   virtual bool is_struct() const { return false; }
 
   /// Visits this object with the given visitor.
-  virtual void visit_with(const visitor& visit)=0;
+  virtual void visit_with(const Visitor& visit)=0;
   // dunno if we need this much flexibility, but it's nice to have.
 
   /// If this container holds a primitive, returns the primitive.
@@ -258,7 +258,7 @@ class VarPrimitive: public VarContainer {
 public:
   ~VarPrimitive()=default;
 
-  void visit_with(const visitor& visit) override;
+  void visit_with(const Visitor& visit) override;
   ContainerType container_type() const override { return ContainerType::primitive; }
   bool is_primitive() const override { return true; }
 
@@ -282,7 +282,7 @@ struct VarVector: public VarContainer {
   friend VarContainerPtr from_cpp_obj_(const SortPtr&, T obj);
 
 public:
-  void visit_with(const visitor& visit) override;
+  void visit_with(const Visitor& visit) override;
   ContainerType container_type() const override { return ContainerType::vector; }
   bool is_vector() const override { return true; }
 
@@ -314,7 +314,7 @@ struct VarStruct: public VarContainer {
   template<typename CT, typename T>
   friend VarContainerPtr from_cpp_obj_(const SortPtr&, T obj);
 
-  void visit_with(const visitor& visit) override;
+  void visit_with(const Visitor& visit) override;
   ContainerType container_type() const override { return ContainerType::structure; }
   bool is_struct() const override { return true; }
 

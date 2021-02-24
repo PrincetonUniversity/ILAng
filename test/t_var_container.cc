@@ -195,7 +195,7 @@ TEST(TestVarContainer, Visitor) {
     int num_primitives {0};
     int num_vectors {0};
     int num_structs {0};
-    VarContainer::visitor vis = 
+    VarContainer::Visitor vis = 
       [&num_primitives, &num_vectors, &num_structs](VarContainer* const vc) {
         num_primitives += vc->is_primitive();
         num_vectors += vc->is_vector();

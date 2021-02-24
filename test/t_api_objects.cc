@@ -333,25 +333,25 @@ TEST(TestApiObjects, Unrolling) {
   for (int r = 0; r != MAT_ROWS; ++r) {
     for (int c = 0; c != MAT_COLS; ++c) {
       same_state = same_state & (
-        ila1.object("mat").nth(r).nth(c) == mat_cell(ila2, r, c)
+        ila1.state_object("mat").nth(r).nth(c) == mat_cell(ila2, r, c)
       );
     }
   }
   for (int i = 0; i != VEC_SIZE; ++i) {
     same_state = same_state & (
-      ila1.object("vec").nth(i) == ila2.state("vec" + std::to_string(i))
+      ila1.state_object("vec").nth(i) == ila2.state("vec" + std::to_string(i))
     );
   }
 
   // state
   for (int pe = 0; pe != NUM_PES; ++pe) {
     same_state = same_state & (
-      ila1.object("pes").nth(pe).member("state") == state_const(pe_states::IDLE)
+      ila1.state_object("pes").nth(pe).member("state") == state_const(pe_states::IDLE)
       & ila2.state("pe" + std::to_string(pe) + "_state") == state_const(pe_states::IDLE)
     );
     for (int r = 0; r != ROWS_PER_PE; ++r) {
       same_state = same_state & (
-        ila1.object("pes").nth(pe).member("acc").nth(r) ==
+        ila1.state_object("pes").nth(pe).member("acc").nth(r) ==
         ila2.state("pe" + std::to_string(pe) + "_acc" + std::to_string(r))
       );
     }
@@ -364,13 +364,13 @@ TEST(TestApiObjects, Unrolling) {
   for (int r = 0; r != MAT_ROWS; ++r) {
     for (int c = 0; c != MAT_COLS; ++c) {
       unroller.AddInitPred(
-        ila1.object("mat").nth(r).nth(c) == BvConst(r * MAT_ROWS + c + 1, BITS_DATA)
+        ila1.state_object("mat").nth(r).nth(c) == BvConst(r * MAT_ROWS + c + 1, BITS_DATA)
       );
     }
   }
 
   for (int i = 0; i != VEC_SIZE; ++i) {
-    unroller.AddInitPred(ila1.object("vec").nth(i) == BvConst(i + 1, BITS_DATA));
+    unroller.AddInitPred(ila1.state_object("vec").nth(i) == BvConst(i + 1, BITS_DATA));
   }
 
   // create smt problem
@@ -395,7 +395,7 @@ TEST(TestApiObjects, Unrolling) {
   auto same_outs = both_done;
   for (int r = 0; r != OUT_SIZE; ++r) {
     same_outs = same_outs && unroller.Equal(
-        ila1.object("outq").nth(r), end,
+        ila1.state_object("outq").nth(r), end,
         ila2.state("out" + std::to_string(r)), end
     );
   }
