@@ -282,6 +282,29 @@ bool Ilator::GenerateInstrContent(const InstrPtr& instr,
                      fmt::arg("next_value", LookUp(next, lut)));
     }
   }
+
+  // add update states logging
+  fmt::format_to(buff, "#ifdef ILATOR_VERBOSE\n");
+  fmt::format_to(buff, "instr_update_log << \"No.\" << std::dec << GetInstrCntr() << '\\t' << "
+                  "\"{instr_name} state updates:\" << std::endl;\n",
+                  fmt::arg("instr_name", instr->name().str()));
+  for (auto& s : updated_states) {
+    auto curr = instr->host()->state(s);
+    if (!curr->is_mem()) {
+      fmt::format_to(buff,
+                     "instr_update_log << \"    {state_name} => \" << "
+                     "std::hex << \"0x\" << {state_name} << std::endl; \n",
+                     fmt::arg("state_name", GetCxxName(curr)));
+    } else {
+      fmt::format_to(buff,
+                     "instr_update_log << \"    {state_name} get updated\" "
+                     "<< std::endl;\n",
+                     fmt::arg("state_name", GetCxxName(curr)));
+    }
+  }
+  fmt::format_to(buff, "instr_update_log << std::endl;\n");
+  fmt::format_to(buff, "#endif\n");
+
   EndFuncDef(update_func, buff);
 
   // record and write to file
@@ -466,10 +489,16 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
   fmt::format_to( // logging
       buff,
       "static int instr_cntr = 0;\n"
-      "void {project}::LogInstrSequence(const std::string& instr_name) {{\n"
-      "  instr_log << \"Instr No.\" << std::setw(5) << instr_cntr;\n"
-      "  instr_log << instr_name << \" is activated\\n\";\n"
+      "int {project}::GetInstrCntr() {{\n"
+      "  return instr_cntr;\n"
+      "}}\n"
+      "void {project}::IncrementInstrCntr() {{\n"
       "  instr_cntr++;\n"
+      "}}\n"
+      "void {project}::LogInstrSequence(const std::string& instr_name) {{\n"
+      "  instr_log << \"Instr No.\" << std::setw(5) << GetInstrCntr() << '\\t';\n"
+      "  instr_log << instr_name << \" is activated\\n\";\n"
+      "  IncrementInstrCntr();\n"
       "}}\n",
       fmt::arg("project", GetProjectName()));
 
@@ -549,7 +578,11 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
                  "#include <unordered_map>\n"
 #endif
                  "SC_MODULE({project}) {{\n"
+                //  "  extern int instr_cntr;\n"
                  "  std::ofstream instr_log;\n"
+                 "  std::ofstream instr_update_log;\n" // add instruction state update logging
+                 "  int GetInstrCntr();\n"
+                 "  void IncrementInstrCntr();\n"
                  "  void LogInstrSequence(const std::string& instr_name);\n",
                  fmt::arg("project", GetProjectName()));
 
@@ -623,6 +656,7 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "project({project} LANGUAGES CXX)\n"
       "\n"
       "option(ILATOR_VERBOSE \"Enable instruction sequence logging\" OFF)\n"
+      // "option(ILATOR_INSN_VERBOSE \"Enable instruction state updates logging\" OFF)\n"
       "option(JSON_SUPPORT \"Build JSON parser support\" OFF)\n"
       "\n"
       "find_package(SystemCLanguage CONFIG REQUIRED)\n"
@@ -640,6 +674,9 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "if(${{ILATOR_VERBOSE}})\n"
       "  target_compile_definitions({project} PRIVATE ILATOR_VERBOSE)\n"
       "endif()\n"
+      // "if(${{ILATOR_INSN_VERBOSE}})\n"
+      // "  target_compile_definitions({project} PRIVATE ILATOR_INSN_VERBOSE)\n"
+      // "endif()\n"
       "if(${{JSON_SUPPORT}})\n"
       "  include(FetchContent)\n"
       "  FetchContent_Declare(\n"
