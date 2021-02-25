@@ -3,7 +3,7 @@
 [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)
 [![Build Status](https://travis-ci.com/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.com/Bo-Yuan-Huang/ILAng)
 [![Build Status](https://ilang.semaphoreci.com/badges/ILAng.svg)](https://ilang.semaphoreci.com/projects/ILAng)
-[![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/dfd2rluheg83au4o/branch/master?svg=true)](https://ci.appveyor.com/project/ILAng-service/ilang/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/Bo-Yuan-Huang/ILAng.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Bo-Yuan-Huang/ILAng/context:cpp)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
