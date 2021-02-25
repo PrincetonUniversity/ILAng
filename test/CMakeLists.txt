@@ -49,6 +49,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/util.cc
   t_ast_hub.cc
   t_api.cc
+  t_api_objects.cc
   t_case_aes_eq.cc
   t_copy.cc
   t_crr.cc
@@ -81,6 +82,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_unroll_seq.cc
   t_unroller_smt.cc
   t_util.cc
+  t_var_container.cc
   t_verilog_analysis.cc
   t_verilog_analysis_error.cc
   t_verilog_gen.cc

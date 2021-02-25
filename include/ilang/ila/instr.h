@@ -19,7 +19,7 @@ class InstrLvlAbs;
 
 /// \brief The class for the Instruction. An Instr object contains:
 /// - the decode function
-/// - a set of undate functions for the state variables
+/// - a set of update functions for the state variables
 /// - several attributes, e.g. view
 class Instr : public Object {
 public:
