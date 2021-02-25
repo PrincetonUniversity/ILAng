@@ -5,7 +5,7 @@
 [![Build Status](https://ilang.semaphoreci.com/badges/ILAng.svg)](https://ilang.semaphoreci.com/projects/ILAng)
 [![Build status](https://ci.appveyor.com/api/projects/status/dfd2rluheg83au4o/branch/master?svg=true)](https://ci.appveyor.com/project/ILAng-service/ilang/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/Bo-Yuan-Huang/ILAng.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Bo-Yuan-Huang/ILAng/context:cpp)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/PrincetonUniversity/ILAng.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/PrincetonUniversity/ILAng/context:cpp)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
 [![license](https://img.shields.io/github/license/bo-yuan-huang/ilang.svg?style=flat)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-manual-blue.svg)](https://bo-yuan-huang.gitbook.io/ilang/)
