@@ -1,0 +1,58 @@
+FROM ilangdockerhub/ilang:cosabase as builder
+
+# var
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
+
+# root dir
+WORKDIR $BUILD_ROOT
+
+# ILAng
+ENV ILANG_DIR $BUILD_ROOT/ILAng
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/Bo-Yuan-Huang/ILAng/git/refs/heads/master ilang_version.json
+RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILAng.git $ILANG_DIR
+WORKDIR $ILANG_DIR
+RUN mkdir -p build 
+WORKDIR $ILANG_DIR/build
+RUN cmake .. -DCMAKE_INSTALL_PREFIX="$BUILD_PREF" -DILANG_INSTALL_DEV=ON && \
+    make -j"$(nproc)" && \
+    make install 
+
+# ItSy
+ENV ITSY_DIR $BUILD_ROOT/ItSy
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/PrincetonUniversity/ItSy/git/refs/heads/master itsy_version.json
+RUN git clone https://github.com/PrincetonUniversity/ItSy.git $ITSY_DIR
+WORKDIR $ITSY_DIR
+RUN CPLUS_INCLUDE_PATH=$BUILD_PREF/include LIBRARY_PATH=$BUILD_PREF/lib LD_LIBRARY_PATH=$BUILD_PREF/lib bjam -j"$(nproc)"
+RUN cp build/ila.so $BUILD_PREF/lib
+
+# template-ila (example)
+ENV EXAMPLE_DIR $BUILD_ROOT/example
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/PrincetonUniversity/template-ila/git/refs/heads/master template_version.json
+RUN git clone --depth=1 https://github.com/PrincetonUniversity/template-ila.git $EXAMPLE_DIR
+WORKDIR $EXAMPLE_DIR
+RUN $BUILD_PREF/bin/python3 script/init.py example
+RUN rm -rf template
+
+#
+# Deployment
+# 
+FROM ilangdockerhub/ilang:cosabase
+
+# var
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
+
+WORKDIR /root/workspace
+
+# configure
+COPY --from=builder $BUILD_PREF $BUILD_PREF
+COPY --from=builder $BUILD_ROOT/example/ ./example/
+
+# done
+CMD echo "run 'source init.sh' to start" && /bin/bash
