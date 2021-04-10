@@ -131,6 +131,82 @@ void InstrLvlAbs::AddChild(const InstrLvlAbsPtr& child) {
   childs_.push_back(name, child);
 }
 
+/****************************************************************/
+// ********  AQED Feature: Input and States with Labels ********//
+/****************************************************************/
+
+const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name, const std::string& label) {
+  ExprPtr bool_input = asthub::NewBoolVar(name, label);
+  // set host
+  bool_input->set_host(shared_from_this());
+  // register
+  AddInput(bool_input);
+  return bool_input;
+}
+
+const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
+                                      const int& bit_width,
+                                      const std::string& label) {
+  ExprPtr bv_input = asthub::NewBvVar(name, bit_width, label);
+  // set host
+  bv_input->set_host(shared_from_this());
+  // register
+  AddInput(bv_input);
+  return bv_input;
+}
+
+const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
+                                       const int& addr_width,
+                                       const int& data_width,
+                                       const std::string& label) {
+  ExprPtr mem_input = asthub::NewMemVar(name, addr_width, data_width, label);
+  // set host
+  mem_input->set_host(shared_from_this());
+  // register
+  AddInput(mem_input);
+  return mem_input;
+}
+
+const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name, const std::string& label) {
+  ExprPtr bool_state = asthub::NewBoolVar(name, label);
+  // set host
+  bool_state->set_host(shared_from_this());
+  // register
+  AddState(bool_state);
+  return bool_state;
+}
+
+const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
+                                      const int& bit_width,
+                                      const std::string& label) {
+  ExprPtr bv_state = asthub::NewBvVar(name, bit_width, label);
+  // set host
+  bv_state->set_host(shared_from_this());
+  // register
+  AddState(bv_state);
+  return bv_state;
+}
+
+const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
+                                       const int& addr_width,
+                                       const int& data_width,
+                                       const std::string& label) {
+  ExprPtr mem_state = asthub::NewMemVar(name, addr_width, data_width, label);
+  // set host
+  mem_state->set_host(shared_from_this());
+  // register
+  AddState(mem_state);
+  return mem_state;
+}
+
+/****************************************************************/
+// ********            AQED Feature: Finish             ********//
+/****************************************************************/ 
+
+/****************************************************************/
+// ********  Original without Labeling                  ********//
+/****************************************************************/
+
 const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
   ExprPtr bool_input = asthub::NewBoolVar(name);
   // set host
@@ -190,6 +266,10 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
   AddState(mem_state);
   return mem_state;
 }
+
+/****************************************************************/
+// ********            Orignial Feature                 ********//
+/****************************************************************/ 
 
 const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
   // create new var

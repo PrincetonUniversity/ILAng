@@ -10,6 +10,19 @@ namespace ilang {
 
 namespace asthub {
 
+ExprPtr NewBoolVar(const std::string& name, const std::string& label) {
+  return std::make_shared<ExprVar>(name, label);
+}
+
+ExprPtr NewBvVar(const std::string& name, const int& bit_width, const std::string& label) {
+  return std::make_shared<ExprVar>(name, bit_width, label);
+}
+
+ExprPtr NewMemVar(const std::string& name, const int& addr_width,
+                  const int& data_width, const std::string& label) {
+  return std::make_shared<ExprVar>(name, addr_width, data_width, label);
+}
+
 ExprPtr NewBoolVar(const std::string& name) {
   return std::make_shared<ExprVar>(name);
 }

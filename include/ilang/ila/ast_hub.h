@@ -29,6 +29,15 @@ inline AstUidExprOp GetUidExprOp(const ExprPtr& expr) {
 // Variable
 /******************************************************************************/
 /// Create new Boolean variable.
+ExprPtr NewBoolVar(const std::string& name, const std::string& label);
+/// Create new bitvector variable.
+ExprPtr NewBvVar(const std::string& name, const int& bit_width, const std::string& label);
+/// Create new memory variable.
+ExprPtr NewMemVar(const std::string& name, const int& addr_width,
+                  const int& data_width, const std::string& label);
+
+
+/// Create new Boolean variable.
 ExprPtr NewBoolVar(const std::string& name);
 /// Create new bitvector variable.
 ExprPtr NewBvVar(const std::string& name, const int& bit_width);

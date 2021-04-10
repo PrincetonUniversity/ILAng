@@ -23,6 +23,14 @@ public:
   /// Constructor for Memory variable.
   ExprVar(const std::string& name, const int& addr_width,
           const int& data_width);
+  
+    /// Constructor for Boolean variable with label
+  ExprVar(const std::string& name, const std::string& label );
+  /// Constructor for Bitvector variable with label 
+  ExprVar(const std::string& name, const int& bit_width, const std::string& label);
+  /// Constructor for Memory variable with label
+  ExprVar(const std::string& name, const int& addr_width,
+          const int& data_width, const std::string& label);
 
   /// Default destructor.
   ~ExprVar();
@@ -40,8 +48,13 @@ public:
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
+  void set_label(const std::string& label) { label_ = label;}
+  inline std::string label() const { return label_; }
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+
+  std::string label_ = "default" ;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Print Boolean variable.

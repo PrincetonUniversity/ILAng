@@ -509,6 +509,15 @@ public:
   /// \param[in] bit_width bit-vector bit-width.
   ExprRef NewBvInput(const std::string& name, const int& bit_width);
 
+  // AQED Label Feature
+
+  ExprRef NewBoolState(const std::string& name, const std::string& label);
+  ExprRef NewBvState(const std::string& name, const int& bit_width, const std::string& label);
+  ExprRef NewMemState(const std::string& name, const int& addr_width,
+                      const int& data_width, const std::string& label);
+  ExprRef NewBoolInput(const std::string& name, const std::string& label);
+  ExprRef NewBvInput(const std::string& name, const int& bit_width, const std::string& label);
+
   /// \brief Add one initial constraint.
   /// \param[in] init the Boolean type initial constraint.
   void AddInit(const ExprRef& init);

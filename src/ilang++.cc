@@ -604,6 +604,7 @@ Ila::Ila(InstrLvlAbsPtr ptr) : ptr_(ptr) {}
 
 Ila::~Ila() {}
 
+// Declaring states and inputs without labels
 ExprRef Ila::NewBoolState(const std::string& name) {
   auto v = ptr_->NewBoolState(name);
   return ExprRef(v);
@@ -629,6 +630,36 @@ ExprRef Ila::NewBvInput(const std::string& name, const int& bit_width) {
   auto v = ptr_->NewBvInput(name, bit_width);
   return ExprRef(v);
 }
+
+// AQED: Declare states and inputs with labels
+
+ExprRef Ila::NewBoolState(const std::string& name, const std::string& label ) {
+  auto v = ptr_->NewBoolState(name, label);
+  return ExprRef(v);
+}
+
+ExprRef Ila::NewBvState(const std::string& name, const int& bit_width, const std::string& label) {
+  auto v = ptr_->NewBvState(name, bit_width, label);
+  return ExprRef(v);
+}
+
+ExprRef Ila::NewMemState(const std::string& name, const int& addr_width,
+                         const int& data_width, const std::string& label) {
+  auto v = ptr_->NewMemState(name, addr_width, data_width, label);
+  return ExprRef(v);
+}
+
+ExprRef Ila::NewBoolInput(const std::string& name, const std::string& label) {
+  auto v = ptr_->NewBoolInput(name, label);
+  return ExprRef(v);
+}
+
+ExprRef Ila::NewBvInput(const std::string& name, const int& bit_width, const std::string& label) {
+  auto v = ptr_->NewBvInput(name, bit_width, label);
+  return ExprRef(v);
+}
+
+// AQED Feature added
 
 void Ila::AddInit(const ExprRef& init) { ptr_->AddInit(init.get()); }
 

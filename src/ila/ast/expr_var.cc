@@ -24,6 +24,23 @@ ExprVar::ExprVar(const std::string& name, const int& addr_width,
   set_sort(Sort::MakeMemSort(addr_width, data_width));
 }
 
+ExprVar::ExprVar(const std::string& name, const std::string& label ) : Expr(name) {
+  set_sort(Sort::MakeBoolSort());
+  set_label(label);
+}
+
+ExprVar::ExprVar(const std::string& name, const int& bit_width, const std::string& label) : Expr(name) {
+  set_sort(Sort::MakeBvSort(bit_width));
+  set_label(label);
+}
+
+ExprVar::ExprVar(const std::string& name, const int& addr_width,
+                 const int& data_width, const std::string& label)
+    : Expr(name) {
+  set_sort(Sort::MakeMemSort(addr_width, data_width));
+  set_label(label);
+}
+
 ExprVar::~ExprVar() {}
 
 z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,

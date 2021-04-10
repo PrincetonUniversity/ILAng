@@ -160,16 +160,20 @@ public:
   /// \param[in] child pointer to the child-ILA being added.
   void AddChild(const InstrLvlAbsPtr& child);
 
+  // **************************************************************//
+  // *********************** AQED Method **************************//
+  // **************************************************************//
+  
   /// \brief Create one Boolean variable and register as an input.
   /// \param[in] name of the bool input.
   /// \return pointer to the input.
-  const ExprPtr NewBoolInput(const std::string& name);
+  const ExprPtr NewBoolInput(const std::string& name, const std::string& label);
 
   /// \brief Create one Bitvector variable and register as an input.
   /// \param[in] name of the bitvector input.
   /// \param[in] bit_width length of the bitvector variable.
   /// \return pointer to the input.
-  const ExprPtr NewBvInput(const std::string& name, const int& bit_width);
+  const ExprPtr NewBvInput(const std::string& name, const int& bit_width, const std::string& label);
 
   /// \brief Create one Memory variable and register as an input.
   /// \param[in] name of the memory input
@@ -177,24 +181,34 @@ public:
   /// \param[in] data_width data bit-width.
   /// \return pointer to the memory state.
   const ExprPtr NewMemInput(const std::string& name, const int& addr_width,
-                            const int& data_width);
+                            const int& data_width, const std::string& label);
 
   /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
   /// \return pointer to the state variable.
-  const ExprPtr NewBoolState(const std::string& name);
+  const ExprPtr NewBoolState(const std::string& name, const std::string& label);
 
   /// \brief Create one Bitvector variable and register as a state.
   /// \param[in] name of the bitvector state.
   /// \param[in] bit_width value bit-width.
   /// \return pointer to the state variable.
-  const ExprPtr NewBvState(const std::string& name, const int& bit_width);
+  const ExprPtr NewBvState(const std::string& name, const int& bit_width, const std::string& label);
 
   /// \brief Create one Memory variable and register as a state.
   /// \param[in] name of the memory state.
   /// \param[in] addr_width address bit-width.
   /// \param[in] data_width data bit-width.
   /// \return pointer to the memory state.
+  const ExprPtr NewMemState(const std::string& name, const int& addr_width,
+                            const int& data_width, const std::string& label);
+
+  // Original Variable declaration without label
+  const ExprPtr NewBoolInput(const std::string& name);
+  const ExprPtr NewBvInput(const std::string& name, const int& bit_width);
+  const ExprPtr NewMemInput(const std::string& name, const int& addr_width,
+                            const int& data_width);
+  const ExprPtr NewBoolState(const std::string& name);
+  const ExprPtr NewBvState(const std::string& name, const int& bit_width);
   const ExprPtr NewMemState(const std::string& name, const int& addr_width,
                             const int& data_width);
 
