@@ -1,8 +1,10 @@
 branches:
   only:
-    - master
-    - travis
-    - coverity_scan
+#    - master
+#    - travis
+#    - coverity_scan
+#    - fix-ci
+    
 
 git:
   depth: 1
@@ -42,9 +44,9 @@ jobs:
       addons:
         coverity_scan:
           project:
-            name: "Bo-Yuan-Huang/ILAng"
+            name: "PrincetonUniversity/ILAng"
             description: "A modeling and verification platform for SoCs"
-          notification_email: byhuang1992@gmail.com
+          notification_email: ilangservice@princeton.edu
           build_command_prepend: "cd $TRAVIS_BUILD_DIR && mkdir -p build && cd build && cmake .. -DILANG_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/local -DILANG_COVERITY=ON"
           build_command: "make"
           branch_pattern: coverity_scan
