@@ -1,10 +1,9 @@
 branches:
   only:
-    - master
-    - travis
-    - coverity_scan
-    - fix-ci
-    - fix-ci
+#    - master
+#    - travis
+#    - coverity_scan
+#    - fix-ci
     
 
 git:
