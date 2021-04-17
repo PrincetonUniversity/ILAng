@@ -65,6 +65,8 @@ jobs:
       sudo apt-get install flex
       sudo apt-get install z3
       sudo apt-get install libz3-dev
+      sudo apt-get install build-essential
+      sudo apt-get install g++      
     displayName: 'package'
   - script: |
       mkdir -p build 
@@ -85,6 +87,8 @@ jobs:
       sudo apt-get install flex
       sudo apt-get install z3
       sudo apt-get install libz3-dev
+      sudo apt-get install build-essential    
+      sudo apt-get install g++        
     displayName: 'package'
   - script: |
       mkdir -p build
