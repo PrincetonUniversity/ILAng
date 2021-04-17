@@ -1,8 +1,8 @@
 branches:
   only:
-    - master
+    # - master
     - travis
-    - coverity_scan
+    # - coverity_scan
 
 git:
   depth: 1
