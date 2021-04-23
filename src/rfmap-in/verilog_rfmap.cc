@@ -1,0 +1,659 @@
+/// \file verilog_rfmap.cc Verilog Refinement Map Handling
+///  First pass : JSON -> rfmap object
+
+#include <ilang/rfmap-in/verilog_rfmap.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
+#include <ilang/util/container_shortcut.h>
+
+#include <fstream>
+
+#include "nlohmann/json.hpp"
+
+namespace ilang {
+namespace rfmap {
+
+// return npos if no comments in
+static size_t find_comments(const std::string& line) {
+  enum state_t { PLAIN, STR, LEFT } state, next_state;
+  state = PLAIN;
+  size_t ret = 0;
+  for (const auto& c : line) {
+    if (state == PLAIN) {
+      if (c == '/')
+        next_state = LEFT;
+      else if (c == '"')
+        next_state = STR;
+      else
+        next_state = PLAIN;
+    } else if (state == STR) {
+      if (c == '"' || c == '\n')
+        next_state = PLAIN;
+      // the '\n' case is in case we encounter some issue to find
+      // the ending of a string
+      else
+        next_state = STR;
+    } else if (state == LEFT) {
+      if (c == '/') {
+        ILA_CHECK(ret > 0);
+        return ret - 1;
+      } else
+        next_state = PLAIN;
+    }
+    state = next_state;
+    ++ret;
+  }
+  return std::string::npos;
+}
+
+// load_json and remove the comment, if succeed return true
+bool load_json(const std::string& fname, nlohmann::json& j) {
+  std::ifstream fin(fname);
+
+  if (!fin.is_open()) {
+    ILA_ERROR << "Cannot read from file:" << fname;
+    return false;
+  }
+
+  // remove the comments
+  std::string contents;
+  std::string line;
+  while (std::getline(fin, line)) {
+    auto comment_begin = find_comments(line);
+    if (comment_begin != std::string::npos)
+      contents += line.substr(0, comment_begin);
+    else
+      contents += line;
+    contents += "\n";
+  }
+  j = nlohmann::json::parse(contents);
+} // load_json
+
+RfExpr ParseRfMapExpr(const std::string & in) {
+  // TODO
+}
+
+RfExpr ParseRfMapExprJson(nlohmann::json & in) {
+  return ParseRfMapExpr(in.get<std::string>());
+}
+
+bool JsonRfmapParseCond(SingleVarMap & cond_map, nlohmann::json & json_array) {
+  assert(json_array.is_array());
+  bool succ = true;
+  for (const auto & idx_array_pair : json_array.items()) {
+    succ = succ && idx_array_pair.value().is_array() && idx_array_pair.value().size() == 2;
+    if (!idx_array_pair.value().is_array() || idx_array_pair.value().size() != 2)
+      continue;
+
+    RfExpr cond, mapping;
+    for (const auto & index_map_pair : idx_array_pair.value().items()) {
+      if (index_map_pair.key() == "0") {
+        cond = ParseRfMapExprJson(index_map_pair.value());
+      } else if (index_map_pair.key() == "1") {
+        mapping = ParseRfMapExprJson(index_map_pair.value());
+      }
+    }
+    assert(cond.get() != nullptr && mapping.get() != nullptr);
+    cond_map.cond_map.push_back(std::make_pair(cond,mapping));
+  } // for each array_element
+  return succ;
+} // JsonRfmapParseCond
+
+bool JsonRfmapParseMem(ExternalMemPortMap & mem_rfmap , nlohmann::json & json_obj) {
+  assert(json_obj.is_object());
+
+  bool succ = true;
+
+  if (json_obj.contains("wen"))
+    succ = succ && JsonRfmapParseCond(mem_rfmap.wen_map, json_obj["wen"]);
+  if (json_obj.contains("waddr"))
+    succ = succ && JsonRfmapParseCond(mem_rfmap.waddr_map, json_obj["waddr"]);
+  if (json_obj.contains("wdata"))
+    succ = succ && JsonRfmapParseCond(mem_rfmap.wdata_map, json_obj["wdata"]);
+  if (json_obj.contains("ren"))
+    succ = succ && JsonRfmapParseCond(mem_rfmap.ren_map, json_obj["ren"]);
+  if (json_obj.contains("raddr"))
+    succ = succ && JsonRfmapParseCond(mem_rfmap.raddr_map, json_obj["raddr"]);
+  if (json_obj.contains("rdata"))
+    succ = succ && JsonRfmapParseCond(mem_rfmap.rdata_map, json_obj["rdata"]);
+
+  return (succ && json_obj.contains("ren") && json_obj.contains("wen"));
+} // JsonRfmapParseMem
+
+char inline to_space(char in) { return (in == '-' ? ' ' : in); }
+
+bool SecionNameRelaxedMatch(const std::string & in1, const std::string & in2) {
+  if(in1.length() != in2.length())
+    return false;
+  for (size_t idx = 0; idx < in1.length(); ++ idx) {
+    if ( tolower(in1.at(idx)) != tolower(in2.at(idx)) &&
+      (to_space(in1.at(idx)) != to_space(in2.at(idx))) )
+    return false;
+  }
+  return true;
+} // SecionNameRelaxedMatch
+
+nlohmann::json * GetJsonSection(nlohmann::json & in, const std::set<std::string> & sec_names, bool allow_dup = false) {
+  nlohmann::json * ret = NULL;
+  if (!in.is_object())
+    return NULL;
+  for (const auto & n : sec_names) {
+    for (const auto & n_v : in.items() ) {
+      if ( SecionNameRelaxedMatch(n_v.key(), n) ) {
+
+        ILA_ERROR_IF(ret) << "Section " << n << " is duplicated.";
+        if (ret && !allow_dup)
+           return NULL;
+        
+        ret = &(in[n]);
+      }
+    }
+  }
+  return ret;
+} // GetJsonSection
+
+bool JsonRfmapParseSingleSequence(OneBitSignalSequence & out, nlohmann::json & seq) {
+
+  auto get_multipler = [](const std::string & in) -> unsigned {
+    if(in.length() < 2 )
+     return 0;
+    if (in.at(0) != '*')
+      return 0;
+    auto sub = in.substr(1);
+    return StrToInt(sub,10);
+  };
+
+  if(!seq.is_array())
+    return false;
+  OneBitSignalSequence tmp_seq;
+  bool the_last_encountered = false;
+  for(auto & elem : seq.items()){
+    if (the_last_encountered)
+      return false;
+    auto & e = elem.value();
+    if(!(e.is_number_unsigned() || e.is_array() || e.is_string()))
+      return false;
+    if(e.is_number_unsigned())
+      tmp_seq.push_back(e.get<unsigned>());
+    else if(e.is_array()) {
+      if(!JsonRfmapParseSingleSequence(tmp_seq, e))
+        return false;
+    } else if (e.is_string())  {
+      // duplicate the tmp_sequence
+      auto mult = e.get<std::string>();
+      unsigned n_count = get_multipler(mult);
+      unsigned length = tmp_seq.size();
+      if(length == 0 || n_count == 0)
+        return false;
+      for(unsigned iter = 0; iter<n_count; ++ iter) {
+        for(unsigned idx = 0; idx < length ; ++idx) {
+          tmp_seq.push_back(tmp_seq.at(idx));
+        }
+      }
+      the_last_encountered = true;
+    } // if mult
+  } // end of for
+  out.insert(out.end(), tmp_seq.begin(), tmp_seq.end());
+  return true;
+} // JsonRfmapParseSingleSequence
+
+bool JsonRfmapParseSequence(std::map<std::string, OneBitSignalSequence> & out, nlohmann::json & in) {
+  if(!in.is_object())
+    return false;
+  
+  for(const auto & n_seq_pair : in.items()) {
+    const auto & name = n_seq_pair.key();
+    auto & seq = n_seq_pair.value();
+    if(!seq.is_array())
+      return false;
+    if(IN(name, out))
+      return false;
+    auto insert_ret = out.insert(std::make_pair(name, OneBitSignalSequence()));
+    //   [pos (name, seq) , bool]
+    auto & seq_ref = insert_ret.first->second;
+    bool succ = JsonRfmapParseSingleSequence(seq_ref, seq);
+    if (!succ)
+      return false;
+  }
+  return true;
+} // JsonRfmapParseSequence
+
+bool JsonRfmapParseClockFactor(std::map<std::string,ClockSpecification::factor> & out, nlohmann::json & in) {
+  if(!in.is_object())
+    return false;
+  for(const auto & n_obj_pair : in.items()) {
+    const auto & n = n_obj_pair.key();
+    auto & obj = n_obj_pair.value();
+    if(IN(n, out))
+      return false;
+    if(!obj.is_object())
+      return false;
+    ClockSpecification::factor f;
+    auto * high = GetJsonSection(obj, {"high"});
+    auto * low = GetJsonSection(obj, {"low"});
+    auto * offset = GetJsonSection(obj, {"offset"});
+    if(!(high && low))
+      return false;
+
+    if(high) {
+      if(!high->is_number_unsigned())
+        return false;
+      f.high = high->get<unsigned>();
+    }
+
+    if(low) {
+      if(!low->is_number_unsigned())
+        return false;
+      f.low = low->get<unsigned>();
+    }
+
+    if(offset) {
+      if(!offset->is_number_unsigned())
+        return false;
+      f.offset = offset->get<unsigned>();
+    }
+    out[n] = f;
+  } // end for
+  return true;
+} // JsonRfmapParseClockFactor
+
+unsigned gcd(unsigned a, unsigned b) {
+  if(b==0)
+    return a;
+  return gcd(b, a%b);
+}
+
+// least common multiplier
+unsigned lcm(const std::vector<unsigned> & in) {
+  unsigned ans = in.at(0);
+  for(int i = 1; i < in.size(); ++i) {
+    ans = ((in.at(i)*ans)/gcd(in.at(i),ans));
+  }
+  return ans;
+}
+
+bool JsonRfmapConvertFactorToSeq(
+  const std::map<std::string,ClockSpecification::factor> & in,
+  std::map<std::string, OneBitSignalSequence> & out
+  ) {
+  if (in.size() == 0)
+    return false;
+  std::map<std::string, OneBitSignalSequence> seq_no_dup;
+  std::vector<unsigned> cycles;
+  for (const auto & n_factor_pair : in) {
+    const auto & n = n_factor_pair.first;
+    const auto & factor_obj = n_factor_pair.second;
+    auto n_cycle = factor_obj.high + factor_obj.low;
+    cycles.push_back(n_cycle);
+    seq_no_dup[n].resize(factor_obj.high,true);
+    seq_no_dup[n].insert(seq_no_dup.at(n).end(), factor_obj.low, false);
+  } // for each factor
+
+  auto len = lcm(cycles);
+  for (const auto & n_factor_pair : in) {
+    const auto & n = n_factor_pair.first;
+    const auto & factor_obj = n_factor_pair.second;
+    auto n_cycle = factor_obj.high + factor_obj.low;
+    assert(len%n_cycle == 0);
+    auto n_copy = len/n_cycle;
+    auto offset = factor_obj.offset;
+    
+    unsigned idx = offset;
+    unsigned idx_copy = 0;
+    while(!(idx == offset && idx_copy == n_copy)) {
+      
+      out[n].push_back(seq_no_dup[n][idx]);
+
+      if(idx + 1 == n_cycle)
+        ++ idx_copy;
+      idx = (idx + 1)%n_cycle;
+    }
+    assert(out[n].size() == len);
+  }
+  return true;
+} // JsonRfmapConvertFactorToSeq
+
+// ------------------------------------------------------------------------------
+
+
+#define ERRIF(cond,str) do{ ILA_ERROR_IF(cond) << str ; if(cond) return; } while(false)
+#define ENSURE(cond,str) ERRIF(!(cond), str)
+
+VerilogRefinementMap::VerilogRefinementMap
+  (const std::string & varmap_json_file,
+   const std::string & instcond_json_file) : ParseRfExprErrFlag(false) {
+  
+  // this is the first pass
+  nlohmann::json rf_vmap;
+  nlohmann::json rf_cond;
+  load_json(varmap_json_file,   rf_vmap);
+  load_json(instcond_json_file, rf_cond);
+  // now json to -> Rfmap
+  { // state mapping
+    nlohmann::json * state_mapping = GetJsonSection(rf_vmap,{"state mapping"});
+    ERRIF(state_mapping == NULL , "state var mapping is duplicated or missing");
+    for (auto& i : state_mapping->items()) {
+      IlaStateVarMapping svmp;
+      auto sname = i.key(); // ila state name
+      if(i.value().is_string()) {
+        svmp.type = IlaStateVarMapping::StateVarMapType::SINGLE;
+        svmp.single_map.single_map = ParseRfMapExprJson(i.value());
+      } else if (i.value().is_object()) {
+        // External Mem
+        svmp.type = IlaStateVarMapping::StateVarMapType::EXTERNMEM;
+        svmp.externmem_map.push_back(ExternalMemPortMap());
+
+        auto & extmem_ports = i.value();
+        JsonRfmapParseMem(svmp.externmem_map.back(), extmem_ports);
+
+      } else if (i.value().is_array()) {
+        ERRIF( i.value().empty(), ("Empty list for " + sname) );
+        bool are_memports = false;
+        if ( i.value().begin()->is_object() ) {
+          are_memports = true;
+        } else if (i.value().begin()->is_array() ) {
+          are_memports = false;
+        } else
+          ERRIF(true, "Expecting array of list or objects for" + sname);
+
+        if (are_memports) {
+          svmp.type = IlaStateVarMapping::StateVarMapType::EXTERNMEM;
+          for (const auto  & idx_obj_pair : i.value().items()) {
+            ENSURE( idx_obj_pair.value().is_object() , "Expecting array of objects for " + sname);
+
+            svmp.externmem_map.push_back(ExternalMemPortMap());
+
+            auto & extmem_ports = idx_obj_pair.value();
+            JsonRfmapParseMem(svmp.externmem_map.back(), extmem_ports);
+          }
+        } else {
+          svmp.type = IlaStateVarMapping::StateVarMapType::CONDITIONAL;
+          JsonRfmapParseCond(svmp.single_map, i.value() );
+        }
+
+      } // if array of array / array of object
+    ILA_ERROR_IF( IN(sname, ila_state_var_map) ) << "ILA state var : " <<  sname << " has duplicated mapping";
+    ila_state_var_map.emplace(sname, svmp);
+    } // for each state
+  } // state mapping
+
+  { // interface map
+    nlohmann::json * rtl_if_map = GetJsonSection(rf_vmap,{"RTL interface connection"});
+    ERRIF(rtl_if_map == nullptr, "`RTL interface connection` is duplicated or missing" );
+    nlohmann::json * clock_domains = GetJsonSection(*rtl_if_map,{"CLOCK"},true);
+    nlohmann::json * reset_list = GetJsonSection(*rtl_if_map,{"RESET"},true);
+    nlohmann::json * nreset_list = GetJsonSection(*rtl_if_map,{"NRESET"},true);
+    nlohmann::json * reset_domains = GetJsonSection(*rtl_if_map,{"CUSTOMRESET"},true);
+    if(clock_domains) {
+      ENSURE(clock_domains->is_array() || clock_domains->is_string() || clock_domains->is_object(),
+        "clock specification in RTL interface connection should be string/list of string/map:string->list(string)");
+      if(clock_domains->is_string())
+        rtl_interface_connection.clock_domain_defs["default"].push_back(clock_domains->get<std::string>());
+      else if(clock_domains->is_array()){
+        rtl_interface_connection.clock_domain_defs.insert(
+          std::make_pair(std::string("default"), clock_domains->get<std::vector<std::string>>()));
+      } else { // is_object
+        for(const auto & n_l_pair : clock_domains->items()) {
+          const auto & domain_name = n_l_pair.key();
+          std::vector<std::string> pins;
+          ENSURE(n_l_pair.value().is_string() || n_l_pair.value().is_array(), "expect string/array in RTL interface connection");
+          if (n_l_pair.value().is_string()) {
+            pins.push_back(n_l_pair.value().get<std::string>());
+          } else {
+            pins = n_l_pair.value().get<std::vector<std::string>>();
+          }
+          rtl_interface_connection.clock_domain_defs.emplace(
+            domain_name, pins
+          );
+        }
+      } // if is_object
+    } // if (clock_domain)
+
+    if(reset_list)  {
+      if(reset_list->is_string())
+        rtl_interface_connection.reset_pins.push_back(reset_list->get<std::string>());
+      else if(reset_list->is_array()){
+        rtl_interface_connection.reset_pins = reset_list->get<std::vector<std::string>>();
+      }
+    }
+
+    if(nreset_list) {
+      if(nreset_list->is_string())
+        rtl_interface_connection.nreset_pins.push_back(nreset_list->get<std::string>());
+      else if(nreset_list->is_array()){
+        rtl_interface_connection.nreset_pins = nreset_list->get<std::vector<std::string>>();
+      }
+    }
+    if(reset_domains) {
+      ENSURE(reset_domains->is_array() || reset_domains->is_string() || reset_domains->is_object(),
+        "clock specification in RTL interface connection should be string/list of string/map:string->list(string)");
+      if(reset_domains->is_string())
+        rtl_interface_connection.custom_reset_domain_defs["default"].push_back(reset_domains->get<std::string>());
+      else if(reset_domains->is_array()){
+        rtl_interface_connection.custom_reset_domain_defs.insert(
+          std::make_pair(std::string("default"), reset_domains->get<std::vector<std::string>>()));
+      } else { // is_object
+        for(const auto & n_l_pair : reset_domains->items()) {
+          const auto & domain_name = n_l_pair.key();
+          std::vector<std::string> pins;
+          ENSURE(n_l_pair.value().is_string() || n_l_pair.value().is_array(), "expect string/array in RTL interface connection");
+          if (n_l_pair.value().is_string()) {
+            pins.push_back(n_l_pair.value().get<std::string>());
+          } else {
+            pins = n_l_pair.value().get<std::vector<std::string>>();
+          }
+          rtl_interface_connection.custom_reset_domain_defs.emplace(
+            domain_name, pins
+          );
+        }
+      } // if is_object
+    } // if reset custom domain
+  } // interface map
+
+  { // reset section parsing
+    nlohmann::json * reset_section = GetJsonSection(rf_vmap,{"reset"});
+    if(reset_section) {
+      nlohmann::json * initial_state = GetJsonSection(*reset_section,{"initial-state"});
+      nlohmann::json * cycle = GetJsonSection(*reset_section,{"cycles"});
+      nlohmann::json * customreset = GetJsonSection(*reset_section,{"custom-seq"});
+      if (initial_state) {
+        ENSURE(initial_state->is_object() , "initial state should be map:name->value");
+        for(const auto & n_v_pair : initial_state->items()) {
+          const auto & sn = n_v_pair.key();
+          RfExpr val = ParseRfMapExprJson(n_v_pair.value());
+          ERRIF(IN(sn, reset_specification.initial_state), "duplicated sname for initial-state in reset" );
+          reset_specification.initial_state[sn] = val;
+        }
+      } // initial state
+
+      if (cycle) {
+        ENSURE(cycle->is_number_unsigned(), "cycles in reset should be unsigned integer");
+        reset_specification.reset_cycle = cycle->get<unsigned>();
+      }
+
+      if (customreset) {
+        bool succ = JsonRfmapParseSequence(reset_specification.custom_reset_sequence, *customreset);
+        ENSURE(succ, "Custom Reset Sequence error!");
+      }
+
+    } // if reset_section
+  } // reset
+
+  { // clock section
+    nlohmann::json * clock_section = GetJsonSection(rf_vmap,{"clock"});
+    if (clock_section) {
+      nlohmann::json * factor_section = GetJsonSection(*clock_section, {"factor"}, true);
+      nlohmann::json * custom_section = GetJsonSection(*clock_section, {"custom"}, true);
+      ENSURE(factor_section || custom_section, "clock section must contain factor/custom field");
+      ERRIF(factor_section && custom_section, "Cannot have both `factor` and `custom` section");
+      if (custom_section) {
+        nlohmann::json * length = GetJsonSection(*custom_section, {"length"});
+        ENSURE(length, "`length` field is needed for custom section");
+        ENSURE(length->is_number_unsigned(), "length field must be unsigned integer");
+        clock_specification.gcm_period = length->get<unsigned>();
+        nlohmann::json * clocks = GetJsonSection(*custom_section, {"clocks"});
+        ENSURE(clocks, "`clocks` field is needed for custom section");
+        bool succ = JsonRfmapParseSequence(clock_specification.custom_clock_sequence, *clocks);
+        ENSURE(succ, "Custom Clock error!");
+      } else {
+        // factor_section
+        bool succ = 
+          JsonRfmapParseClockFactor(clock_specification.custom_clock_factor, *factor_section );
+        succ = succ && 
+          JsonRfmapConvertFactorToSeq(
+            clock_specification.custom_clock_factor,
+            clock_specification.custom_clock_sequence);
+        ENSURE(succ, "Custom clock sequence error");
+      }
+    } // if clock section
+  } // clock
+
+  { // uf section
+    nlohmann::json * func_section = GetJsonSection(rf_vmap,{"functions"});
+    if (func_section) {
+
+    } // if func_section
+  } // uf section
+
+  
+  if (ParseRfExprErrFlag) {
+    // TODO:
+  }
+
+
+} // VerilogRefinementMap::VerilogRefinementMap
+
+bool is_valid_id_name(const std::string & in) {
+  if(in.empty())
+    return false;
+  if(!isalpha(in.at(0)) && in.at(0)!='_')
+    return false;
+  for(size_t idx = 1; idx < in.size(); ++ idx)
+    if (!isalnum(in.at(idx)))
+      return false;
+  return true;
+}
+
+#undef ERRIF
+#undef ENSURE
+#define ERRIF(cond,str) do{ ILA_ERROR_IF(cond) << str ; if(cond) return false; } while(false)
+#define ENSURE(cond,str) ERRIF(!(cond),str)
+
+bool VerilogRefinementMap::SelfCheckField() const {
+  // check module name
+  ERRIF(ParseRfExprErrFlag, "Error in parsing refinement expressions" );
+  
+  if(!model_names.IlaModuleName.empty()) {
+    ERRIF( !is_valid_id_name(model_names.IlaModuleName),
+          "ILA instance name "
+        << model_names.IlaModuleName
+        << " is not valid");
+  }
+
+  if(!model_names.RtlModuleName.empty()) {
+    ERRIF( !is_valid_id_name(model_names.RtlModuleName),
+          "RTL instance name "
+        << model_names.RtlModuleName
+        << " is not valid");
+  }
+
+  for (const auto & n_map: ila_state_var_map) {
+    ENSURE( !(n_map.second.externmem_map.empty()) ||
+    (n_map.second.single_map.single_map.get() != nullptr) ||
+    !(n_map.second.single_map.cond_map.empty()) , "state var map cannot be empty for " + n_map.first);
+    ERRIF( !(n_map.second.externmem_map.empty()) &&
+      (n_map.second.single_map.single_map.get() != nullptr) , "duplicate state var map for " + n_map.first );
+    ERRIF( !(n_map.second.single_map.cond_map.empty()) &&
+      (n_map.second.single_map.single_map.get() != nullptr) , "duplicate state var map for " + n_map.first );
+    ERRIF( !(n_map.second.externmem_map.empty()) &&
+      (!n_map.second.single_map.cond_map.empty()) , "duplicate state var map for " + n_map.first );
+  }
+
+  std::set<std::string> custom_reset_seq_name;
+  std::set<std::string> custom_clock_seq_name;
+  { // for reset, valid name, domain names are defs
+    unsigned seq_len = 0;
+    for (const auto & n_seq : reset_specification.custom_reset_sequence) {
+      ERRIF( !is_valid_id_name(n_seq.first), 
+              "Custom reset sequence name "
+              << n_seq.first
+              << " is not valid" );
+      ERRIF( IN(n_seq.first, custom_reset_seq_name) , "reset sequence name " + n_seq.first + "has been used multiple times" );
+      
+      custom_reset_seq_name.insert(n_seq.first);
+
+      ERRIF( n_seq.second.size() == 0, "Empty reset sequence for " + n_seq.first );
+      if (seq_len == 0)
+        seq_len = n_seq.second.size();
+      ERRIF( seq_len !=  reset_specification.reset_cycle , "Customized reset sequence does not match the cycle count" );
+
+      ERRIF( seq_len != n_seq.second.size(), "Reset sequence should be of same length" );      
+    }
+  }
+
+  { // for clock, valid name, check no empty sequence, sequence of the same length
+    unsigned seq_len = 0;
+    for (const auto & n_seq : clock_specification.custom_clock_sequence) {
+      ERRIF( !is_valid_id_name(n_seq.first), 
+              "Custom clock sequence name "
+              << n_seq.first
+              << " is not valid" );
+      ERRIF( IN(n_seq.first, custom_clock_seq_name) , "clock sequence name " + n_seq.first + "has been used multiple times" );
+      
+      custom_clock_seq_name.insert(n_seq.first);
+
+      ERRIF( n_seq.second.size() == 0, "Empty clock sequence for " + n_seq.first );
+      if (seq_len == 0)
+        seq_len = n_seq.second.size();
+      ERRIF( seq_len !=  clock_specification.gcm_period, "Customized clock does not match the specified length requirement" );
+
+      ERRIF( seq_len != n_seq.second.size(), "Clock sequence should be of same length" );      
+    }
+  }
+
+  {
+    for (const auto & clkd : custom_clock_seq_name) {
+      ERRIF( IN(clkd, custom_reset_seq_name) , "Name " + clkd + " has been used multiple times" );
+    }
+    for (const auto & rstd : custom_reset_seq_name) {
+      ERRIF( IN(rstd, custom_clock_seq_name) , "Name " + rstd + " has been used multiple times" );
+    }
+  }
+
+  { // for each interface check domain names are good
+    for (const auto & n_clks : rtl_interface_connection.clock_domain_defs) {
+      ERRIF( !IN(n_clks.first, custom_clock_seq_name), "clock domain " + n_clks.first + " is not found" );
+    }
+    for (const auto & n_rsts : rtl_interface_connection.custom_reset_domain_defs) {
+      ERRIF( !IN(n_rsts.first, custom_reset_seq_name), "reset domain " + n_rsts.first + " is not found" );
+    }
+  }
+
+  // check trackers, recorders, monitor names are okay
+
+  { // GeneralVerilogMonitor, for ids are okay, no bad names
+    std::set<std::string> monitor_names;
+    for (const auto & n_st : phase_tracker) {
+      ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
+      ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
+      monitor_names.insert(n_st.first);
+    }
+    for (const auto & n_st : value_recorder) {
+      ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
+      ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
+      monitor_names.insert(n_st.first);
+    }
+    for (const auto & n_st : customized_monitor) {
+      ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
+      ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
+      monitor_names.insert(n_st.first);
+    }
+  }
+  // no need to check for inst_cond  
+} // bool VerilogRefinementMap::SelfCheck() const
+
+#undef ERRIF
+#undef ENSURE
+
+} // namespace rfmap
+} // namespace ilang
