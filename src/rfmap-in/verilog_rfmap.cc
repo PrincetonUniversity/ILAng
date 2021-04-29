@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include "nlohmann/json.hpp"
+#include "interpreter.h"
 
 namespace ilang {
 namespace rfmap {
@@ -69,8 +70,23 @@ bool load_json(const std::string& fname, nlohmann::json& j) {
   j = nlohmann::json::parse(contents);
 } // load_json
 
+
+
+static bool ParseRfExprErrFlag = false;
+
 RfExpr ParseRfMapExpr(const std::string & in) {
   // TODO
+  Vexp::Interpreter intp;
+  std::stringstream ss;
+  ss << in;
+  intp.switchInputStream(&ss);
+  try{
+    intp.parse();
+    return intp.GetAstRoot();
+  } catch (verilog_expr::VexpException &e) {
+    ParseRfExprErrFlag = true;
+  }
+  return nullptr;
 }
 
 RfExpr ParseRfMapExprJson(nlohmann::json & in) {
@@ -120,7 +136,7 @@ bool JsonRfmapParseMem(ExternalMemPortMap & mem_rfmap , nlohmann::json & json_ob
   return (succ && json_obj.contains("ren") && json_obj.contains("wen"));
 } // JsonRfmapParseMem
 
-char inline to_space(char in) { return (in == '-' ? ' ' : in); }
+char inline to_space(char in) { return ( (in == '-' || in == '_') ? ' ' : in); }
 
 bool SecionNameRelaxedMatch(const std::string & in1, const std::string & in2) {
   if(in1.length() != in2.length())
@@ -313,6 +329,150 @@ bool JsonRfmapConvertFactorToSeq(
   return true;
 } // JsonRfmapConvertFactorToSeq
 
+#define ERRIF(cond, s) do { if(cond) return (s); } while(0)
+#define ENSURE(cond, s) ERRIF(!(cond), (s))
+std::string JsonRfMapParseVarDefs(std::map<std::string, GeneralVerilogMonitor::VarDef> & var_defs, nlohmann::json & def_field) {
+  
+  ENSURE(def_field.is_array(), "`defs` field should be list of [name, width, type]");
+  for (auto & one_def : def_field) {
+    ENSURE(one_def.is_array(), "`defs` field should be list of [name, width, type]");
+    auto pos = one_def.begin();
+
+    ENSURE( pos != one_def.end() && pos->is_string(), "`defs` field should be list of [name, width, type]");
+    auto var_name = pos->get<std::string>();
+    ENSURE(!IN(var_name,var_defs), "var " + var_name + " has been defined");
+
+    ++ pos;
+    ENSURE( pos != one_def.end() && pos->is_number_unsigned(), "`defs` field should be list of [name, width, type]");
+    var_defs[var_name].width = pos->get<unsigned>();
+    ERRIF(var_defs[var_name].width == 0, "Definition of " + var_name + " has 0 width");
+    
+    ++ pos;
+    ENSURE( pos != one_def.end() && pos->is_string(), "`defs` field should be list of [name, width, type]");
+    auto tp = pos->get<std::string>();
+    ENSURE( SecionNameRelaxedMatch(tp, "reg") ||  SecionNameRelaxedMatch(tp, "wire") , "`defs` field should be list of [name, width, type (wire/reg)]" );
+
+    var_defs[var_name].type = SecionNameRelaxedMatch(tp, "reg") ? 
+      GeneralVerilogMonitor::VarDef::var_type::REG :
+      GeneralVerilogMonitor::VarDef::var_type::WIRE;
+    ++ pos;
+    ENSURE( pos == one_def.end() , "`defs` expects 3-element tuple" ); 
+  }
+  return "";
+}
+
+std::string JsonRfmapParsePhaseTracker(PhaseTracker & tracker, nlohmann::json & monitor) {
+  auto * event_alias = GetJsonSection(monitor, {"event-alias"});
+  auto * rules = GetJsonSection(monitor, {"rules"});
+  auto * aux_var = GetJsonSection(monitor, {"aux-var"});
+  ERRIF(rules == NULL, "`phase tracker` needs `rules` field");
+  if(event_alias) {
+    ERRIF(!event_alias->is_object(), "`event-alias` expects map:name->expr" );
+    for (auto & name_val_pair : event_alias->items()) {
+      const auto & vn = name_val_pair.key();
+      ERRIF(IN(vn,tracker.event_alias), "`"+vn+"` is already defined.");
+      ERRIF(!name_val_pair.value().is_string(), "expecting string in event-alias");
+      tracker.event_alias.emplace(vn, ParseRfMapExprJson(name_val_pair.value()));
+    }
+  }
+
+  if (aux_var) {
+    auto errmsg = JsonRfMapParseVarDefs(tracker.var_defs, *aux_var);
+    ENSURE(errmsg.empty(), errmsg);
+  }
+
+  assert(rules);
+  ENSURE(rules->is_array(), "`rules` field should be list of objects");
+  for(auto & stage : *rules) {
+    ENSURE(rules->is_object(), "`rules` field should be list of objects");
+    auto * enter = GetJsonSection(stage, {"enter"});
+    auto * exit = GetJsonSection(stage, {"exit"});
+    auto * stage_name = GetJsonSection(stage, {"name"});
+    ENSURE(enter && exit, "`rules` object must contain `enter` and `exit` events");
+    ENSURE(enter->is_object(), "`enter` should contain `event` and (optional) `action`");
+    ENSURE(exit->is_object(), "`exit` should contain `event` and (optional) `action`");
+    auto * enter_event = GetJsonSection(*enter, {"event"});
+    auto * exit_event = GetJsonSection(*exit, {"event"});
+    auto * enter_action = GetJsonSection(*enter, {"action"});
+    auto * exit_action = GetJsonSection(*exit, {"action"});
+    ENSURE(enter_event, "`enter` should contain `event` and (optional) `action`");
+    ENSURE(exit_event, "`exit` should contain `event` and (optional) `action`");
+    ENSURE(enter_event->is_string(), "`enter` -> `event` should be a string");
+    ENSURE(exit_event->is_string(), "`exit` -> `event` should be a string");
+
+    tracker.rules.push_back(PhaseTracker::Rule());
+    auto & ws = tracker.rules.back();
+    if(stage_name) {
+      ENSURE(stage_name->is_string(), "`name` of a phase should be string");
+      ws.stage_name = stage_name->get<std::string>();
+    }
+    ws.enter_rule = ParseRfMapExprJson(*enter_event);
+    ws.exit_rule = ParseRfMapExprJson(*exit_event);
+
+    if (enter_action) {
+      ENSURE(enter_action->is_string(), "`action` should be a string");
+      auto action_str = enter_action->get<std::string>();
+      auto actions = Split(action_str, ";");
+      for(auto & a : actions) {
+        StrTrim(a);
+        if(a.empty())
+          continue;
+        auto pos = a.find("<=");
+        ERRIF(pos == std::string::npos, "`action` should be `LHS <= RHS ; ...`");
+        auto LHS = a.substr(0,pos);
+        auto RHS = a.substr(pos+2);
+        PhaseTracker::Assignment assign;
+        StrTrim(LHS);
+        assign.LHS = LHS;
+        assign.RHS = ParseRfMapExpr(RHS);
+        ws.enter_action.push_back(assign);
+      } // for each action
+    } // if (enter_action)
+
+    if (exit_action) {
+      ENSURE(exit_action->is_string(), "`action` should be a string");
+      auto action_str = exit_action->get<std::string>();
+      auto actions = Split(action_str, ";");
+      for(auto & a : actions) {
+        StrTrim(a);
+        if(a.empty())
+          continue;
+        auto pos = a.find("<=");
+        ERRIF(pos == std::string::npos, "`action` should be `LHS <= RHS ; ...`");
+        auto LHS = a.substr(0,pos);
+        auto RHS = a.substr(pos+2);
+        PhaseTracker::Assignment assign;
+        StrTrim(LHS);
+        assign.LHS = LHS;
+        assign.RHS = ParseRfMapExpr(RHS);
+        ws.exit_action.push_back(assign);
+      } // for each action
+    } // exit_action
+  } // for each stage
+
+  return "";
+}
+
+std::string JsonRfmapParseValueRecorder(ValueRecorder & tracker, nlohmann::json & monitor) {
+  auto * cond = GetJsonSection(monitor, {"condition", "cond"});
+  auto * val = GetJsonSection(monitor,{"value", "val"});
+  auto * width = GetJsonSection(monitor, {"width", "w"});
+  ENSURE(cond && cond->is_string(), "`cond` field should be a string");
+  ENSURE(val && val->is_string(), "`val` field should be a string");
+  tracker.condition = ParseRfMapExprJson(*cond);
+  tracker.value = ParseRfMapExprJson(*val);
+  if(width && width->is_number_unsigned()) {
+    tracker.width = width->get<unsigned>();
+  }
+  else
+    tracker.width = 0;
+  return  "";
+}
+
+#undef ENSURE
+#undef ERRIF
+
+
 // ------------------------------------------------------------------------------
 
 
@@ -321,8 +481,10 @@ bool JsonRfmapConvertFactorToSeq(
 
 VerilogRefinementMap::VerilogRefinementMap
   (const std::string & varmap_json_file,
-   const std::string & instcond_json_file) : ParseRfExprErrFlag(false) {
+   const std::string & instcond_json_file) {
   
+  ParseRfExprErrFlag = false;
+
   // this is the first pass
   nlohmann::json rf_vmap;
   nlohmann::json rf_cond;
@@ -511,15 +673,217 @@ VerilogRefinementMap::VerilogRefinementMap
   { // uf section
     nlohmann::json * func_section = GetJsonSection(rf_vmap,{"functions"});
     if (func_section) {
-
+      ENSURE(func_section->is_object(), "Expect `functions` to be map:name->list of invocation ");
+      for(auto & n_invocation_pair : func_section->items()) {
+        const auto & n = n_invocation_pair.key();
+        auto & invocations = n_invocation_pair.value();
+        auto ret = uf_application.insert(std::make_pair(n, UninterpretedFunctionApplication()));
+        auto & apply_obj = ret.first->second; // point to the UninterpretedFunctionApplication object
+        ENSURE(invocations.is_array(), "Expect `functions` to be map:name->list of invocation");
+        for (auto & elem : invocations) {
+          ENSURE(elem.is_object(), "Expect `functions` to be map:name->list of invocation(object)");
+          auto * result = GetJsonSection(elem,{"result"});
+          auto * arg = GetJsonSection(elem, {"arg"});
+          ENSURE(result && arg, "Expect invocation object has `result` and `arg` field");
+          ENSURE(result->is_string(), "Expect type string in `result` field of invocation object");
+          ENSURE(arg->is_array(), "Expect type list(string) in `arg` field of invocation object");
+          apply_obj.func_applications.push_back(UninterpretedFunctionApplication::Apply());
+          auto & curr_invocation = apply_obj.func_applications.back();
+          curr_invocation.result_map = ParseRfMapExprJson(*result);
+          std::vector<std::string> argList = arg->get<std::vector<std::string>>();
+          for (const auto & arg : argList)
+            curr_invocation.arg_map.push_back(ParseRfMapExpr(arg));
+        }
+      } // for each invocation
     } // if func_section
   } // uf section
+  { // additional mapping & assumptions
+    nlohmann::json * additonal_section = GetJsonSection(rf_vmap,{"additional mapping"});
+    if(additonal_section) {
+      ENSURE(additonal_section->is_array(), "`additional mapping` section should be a list of string");
+      for(auto & pstr : *additonal_section) {
+        ENSURE(pstr.is_string(), "`additional mapping` section should be a list of string");
+        additional_mapping.push_back(ParseRfMapExprJson(pstr));
+      }
+    } // if additional mapping
 
+    nlohmann::json * assumption_section = GetJsonSection(rf_vmap,{"assumptions"});
+    if(assumption_section) {
+      ENSURE(assumption_section->is_array(),  "`assumptions` section should be a list of string");
+      for(auto & pstr : *assumption_section) {
+        ENSURE(pstr.is_string(), "`assumptions` section should be a list of string");
+        assumptions.push_back(ParseRfMapExprJson(pstr));
+      }
+    }
+  } // additional mapping & assumptions
+
+  { // phase tracker, value recorder, customized ones
+    nlohmann::json * monitor_section = GetJsonSection(rf_vmap,{"monitor"});
+    if(monitor_section) {
+      ENSURE(monitor_section->is_object(), "`monitor` section should be a map");
+      for(auto & name_monitor_pair : monitor_section->items()) {
+        auto name = name_monitor_pair.key();
+        
+        ERRIF(IN(name,customized_monitor), "monitor `"+name+"` has been defined.");
+        ERRIF(IN(name,phase_tracker),      "monitor `"+name+"` has been defined.");
+        ERRIF(IN(name,value_recorder),     "monitor `"+name+"` has been defined.");
+
+        auto & monitor = name_monitor_pair.value();
+        auto * template_field = GetJsonSection(monitor,{"template"});
+        if(template_field) {
+          ENSURE(template_field->is_string(), "`template` field should be string");
+          auto template_name = template_field->get<std::string>();
+          if(SecionNameRelaxedMatch(template_name,"phase tracker")) {
+            phase_tracker.emplace(name, PhaseTracker());
+            std::string errmsg = JsonRfmapParsePhaseTracker(phase_tracker.at(name), monitor);
+            ENSURE(errmsg.empty(), errmsg);
+          } else if (SecionNameRelaxedMatch(template_name,"value recorder")) {
+            value_recorder.emplace(name, ValueRecorder());
+            std::string errmsg = JsonRfmapParseValueRecorder(value_recorder.at(name), monitor);
+            ENSURE(errmsg.empty(), errmsg);
+          } else {
+            ERRIF(true, "template name `" +template_name+"` is not recognized." );
+          }
+        // end if has template field
+        } else {
+          customized_monitor.emplace(name, GeneralVerilogMonitor());
+          auto & mnt_ref = customized_monitor.at(name);
+          { // inline verilog
+            // has no template
+            auto * verilog_field = GetJsonSection(monitor,{"verilog"});
+            auto * verilog_file_field = GetJsonSection(monitor,{"verilog-from-file"});
+            
+            ERRIF(verilog_field && verilog_file_field, "`verilog` or `verilog-from-file` fields are mutual exclusive");
+            
+            if(verilog_field) {
+              if( verilog_field->is_string() ) {
+                mnt_ref.verilog_inline = verilog_field->get<std::string>();
+              } else {
+                ENSURE(verilog_field->is_array() , "`verilog` field should be a list of string" );
+                for (auto & ps : *verilog_field) {
+                  ENSURE(ps.is_string(), "`verilog` field should be a list of string");
+                  mnt_ref.verilog_inline += ps.get<std::string>() + "\n";
+                }
+              }
+            } else if (verilog_file_field) {
+              ENSURE(verilog_file_field->is_string(), "`verilog-from-file` expects a string (file name)");
+              auto fname = verilog_file_field->get<std::string>();
+              std::ifstream fin(fname);
+              ENSURE(fin.is_open(), "Cannot read from " + fname);
+              {
+                std::stringstream buffer;
+                buffer << fin.rdbuf();
+                mnt_ref.verilog_inline = buffer.str();
+              }
+            } // verilog_file_field : from file
+          } // inline verilog
+
+          { // append verilog outside the module
+            // has no template
+            auto * verilog_field = GetJsonSection(monitor,{"append-verilog"});
+            auto * verilog_file_field = GetJsonSection(monitor,{"append-verilog-from-file"});
+            
+            ERRIF(verilog_field && verilog_file_field, "`append-verilog` or `append-verilog-from-file` fields are mutual exclusive");
+            
+            if(verilog_field) {
+              if( verilog_field->is_string() ) {
+                mnt_ref.verilog_append = verilog_field->get<std::string>();
+              } else {
+                ENSURE(verilog_field->is_array() , "`append-verilog` field should be a list of string" );
+                for (auto & ps : *verilog_field) {
+                  ENSURE(ps.is_string(), "`append-verilog` field should be a list of string");
+                  mnt_ref.verilog_append += ps.get<std::string>() + "\n";
+                }
+              }
+            } else if (verilog_file_field) {
+              ENSURE(verilog_file_field->is_string(), "`append-verilog-from-file` expects a string (file name)");
+              auto fname = verilog_file_field->get<std::string>();
+              std::ifstream fin(fname);
+              ENSURE(fin.is_open(), "Cannot read from " + fname);
+              {
+                std::stringstream buffer;
+                buffer << fin.rdbuf();
+                mnt_ref.verilog_append = buffer.str();
+              }
+            } // append-verilog_file_field : from file
+          } // verilog_append verilog
+
+          auto * ref_field = GetJsonSection(monitor,{"refs"});
+          if (ref_field)
+          { // refs
+            ENSURE(ref_field->is_array(), "`refs` field should be a list of string");
+            for ( auto & p : *ref_field) {
+              ENSURE(p.is_string(), "`refs` field should be a list of string");
+              auto var_name = p.get<std::string>();
+              ILA_WARN_IF(IN(var_name, mnt_ref.var_uses)) << "`" + var_name+"` has been declared already";
+              mnt_ref.var_uses.insert( p.get<std::string>() ); 
+            }
+          } // if ref_field
+
+          auto * def_field = GetJsonSection(monitor,{"defs"});
+          if (def_field)
+          { // defs
+            auto err_msg = JsonRfMapParseVarDefs(  mnt_ref.var_defs , *def_field);
+            ENSURE(err_msg.empty(), err_msg);
+          } // if def_field
+        } // else if it is verilog monitor (general)
+      } // for each monitor
+    } // if has monitor field
+  } // monitor block
   
+  // ---------------- inst_cond ------------------------ //
+  {
+    auto * instrs = GetJsonSection(rf_cond, {"instructions"});
+    auto * invariants = GetJsonSection(rf_cond, {"global invariants"});
+    if(instrs) {
+      ENSURE(instrs->is_array(), "`instructions` should be array of object");
+      for(auto & instr : *instrs) {
+        ENSURE(instr.is_object() , "`instructions` should be array of object");
+        auto * instr_name = GetJsonSection(instr, {"instruction"});
+        auto * ready_bnd = GetJsonSection(instr, {"ready-bound"});
+        auto * ready_signal = GetJsonSection(instr, {"ready-signal"});
+        auto * max_bound = GetJsonSection(instr, {"max-bound"});
+        auto * start_condition = GetJsonSection(instr, {"start-condition"});
+        ENSURE(instr_name && instr_name->is_string(), "`instruction` field should be a string");
+        ERRIF(ready_bnd && ready_signal, "`ready bound` and `ready signal` are mutual exclusive");
+        ENSURE(ready_bnd || ready_signal , "You must specify one of `ready bound` and `ready signal`");
+        auto iname = instr_name->get<std::string>();
+        inst_complete_cond.emplace(iname,InstructionCompleteCondition());
+        auto & ws = inst_complete_cond.at(iname);
+        
+        ws.instruction_name = iname;
+        if(ready_bnd) {
+          ENSURE(ready_bnd->is_number_unsigned(), "`ready-bound` should be an unsigned number");
+          ws.ready_bound = ready_bnd->get<unsigned>();
+        } else { // ready_signal
+          ENSURE(ready_signal->is_string(), "`ready-signal` should be a string");
+          ws.ready_signal = ParseRfMapExprJson(*ready_signal);
+        }
+
+        if(max_bound) {
+          ENSURE(max_bound->is_number_unsigned(), "`max_bound` should be an unsigned number");
+          ws.max_bound = max_bound->get<unsigned>();
+        } 
+        if (start_condition) {
+          ENSURE(start_condition->is_string(), "`start_condition` should be a string");
+          ws.start_condition = ParseRfMapExprJson(*start_condition);
+        }
+      } // for each instr`
+    } // if instrs
+
+    if (invariants) {
+      ENSURE(invariants->is_array(), "`global-invariants` should be an array of strings");
+      for(auto & inv : *invariants) {
+        ENSURE(inv.is_string(), "`global-invariants` should be an array of strings");
+        global_invariants.push_back(ParseRfMapExprJson(inv));
+      }
+    } // if invariant
+  } // inst cond
+
+
   if (ParseRfExprErrFlag) {
     // TODO:
   }
-
 
 } // VerilogRefinementMap::VerilogRefinementMap
 
@@ -633,10 +997,19 @@ bool VerilogRefinementMap::SelfCheckField() const {
 
   { // GeneralVerilogMonitor, for ids are okay, no bad names
     std::set<std::string> monitor_names;
+    std::set<std::string> var_def_names;
     for (const auto & n_st : phase_tracker) {
       ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
       ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
       monitor_names.insert(n_st.first);
+      for (const auto & var_def : n_st.second.event_alias ) {
+        ERRIF( IN(var_def.first, var_def_names) , "Variable " + n_st.first + " has been defined already" );
+        var_def_names.insert(var_def.first);
+      }
+      for (const auto & var_def : n_st.second.var_defs ) {
+        ERRIF( IN(var_def.first, var_def_names) , "Variable " + n_st.first + " has been defined already" );
+        var_def_names.insert(var_def.first);
+      }
     }
     for (const auto & n_st : value_recorder) {
       ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
@@ -647,6 +1020,11 @@ bool VerilogRefinementMap::SelfCheckField() const {
       ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
       ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
       monitor_names.insert(n_st.first);
+      
+      for (const auto & var_def : n_st.second.var_defs ) {
+        ERRIF( IN(var_def.first, var_def_names) , "Variable " + n_st.first + " has been defined already" );
+        var_def_names.insert(var_def.first);
+      }
     }
   }
   // no need to check for inst_cond  

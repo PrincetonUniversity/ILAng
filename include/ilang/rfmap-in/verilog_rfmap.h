@@ -125,7 +125,8 @@ struct GeneralVerilogMonitor {
     unsigned width;
   }; // VarDef
 
-  std::vector<std::string> verilog_inline;
+  std::string verilog_inline; // handle concatnation/load from file etc
+  std::string verilog_append; //
   std::map<std::string, VarDef> var_defs;
   std::set<std::string> var_uses;
 }; // GeneralVerilogMonitor 
@@ -159,6 +160,7 @@ struct PhaseTracker {
   using VarDef = GeneralVerilogMonitor::VarDef;
   // name to defs
   std::map<std::string, VarDef> var_defs;
+  std::map<std::string, RfExpr> event_alias;
   std::vector<Rule> rules;
 };
 
@@ -169,7 +171,7 @@ struct InstructionCompleteCondition{
   enum class ConditionType {BOUND, SIGNAL} type;
   unsigned ready_bound;
   unsigned max_bound;
-  std::vector<RfExpr> start_condition;
+  RfExpr start_condition;
   RfExpr ready_signal;
 }; // 
 
@@ -207,8 +209,6 @@ struct VerilogRefinementMap {
   VerilogRefinementMap(const std::string & varmap_json_file,
                        const std::string & instcond_json_file);
   
-private:
-  bool ParseRfExprErrFlag;
 }; // VerilogRefinementMap
 
 } // namespace ilang
