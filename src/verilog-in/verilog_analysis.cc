@@ -635,7 +635,7 @@ SignalInfoBase VerilogAnalyzer::get_signal(
     const std::string& net_name,
     const std::map<std::string, int>* const width_info) const {
   SignalInfoBase bad_signal("", "", 0, hierarchical_name_type::NONE,
-                            vlg_loc_t());
+                            vlg_loc_t(), 0);
 
   if (_bad_state_return())
     return bad_signal;
@@ -834,6 +834,15 @@ bool VerilogAnalyzer::get_hierarchy_from_full_name(
 
 // ------------------- signal info base ----------------------------------
 
+unsigned addr_range_to_width(ast_identifier id, const std::string& full_name,
+                        const VerilogAnalyzer* _ana, int width) {
+  if(id->range_or_idx == ID_HAS_RANGES && id->ranges && id->ranges->items > 0) {
+    ast_range * range = (ast_range *) id->ranges->head;
+    return range_to_width(range, full_name, _ana, width);
+  }
+  return 0;
+}
+
 unsigned range_to_width(ast_range* range, const std::string& full_name,
                         const VerilogAnalyzer* _ana, int width = -1) {
   if (range == NULL)
@@ -878,7 +887,9 @@ SignalInfoPort::SignalInfoPort(
                                         : (IN_p(full_name, width_info)
                                                ? width_info->at(full_name)
                                                : -1)),
-                     tp, VerilogAnalyzer::Meta2Loc(def->meta)),
+                     tp, VerilogAnalyzer::Meta2Loc(def->meta),
+                     0 // not an array
+                     ),
       _def(def) { // ILA_WARN_IF( def->range == NULL ) << "Verilog Analyzer:
                   // signal "<< full_name <<" has no range.";
   ILA_WARN_IF(_width == 0)
@@ -898,7 +909,9 @@ SignalInfoReg::SignalInfoReg(ast_reg_declaration* def,
                                         : (IN_p(full_name, width_info)
                                                ? width_info->at(full_name)
                                                : -1)),
-                     tp, VerilogAnalyzer::Meta2Loc(def->meta)),
+                     tp, VerilogAnalyzer::Meta2Loc(def->meta),
+                    addr_range_to_width(def->identifier, full_name, _ana, -1)
+                     ),
       _def(def) {
   ILA_WARN_IF(_width == 0)
       << "Verilog Analyzer is not able to determine the width of signal:"
@@ -917,7 +930,9 @@ SignalInfoWire::SignalInfoWire(
                                         : (IN_p(full_name, width_info)
                                                ? width_info->at(full_name)
                                                : -1)),
-                     tp, VerilogAnalyzer::Meta2Loc(def->meta)),
+                     tp, VerilogAnalyzer::Meta2Loc(def->meta),
+                     0 // not an array
+                     ),
       _def(def) {
   ILA_WARN_IF(_width == 0)
       << "Verilog Analyzer is not able to determine the width of signal:"
