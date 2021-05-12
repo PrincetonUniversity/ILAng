@@ -122,11 +122,15 @@ protected:
   const VerilogAnalyzerBase::hierarchical_name_type _type;
   /// its location of definition
   const VerilogAnalyzerBase::vlg_loc_t _loc;
+  /// addr width of the array, 0 if not array
+  const unsigned _addr_width;
 
 public:
   /// --------------------- ACCESSORS ------------------- ///
   /// Return the width of the signal
   virtual unsigned get_width() const { return _width; }
+  /// Return the addrwidth of the signal
+  virtual unsigned get_addr_width() const {return _addr_width; }
   /// Whether is a IO signal
   virtual bool is_io_sig() const {
     return VerilogAnalyzerBase::is_io_sig(_type);
@@ -164,8 +168,9 @@ public:
   /// --------------------- ACCESSORS ------------------- ///
   SignalInfoBase(const std::string& n, const std::string& h, unsigned w,
                  const VerilogAnalyzerBase::hierarchical_name_type& typ,
-                 const VerilogAnalyzerBase::vlg_loc_t& loc)
-      : _name(n), _hierarchical_name(h), _width(w), _type(typ), _loc(loc) {}
+                 const VerilogAnalyzerBase::vlg_loc_t& loc,
+                 unsigned aw)
+      : _name(n), _hierarchical_name(h), _width(w), _type(typ), _loc(loc), _addr_width(aw) {}
   /// implicit copy constructor
 }; // class SignalInfoBase
 
