@@ -495,14 +495,14 @@ VerilogRefinementMap::VerilogRefinementMap
     nlohmann::json * state_mapping = GetJsonSection(rf_vmap,{"state mapping"});
     ERRIF(state_mapping == NULL , "state var mapping is duplicated or missing");
     for (auto& i : state_mapping->items()) {
-      IlaStateVarMapping svmp;
+      IlaVarMapping svmp;
       auto sname = i.key(); // ila state name
       if(i.value().is_string()) {
-        svmp.type = IlaStateVarMapping::StateVarMapType::SINGLE;
+        svmp.type = IlaVarMapping::StateVarMapType::SINGLE;
         svmp.single_map.single_map = ParseRfMapExprJson(i.value());
       } else if (i.value().is_object()) {
         // External Mem
-        svmp.type = IlaStateVarMapping::StateVarMapType::EXTERNMEM;
+        svmp.type = IlaVarMapping::StateVarMapType::EXTERNMEM;
         svmp.externmem_map.push_back(ExternalMemPortMap());
 
         auto & extmem_ports = i.value();
@@ -519,7 +519,7 @@ VerilogRefinementMap::VerilogRefinementMap
           ERRIF(true, "Expecting array of list or objects for" + sname);
 
         if (are_memports) {
-          svmp.type = IlaStateVarMapping::StateVarMapType::EXTERNMEM;
+          svmp.type = IlaVarMapping::StateVarMapType::EXTERNMEM;
           for (const auto  & idx_obj_pair : i.value().items()) {
             ENSURE( idx_obj_pair.value().is_object() , "Expecting array of objects for " + sname);
 
@@ -529,7 +529,7 @@ VerilogRefinementMap::VerilogRefinementMap
             JsonRfmapParseMem(svmp.externmem_map.back(), extmem_ports);
           }
         } else {
-          svmp.type = IlaStateVarMapping::StateVarMapType::CONDITIONAL;
+          svmp.type = IlaVarMapping::StateVarMapType::CONDITIONAL;
           JsonRfmapParseCond(svmp.single_map, i.value() );
         }
 
@@ -538,6 +538,30 @@ VerilogRefinementMap::VerilogRefinementMap
     ila_state_var_map.emplace(sname, svmp);
     } // for each state
   } // state mapping
+
+  { // input mapping
+    // TODO: add things here
+    nlohmann::json * input_mapping = GetJsonSection(rf_vmap,{"input mapping"});
+    if(input_mapping) {
+      for (auto& i : input_mapping->items()) {
+        IlaVarMapping ivmp;
+        auto sname = i.key(); // ila state name
+        ERRIF(i.value().is_object(), "input array is not supported");
+        if(i.value().is_string()) {
+          ivmp.type = IlaVarMapping::StateVarMapType::SINGLE;
+          ivmp.single_map.single_map = ParseRfMapExprJson(i.value());
+        } else if (i.value().is_array()) {
+          ERRIF( i.value().empty(), ("Empty list for " + sname) );
+          ENSURE(i.value().begin()->is_array(), "Expect array of array");
+          ivmp.type = IlaVarMapping::StateVarMapType::CONDITIONAL;
+          JsonRfmapParseCond(ivmp.single_map, i.value() );
+
+        } // if array of array / array of object
+      ILA_ERROR_IF( IN(sname, ila_input_var_map) ) << "ILA state var : " <<  sname << " has duplicated mapping";
+      ila_input_var_map.emplace(sname, ivmp);
+      } // for each input var
+    }
+  } // input mapping
 
   { // interface map
     nlohmann::json * rtl_if_map = GetJsonSection(rf_vmap,{"RTL interface connection"});
@@ -880,10 +904,7 @@ VerilogRefinementMap::VerilogRefinementMap
     } // if invariant
   } // inst cond
 
-
-  if (ParseRfExprErrFlag) {
-    // TODO:
-  }
+  ERRIF(ParseRfExprErrFlag, "error occur in refinement expression parsing");
 
 } // VerilogRefinementMap::VerilogRefinementMap
 
@@ -907,20 +928,6 @@ bool VerilogRefinementMap::SelfCheckField() const {
   // check module name
   ERRIF(ParseRfExprErrFlag, "Error in parsing refinement expressions" );
   
-  if(!model_names.IlaModuleName.empty()) {
-    ERRIF( !is_valid_id_name(model_names.IlaModuleName),
-          "ILA instance name "
-        << model_names.IlaModuleName
-        << " is not valid");
-  }
-
-  if(!model_names.RtlModuleName.empty()) {
-    ERRIF( !is_valid_id_name(model_names.RtlModuleName),
-          "RTL instance name "
-        << model_names.RtlModuleName
-        << " is not valid");
-  }
-
   for (const auto & n_map: ila_state_var_map) {
     ENSURE( !(n_map.second.externmem_map.empty()) ||
     (n_map.second.single_map.single_map.get() != nullptr) ||
@@ -996,13 +1003,12 @@ bool VerilogRefinementMap::SelfCheckField() const {
   // check trackers, recorders, monitor names are okay
 
   { // GeneralVerilogMonitor, for ids are okay, no bad names
-    std::set<std::string> monitor_names;
     std::set<std::string> var_def_names;
     for (const auto & n_st : phase_tracker) {
-      ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
-      ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
-      monitor_names.insert(n_st.first);
+      
       for (const auto & var_def : n_st.second.event_alias ) {
+        all_var_def_types.emplace(var_def.first)
+
         ERRIF( IN(var_def.first, var_def_names) , "Variable " + n_st.first + " has been defined already" );
         var_def_names.insert(var_def.first);
       }

@@ -143,7 +143,7 @@ VlgSglTgtGen::VlgSglTgtGen(
 
     ILA_NOT_NULL(instr_ptr);
     // TODO: insert the memory export directive
-    vlg_ila.AnnotateMemory(supplementary_info.memory_export);
+    vlg_ila.AnnotateMemory(supplementary_info.memory_export); // need to change this
 
     vlg_ila.ExportTopLevelInstr(instr_ptr);
 

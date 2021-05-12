@@ -26,11 +26,10 @@ public:
 
   // ----------- Verification Settings -------------- //
   /// Type of the backend:
-  /// CoSA, JasperGold, CHC for chc solver, AIGER for abc
+  /// Pono, JasperGold, CHC for chc solver, AIGER for abc
   // YOSYS is for invariant synthesis use
   typedef enum {
     NONE = 0,
-    COSA = 1,
     JASPERGOLD = 2,
     YOSYS = 128,              // 10000000
     CHC = YOSYS + 8,          // 10001000
@@ -38,7 +37,7 @@ public:
     ELD_CEGAR = CHC + 2,      // 10001010
     GRAIN_SYGUS = CHC + 4,    // 10001100
     ABCPDR = YOSYS + 16,      // 10010000
-    BTOR_GENERIC = YOSYS + 32,// 10100000
+    PONO = YOSYS + 32,        // 10100000
     RELCHC = YOSYS + 64       // 11000000
   } backend_selector;
   /// Type of invariant synthesis backend
@@ -47,7 +46,7 @@ public:
     GRAIN = GRAIN_SYGUS ^ YOSYS,
     ABC = ABCPDR ^ YOSYS,        
     ELDERICA = ELD_CEGAR ^ YOSYS,// 0001010
-    NOSYN = BTOR_GENERIC ^ YOSYS // 1000000
+    NOSYN = YOSYS // 1000000
   } synthesis_backend_selector;
   /// Type of the chc target
   enum _chc_target_t { CEX, INVCANDIDATE, GENERAL_PROPERTY };
@@ -84,51 +83,32 @@ public:
       ALL
     } ValidateSynthesizedInvariant;
 
-    // ----------- Options for CoSA settings -------------- //
-    /// Do we set separate problems for different var map (CoSA only)
-    bool PerVariableProblemCosa; // true
-    /// Whether to abstract the memory read
-    bool MemAbsReadAbstraction; // false
+    // ----------- Options for Pono settings -------------- //
     /// Whether to force the instruction check to start from reset state
     bool ForceInstCheckReset;
-    /// For COSA target generator : whether to force NEW/OLD port declaration
+    /// For Pono target generator : whether to force NEW/OLD port declaration
     enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
-    /// Generate a jg script to help validate cosa?
-    bool CosaGenJgTesterScript;
-    /// generate the trace for all variables? or just the relevent variables
-    bool CosaFullTrace;
-    /// For CoSA backend: do we add (* keep *)? default true, however, it can be
+    /// Generate a jg script to help validate Pono?
+    bool PonoGenJgTesterScript;
+    /// For Pono backend: do we add (* keep *)? default true, however, it can be
     /// buggy, so you can disable it if you want
-    bool CosaAddKeep;
+    bool PonoAddKeep;
+    /// For Pono backend: what more options to add
+    std::string PonoOtherSolverOptions;
     /// whether to force dot reference check in the generation
-    /// if you expect to use cosa on the it, yes, you need to
+    /// if you expect to use Pono on the it, yes, you need to
     /// use the default setting :  NOTIFY_PANIC
     /// in some rare cases, you may want to use JasperGold after it
     /// in that case, it is okay to just ignore it
-    enum CosaDotReferenceNotify_t {
+    enum PonoDotReferenceNotify_t {
       NOTIFY_PANIC = 0,
       NOTIFY_WARNING = 1,
       NOTIFY_IGNORE = 2
-    } CosaDotReferenceNotify;
+    } PonoDotReferenceNotify;
     // The bound of BMC, default 127
     unsigned MaxBound;
     /// Only enforce var eq on updated vars, should not be used
     bool OnlyAssumeUpdatedVarsEq; // should be false
-
-
-    // ----------- Options for CoSA script -------------- //
-    /// If not empty, the generated script will include the path of Cosa
-    std::string CosaPath;
-    /// If not empty, the generated script will include sourcing a script
-    std::string CosaPyEnvironment;
-    /// A choice of solver (in the script)
-    std::string CosaSolver;
-    /// Whether the Solver should generate vcd trace
-    bool CosaGenTraceVcd;
-    /// Assumption overly constrained check
-    bool CosaAssumptionOverlyConstrainedCheck;
-    /// other CoSA options
-    std::string CosaOtherSolverOptions;
 
     // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
     /// The path to yosys, if yosys is not in the PATH, default empty
@@ -183,6 +163,10 @@ public:
     /// CHC, whether to force assumption on the init
     bool BtorAddCommentsInOutputs;
 
+    /* TODO: future work: 
+        bool YosysAssumptionOverlyConstrainedCheck;
+    */
+
     // ----------- Options for Z3/Grain/ABC Solver -------------- //
     /// The path to Z3, if "z3" is not in the PATH, default empty
     std::string Z3Path;
@@ -227,17 +211,15 @@ public:
           VerificationSettingAvoidIssueStage(false),
           ValidateSynthesizedInvariant(ALL),
 
-          // ----------- Options for CoSA settings -------------- //
-          PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
+          // ----------- Options for Pono settings -------------- //
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
-          CosaGenJgTesterScript(false), CosaFullTrace(false), CosaAddKeep(true),
-          CosaDotReferenceNotify(CosaDotReferenceNotify_t::NOTIFY_PANIC),
+          PonoGenJgTesterScript(false), PonoAddKeep(true),
+          PonoOtherSolverOptions(""),
+          PonoDotReferenceNotify(PonoDotReferenceNotify_t::NOTIFY_PANIC),
           MaxBound(127), OnlyAssumeUpdatedVarsEq(false),
 
-          // ----------- Options for CoSA script -------------- //
-          CosaPath(""), CosaPyEnvironment(""), CosaSolver(""),
-          CosaGenTraceVcd(true), CosaAssumptionOverlyConstrainedCheck(false),
-          CosaOtherSolverOptions(""),
+          // ----------- Options for Pono script -------------- //
+          // PonoAssumptionOverlyConstrainedCheck(false),
 
           // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
           YosysUndrivenNetAsInput(true), YosysSmtFlattenHierarchy(true),

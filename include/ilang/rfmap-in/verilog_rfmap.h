@@ -1,5 +1,5 @@
 /// \file Verilog Verification Refinement Map Interface Class
-/// External Refinement Map Interface Classe
+/// External Refinement Map Interface Class
 /// --- Hongce Zhang (hongcez@princeton.edu)
 
 
@@ -28,11 +28,6 @@ namespace rfmap {
 
 typedef verilog_expr::VExprAst::VExprAstPtr RfExpr;
 
-/// \class Module Name section (optional)
-struct ModelNames {
-  std::string IlaModuleName;
-  std::string RtlModuleName;
-};
 
 /*
 "ILA_mem_state_var_2" : {                            // case 4 : external RTL memory
@@ -61,7 +56,7 @@ struct ExternalMemPortMap {
   SingleVarMap rdata_map;
 }; // struct ExternalMemPortMap
 
-struct IlaStateVarMapping {
+struct IlaVarMapping {
   enum class StateVarMapType {
     SINGLE,
     CONDITIONAL,
@@ -71,7 +66,7 @@ struct IlaStateVarMapping {
   SingleVarMap single_map;
   /// the standard 6-port map
   std::vector<ExternalMemPortMap> externmem_map;
-}; // struct IlaStateVarMapping
+}; // struct IlaVarMapping
 
 struct RtlInterfaceMapping{
   /// "CLOCK" : { "clkA" : "wclk", "clkB" : ["rclk", "clk"] }
@@ -145,8 +140,8 @@ struct SignalDelay {
 
 struct PhaseTracker {
   struct Assignment {
-    std::string LHS;
-    RfExpr RHS;
+    std::string LHS; // a state name
+    RfExpr RHS; // a rhs expression
   };
   typedef std::vector<Assignment> Action;
   struct Rule {
@@ -177,10 +172,10 @@ struct InstructionCompleteCondition{
 
 struct VerilogRefinementMap {
   // ---------------------- varmap ------------------------------- //
-  /// model name section (optional)
-  ModelNames model_names;
   /// State mapping section
-  std::map<std::string, IlaStateVarMapping> ila_state_var_map;
+  std::map<std::string, IlaVarMapping> ila_state_var_map;
+  /// State mapping section
+  std::map<std::string, IlaVarMapping> ila_input_var_map;
   /// RTL interface connection specification
   RtlInterfaceMapping rtl_interface_connection;
   /// reset section
