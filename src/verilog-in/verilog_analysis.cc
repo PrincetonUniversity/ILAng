@@ -870,7 +870,7 @@ unsigned range_to_width(ast_range* range, const std::string& full_name,
 unsigned addr_range_to_width(ast_identifier id, const std::string& full_name,
                         const VerilogAnalyzer* _ana, int width) {
   if(id->range_or_idx == ID_HAS_RANGES && id->ranges && id->ranges->items > 0) {
-    ast_range * range = (ast_range *) id->ranges->head;
+    ast_range * range = (ast_range *) id->ranges->head->data;
     return range_to_width(range, full_name, _ana, width);
   }
   return 0;
