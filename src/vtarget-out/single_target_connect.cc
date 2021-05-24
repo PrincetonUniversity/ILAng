@@ -13,6 +13,7 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/vtarget-out/gen_util.h>
 
 namespace ilang {
 
@@ -32,7 +33,7 @@ void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
   for (size_t input_idx = 0; input_idx < ila_input_num; input_idx++) {
     const auto& input_ = _host->input(input_idx);
     const auto& name_ = input_->name().str();
-    auto width_ = get_width(input_);
+    auto width_ = vtgutil::get_width(input_);
 
     vlg_wrapper.add_wire("__ILA_I_" + name_, width_, true);
     vlg_wrapper.add_input("__ILA_I_" + name_, width_);
@@ -44,7 +45,7 @@ void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
     const auto& name_ = state_->name().str();
     if (state_->sort()->is_mem())
       continue; // please ignore memory, they should not be connected this way
-    auto width_ = get_width(state_);
+    auto width_ = vtgutil::get_width(state_);
 
     vlg_wrapper.add_wire("__ILA_SO_" + name_, width_, true);
     vlg_wrapper.add_output("__ILA_SO_" + name_, width_);
@@ -185,7 +186,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   for (auto&& ila_name_rport_pair : vlg_ila.ila_rports) {
     const auto& ila_name = ila_name_rport_pair.first;
     const auto& rports = ila_name_rport_pair.second;
-    const auto adw = GetMemInfo(ila_name);
+    const auto adw = vtgutil::GetMemInfo(ila_name, _host);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
     ILA_CHECK(aw > 0 && dw > 0)
@@ -216,7 +217,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
     const auto& ila_name = ila_name_wport_pair.first;
     const auto& wports = ila_name_wport_pair.second;
-    const auto adw = GetMemInfo(ila_name);
+    const auto adw = vtgutil::GetMemInfo(ila_name, _host);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
     ILA_CHECK(aw > 0 && dw > 0)
@@ -287,14 +288,14 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
         // Verifier_compatible_w_ila_input
         [this](const std::string& ila_name,
                const SignalInfoBase& vlg_sig_info) -> bool {
-          return TypeMatched(IlaGetInput(ila_name), vlg_sig_info) != 0;
+          return vtgutil::TypeMatched(vtgutil::IlaGetInput(ila_name, _host), vlg_sig_info) != 0;
         },
         // no need to worry about the nullptr in IlaGetInput, TypeMatched will
         // be able to handle.
         // Verifier_get_ila_mem_info
         [this](
             const std::string& ila_mem_name) -> std::pair<unsigned, unsigned> {
-          return GetMemInfo(ila_mem_name);
+          return vtgutil::GetMemInfo(ila_mem_name, _host);
         }); // end of function call: RegisterInterface
   }
 } // ConstructWrapper_add_vlg_input_output

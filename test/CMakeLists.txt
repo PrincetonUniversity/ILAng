@@ -91,6 +91,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3sanity.cc
   t_inv_syn.cc
   t_inv_obj.cc
+  t_aqed_support.cc
 )
 
 if(${ILANG_BUILD_SYNTH})

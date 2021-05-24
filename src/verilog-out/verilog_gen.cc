@@ -1184,7 +1184,7 @@ void VerilogGenerator::ParseMemUpdateNode(const ExprPtr& cond, const ExprPtr& e,
 // Export a whole ila,
 // you need to put together their update model.
 
-void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
+void VerilogGenerator::ExportIla(const InstrLvlAbsCnstPtr& ila_ptr_) {
   ILA_NOT_NULL(ila_ptr_);
 
   ILA_WARN_IF(ila_ptr_->init_num() != 0)
@@ -1309,7 +1309,7 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
 // add guard of VALID signal to "else if"
 // make sure to generate decode/valid signal output
 // internal counter
-void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
+void VerilogGenerator::ExportTopLevelInstr(const InstrCnstPtr& instr_ptr_) {
   ILA_NOT_NULL(instr_ptr_);
   ILA_WARN_IF(instr_ptr_->host()->parent())
       << "This ExportTopLevelInstr does not put flatten states and "
@@ -1388,6 +1388,7 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
           std::make_pair(var->name().str(), state_update_unknown(sig_name)));
       add_output(sig_name, 1);
       add_wire(sig_name, 1);
+      add_reg(reg_name, 1);
       add_assign_stmt(sig_name, reg_name);
       add_ite_stmt(decodeName, reg_name + " <= " + original_cond_sig, "");
     }

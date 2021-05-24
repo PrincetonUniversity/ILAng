@@ -72,6 +72,7 @@ void VarUseFinder<T>::Traverse(const InstrLvlAbsPtr& i, VarUseList& uses) {
 
 // let's instantiate it so it will not get linker error
 template class VarUseFinder<std::string>;
+template class VarUseFinder<ExprPtr>;
 
 /******************************************************************************/
 // Helper Class: NestedMemAddrDataAvoider

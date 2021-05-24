@@ -2,6 +2,7 @@
 ///
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/gen_util.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 #include <cmath>
@@ -84,9 +85,9 @@ VlgSglTgtGen::VlgSglTgtGen(
       vlg_info_ptr(_vlg_info_ptr),
       // variable extractor
       _vext(
-          [this](const std::string& n) -> bool { return TryFindIlaState(n); },
-          [this](const std::string& n) -> bool { return TryFindIlaInput(n); },
-          [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
+          [this](const std::string& n) -> bool { return vtgutil::TryFindIlaState(n, this->_host, this->_ila_mod_inst_name ); },
+          [this](const std::string& n) -> bool { return vtgutil::TryFindIlaInput(n, this->_host, this->_ila_mod_inst_name ); },
+          [this](const std::string& n) -> bool { return vtgutil::TryFindVlgState(n, this->vlg_info_ptr, this->_vlg_mod_inst_name); }),
       // ref to refmaps
       rf_vmap(_rf_vmap), rf_cond(_rf_cond), empty_json(nullptr),
       supplementary_info(_supplementary_info),

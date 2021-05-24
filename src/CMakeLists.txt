@@ -19,6 +19,7 @@ add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
 add_subdirectory(smt-inout)
+add_subdirectory(aqed-out)
 
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(target-itsy)

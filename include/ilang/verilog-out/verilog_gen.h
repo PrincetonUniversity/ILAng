@@ -287,8 +287,6 @@ protected:
   // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// Check if a name is reserved (clk/rst/modulename/decodeName/ctrName)
   bool check_reserved_name(const vlg_name_t& n) const;
-  /// Get the width of an ExprPtr, must be supported sort
-  int static get_width(const ExprPtr& n);
   /// convert a widith to a verilog string
   std::string static WidthToRange(int w);
   /// get a new id
@@ -297,7 +295,9 @@ protected:
   /// that to the name;
   vlg_name_t new_id(const ExprPtr& e);
 
-public:
+public:  
+  /// Get the width of an ExprPtr, must be supported sort
+  int static get_width(const ExprPtr& n);
   /// sanitize a name string, so it will generate illegal verilog identifier
   static vlg_name_t sanitizeName(const vlg_name_t& n);
   /// sanitize the name of an expr, so it will generate illegal verilog
@@ -424,49 +424,49 @@ public:
   /// Type of func app vector record
   using function_app_vec_t = VerilogGeneratorBase::function_app_vec_t;
 
-private:
+protected:
   // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// handle a input variable (memvar/bool/bv)
-  void insertInput(const ExprPtr& input);
+  virtual void insertInput(const ExprPtr& input);
   /// handle a state variable
-  void insertState(const ExprPtr& state);
+  virtual void insertState(const ExprPtr& state);
 
   // Here we are not using depthfirstSearch as we need to alternate between
   // root-first/root-last traversal
   /// traverse to the subtree, caller: ParseNonMemUpdateExpr
-  void parseArg(const ExprPtr& e);
+  virtual void parseArg(const ExprPtr& e);
   /// After you parse a subtree, this can help you get the vlg name associated
   /// with it
-  VerilogGenerator::vlg_name_t getVlgFromExpr(const ExprPtr& e);
+  virtual VerilogGenerator::vlg_name_t getVlgFromExpr(const ExprPtr& e);
   /// a short cut of calling getVlgFromExpr to find arg's vlg names
-  VerilogGenerator::vlg_name_t getArg(const ExprPtr& e, const size_t& i);
+  virtual VerilogGenerator::vlg_name_t getArg(const ExprPtr& e, const size_t& i);
   /// Handle function application , Caller: translateBoolOp, translateBvOp
-  vlg_name_t translateApplyFunc(std::shared_ptr<ExprOpAppFunc> func_app_ptr_);
+  virtual vlg_name_t translateApplyFunc(std::shared_ptr<ExprOpAppFunc> func_app_ptr_);
   /// called by ParseNonMemUpdateExpr to deal with a boolop node
-  vlg_name_t translateBoolOp(const std::shared_ptr<ExprOp>& e);
+  virtual vlg_name_t translateBoolOp(const std::shared_ptr<ExprOp>& e);
   /// called by ParseNonMemUpdateExpr to deal with a bvop node
-  vlg_name_t translateBvOp(const std::shared_ptr<ExprOp>& e);
+  virtual vlg_name_t translateBvOp(const std::shared_ptr<ExprOp>& e);
   /// travserse an expression, not used as mem-write subtree
-  void ParseNonMemUpdateExpr(const ExprPtr& e);
+  virtual void ParseNonMemUpdateExpr(const ExprPtr& e);
   /// check if a mem-write subtree is what we can handle right now
-  bool CheckMemUpdateNode(const ExprPtr& e, const std::string& mem_var_name);
+  virtual bool CheckMemUpdateNode(const ExprPtr& e, const std::string& mem_var_name);
   /// traverse the memory-write subtree of "e", its upper level has the
   /// condition "cond"
-  void VisitMemNodes(const ExprPtr& e, const ExprPtr& cond,
+  virtual void VisitMemNodes(const ExprPtr& e, const ExprPtr& cond,
                      mem_write_entry_list_stack_t& writesStack);
 
   /// add signals & stmts for an internal counter to trace start (more not be
   /// useful)
   void addInternalCounter(vlg_name_t decode_sig_name, size_t width = 8);
   /// use: func_ptr_set ;  affect: prehear, only export if func is internal
-  void ExportFuncDefs();
+  virtual void ExportFuncDefs();
 
   /// generate the signals to write a memory (external/internal)
-  void ExportCondWrites(const ExprPtr& mem_var,
+  virtual void ExportCondWrites(const ExprPtr& mem_var,
                         const mem_write_list_t& writeList);
   /// parse an expr used as the memory update, will affect: past_writes &
   /// current_writes
-  void ParseMemUpdateNode(const ExprPtr& cond, const ExprPtr& e,
+  virtual void ParseMemUpdateNode(const ExprPtr& cond, const ExprPtr& e,
                           const std::string& mem_var_name);
 
 public:
@@ -480,9 +480,9 @@ public:
                    const std::string& clk = "clk",
                    const std::string& rst = "rst");
   /// Parse an ILA, will gen all its instructions
-  void ExportIla(const InstrLvlAbsPtr& ila_ptr_);
+  void ExportIla(const InstrLvlAbsCnstPtr & ila_ptr_);
   /// Parse an instruction
-  void ExportTopLevelInstr(const InstrPtr& instr_ptr_);
+  void ExportTopLevelInstr(const InstrCnstPtr & instr_ptr_);
 }; // class VerilogGenerator
 
 }; // namespace ilang

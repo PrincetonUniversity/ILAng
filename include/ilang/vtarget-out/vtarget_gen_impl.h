@@ -162,30 +162,8 @@ protected:
   std::string new_mapping_id();
   /// Return a new variable name for property
   std::string new_property_id();
-  /// Get the pointer of a ila state, it must exist
-  const ExprPtr IlaGetState(const std::string& sname) const;
-  /// Get the pointer of an ila input, it must exist
-  const ExprPtr IlaGetInput(const std::string& sname) const;
-  /// Get (a,d) width of a memory, if not existing, (0,0)
-  std::pair<unsigned, unsigned>
-
-  GetMemInfo(const std::string& ila_mem_name) const;
-  /// Test if a string represents an ila state name
-  bool TryFindIlaState(const std::string& sname);
-  /// Test if a string represents an ila input name
-  bool TryFindIlaInput(const std::string& sname);
-  /// Test if a string represents a Verilog signal name
-  bool TryFindVlgState(const std::string& sname);
-  /// Try to find a ILA var according to a name
-  ExprPtr TryFindIlaVarName(const std::string& sname);
   /// Modify a token and record its use
   std::string ModifyCondExprAndRecordVlgName(const VarExtractor::token& t);
-  /// Check if ila name and vlg name are type compatible (not including special
-  /// directives)
-  static unsigned TypeMatched(const ExprPtr& ila_var,
-                              const SignalInfoBase& vlg_var);
-  /// get width of an ila node
-  static unsigned get_width(const ExprPtr& n);
   /// Parse and modify a condition string
   std::string ReplExpr(const std::string& expr, bool force_vlg_sts = false);
   /// handle a single string map (s-name/equ-string)

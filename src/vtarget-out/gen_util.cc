@@ -5,6 +5,7 @@
 // --- Hongce Zhang
 
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <ilang/vtarget-out/gen_util.h>
 
 #include <cmath>
 
@@ -27,13 +28,13 @@ std::string VlgSglTgtGen::new_property_id() {
   return std::string("__p") + IntToStr(mapping_counter++) + "__";
 }
 
-const ExprPtr VlgSglTgtGen::IlaGetState(const std::string& sname) const {
+const ExprPtr vtgutil::IlaGetState(const std::string& sname, const InstrLvlAbsCnstPtr & _host) {
   auto ptr = _host->state(sname);
   ILA_ERROR_IF(ptr == nullptr)
       << "Cannot find state:" << sname << " in ila:" << _host->name().str();
   return ptr;
 }
-const ExprPtr VlgSglTgtGen::IlaGetInput(const std::string& sname) const {
+const ExprPtr vtgutil::IlaGetInput(const std::string& sname, const InstrLvlAbsCnstPtr & _host) {
   auto ptr = _host->input(sname);
   ILA_ERROR_IF(ptr == nullptr)
       << "Cannot find input:" << sname << " in ila:" << _host->name().str();
@@ -41,7 +42,7 @@ const ExprPtr VlgSglTgtGen::IlaGetInput(const std::string& sname) const {
 }
 
 std::pair<unsigned, unsigned>
-VlgSglTgtGen::GetMemInfo(const std::string& ila_mem_name) const {
+vtgutil::GetMemInfo(const std::string& ila_mem_name, const InstrLvlAbsCnstPtr& _host) {
   auto ptr_ = _host->state(ila_mem_name);
   if (ptr_ == nullptr)
     return std::pair<unsigned, unsigned>({0, 0});
@@ -51,7 +52,9 @@ VlgSglTgtGen::GetMemInfo(const std::string& ila_mem_name) const {
       {ptr_->sort()->addr_width(), ptr_->sort()->data_width()});
 }
 
-bool VlgSglTgtGen::TryFindIlaState(const std::string& sname) {
+bool vtgutil::TryFindIlaState(const std::string& sname, 
+  const InstrLvlAbsCnstPtr & _host, const std::string& _ila_mod_inst_name)
+{
   if (_host->state(sname))
     return true;
   // if it uses the reference it self
@@ -65,7 +68,9 @@ bool VlgSglTgtGen::TryFindIlaState(const std::string& sname) {
   return false;
 }
 
-bool VlgSglTgtGen::TryFindIlaInput(const std::string& sname) {
+bool vtgutil::TryFindIlaInput(const std::string& sname, 
+  const InstrLvlAbsCnstPtr & _host, const std::string& _ila_mod_inst_name)
+{
   if (_host->input(sname))
     return true;
   // if it uses the reference it self
@@ -79,7 +84,9 @@ bool VlgSglTgtGen::TryFindIlaInput(const std::string& sname) {
   return false;
 }
 
-ExprPtr VlgSglTgtGen::TryFindIlaVarName(const std::string& sname) {
+ExprPtr vtgutil::TryFindIlaVarName(const std::string& sname,
+  const InstrLvlAbsCnstPtr & _host, const std::string& _ila_mod_inst_name)
+{
   if (_host->input(sname))
     return _host->input(sname);
   if (_host->state(sname))
@@ -96,7 +103,9 @@ ExprPtr VlgSglTgtGen::TryFindIlaVarName(const std::string& sname) {
   return NULL;
 }
 
-bool VlgSglTgtGen::TryFindVlgState(const std::string& sname) {
+bool vtgutil::TryFindVlgState(const std::string& sname,
+  const VerilogInfo * const  vlg_info_ptr, const std::string& _vlg_mod_inst_name)
+{
 
   if (vlg_info_ptr->check_hierarchical_name_type(sname) !=
       VerilogInfo::hierarchical_name_type::NONE)
@@ -107,8 +116,6 @@ bool VlgSglTgtGen::TryFindVlgState(const std::string& sname) {
     return true;
   return false;
 }
-
-#define SIN(sub, s) (s.find(sub) != std::string::npos)
 
 /// signals generated in the wrapper,
 /// it is normal that you cannot find
@@ -137,7 +144,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   else if (token_tp == VarExtractor::token_type::NUM) {
     /*
     if (_backend == backend_selector::COSA) {
-      if (SIN("'", sname)) {
+      if (S_IN("'", sname)) {
         auto l = Split(sname, "'");
 
         auto& num_l = l.back();
@@ -269,7 +276,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
 }
 
 // static function
-unsigned VlgSglTgtGen::TypeMatched(const ExprPtr& ila_var,
+unsigned vtgutil::TypeMatched(const ExprPtr& ila_var,
                                    const SignalInfoBase& vlg_var) {
 
   if (ila_var == nullptr) {
@@ -307,7 +314,7 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr& ila_var,
   return 0;
 }
 // static function
-unsigned VlgSglTgtGen::get_width(const ExprPtr& n) {
+unsigned vtgutil::get_width(const ExprPtr& n) {
   ILA_WARN_IF(n->sort()->is_mem())
       << "Using data width for " << n->name().str();
   return VerilogGeneratorBase::get_width(n);
@@ -356,7 +363,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
     return map_sig;
   }
   // else it is a vlg signal name
-  auto ila_state = TryFindIlaVarName(ila_state_name);
+  auto ila_state = vtgutil::TryFindIlaVarName(ila_state_name, _host, _ila_mod_inst_name);
   if (!ila_state)
     return VLG_TRUE;
   if (ila_state->sort()->is_mem()) {
@@ -419,7 +426,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       // if this is truly a state name
       auto vlg_sig_info = vlg_info_ptr->get_signal(
           vlg_state_name_wo_idx, supplementary_info.width_info);
-      ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
+      ILA_ERROR_IF(!vtgutil::TypeMatched(ila_state, vlg_sig_info))
           << "ila state:" << ila_state_name
           << " has mismatched type w. verilog signal:" << vlg_state_name_wo_idx;
     } else {
@@ -478,7 +485,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
       // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with
       // _idr.abs_mems
 
-      auto ila_state = TryFindIlaVarName(ila_state_name);
+      auto ila_state = vtgutil::TryFindIlaVarName(ila_state_name, _host, _ila_mod_inst_name);
       if (!ila_state) {
         ILA_ERROR << ila_state_name << " does not exist in ILA.";
         return VLG_TRUE;

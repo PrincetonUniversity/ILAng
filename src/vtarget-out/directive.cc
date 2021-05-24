@@ -24,6 +24,18 @@ bool IntefaceDirectiveRecorder::isSpecialInputDir(const std::string& c) {
   return beginsWith(c, "**");
 }
 
+
+// static function
+std::string IntefaceDirectiveRecorder::isSpecialInputDirResetName(const std::string& c) {
+  if (!beginsWith(c, "**"))
+    return "";
+  if (beginsWith(c, "**RESET**"))
+    return c.substr(9);
+  if (beginsWith(c, "**NRESET**"))
+    return c.substr(10);
+  return "";  
+}
+
 // static function
 bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
     const std::string& c, const SignalInfoBase& vlg_sig) {

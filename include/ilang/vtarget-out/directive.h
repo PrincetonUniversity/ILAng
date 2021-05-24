@@ -69,6 +69,8 @@ public:
   static bool beginsWith(const std::string& c, const std::string& s);
   /// Return true if 'c' is special input directive
   static bool isSpecialInputDir(const std::string& c);
+  // Return nonempty string if 'c' has special reset signal in its encoding
+  static std::string isSpecialInputDirResetName(const std::string& c);
   /// Check for compatibility
   static bool isSpecialInputDirCompatibleWith(const std::string& c,
                                               const SignalInfoBase& vlg_sig);
