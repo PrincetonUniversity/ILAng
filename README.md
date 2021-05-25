@@ -9,7 +9,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
 [![license](https://img.shields.io/github/license/bo-yuan-huang/ilang.svg?style=flat)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-manual-blue.svg)](https://bo-yuan-huang.gitbook.io/ilang/)
-[![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://bo-yuan-huang.github.io/ILAng-Doc/doxygen-output-html/namespaceilang.html)
+[![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://princetonuniversity.github.io/ILAng-Doc/namespaceilang.html)
 [![docker](https://images.microbadger.com/badges/image/byhuang/ilang:cosabase.svg)](https://hub.docker.com/r/byhuang/ilang)
 
 -   [Build](#build)
@@ -242,3 +242,4 @@ Copyright (c) 2016 Princeton University.
 ## Contributing
 
 Please refer to [CONTRIBUTING](docs/CONTRIBUTING.md) for further details. 
+
