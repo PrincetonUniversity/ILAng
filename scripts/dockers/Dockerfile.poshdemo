@@ -1,4 +1,4 @@
-FROM byhuang/ilang:cosabase as builder
+FROM ilangdockerhub/ilang:cosabase as builder
 
 # var
 ENV VIRT_ENV ilang-env
@@ -43,7 +43,7 @@ RUN cmake .. -DCMAKE_PREFIX_PATH=$BUILD_PREF && \
 #
 # Deployment
 #
-FROM byhuang/ilang:cosabase
+FROM ilangdockerhub/ilang:cosabase
 
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
     libz3-dev \
