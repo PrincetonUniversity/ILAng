@@ -463,7 +463,7 @@ std::string JsonRfmapParseValueRecorder(ValueRecorder & tracker, nlohmann::json 
   tracker.value = ParseRfMapExprJson(*val);
   if(width && width->is_number_unsigned()) {
     tracker.width = width->get<unsigned>();
-  }
+  } // if you don't write width or use a string then it is 0
   else
     tracker.width = 0;
   return  "";
@@ -506,7 +506,8 @@ VerilogRefinementMap::VerilogRefinementMap
         svmp.externmem_map.push_back(ExternalMemPortMap());
 
         auto & extmem_ports = i.value();
-        JsonRfmapParseMem(svmp.externmem_map.back(), extmem_ports);
+        bool succ = JsonRfmapParseMem(svmp.externmem_map.back(), extmem_ports);
+        ENSURE(succ, "fail to parse external memory map");
 
       } else if (i.value().is_array()) {
         ERRIF( i.value().empty(), ("Empty list for " + sname) );
@@ -526,7 +527,8 @@ VerilogRefinementMap::VerilogRefinementMap
             svmp.externmem_map.push_back(ExternalMemPortMap());
 
             auto & extmem_ports = idx_obj_pair.value();
-            JsonRfmapParseMem(svmp.externmem_map.back(), extmem_ports);
+            bool succ = JsonRfmapParseMem(svmp.externmem_map.back(), extmem_ports);
+            ENSURE(succ, "fail to parse external memory map");
           }
         } else {
           svmp.type = IlaVarMapping::StateVarMapType::CONDITIONAL;
@@ -889,9 +891,16 @@ VerilogRefinementMap::VerilogRefinementMap
           ws.max_bound = max_bound->get<unsigned>();
         } 
         if (start_condition) {
-          ENSURE(start_condition->is_string(), "`start_condition` should be a string");
-          ws.start_condition = ParseRfMapExprJson(*start_condition);
-        }
+          if (start_condition->is_string()) {
+            ws.start_condition.push_back( ParseRfMapExprJson(*start_condition) );
+          } else {
+            ENSURE(start_condition->is_array(), "`start_condition` should be a string or array of strings");
+            for (auto & cond : *start_condition) {
+              ENSURE(cond.is_string(), "`start_condition` should be a string or array of strings");
+              ws.start_condition.push_back( ParseRfMapExprJson(cond));
+            }
+          } // end if start condition is string
+        } // end if start condition
       } // for each instr`
     } // if instrs
 

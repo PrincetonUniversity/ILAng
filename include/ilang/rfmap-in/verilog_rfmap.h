@@ -3,8 +3,8 @@
 /// --- Hongce Zhang (hongcez@princeton.edu)
 
 
-#ifndef VERILOG_RFMAP_H__
-#define VERILOG_RFMAP_H__
+#ifndef ILANG_VERILOG_RFMAP_H__
+#define ILANG_VERILOG_RFMAP_H__
 
 #include <string>
 #include <vector>
@@ -136,6 +136,7 @@ struct ValueRecorder {
 struct SignalDelay {
   RfExpr signal;
   unsigned num_cycle;
+  unsigned width;
 };
 
 struct PhaseTracker {
@@ -166,7 +167,7 @@ struct InstructionCompleteCondition{
   enum class ConditionType {BOUND, SIGNAL} type;
   unsigned ready_bound;
   unsigned max_bound;
-  RfExpr start_condition;
+  std::vector<RfExpr> start_condition;
   RfExpr ready_signal;
 }; // 
 
@@ -209,5 +210,5 @@ struct VerilogRefinementMap {
 } // namespace ilang
 } // namespace rfmap
 
-#endif // VERILOG_RFMAP_H__
+#endif // ILANG_VERILOG_RFMAP_H__
 
