@@ -180,6 +180,7 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
   case ExprTypeId::kVar: {
     j_expr.emplace(SERDES_EXPR_SORT, SerSort(i_expr->sort()));
     j_expr.emplace(SERDES_EXPR_NAME, i_expr->name().str());
+    j_expr.emplace(SERDES_EXPR_LABEL, std::dynamic_pointer_cast<ExprVar>(i_expr)->label());
     break;
   }
   // serialize constant

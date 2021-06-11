@@ -154,45 +154,45 @@ ExprPtr J2IDes::DesExpr(const json& j_expr) {
   return i_expr;
 }
 
-ExprPtr J2IDes::DesExprState(const json& j_sort, const std::string& name,
+ExprPtr J2IDes::DesExprState(const json& j_sort, const std::string& name, const std::string& label,
                              const InstrLvlAbsPtr& i_host) const {
   switch (j_sort.at(SERDES_SORT_UID).get<UID_t>()) {
   // bool
   case AstUidSort::kBool: {
-    return i_host->NewBoolState(name);
+    return i_host->NewBoolState(name, label);
   }
   // bit-vector
   case AstUidSort::kBv: {
     auto width = j_sort.at(SERDES_SORT_WIDTH).get<int>();
-    return i_host->NewBvState(name, width);
+    return i_host->NewBvState(name, width, label);
   }
   // memory (array)
   case AstUidSort::kMem: {
     auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
-    return i_host->NewMemState(name, addr_width, data_width);
+    return i_host->NewMemState(name, addr_width, data_width, label);
   }
   default: { return nullptr; }
   }; // switch j_sort id
 }
 
-ExprPtr J2IDes::DesExprInput(const json& j_sort, const std::string& name,
+ExprPtr J2IDes::DesExprInput(const json& j_sort, const std::string& name, const std::string& label,
                              const InstrLvlAbsPtr& i_host) const {
   switch (j_sort.at(SERDES_SORT_UID).get<UID_t>()) {
   // bool
   case AstUidSort::kBool: {
-    return i_host->NewBoolInput(name);
+    return i_host->NewBoolInput(name, label);
   }
   // bit-vector
   case AstUidSort::kBv: {
     auto width = j_sort.at(SERDES_SORT_WIDTH).get<int>();
-    return i_host->NewBvInput(name, width);
+    return i_host->NewBvInput(name, width, label);
   }
   // memory (array)
   case AstUidSort::kMem: {
     auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
-    return i_host->NewMemInput(name, addr_width, data_width);
+    return i_host->NewMemInput(name, addr_width, data_width, label);
   }
   default: { return nullptr; }
   }; // switch j_sort id
@@ -414,11 +414,12 @@ void J2IDes::DesVarUnit(const json& j_ila, const json& j_ast_list,
     auto expr_uid = j_expr.at(SERDES_EXPR_UID).get<UID_t>();
     if (expr_uid == ExprTypeId::kVar) {
       auto name = j_expr.at(SERDES_EXPR_NAME).get<std::string>();
+      auto label = j_expr.at(SERDES_EXPR_LABEL).get<std::string>();
       auto sort = j_expr.at(SERDES_EXPR_SORT);
       if (state_id_set.find(id) != state_id_set.end()) {
-        i_expr = DesExprState(sort, name, i_ila);
+        i_expr = DesExprState(sort, name, label, i_ila);
       } else if (input_id_set.find(id) != input_id_set.end()) {
-        i_expr = DesExprInput(sort, name, i_ila);
+        i_expr = DesExprInput(sort, name, label, i_ila);
       } else {
         continue;
       }

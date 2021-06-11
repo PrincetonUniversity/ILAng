@@ -56,10 +56,10 @@ private:
   /// Deserialize Expr from JSON.
   ExprPtr DesExpr(const json& j_expr);
   /// Deserialize ExprVar into state from JSON.
-  ExprPtr DesExprState(const json& j_sort, const std::string& name,
+  ExprPtr DesExprState(const json& j_sort, const std::string& name, const std::string& label,
                        const InstrLvlAbsPtr& i_host) const;
   /// Deserialize ExprVar into input from JSON.
-  ExprPtr DesExprInput(const json& j_sort, const std::string& name,
+  ExprPtr DesExprInput(const json& j_sort, const std::string& name, const std::string& label,
                        const InstrLvlAbsPtr& i_host) const;
   /// Deserialize ExprConstant from JSON.
   ExprPtr DesExprConst(const json& j_sort, const json& j_val) const;

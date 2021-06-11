@@ -34,6 +34,7 @@ enum ExprTypeId { kVar = 1, kConst, kOp };
 #define SERDES_EXPR_ARGS "a"
 #define SERDES_EXPR_PARAMS "p"
 #define SERDES_EXPR_FUNC "f"
+#define SERDES_EXPR_LABEL "l"
 
 // Instr
 #define SERDES_INSTR_NAME "n"
