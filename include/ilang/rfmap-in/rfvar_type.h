@@ -34,7 +34,7 @@ class RfVarTypeOrig {
 public:
   enum class VARTYPE {
     NOTVAR, /*also unknown type*/
-    ILAS /*state var*/,
+    ILAS, /*state var*/
     ILAI, /*ila input*/
     RTLV, /*rtl signal*/
     PHASE,  /*stage name*/
@@ -47,6 +47,11 @@ public:
   VARTYPE var_ref_type;
   RfMapVarType type;
 
+  // constructur
+  RfVarTypeOrig() : var_ref_type(VARTYPE::NOTVAR) {}
+  RfVarTypeOrig(const RfVarTypeOrig & r) : 
+    var_ref_type(r.var_ref_type),
+    type(r.type) {}
   
 }; // class RfVarType
 

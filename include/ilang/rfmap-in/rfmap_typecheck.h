@@ -27,8 +27,70 @@ public:
   // allow instantiation
   virtual void should_not_instantiate() override {}
 
+  TypeAnnotation() {}
+  TypeAnnotation(const ::ilang::rfmap::RfVarTypeOrig & r):
+    ::ilang::rfmap::RfVarTypeOrig(r) {}
 }; // TypeAnnotation
 
+struct VarReplacement {
+  RfExpr origvar; // this is certainly a var
+  RfExpr newvar; // this is certainly a var
+  std::string range_o; // but this could be different
+
+  VarReplacement(const RfExpr & o, const RfExpr & n, const std::string & r = "") :
+    origvar(o), newvar(n), range_o (r) {}
+
+  std::string get_orig_name() const {
+    if(is_orig_var_array() && !range_o.empty()) 
+        return (
+          std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
+          (origvar)->get_name().first + "[" + range_o + "]"
+        );
+    // else
+    return std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(
+      origvar)->get_name().first;
+    }
+
+  std::string get_new_name() const{
+    //if(is_orig_var_array() && !range_o.empty()) 
+    //  return (
+    //      std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
+    //      (origvar)->get_name().first + "_" + ReplaceAll(range_o,"'","") + "_"
+    //    );
+    // else
+    return std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
+      (newvar)->get_name().first; }
+
+  RfVarTypeOrig get_type_new() const {
+    /*if(is_orig_var_array() && !range_o.empty()) {
+      TypeAnnotation ret;
+      ret.type = RfMapVarType(get_type_orig().type.data_width);
+      ret.var_ref_type = TypeAnnotation::VARTYPE::NOTVAR;
+      return ret;
+    }*/
+    return get_type_orig();
+  }
+
+private:
+  RfVarTypeOrig get_type_orig() const {
+    auto annotation_ptr = newvar->get_annotation<TypeAnnotation>();
+    return annotation_ptr?*annotation_ptr:RfVarTypeOrig();
+  }
+
+  bool is_orig_rtlv() const {
+    return get_type_orig().var_ref_type == RfVarTypeOrig::VARTYPE::RTLV;
+  }
+  bool is_orig_ila_state() const{
+    return get_type_orig().var_ref_type == RfVarTypeOrig::VARTYPE::ILAS;
+  }
+  bool is_orig_ila_input() const{
+    return get_type_orig().var_ref_type == RfVarTypeOrig::VARTYPE::ILAI;
+  }
+
+  bool is_orig_var_array() const {
+    return get_type_orig().type.is_array();
+  }
+};
 
 
 // type infer rules
@@ -72,6 +134,10 @@ struct TypedVerilogRefinementMap : public VerilogRefinementMap {
   // this should include phase-tracker (m,v,alias)
   // ... ? 
   void TraverseAllRfExpr(std::function<void(RfExpr & inout)> func);
+
+  RfExpr ReplacingRtlIlaVar(const RfExpr & in, bool replace_dot);
+
+  std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
 
 protected:
   void CollectInternallyDefinedVars();
