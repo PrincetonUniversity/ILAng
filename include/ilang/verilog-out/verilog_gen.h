@@ -174,12 +174,6 @@ public:
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
           pass_node_name(pass_name), reg_random_init(rand_init),
           expand_mem(ExpandMem), collect_ite_unknown_update(CollectIteUnknownUpdate) {}
-    /// Overwrite configuration, used by vtarget gen
-    VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start, bool rand_init, bool ExpandMem, bool CollectIteUnknownUpdate)
-        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(c.pass_node_name), reg_random_init(rand_init),
-          expand_mem(ExpandMem), collect_ite_unknown_update(CollectIteUnknownUpdate) {}
     // set other fields if there are such need (?)
   }; // end of struct VlgGenConfig
 

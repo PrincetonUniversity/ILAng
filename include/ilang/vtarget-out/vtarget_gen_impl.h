@@ -23,11 +23,10 @@
 #include <ilang/config.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
+#include <ilang/rfmap-in/rfmap_typecheck.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/directive.h>
-#include <ilang/vtarget-out/supplementary_info.h>
-#include <ilang/vtarget-out/var_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 namespace ilang {
@@ -38,13 +37,6 @@ public:
   // --------------------- TYPE DEFINITION ------------------------ //
   /// Type of the target
   typedef enum { INVARIANTS, INSTRUCTIONS, INV_SYN_DESIGN_ONLY } target_type_t;
-  /// Type of the ready condition
-  typedef enum {
-    NA = 0,
-    READY_SIGNAL = 1,
-    READY_BOUND = 2,
-    BOTH = 3
-  } ready_type_t;
   /// Per func apply counter
   typedef std::map<std::string, unsigned> func_app_cnt_t;
   /// Type of the verification backend
@@ -73,19 +65,17 @@ public:
   /// \param[in] which backend to use, it needs this info to gen proper
   /// properties
   VlgSglTgtGen(
-      const std::string& output_path, // will be a sub directory of the
-                                      // output_path of its parent
-      const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
-                                 // be used to verify invariants
-      const InstrLvlAbsPtr& ila_ptr,
-      const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _supplementary_info,
-      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
-      const std::string& ila_mod_inst_name, const std::string& wrapper_name,
-      const std::vector<std::string>& implementation_srcs,
-      const std::vector<std::string>& implementation_include_path,
-      const vtg_config_t& vtg_config, backend_selector backend,
-      const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
+    const std::string& output_path, // will be a sub directory of the output_path of its parent
+    const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
+                               // be used to verify invariants
+    const InstrLvlAbsPtr& ila_ptr,
+    const rfmap::VerilogRefinementMap & refinement,
+    VerilogInfo* _vlg_info_ptr,
+    const std::string& wrapper_name,
+    const std::vector<std::string>& implementation_srcs,
+    const std::vector<std::string>& implementation_include_path,
+    const vtg_config_t& vtg_config, backend_selector backend,
+    const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
 
   /// Destructor: do nothing , most importantly it is virtual
   virtual ~VlgSglTgtGen() {}
@@ -109,32 +99,18 @@ protected:
   VerilogGeneratorBase vlg_wrapper;
   /// Generator for the ila verilog
   VerilogGenerator vlg_ila;
-  /// inteface directive recorder
+  /// Verilog module connection
   IntefaceDirectiveRecorder _idr;
-  /// state directive recorder
-  StateMappingDirectiveRecorder _sdr;
+
+  /// The refinement map with type checked
+  rfmap::TypedVerilogRefinementMap refinement_map;
+
   /// Analyzer for the implementation
   // we don't know the module name, before analyzing the rfmap. so we cannot
   // initialize in the beginning
   VerilogInfo* vlg_info_ptr;
-  /// variable extractor to handle property expressions
-  VarExtractor _vext;
-  /// refinement relation variable mapping
-  nlohmann::json& rf_vmap;
-  /// refinement relation instruction conditions
-  nlohmann::json& rf_cond;
-  /// An empty json for default fallthrough cases
-  nlohmann::json empty_json;
-  /// The supplementary information
-  const VlgTgtSupplementaryInfo& supplementary_info;
-  /// record all the referred vlg names, so you can add (*keep*) if needed
-  std::map<std::string, ex_info_t> _all_referred_vlg_names;
   /// target type
   target_type_t target_type;
-  /// a shortcut of whether rf has flush condition set
-  bool has_flush;
-  /// ready type
-  ready_type_t ready_type;
   /// func apply counter
   func_app_cnt_t func_cnt;
   /// max bound , default 127
@@ -243,10 +219,10 @@ protected:
   void ConstructWrapper_add_uf_constraints();
   /// Add post value holder (val @ cond == ...)
   void ConstructWrapper_add_post_value_holder();
-  /// A sub function of the above post-value-holder hanlder
-  int ConstructWrapper_add_post_value_holder_handle_obj(
-      nlohmann::json& pv_cond_val, const std::string& pv_name, int width,
-      bool create_reg);
+  /// Add delay unit
+  void ConstructWrapper_add_delay_unit();
+  /// Add stage tracker unit
+  void ConstructWrapper_add_stage_tracker();
   /// Add Verilog inline monitor
   void ConstructWrapper_add_vlg_monitor();
 
@@ -286,8 +262,6 @@ protected:
   std::vector<std::string> vlg_include_files_path;
   /// Store the configuration
   vtg_config_t _vtg_config;
-  /// Store the vlg configurations
-  const VerilogGenerator::VlgGenConfig& _vlg_cfg;
   /// Store the selection of backend
   backend_selector _backend;
 
@@ -360,6 +334,7 @@ public:
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);
+  void RfmapIlaStateSanityCheck();
 
 private:
   /// If it is in a bad state
@@ -447,13 +422,6 @@ protected:
   /// to store the generate script name
   std::vector<std::string> runnable_script_name;
 
-protected:
-  /// store the vmap info
-  nlohmann::json rf_vmap;
-  /// store the condition
-  nlohmann::json rf_cond;
-  /// The supplementary information
-  VlgTgtSupplementaryInfo supplementary_info;
 
 public:
   // --------------------- METHODS ---------------------------- //

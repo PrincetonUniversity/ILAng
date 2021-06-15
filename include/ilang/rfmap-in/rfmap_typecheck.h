@@ -114,6 +114,12 @@ struct TypedVerilogRefinementMap : public VerilogRefinementMap {
     const std::string & instcond_json_file,
     var_typecheck_t type_checker
     );
+  
+  TypedVerilogRefinementMap(
+    const VerilogRefinementMap & refinement,
+    var_typecheck_t type_checker
+  );
+
     
 // references
 // - named defined vars with type
@@ -140,6 +146,8 @@ struct TypedVerilogRefinementMap : public VerilogRefinementMap {
   std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
 
 protected:
+
+  void initialize();
   void CollectInternallyDefinedVars();
 
   void TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) ;
@@ -160,8 +168,7 @@ private:
   RfMapVarType TypeInferTravserRfExpr(const RfExpr & in);
   void ComputeDelayValueHolderWidth();
 
-
-};
+}; // TypedVerilogRefinementMap
 
 } // namespace rfmap
 } // namespace ilang

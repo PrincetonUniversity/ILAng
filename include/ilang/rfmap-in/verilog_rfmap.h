@@ -134,9 +134,22 @@ struct ValueRecorder {
 
 // this is not directly used
 struct SignalDelay {
+
+  SignalDelay(const RfExpr & _signal, unsigned n_cycle) :
+    delay_type(delay_typeT::SINGLE), signal(_signal),
+    num_cycle(n_cycle), width(0), upper_bnd(0) {}
+
+  SignalDelay(const RfExpr & _signal, unsigned n_cycle,  unsigned u_bnd) :
+    delay_type(u_bnd == 0 ? delay_typeT::TO_INFINITE : delay_typeT::RANGE),
+    signal(_signal),
+    num_cycle(n_cycle), width(0), upper_bnd(u_bnd) {}
+
+  enum class delay_typeT { SINGLE, RANGE, TO_INFINITE } delay_type;
   RfExpr signal;
   unsigned num_cycle;
   unsigned width;
+
+  unsigned upper_bnd;
 };
 
 struct PhaseTracker {
@@ -197,6 +210,9 @@ struct VerilogRefinementMap {
   // ---------------------- inst-cond ------------------------------- //
   std::map<std::string, InstructionCompleteCondition> inst_complete_cond;
   std::vector<RfExpr> global_invariants;
+
+  // ---------------------- supplementary_info ------------------------------- //
+  std::map<std::string, int> width_info; // this is needed in case our width inference failed
 
   // member function : return true if checking passed
   bool SelfCheckField() const;

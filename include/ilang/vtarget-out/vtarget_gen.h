@@ -28,7 +28,7 @@ public:
   /// Type of the backend:
   /// Pono, JasperGold, CHC for chc solver, AIGER for abc
   // YOSYS is for invariant synthesis use
-  typedef enum {
+  enum class backend_selector{
     NONE = 0,
     JASPERGOLD = 2,
     YOSYS = 128,              // 10000000
@@ -39,17 +39,24 @@ public:
     ABCPDR = YOSYS + 16,      // 10010000
     PONO = YOSYS + 32,        // 10100000
     RELCHC = YOSYS + 64       // 11000000
-  } backend_selector;
+  };
+
+
+  /// decide if a backend needs Yosys
+  static bool backend_needs_yosys(backend_selector b) {
+    return (int(b) & int(backend_selector::YOSYS)) == int(backend_selector::YOSYS);
+  }
+
   /// Type of invariant synthesis backend
-  typedef enum {
-    Z3 = Z3PDR ^ YOSYS,
-    GRAIN = GRAIN_SYGUS ^ YOSYS,
-    ABC = ABCPDR ^ YOSYS,        
-    ELDERICA = ELD_CEGAR ^ YOSYS,// 0001010
-    NOSYN = YOSYS // 1000000
-  } synthesis_backend_selector;
+  enum class synthesis_backend_selector {
+    Z3       = int(backend_selector::Z3PDR)       ^ int(backend_selector::YOSYS),
+    GRAIN    = int(backend_selector::GRAIN_SYGUS) ^ int(backend_selector::YOSYS),
+    ABC      = int(backend_selector::ABCPDR)      ^ int(backend_selector::YOSYS),        
+    ELDERICA = int(backend_selector::ELD_CEGAR)   ^ int(backend_selector::YOSYS),// 0001010
+    NOSYN    = int(backend_selector::YOSYS) // 1000000
+  } ;
   /// Type of the chc target
-  enum _chc_target_t { CEX, INVCANDIDATE, GENERAL_PROPERTY };
+  enum class _chc_target_t { CEX, INVCANDIDATE, GENERAL_PROPERTY };
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
     /// Preheader Content : will use in all targets
@@ -65,18 +72,14 @@ public:
     /// Does not insert assertions of variable mapping
     /// if an instruction does not update that var
     bool OnlyCheckInstUpdatedVars; // true
-    /// A shortcut for SetUpdate(s, Ite(c, v, __unknown__() ))
-    /// will only gnerate map like : ( ila.c => ila.v == vlg.v )
-    /// In this case, you don't need to deal with unknown in func map
-    /// nor do you need to create a special refinement map
-    /// function has to be defined as __unknown__X
-    bool IteUnknownAutoIgnore; // false
-    /// whether to remove the extra issue cycle and starts from reset
-    bool VerificationSettingAvoidIssueStage;
+    /// Whether to pass Verilog node name in reference
+    /// generation
+    bool VerilogGenPassNodeName;
+
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call
     /// generateInvariantVerificationTarget) if true, will check by default
-    enum _validate_synthesized_inv {
+    enum class _validate_synthesized_inv {
       NOINV,
       CANDIDATE,
       CONFIRMED,
@@ -87,7 +90,7 @@ public:
     /// Whether to force the instruction check to start from reset state
     bool ForceInstCheckReset;
     /// For Pono target generator : whether to force NEW/OLD port declaration
-    enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
+    enum class PortDeclStyleT { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
     /// Generate a jg script to help validate Pono?
     bool PonoGenJgTesterScript;
     /// For Pono backend: do we add (* keep *)? default true, however, it can be
@@ -100,7 +103,7 @@ public:
     /// use the default setting :  NOTIFY_PANIC
     /// in some rare cases, you may want to use JasperGold after it
     /// in that case, it is okay to just ignore it
-    enum PonoDotReferenceNotify_t {
+    enum class PonoDotReferenceNotify_t {
       NOTIFY_PANIC = 0,
       NOTIFY_WARNING = 1,
       NOTIFY_IGNORE = 2
@@ -128,12 +131,11 @@ public:
     bool YosysSmtArrayForRegFile;
     /// How to encode Verilog state
     /// DataSort seems to use PDR engine
-    typedef enum {
+    enum class YosysStateSortT {
       UnintepretedFunc /*not supported*/,
       Datatypes, /*by default*/
       BitVec     /*optional for property check, not inv-syn*/
-    } _state_sort_t;
-    _state_sort_t YosysSmtStateSort;
+    } YosysSmtStateSort;
     /// for invariant synthesis do we keep memory abstraction in Verilog
     /// you can keep it true, untill the invariant refers to some memory there
     bool InvariantSynthesisKeepMemory;
@@ -193,13 +195,12 @@ public:
     /// ABC option : whether to minimize invariant
     bool AbcMinimizeInv;
     /// ABC option : the way to handle assumptions
-    typedef enum _abc_assumption_style_t {
+    enum class AbcAssumptionStyle_t {
       AigMiterExtraOutput =
           0, // Use AIG's extra output to represent, cannot use with GLA
       AssumptionRegister =
           1 // Use extra register, may have issues in interpreting the invariant
-    } AbcAssumptionStyle_t;
-    AbcAssumptionStyle_t AbcAssumptionStyle;
+    } AbcAssumptionStyle;
 
     // ----------- Extended Options for Grain -------------- //
 
@@ -207,13 +208,12 @@ public:
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
-          IteUnknownAutoIgnore(false),
-          VerificationSettingAvoidIssueStage(false),
-          ValidateSynthesizedInvariant(ALL),
+          VerilogGenPassNodeName(false),
+          ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL),
 
           // ----------- Options for Pono settings -------------- //
-          ForceInstCheckReset(false), PortDeclStyle(AUTO),
-          PonoGenJgTesterScript(false), PonoAddKeep(true),
+          ForceInstCheckReset(false), PortDeclStyle(PortDeclStyleT::AUTO),
+          PonoGenJgTesterScript(false), PonoAddKeep(false),
           PonoOtherSolverOptions(""),
           PonoDotReferenceNotify(PonoDotReferenceNotify_t::NOTIFY_PANIC),
           MaxBound(127), OnlyAssumeUpdatedVarsEq(false),
@@ -225,7 +225,7 @@ public:
           YosysUndrivenNetAsInput(true), YosysSmtFlattenHierarchy(true),
           YosysSmtFlattenDatatype(false), YosysPropertyCheckShowProof(false),
           YosysSmtArrayForRegFile(false),
-          YosysSmtStateSort(Datatypes), InvariantSynthesisKeepMemory(true),
+          YosysSmtStateSort(YosysStateSortT::Datatypes), InvariantSynthesisKeepMemory(true),
           InvariantCheckKeepMemory(true),
           InvariantSynthesisReachableCheckKeepOldInvariant(false),
 
@@ -245,7 +245,7 @@ public:
           // ----------- Options for ABC -------------- //
           AbcUseGla(false), AbcGlaTimeLimit(500), AbcGlaFrameLimit(200),
           AbcUseCorr(false), AbcUseAiger(true), AbcMinimizeInv(false),
-          AbcAssumptionStyle(_abc_assumption_style_t::AigMiterExtraOutput)
+          AbcAssumptionStyle(AbcAssumptionStyle_t::AigMiterExtraOutput)
 
     {}
   } vtg_config_t;

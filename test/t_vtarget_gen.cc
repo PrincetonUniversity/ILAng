@@ -341,7 +341,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternal) {
 TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
   auto ila_model = MemorySwap::BuildRfAsMemModelRegEntry6();
   VlgVerifTgtGenBase::vtg_config_t vtg_cfg;
-  vtg_cfg.CosaAddKeep = false;
+  vtg_cfg.PonoAddKeep = false;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
