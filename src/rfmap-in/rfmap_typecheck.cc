@@ -17,6 +17,12 @@ std::string TypedVerilogRefinementMap::new_id() {
   return "__auxvar"+std::to_string(counter++) + "__";
 }
 
+TypedVerilogRefinementMap::TypedVerilogRefinementMap(
+  const VerilogRefinementMap & refinement,
+  var_typecheck_t type_checker
+ ) : VerilogRefinementMap(refinement), counter(0), typechecker(type_checker) {
+  initialize();
+}
 
 TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const std::string & varmap_json_file,
@@ -24,7 +30,10 @@ TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   var_typecheck_t type_checker
   ) : VerilogRefinementMap(varmap_json_file, instcond_json_file),
     counter(0), typechecker(type_checker) {
-  
+  initialize();
+} // TypedVerilogRefinementMap::TypedVerilogRefinementMap
+ 
+void TypedVerilogRefinementMap::initialize() {
   // collect those with unknown types
   // a. delay
   // b. value holder
@@ -35,9 +44,10 @@ TypedVerilogRefinementMap::TypedVerilogRefinementMap(
 
   // determine the types of delay and value holder
   ComputeDelayValueHolderWidth();
-  
-} // TypedVerilogRefinementMap::TypedVerilogRefinementMap
- 
+
+} // initialize
+
+
 RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
   const RfExpr & in,
   bool replace_internal_wire) 
@@ -187,19 +197,21 @@ void TypedVerilogRefinementMap::collect_inline_value_recorder_func(RfExpr & inou
 
 void TypedVerilogRefinementMap::collect_inline_delay_func(RfExpr & inout) {
   if(inout->get_op() == voperator::DELAY) {
-    assert(inout->get_str_parameter().empty()); // currently we don't handle multi-clock
-    assert(inout->get_parameter().size() == 1);
-    assert(inout->get_child().size() >= 1);
-
-    int delay = inout->get_parameter().at(0);
+    assert(inout->get_parameter().size() == inout->get_str_parameter().size());
+    assert(inout->get_child().size() == 1 || inout->get_child().size() == 2);
+    assert(inout->get_parameter().size() == 1 || inout->get_parameter().size() == 2);
 
     auto delay_name = new_id()+"delay";
     auto new_node = VExprAst::MakeVar(delay_name);
-    SignalDelay tmp_delay;
-    tmp_delay.signal = inout->get_child().at(0);
-    tmp_delay.num_cycle = delay;
-    tmp_delay.width = 0;
-    aux_delays.emplace(delay_name, tmp_delay);
+
+    if( inout->get_parameter().size() == 1 ) {
+      int delay = inout->get_parameter().at(0);
+      aux_delays.emplace(delay_name, SignalDelay(inout->get_child().at(0), delay) );
+    } else { // inout->get_parameter().size() == 2
+      int delay = inout->get_parameter().at(0);
+      int delay_upper = inout->get_parameter().at(1);
+      aux_delays.emplace(delay_name, SignalDelay(inout->get_child().at(0), delay, delay_upper) );
+    }
 
     if(inout->get_child().size() == 1) {
       inout = new_node;
@@ -252,6 +264,18 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
     tmp.type = VarDef::var_type::WIRE;
     all_var_def_types.emplace("decode", tmp);
     all_var_def_types.emplace("commit", tmp);
+
+    // decode and commit stage replacement
+    var_replacement.emplace("decode", 
+      VarReplacement(
+        verilog_expr::VExprAst::MakeSpecialName("decode"),
+        verilog_expr::VExprAst::MakeSpecialName("__START__")
+        ));
+    var_replacement.emplace("commit", 
+      VarReplacement(
+        verilog_expr::VExprAst::MakeSpecialName("commit"),
+        verilog_expr::VExprAst::MakeSpecialName("__IEND__")
+        ));
   }
   
     

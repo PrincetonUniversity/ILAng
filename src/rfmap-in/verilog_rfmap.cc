@@ -913,6 +913,22 @@ VerilogRefinementMap::VerilogRefinementMap
     } // if invariant
   } // inst cond
 
+
+  // ---------------- supplementary_info ------------------------ //
+  {
+    auto * annotation = GetJsonSection(rf_vmap, {"annotation","annotations"});
+    if(annotation) {
+      auto * width_anno = GetJsonSection(*annotation, {"width"});
+      if(width_anno && width_anno->is_object()){
+        for (auto&& nw : width_anno->items()) {
+          width_info.insert(std::make_pair(nw.key(), nw.value().get<int>()));
+        }
+      }
+    } // end of annotation
+  } // end of supplementary_info
+
+
+
   ERRIF(ParseRfExprErrFlag, "error occur in refinement expression parsing");
 
 } // VerilogRefinementMap::VerilogRefinementMap
