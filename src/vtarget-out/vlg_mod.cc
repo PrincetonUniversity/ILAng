@@ -289,7 +289,7 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
 
   auto vname =
       ReplaceAll(vlg_sig_name, ".", "__DOT__") +
-      ReplaceAll(ReplaceAll(suffix, "[", "_"), "]", "_"); // name for verilog
+      "_"+ ReplaceAll(suffix,"'","") +"_"; // name for verilog
   auto mod_hier_name = Split(vlg_sig_name, ".");
   auto hier = mod_hier_name.size();
   auto last_level_name = mod_hier_name[hier - 1];
@@ -326,7 +326,7 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   loc =
       vlg_info_ptr->get_endmodule_loc(inst_name); // this the endmodule location
   assign_map[loc.first].push_back(
-      assign_item_t(loc.second, vname, width, short_name + suffix));
+      assign_item_t(loc.second, vname, width, short_name + "["+ suffix+"]"));
 
   return vlg_sig_t({vname, width});
 } // RecordConnectSigName

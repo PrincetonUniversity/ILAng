@@ -71,12 +71,12 @@ struct IlaVarMapping {
 struct RtlInterfaceMapping{
   /// "CLOCK" : { "clkA" : "wclk", "clkB" : ["rclk", "clk"] }
   // name of the clock domain -> list of clock pins
-  std::map<std::string, std::vector<std::string>> clock_domain_defs;
+  std::map<std::string, std::set<std::string>> clock_domain_defs;
   
   // "RESET" : "reset", // you can have a list of signals here
-  std::vector<std::string> reset_pins;
+  std::set<std::string> reset_pins;
   // "NRESET" : ["nreset1", "nreset2"],  // like this
-  std::vector<std::string> nreset_pins;
+  std::set<std::string> nreset_pins;
   // "CUSTOMRESET" : {"name"  : "input-pin", ...}
   std::map<std::string, std::vector<std::string>> custom_reset_domain_defs;  
 }; // struct RtlInterfaceMapping
@@ -124,12 +124,17 @@ struct GeneralVerilogMonitor {
   std::string verilog_append; //
   std::map<std::string, VarDef> var_defs;
   std::set<std::string> var_uses;
+  bool keep_for_invariant;
+
+  GeneralVerilogMonitor() : keep_for_invariant(false) {}
 }; // GeneralVerilogMonitor 
 
 struct ValueRecorder {
   RfExpr condition;
   RfExpr value;
   unsigned width;
+
+  ValueRecorder() : condition(nullptr), value(nullptr), width(0) {}
 };
 
 // this is not directly used
@@ -182,6 +187,11 @@ struct InstructionCompleteCondition{
   unsigned max_bound;
   std::vector<RfExpr> start_condition;
   RfExpr ready_signal;
+
+
+  InstructionCompleteCondition() : ready_bound(0), max_bound(0), ready_signal(nullptr) {}
+  bool is_readybound() const {return type == ConditionType::BOUND; }
+  bool is_readysignal() const {return type == ConditionType::SIGNAL; }
 }; // 
 
 struct VerilogRefinementMap {

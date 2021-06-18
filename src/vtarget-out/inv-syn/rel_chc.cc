@@ -578,10 +578,9 @@ bool static extractSigDefFromLine(
 
 
     std::string ret_tpl_smt;
-    if (_vtg_config.VerificationSettingAvoidIssueStage)
-      ret_tpl_smt = dual_ind_inv_reset_start_tmpl;
-    else
-      ret_tpl_smt = dual_ind_inv_tmpl;
+    ret_tpl_smt = dual_ind_inv_reset_start_tmpl;
+      
+
     { // replacing the init sequence
       ret_tpl_smt = ReplaceAll(ReplaceAll(ret_tpl_smt, "%BIn%", BIn), "%rstseq%", rstseq);
     }

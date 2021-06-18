@@ -32,41 +32,37 @@ VlgSglTgtGen::VlgSglTgtGen(
         output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
-    const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
-    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
-    VlgTgtSupplementaryInfo& _supplementary_info, VerilogInfo* _vlg_info_ptr,
-    const std::string& vlg_mod_inst_name, const std::string& ila_mod_inst_name,
+    const InstrLvlAbsPtr& ila_ptr,
+    const rfmap::VerilogRefinementMap & refinement,
+    VerilogInfo* _vlg_info_ptr,
     const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
     const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
     : _output_path(output_path), _instr_ptr(instr_ptr), _host(ila_ptr),
-      _vlg_mod_inst_name(vlg_mod_inst_name),
-      _ila_mod_inst_name(ila_mod_inst_name),
+      _vlg_mod_inst_name("RTL"),
+      _ila_mod_inst_name("ILA"),
       // default option on wrapper
       vlg_wrapper(
-          VerilogGenerator::VlgGenConfig(config, // use default configuration
-                                         true,
+          VerilogGenerator::VlgGenConfig(true, // ExternalMem
                                          VerilogGeneratorBase::VlgGenConfig::
                                              funcOption::External, // function
                                          false,  // no start signal
+                                         false,  // no pass node name
                                          false,  // no rand init
                                          false,  // no expand memory
                                          false), // no collect ITE unknown
           wrapper_name),
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
-          config,
-          // except overwriting these: external memory
-          // if expand memory, then the ila's memory must be internal
-          config
-              .extMem, // this depends on the given configuration (default case)
-          VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
-          true, // rand init
-          true, // for internal should always expand (probe) memory
-          vtg_config
-              .IteUnknownAutoIgnore // may collect depends on configuration
+          false, // default case: internal memory
+          VerilogGeneratorBase::VlgGenConfig::funcOption::External, // external function
+          true, // w. start signal
+          vtg_config.VerilogGenPassNodeName, // pass node name
+          false, // no rand init
+          false, // no expand memory
+          false  // no collecte ITE unknown
           )),
       // interface mapping directive
       // -------- CONTROLLING THE RESET CONNECTION ------------- //
@@ -78,21 +74,19 @@ VlgSglTgtGen::VlgSglTgtGen(
       // but if forced, we do; For the design only thing
       // we do ensure reset also
 
-      // state-mapping directive
-      _sdr(), // currently no
       // verilog info
       vlg_info_ptr(_vlg_info_ptr),
       // variable extractor
-      _vext(
-          [this](const std::string& n) -> bool { return TryFindIlaState(n); },
-          [this](const std::string& n) -> bool { return TryFindIlaInput(n); },
-          [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
+      //_vext(
+      //    [this](const std::string& n) -> bool { return TryFindIlaState(n); },
+      //    [this](const std::string& n) -> bool { return TryFindIlaInput(n); },
+      //    [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
       // ref to refmaps
-      rf_vmap(_rf_vmap), rf_cond(_rf_cond), empty_json(nullptr),
-      supplementary_info(_supplementary_info),
+      refinement_map(refinement, ??? ),
+
       target_type(target_tp), // whether it is
                               // invariant/instructions
-      has_flush(false), ready_type(ready_type_t::NA), max_bound(127),
+      max_bound(127),
       cnt_width(1), _advanced_param_ptr(adv_ptr),
       has_gussed_synthesized_invariant(
           adv_ptr && adv_ptr->_candidate_inv_ptr &&
@@ -100,14 +94,11 @@ VlgSglTgtGen::VlgSglTgtGen(
       has_confirmed_synthesized_invariant(
           adv_ptr && adv_ptr->_inv_obj_ptr &&
           !adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
-      has_rf_invariant((IN("global invariants", _rf_cond) &&
-                        rf_cond["global invariants"].size() != 0) ||
-                       (IN("global-invariants", _rf_cond) &&
-                        rf_cond["global-invariants"].size() != 0)),
+      has_rf_invariant(!refinement_map.global_invariants.empty()),
       mapping_counter(0), property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
-      _vtg_config(vtg_config), _vlg_cfg(config), _backend(backend),
+      _vtg_config(vtg_config), _backend(backend),
       _bad_state(false) {
 
   ILA_NOT_NULL(_host);
@@ -117,33 +108,29 @@ VlgSglTgtGen::VlgSglTgtGen(
             target_type == target_type_t::INV_SYN_DESIGN_ONLY)
       << "Implementation bug: unrecognized target type!";
 
-  // reset absmem's counter
-  VlgAbsMem::ClearAbsMemRecord();
-
-  if (has_rf_invariant) {
-    if (IN("global invariants", rf_cond) &&
-        !rf_cond["global invariants"].is_array()) {
-      ILA_ERROR
-          << "'global invariants' field in refinement relation has to be a "
-             "JSON array.";
-      _bad_state = true;
-      return;
-    }
-    if (IN("global-invariants", rf_cond) &&
-        !rf_cond["global-invariants"].is_array()) {
-      ILA_ERROR
-          << "'global-invariants' field in refinement relation has to be a "
-             "JSON array.";
-      _bad_state = true;
-      return;
-    }
-  }
 
   if (target_type == target_type_t::INSTRUCTIONS) {
 
     ILA_NOT_NULL(instr_ptr);
+    RfmapIlaStateSanityCheck();
+
     // TODO: insert the memory export directive
-    vlg_ila.AnnotateMemory(supplementary_info.memory_export); // need to change this
+    VerilogGeneratorBase::memory_export_annotation_t mem_annotation;
+    for(unsigned sidx = 0; sidx < _host->state_num(); ++ sidx) {
+      const auto & s = _host->state(sidx);
+      if(!s->is_mem())
+        continue;
+      const auto & n = s->name().str();
+      auto pos = refinement_map.ila_state_var_map.find(n);
+      if (pos == refinement_map.ila_state_var_map.end())
+        continue;
+      if(pos->second.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM)
+        mem_annotation.emplace(n,true);
+      else
+        mem_annotation.emplace(n,false);
+    } // end - for each mem state
+
+    vlg_ila.AnnotateMemory(mem_annotation); // need to change this
 
     vlg_ila.ExportTopLevelInstr(instr_ptr);
 
@@ -164,69 +151,12 @@ VlgSglTgtGen::VlgSglTgtGen(
                 << instr_ptr->name().str();
       _bad_state = true;
     }
-
-    if (IN("flush constraint", instr) &&
-        not instr["flush constraint"].is_array()) {
-      ILA_ERROR
-          << "RF: 'flush constraint' filed must be an array of string for "
-          << instr_ptr->name().str();
-      _bad_state = true;
-    }
-
-    if (IN("pre-flush end", instr) && !instr["pre-flush end"].is_string()) {
-      ILA_ERROR << "RF: 'pre-flush end' field must be a string for "
-                << instr_ptr->name().str();
-      _bad_state = true;
-    }
-
-    if (IN("post-flush end", instr) &&
-        not instr["post-flush end"].is_string()) {
-      ILA_ERROR << "RF: 'post-flush end' filed must be a string for "
-                << instr_ptr->name().str();
-      _bad_state = true;
-    }
-
-    if (IN("flush constraint", instr) &&
-        instr["flush constraint"].size() != 0) {
-      if (IN("pre-flush end", instr) && instr["pre-flush end"].size() != 0 &&
-          IN("post-flush end", instr) && instr["post-flush end"].size() != 0)
-        has_flush = true; // requiring three items
-      else {
-        ILA_ERROR
-            << "When using flushing, 'pre-flush end' and 'post-flush end' "
-            << "must be specify";
-        _bad_state = true;
-      }
-    }
-
-    if (IN("ready signal", instr) &&
-        instr["ready signal"].size() !=
-            0) // whether a none-empty string or array...
-      ready_type = (ready_type_t)(ready_type | ready_type_t::READY_SIGNAL);
-    if (IN("ready bound", instr) && instr["ready bound"].is_number_integer())
-      ready_type = (ready_type_t)(ready_type | ready_type_t::READY_BOUND);
-    if (ready_type == ready_type_t::NA) {
-      ILA_ERROR << "refinement relation for:" << instr_ptr->name().str()
-                << " has to specify a ready condition";
-      _bad_state = true;
-    }
   } // END of target_type == INSTRUCTION
   else if (target_type == target_type_t::INVARIANTS) {
     ILA_WARN_IF(instr_ptr != nullptr)
         << "Provide an instruction "
         << "when verifying invariants. The instruction will not be used";
   }
-  // if you supply additional invariant in the invariant synthesis
-  // they will still be a target for invariant generated.
-  // you can use it to verify the invariants if you like
-  ILA_CHECK(!(has_flush &&
-              (backend & backend_selector::YOSYS) == backend_selector::YOSYS))
-      << "Currently does not support flushing in invariant synthesis."
-      << "Future work.";
-
-  ILA_CHECK(!(has_flush && vtg_config.VerificationSettingAvoidIssueStage))
-      << "it is impossible to avoid issue stage for flushing refinement map, "
-      << "ignore this configuration option.";
 } // END of constructor
 
 void VlgSglTgtGen::ConstructWrapper_generate_header() {
@@ -336,9 +266,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
       FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
       for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
         // handle the IteUnknown function case
-        if (_vtg_config.IteUnknownAutoIgnore &&
-            _sdr.isSpecialUnknownFunction(func_ptr))
-          continue;
+
         ILA_ERROR_IF(!(IN("functions", rf_vmap) &&
                        rf_vmap["functions"].is_object() &&
                        IN(func_ptr->name().str(), rf_vmap["functions"])))
@@ -349,8 +277,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     }
 
     // ISSUE ==> vmap
-    std::string precondition =
-        has_flush ? "(~ __ENDFLUSH__) || " : "(~ __IEND__) || ";
+    std::string precondition = "(~ __IEND__) || ";
 
     if (IN(sname, vlg_ila.state_update_ite_unknown)) {
       auto pos = vlg_ila.state_update_ite_unknown.find(sname);
@@ -358,9 +285,6 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     }
 
     std::string problem_name = "variable_map_assert";
-    if (_vtg_config.PerVariableProblemCosa &&
-        (_backend & backend_selector::YOSYS) != backend_selector::YOSYS)
-      problem_name += "_" + sname;
     // for Yosys, we must keep the name the same
     // so it knows these are for variable map assertions
 
@@ -385,22 +309,6 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 //  ...                   ...
 //  6           IEND                      ---> check varmap
 //  7                     ENDED
-
-//  FLUSH case
-//  1 RESET
-//  2             RESETED                   ---> assume flush & preflush cond
-//  ...                                     ---> assume flush & preflush cond
-//  n ISSUE = pre-flush end                 ---> assume flush & preflush cond
-//  n+1           START                     ---> assume varmap  ---> assume inv
-//  (maybe globally?) n+2                   STARTED n+3 STARTED
-//  ...                   ... (forever)
-//  m             IEND
-//  m+1                    ENDED            ---> assume flush & postflush cond
-//  ...                    ENDED (forever)  ---> assume flush & postflush cond
-//  l             ENDFLUSH = post-flush end ---> assume flush & postflush cond
-//  ---> assert varmap l+1                    FLUSHENDED       ---> assume flush
-//  & postflush cond
-//
 
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
@@ -469,7 +377,10 @@ void VlgSglTgtGen::ConstructWrapper() {
   // post value holder --- ABC cannot work on this
   if (target_type == target_type_t::INSTRUCTIONS) {
     ConstructWrapper_add_post_value_holder();
+    ConstructWrapper_add_delay_unit();
+    ConstructWrapper_add_stage_tracker();
   }
+  
   ConstructWrapper_add_vlg_monitor();
   // add monitor -- inside the monitor, there will be
   // disable logic if it is for invariant type target
@@ -479,8 +390,7 @@ void VlgSglTgtGen::ConstructWrapper() {
                                         // type
 
   // 5.0 add the extra wires to the top module wrapper
-  if (_backend == backend_selector::COSA ||
-      (_backend & backend_selector::YOSYS) == backend_selector::YOSYS)
+  if (VlgVerifTgtGenBase::backend_needs_yosys(_backend))
     ConstructWrapper_register_extra_io_wire();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 9;
@@ -498,7 +408,16 @@ void VlgSglTgtGen::Export_wrapper(const std::string& wrapper_name) {
     return;
   }
   vlg_wrapper.DumpToFile(fout);
+
+  // for append verilog
+  for(const auto & vlg_monitor : refinement_map.customized_monitor) {
+    if(vlg_monitor.second.verilog_append.empty())
+      continue;
+    fout << "/***** Monitor for " << vlg_monitor.first << " *****/\n";
+    fout << vlg_monitor.second.verilog_append;
+  }
 }
+
 /// export the ila verilog
 void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
 
@@ -511,9 +430,7 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
   ila_file_name = ila_vlg_name;
   std::ofstream fout;
   std::string fn;
-  if (_backend == backend_selector::COSA ||
-      (_backend & backend_selector::YOSYS) == backend_selector::YOSYS ||
-      (_backend == backend_selector::RELCHC)) {
+  if (VlgVerifTgtGenBase::backend_needs_yosys(_backend)) {
     fn = os_portable_append_dir(_output_path, top_file_name);
     fout.open(fn, std::ios_base::app);
   } else if (_backend == backend_selector::JASPERGOLD) {
@@ -525,7 +442,7 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
     return;
   }
   vlg_ila.DumpToFile(fout);
-}
+} // end of Export_ila_vlg
 
 void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
                              const std::string& ila_vlg_name,
@@ -547,6 +464,6 @@ void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
 
   Export_problem(extra_name);
   Export_script(script_name);
-}
+} // end of ExportAll
 
 } // namespace ilang

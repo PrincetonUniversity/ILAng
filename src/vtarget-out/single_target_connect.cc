@@ -95,17 +95,10 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
     std::string func_reg_w =
         func_app.func_name + "_" + IntToStr(func_no) + "_result_wire";
-    std::string func_reg =
-        func_app.func_name + "_" + IntToStr(func_no) + "_result_reg";
-    vlg_wrapper.add_reg(func_reg, func_app.result.second);
+        
     vlg_wrapper.add_wire(func_reg_w, func_app.result.second, true);
     // add as a module input, also
     vlg_wrapper.add_input(func_reg_w, func_app.result.second);
-
-    add_reg_cassign_assumption(func_reg, func_reg_w, func_app.result.second,
-                               "__START__", "func_result");
-    // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " +
-    // func_reg_w + ";" );
 
     retStr += "   ." + func_app.result.first + "(" + func_reg_w + "),\n";
 
@@ -116,12 +109,9 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
       std::string func_arg_w = func_app.func_name + "_" + IntToStr(func_no) +
                                "_arg" + IntToStr(argNo) + "_wire";
-      std::string func_arg = func_app.func_name + "_" + IntToStr(func_no) +
-                             "_arg" + IntToStr(argNo) + "_reg";
-      vlg_wrapper.add_reg(func_arg, arg.second);
+      // this should be module output
       vlg_wrapper.add_wire(func_arg_w, arg.second, true);
-      add_reg_cassign_assumption(func_arg, func_arg_w, arg.second, "__START__",
-                                 "func_arg");
+
       // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " +
       // func_arg_w + ";" );
 
@@ -228,10 +218,21 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       auto wdw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wdata";
       auto waw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_waddr";
       auto wew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wen";
+      auto wdw_delay = wdw + "_d1";
+      auto waw_delay = waw + "_d1";
+      auto wew_delay = wew + "_d1";
 
       vlg_wrapper.add_wire(wdw, dw, true);
       vlg_wrapper.add_wire(waw, aw, true);
       vlg_wrapper.add_wire(wew, 1, true);
+
+      // latch the write signal
+      vlg_wrapper.add_reg(wdw_delay, dw);
+      vlg_wrapper.add_reg(waw_delay, aw);
+      vlg_wrapper.add_reg(wew_delay, 1);
+      vlg_wrapper.add_always_stmt("if (__START__) " + wdw_delay + " <= " + wdw + ";");
+      vlg_wrapper.add_always_stmt("if (__START__) " + waw_delay + " <= " + waw + ";");
+      vlg_wrapper.add_always_stmt("if (__START__) " + wew_delay + " <= " + wew + ";");
 
       retStr += "   ." + port.wdata + "(" + wdw + "),\n";
       retStr += "   ." + port.waddr + "(" + waw + "),\n";
@@ -273,29 +274,31 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
   auto vlg_inputs =
-      vlg_info_ptr->get_top_module_io(supplementary_info.width_info);
-  auto& io_map = IN("interface mapping", rf_vmap)
-                     ? rf_vmap["interface mapping"]
-                     : rf_vmap["interface-mapping"];
+      vlg_info_ptr->get_top_module_io(refinement_map.width_info);
+  
+  ILA_CHECK(
+    refinement_map.rtl_interface_connection.clock_domain_defs.size() == 1
+    && IN("default", refinement_map.rtl_interface_connection.clock_domain_defs))
+    << "Not implemented. Cannot handle multi-clock.";
+  
+  ILA_CHECK(
+    refinement_map.rtl_interface_connection.custom_reset_domain_defs.empty()
+  ) << "Not implemented. Cannot handle customized reset.";
+
+  const auto & clock_pins = refinement_map.rtl_interface_connection.clock_domain_defs.at("default");
+  const auto & reset_pins = refinement_map.rtl_interface_connection.reset_pins;
+  const auto & nreset_pins= refinement_map.rtl_interface_connection.nreset_pins;
   for (auto&& name_siginfo_pair : vlg_inputs) {
-    std::string refstr =
-        IN(name_siginfo_pair.first, io_map)
-            ? io_map[name_siginfo_pair.first].get<std::string>()
-            : "";
+    std::string refstr = "**KEEP**";
+    if(IN(name_siginfo_pair.first, clock_pins))
+      refstr = "**CLOCK**";
+    else if (IN(name_siginfo_pair.first, reset_pins))
+      refstr = "**RESET**";
+    else if (IN(name_siginfo_pair.first, nreset_pins))
+      refstr = "**NRESET**";
+    
     _idr.RegisterInterface(
-        name_siginfo_pair.second, refstr,
-        // Verifier_compatible_w_ila_input
-        [this](const std::string& ila_name,
-               const SignalInfoBase& vlg_sig_info) -> bool {
-          return TypeMatched(IlaGetInput(ila_name), vlg_sig_info) != 0;
-        },
-        // no need to worry about the nullptr in IlaGetInput, TypeMatched will
-        // be able to handle.
-        // Verifier_get_ila_mem_info
-        [this](
-            const std::string& ila_mem_name) -> std::pair<unsigned, unsigned> {
-          return GetMemInfo(ila_mem_name);
-        }); // end of function call: RegisterInterface
+        name_siginfo_pair.second, refstr);
   }
 } // ConstructWrapper_add_vlg_input_output
 
@@ -321,24 +324,23 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
 
 // ------------------------ OTERHS (refs) ----------------------------- //
 void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
-  for (auto&& refered_vlg_item : _all_referred_vlg_names) {
+  for (auto&& refered_vlg_item : refinement_map.var_replacement) {
 
-    auto idx = refered_vlg_item.first.find("[");
-    auto removed_range_name = refered_vlg_item.first.substr(0, idx);
+    auto old_name = refered_vlg_item.second.get_orig_name();
+    auto new_name = refered_vlg_item.second.get_new_name();
+
+    auto idx = old_name.find("[");
+    auto removed_range_name = old_name.substr(0, idx);
     auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name,
-                                                 supplementary_info.width_info);
+                                                 refinement_map.width_info);
 
-    auto vname = ReplaceAll(
-        ReplaceAll(ReplaceAll(refered_vlg_item.first, ".", "__DOT__"), "[",
-                   "_"),
-        "]", "_");
     // + ReplaceAll(ReplaceAll(refered_vlg_item.second.range, "[","_"),"]","_");
     // // name for verilog
     auto width = vlg_sig_info.get_width();
 
-    vlg_wrapper.add_wire(vname, width, 1); // keep
-    vlg_wrapper.add_output(vname, width);  // add as output of the wrapper
-    _idr.RegisterExtraWire(vname, vname);
+    vlg_wrapper.add_wire(new_name, width, 1); // keep
+    vlg_wrapper.add_output(new_name, width);  // add as output of the wrapper
+    _idr.RegisterExtraWire(new_name, new_name);
     // these will be connected to the verilog module, so register as extra wires
     // so, later they will be connected
   }

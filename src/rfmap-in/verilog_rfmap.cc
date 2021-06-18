@@ -576,19 +576,21 @@ VerilogRefinementMap::VerilogRefinementMap
       ENSURE(clock_domains->is_array() || clock_domains->is_string() || clock_domains->is_object(),
         "clock specification in RTL interface connection should be string/list of string/map:string->list(string)");
       if(clock_domains->is_string())
-        rtl_interface_connection.clock_domain_defs["default"].push_back(clock_domains->get<std::string>());
+        rtl_interface_connection.clock_domain_defs["default"].insert(clock_domains->get<std::string>());
       else if(clock_domains->is_array()){
-        rtl_interface_connection.clock_domain_defs.insert(
-          std::make_pair(std::string("default"), clock_domains->get<std::vector<std::string>>()));
+        auto clk_pins = clock_domains->get<std::vector<std::string>>();
+        for (const auto & clk_pin : clk_pins)
+          rtl_interface_connection.clock_domain_defs["default"].insert(clk_pin);        
       } else { // is_object
         for(const auto & n_l_pair : clock_domains->items()) {
           const auto & domain_name = n_l_pair.key();
-          std::vector<std::string> pins;
+          std::set<std::string> pins;
           ENSURE(n_l_pair.value().is_string() || n_l_pair.value().is_array(), "expect string/array in RTL interface connection");
           if (n_l_pair.value().is_string()) {
-            pins.push_back(n_l_pair.value().get<std::string>());
+            pins.insert(n_l_pair.value().get<std::string>());
           } else {
-            pins = n_l_pair.value().get<std::vector<std::string>>();
+            auto pin_vec = n_l_pair.value().get<std::vector<std::string>>();
+            pins = std::set<std::string>(pin_vec.begin(), pin_vec.end());
           }
           rtl_interface_connection.clock_domain_defs.emplace(
             domain_name, pins
@@ -599,17 +601,21 @@ VerilogRefinementMap::VerilogRefinementMap
 
     if(reset_list)  {
       if(reset_list->is_string())
-        rtl_interface_connection.reset_pins.push_back(reset_list->get<std::string>());
+        rtl_interface_connection.reset_pins.insert(reset_list->get<std::string>());
       else if(reset_list->is_array()){
-        rtl_interface_connection.reset_pins = reset_list->get<std::vector<std::string>>();
+        auto reset_pins = reset_list->get<std::vector<std::string>>();
+        for (const auto & pin : reset_pins)
+          rtl_interface_connection.reset_pins.insert(pin);
       }
     }
 
     if(nreset_list) {
       if(nreset_list->is_string())
-        rtl_interface_connection.nreset_pins.push_back(nreset_list->get<std::string>());
+        rtl_interface_connection.nreset_pins.insert(nreset_list->get<std::string>());
       else if(nreset_list->is_array()){
-        rtl_interface_connection.nreset_pins = nreset_list->get<std::vector<std::string>>();
+        auto nreset_pins = nreset_list->get<std::vector<std::string>>();
+        for (const auto & pin : nreset_pins)
+          rtl_interface_connection.nreset_pins.insert(pin);
       }
     }
     if(reset_domains) {
@@ -778,8 +784,13 @@ VerilogRefinementMap::VerilogRefinementMap
             // has no template
             auto * verilog_field = GetJsonSection(monitor,{"verilog"});
             auto * verilog_file_field = GetJsonSection(monitor,{"verilog-from-file"});
+            auto * keep_inv = GetJsonSection(monitor,{"keep-for-invariant", "keep-for-invariants"});
             
             ERRIF(verilog_field && verilog_file_field, "`verilog` or `verilog-from-file` fields are mutual exclusive");
+            if(keep_inv) {
+              ENSURE(keep_inv->is_boolean(), "`keep-for-invariant` should be Boolean");
+              mnt_ref.keep_for_invariant = keep_inv->get<bool>();
+            }
             
             if(verilog_field) {
               if( verilog_field->is_string() ) {
@@ -881,15 +892,19 @@ VerilogRefinementMap::VerilogRefinementMap
         if(ready_bnd) {
           ENSURE(ready_bnd->is_number_unsigned(), "`ready-bound` should be an unsigned number");
           ws.ready_bound = ready_bnd->get<unsigned>();
+          ws.type = InstructionCompleteCondition::ConditionType::BOUND;
         } else { // ready_signal
           ENSURE(ready_signal->is_string(), "`ready-signal` should be a string");
           ws.ready_signal = ParseRfMapExprJson(*ready_signal);
+          ws.type = InstructionCompleteCondition::ConditionType::SIGNAL;
         }
 
         if(max_bound) {
           ENSURE(max_bound->is_number_unsigned(), "`max_bound` should be an unsigned number");
           ws.max_bound = max_bound->get<unsigned>();
-        } 
+        }  else
+          ws.max_bound = 0;
+
         if (start_condition) {
           if (start_condition->is_string()) {
             ws.start_condition.push_back( ParseRfMapExprJson(*start_condition) );

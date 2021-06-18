@@ -406,16 +406,17 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
   VerilogModifier vlg_mod(vlg_info_ptr,
                           static_cast<VerilogModifier::port_decl_style_t>(
                               _vtg_config.PortDeclStyle),
-                          _vtg_config.CosaAddKeep,
+                          _vtg_config.PonoAddKeep,
                           supplementary_info.width_info);
 
-  for (auto&& refered_vlg_item : _all_referred_vlg_names) {
-    auto idx = refered_vlg_item.first.find("[");
-    auto removed_range_name = refered_vlg_item.first.substr(0, idx);
+  for (auto&& refered_vlg_item : refinement_map.var_replacement) {
+    auto old_name = refered_vlg_item.second.get_orig_name();
+    auto idx = old_name.find("[");
+    auto removed_range_name = old_name.substr(0, idx);
     vlg_mod.RecordKeepSignalName(removed_range_name);
     // auto sig = // no use, this is too late, vlg_wrapper already exported
     vlg_mod.RecordConnectSigName(removed_range_name,
-                                 refered_vlg_item.second.range);
+                                 refered_vlg_item.second.range_o);
     // vlg_wrapper.add_output(sig.first, sig.second);
   }
   vlg_mod.FinishRecording();

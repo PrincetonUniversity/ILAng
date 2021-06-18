@@ -320,7 +320,7 @@ void VlgSglTgtGen_Chc_wCNF::Export_modify_verilog() {
   VerilogModifier vlg_mod(vlg_info_ptr,
                           static_cast<VerilogModifier::port_decl_style_t>(
                               _vtg_config.PortDeclStyle),
-                          _vtg_config.CosaAddKeep,
+                          _vtg_config.PonoAddKeep,
                           supplementary_info.width_info);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {

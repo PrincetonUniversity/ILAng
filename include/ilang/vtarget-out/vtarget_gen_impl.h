@@ -154,8 +154,7 @@ protected:
   bool TryFindVlgState(const std::string& sname);
   /// Try to find a ILA var according to a name
   ExprPtr TryFindIlaVarName(const std::string& sname);
-  /// Modify a token and record its use
-  std::string ModifyCondExprAndRecordVlgName(const VarExtractor::token& t);
+  
   /// Check if ila name and vlg name are type compatible (not including special
   /// directives)
   static unsigned TypeMatched(const ExprPtr& ila_var,
@@ -163,7 +162,7 @@ protected:
   /// get width of an ila node
   static unsigned get_width(const ExprPtr& n);
   /// Parse and modify a condition string
-  std::string ReplExpr(const std::string& expr, bool force_vlg_sts = false);
+  std::string ReplExpr(const rfmap::RfExpr & in);
   /// handle a single string map (s-name/equ-string)
   std::string PerStateMap(const std::string& ila_state_name_or_equ,
                           const std::string& vlg_st_name);
@@ -177,9 +176,9 @@ protected:
   std::string GetStateVarMapExpr(const std::string& ila_state_name,
                                  nlohmann::json& m, bool is_assert = false);
   /// add a start condition if it is given
-  void handle_start_condition(nlohmann::json& dc);
+  void handle_start_condition(const std::vector<rfmap::RfExpr> & dc);
   /// Find the current instruction-mapping
-  nlohmann::json& get_current_instruction_rf();
+  const rfmap::InstructionCompleteCondition & get_current_instruction_rf();
 
 protected:
   // --------------- STEPS OF GENERATION ------------------------//
@@ -212,9 +211,6 @@ protected:
   void ConstructWrapper_register_extra_io_wire();
   /// Add instantiation statement of the two modules
   void ConstructWrapper_add_module_instantiation();
-  /// Add instantiation of the memory and put the needed mem implementation in
-  /// extra export This also include the assertions
-  void ConstructWrapper_add_helper_memory();
   /// Add buffers and assumption/assertions about the
   void ConstructWrapper_add_uf_constraints();
   /// Add post value holder (val @ cond == ...)
