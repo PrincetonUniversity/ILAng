@@ -231,6 +231,8 @@ struct VerilogRefinementMap {
   VerilogRefinementMap(const std::string & varmap_json_file,
                        const std::string & instcond_json_file);
   
+  static RfExpr ParseRfExprFromString(const std::string & in);
+  
 }; // VerilogRefinementMap
 
 } // namespace ilang

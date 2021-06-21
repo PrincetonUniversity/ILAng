@@ -12,7 +12,6 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/absmem.h>
 
 namespace ilang {
 
@@ -407,10 +406,15 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
                           static_cast<VerilogModifier::port_decl_style_t>(
                               _vtg_config.PortDeclStyle),
                           _vtg_config.PonoAddKeep,
-                          supplementary_info.width_info);
+                          refinement_map.width_info);
 
   for (auto&& refered_vlg_item : refinement_map.var_replacement) {
     auto old_name = refered_vlg_item.second.get_orig_name();
+    auto new_name = refered_vlg_item.second.get_new_name();
+
+    if(StrStartsWith(new_name, "__ILA_"))
+      continue;
+      
     auto idx = old_name.find("[");
     auto removed_range_name = old_name.substr(0, idx);
     vlg_mod.RecordKeepSignalName(removed_range_name);

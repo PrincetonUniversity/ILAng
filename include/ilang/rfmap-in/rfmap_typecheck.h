@@ -32,6 +32,8 @@ public:
     ::ilang::rfmap::RfVarTypeOrig(r) {}
 }; // TypeAnnotation
 
+
+/// \class structure for recording variable replacement
 struct VarReplacement {
   RfExpr origvar; // this is certainly a var
   RfExpr newvar; // this is certainly a var
@@ -92,6 +94,8 @@ private:
   }
 };
 
+// convert RfExpr constant -> out
+bool _compute_const(const RfExpr & in, unsigned & out);
 
 // type infer rules
 // 
@@ -141,9 +145,14 @@ struct TypedVerilogRefinementMap : public VerilogRefinementMap {
   // ... ? 
   void TraverseAllRfExpr(std::function<void(RfExpr & inout)> func);
 
+  /// used by vtarget_gen to replace rtl/ila vars
   RfExpr ReplacingRtlIlaVar(const RfExpr & in, bool replace_dot);
 
+  /// the replacement used for creating new wires
   std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
+
+  /// determine if a rf expr is a boolean expr
+  static bool IsLastLevelBooleanOp(const RfExpr & in);
 
 protected:
 
@@ -154,6 +163,10 @@ protected:
   void TraverseCondMap(SingleVarMap & inout, std::function<void(RfExpr & inout)> func) ;
 
   var_typecheck_t typechecker;
+
+  // internal use only, does not do recursion itself
+  // therefore, an order of invocation is needed
+  void infer_type_op(const RfExpr & inout) ;
 private:
   
   // help with naming

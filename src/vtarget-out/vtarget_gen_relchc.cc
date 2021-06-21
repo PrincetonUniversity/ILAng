@@ -8,7 +8,6 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/absmem.h>
 #include <ilang/vtarget-out/vtarget_gen_relchc.h>
 #include <iostream>
 

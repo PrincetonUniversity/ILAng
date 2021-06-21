@@ -328,6 +328,8 @@ void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
 
     auto old_name = refered_vlg_item.second.get_orig_name();
     auto new_name = refered_vlg_item.second.get_new_name();
+    if(StrStartsWith(new_name, "__ILA_"))
+      continue;
 
     auto idx = old_name.find("[");
     auto removed_range_name = old_name.substr(0, idx);

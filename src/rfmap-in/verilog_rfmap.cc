@@ -74,8 +74,8 @@ bool load_json(const std::string& fname, nlohmann::json& j) {
 
 static bool ParseRfExprErrFlag = false;
 
-RfExpr ParseRfMapExpr(const std::string & in) {
-  // TODO
+
+RfExpr VerilogRefinementMap::ParseRfExprFromString(const std::string & in) {
   Vexp::Interpreter intp;
   std::stringstream ss;
   ss << in;
@@ -84,9 +84,17 @@ RfExpr ParseRfMapExpr(const std::string & in) {
     intp.parse();
     return intp.GetAstRoot();
   } catch (verilog_expr::VexpException &e) {
-    ParseRfExprErrFlag = true;
+
   }
   return nullptr;
+}
+
+RfExpr ParseRfMapExpr(const std::string & in) {
+  // TODO
+  auto ret = VerilogRefinementMap::ParseRfExprFromString(in)
+  if (ret == nullptr)
+    ParseRfExprErrFlag = true;
+  return ret;
 }
 
 RfExpr ParseRfMapExprJson(nlohmann::json & in) {
@@ -422,7 +430,7 @@ std::string JsonRfmapParsePhaseTracker(PhaseTracker & tracker, nlohmann::json & 
         auto LHS = a.substr(0,pos);
         auto RHS = a.substr(pos+2);
         PhaseTracker::Assignment assign;
-        StrTrim(LHS);
+        StrTrim(LHS); // you don't need to trim RHS (parsing will help)
         assign.LHS = LHS;
         assign.RHS = ParseRfMapExpr(RHS);
         ws.enter_action.push_back(assign);

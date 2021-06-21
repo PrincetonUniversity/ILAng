@@ -91,16 +91,18 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
       // put back the annotation? in new expr?
     } // end if it is unknown
 
-    bool is_array = tp.type.is_array();
-    if(!replace_internal_wire || is_array) {
-      auto ret_copy = std::make_shared<verilog_expr::VExprAstVar>(*var_ptr);
-      ret_copy->set_annotation(std::make_shared<TypeAnnotation>(tp));
-      return ret_copy;
-      // 1 will not do replacement
-      // 2 will not record that
-    }
     
     if(tp.var_ref_type == RfVarTypeOrig::VARTYPE::RTLV) {
+
+      bool is_array = tp.type.is_array();
+      if(!replace_internal_wire || is_array) {
+        auto ret_copy = std::make_shared<verilog_expr::VExprAstVar>(*var_ptr);
+        ret_copy->set_annotation(std::make_shared<TypeAnnotation>(tp));
+        return ret_copy;
+        // 1 will not do replacement
+        // 2 will not record that
+      }
+
       auto new_name = ReplaceAll(n.first, ".", "__DOT__");
       auto new_node = verilog_expr::VExprAst::MakeSpecialName(new_name);
       new_node->set_annotation(std::make_shared<TypeAnnotation>(tp));
@@ -125,6 +127,13 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
     return ret_copy; // will return the annotated one anyway
   } // is_var
   else if (in->is_constant()) {
+    if(in->get_annotation<TypeAnnotation>() == nullptr) {
+      RfVarTypeOrig tp;
+      auto cptr = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(in);
+      ILA_NOT_NULL(cptr);
+      tp.type = RfMapVarType(std::get<1>(cptr->get_constant())); // base, width,...
+      in->set_annotation(std::make_shared<TypeAnnotation>(tp));
+    }
     return in; // no annotation needed
   } else {
     // check type 
@@ -135,9 +144,13 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
           ret_copy->get_child().at(idx), replace_internal_wire);
     } // for each child
 
-    if(ret_copy->child(0)->is_var() &&  ret_copy->get_op() == verilog_expr::voperator::INDEX) {
+    if(!replace_internal_wire &&
+       ret_copy->child(0)->is_var() && 
+       ret_copy->get_op() == verilog_expr::voperator::INDEX) {
+
       std::shared_ptr<TypeAnnotation> annotate = 
         ret_copy->child(0)->get_annotation<TypeAnnotation>();
+
       if(annotate != nullptr && annotate->type.is_array()) {
         assert(ret_copy->get_child_cnt() == 2);
         auto array_index = ret_copy->child(1);
@@ -159,14 +172,16 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
           new_node->set_annotation(new_annotation);
 
           var_replacement.emplace(orig_name, VarReplacement(in, new_node, range_o));
-          return new_node;
+          return new_node; 
         } else {
           ILA_CHECK(false) << "FIXME: currently does not handle dynamic index into array";
         } // end if it is const
       } 
-    }
-    return ret_copy;
-  }
+    } // special handling for array[idx]
+    // to determine the type of ret_copy
+    infer_type_op(ret_copy);
+    return ret_copy; // may use new_node instead in the special case
+  } // end of is_op
   assert(false); // Should not be reachable  
 } // AnnotateSignalsAndCollectRtlVars
 
@@ -411,6 +426,184 @@ bool _compute_const(const RfExpr & in, unsigned & out) {
   return true;  
 }
 
+bool TypedVerilogRefinementMap::IsLastLevelBooleanOp(const RfExpr & in) {
+  std::set<verilog_expr::voperator> boolean_op = {
+    verilog_expr::voperator::GTE,
+    verilog_expr::voperator::LTE,
+    verilog_expr::voperator::GT,
+    verilog_expr::voperator::LT,
+    verilog_expr::voperator::C_EQ,
+    verilog_expr::voperator::L_EQ,
+    verilog_expr::voperator::C_NEQ,
+    verilog_expr::voperator::L_NEQ,
+    verilog_expr::voperator::L_NEG,
+    verilog_expr::voperator::L_AND,
+    verilog_expr::voperator::L_OR
+  };
+
+  if(in->is_constant() || in->is_var())
+    return false;
+  auto op = in->get_op();
+  return (boolean_op.find(op) == boolean_op.end());
+}
+
+void TypedVerilogRefinementMap::infer_type_op(const RfExpr & inout) {
+  assert(
+    inout->get_op() != verilog_expr::voperator::MK_CONST &&
+    inout->get_op() != verilog_expr::voperator::MK_VAR  );
+
+  if(inout->get_op() == verilog_expr::voperator::STAR ||
+     inout->get_op() == verilog_expr::voperator::PLUS ||
+     inout->get_op() == verilog_expr::voperator::MINUS ||
+     inout->get_op() == verilog_expr::voperator::DIV ||
+     inout->get_op() == verilog_expr::voperator::POW ||
+     inout->get_op() == verilog_expr::voperator::MOD ||
+     inout->get_op() == verilog_expr::voperator::B_NEG ||
+     inout->get_op() == verilog_expr::voperator::B_AND ||
+     inout->get_op() == verilog_expr::voperator::B_OR ||
+     inout->get_op() == verilog_expr::voperator::B_XOR ||
+     inout->get_op() == verilog_expr::voperator::B_NAND ||
+     inout->get_op() == verilog_expr::voperator::B_NOR
+    ) {
+    // the max of the args
+    unsigned nchild = inout->get_child_cnt();
+    unsigned maxw = 0;
+    for(size_t idx = 0; idx < nchild; idx ++) {
+      RfMapVarType t = inout->child(idx)->get_annotation<TypeAnnotation>()->type;
+      if(t.is_bv())
+        maxw = std::max(maxw, t.unified_width());
+    }
+    auto new_annotation = std::make_shared<TypeAnnotation>();
+    new_annotation->type = RfMapVarType(maxw);
+    inout->set_annotation(new_annotation);
+    return;
+  }
+
+  if (
+    inout->get_op() == verilog_expr::voperator::ASL ||
+    inout->get_op() == verilog_expr::voperator::ASR ||
+    inout->get_op() == verilog_expr::voperator::LSL ||
+    inout->get_op() == verilog_expr::voperator::LSR ||
+    inout->get_op() == verilog_expr::voperator::AT
+    ) { // the left type
+    assert( inout->get_child_cnt() == 2);
+    inout->set_annotation(inout->child(0)->get_annotation<TypeAnnotation>());
+    return;
+  } else if ( inout->get_op() == verilog_expr::voperator::DELAY) {
+      // arg 1: width of first
+      // arg 2: width is 1 !!!
+      assert(inout->get_child_cnt() == 1 ||  inout->get_child_cnt() == 2);
+      if (inout->get_child_cnt() == 2) {
+        auto new_annotation = std::make_shared<TypeAnnotation>();
+        new_annotation->type = RfMapVarType(1);
+        inout->set_annotation(new_annotation);
+        return ;
+      }
+      
+      // set return type to be the same as the first one
+      inout->set_annotation(inout->child(0)->get_annotation<TypeAnnotation>());
+      return;
+
+    } else if (
+      inout->get_op() == verilog_expr::voperator::GTE ||
+      inout->get_op() == verilog_expr::voperator::LTE ||
+      inout->get_op() == verilog_expr::voperator::GT ||
+      inout->get_op() == verilog_expr::voperator::LT ||
+      inout->get_op() == verilog_expr::voperator::C_EQ ||
+      inout->get_op() == verilog_expr::voperator::L_EQ ||
+      inout->get_op() == verilog_expr::voperator::C_NEQ ||
+      inout->get_op() == verilog_expr::voperator::L_NEQ ||
+      inout->get_op() == verilog_expr::voperator::L_NEG ||
+      inout->get_op() == verilog_expr::voperator::L_AND ||
+      inout->get_op() == verilog_expr::voperator::L_OR
+      ) {
+      auto new_annotation = std::make_shared<TypeAnnotation>();
+      new_annotation->type = RfMapVarType(1);
+      inout->set_annotation(new_annotation);
+      return ;
+    } else if (inout->get_op() == verilog_expr::voperator::INDEX) {
+      RfMapVarType child_type = inout->child(0)->get_annotation<TypeAnnotation>()->type;
+
+      auto new_annotation = std::make_shared<TypeAnnotation>();
+      if (child_type.is_array())
+        new_annotation->type = RfMapVarType(child_type.unified_width());
+      // TODO: check index within ?
+      else
+        new_annotation->type = RfMapVarType(1);
+      inout->set_annotation(new_annotation);
+      return;
+    } else if (
+      inout->get_op() == verilog_expr::voperator::IDX_PRT_SEL_PLUS ||
+      inout->get_op() == verilog_expr::voperator::IDX_PRT_SEL_MINUS) {
+      assert(inout->get_child().size() == 3);
+      unsigned diff = 0;
+      bool succ = _compute_const(inout->child(2), diff /*ref*/);
+      ILA_ASSERT(succ);
+
+      auto new_annotation = std::make_shared<TypeAnnotation>();
+      new_annotation->type = RfMapVarType(diff);
+      inout->set_annotation(new_annotation);
+
+      // TODO: check index within ?
+      return;
+      
+    } else if (inout->get_op() == verilog_expr::voperator::RANGE_INDEX) {
+      assert(inout->get_child_cnt() == 3);
+      unsigned l,r;
+      
+      bool succ = _compute_const(inout->child(1), l /*ref*/),
+      succ = succ && _compute_const(inout->child(2), r /*ref*/);
+      ILA_ASSERT(succ);
+
+      auto new_annotation = std::make_shared<TypeAnnotation>();
+      new_annotation->type = RfMapVarType(std::max(l,r)-std::min(l,r) + 1);
+      inout->set_annotation(new_annotation);
+      
+      return ;
+    } else if (inout->get_op() == verilog_expr::voperator::STORE_OP) {
+      inout->set_annotation(inout->child(0)->get_annotation<TypeAnnotation>());
+      return;
+
+    } else if (inout->get_op() == verilog_expr::voperator::TERNARY) {
+      inout->set_annotation(inout->child(1)->get_annotation<TypeAnnotation>());
+      return;
+    } else if (inout->get_op() == verilog_expr::voperator::FUNCTION_APP) {
+      ILA_ASSERT(false);
+      auto new_annotation = std::make_shared<TypeAnnotation>();
+      new_annotation->type = RfMapVarType(0);
+      inout->set_annotation(new_annotation);
+      return;
+    } else if(inout->get_op() == verilog_expr::voperator::CONCAT) {
+      unsigned nchild = inout->get_child_cnt();
+      unsigned sumw = 0;
+      for(size_t idx = 0; idx < nchild; idx ++) {
+        RfMapVarType t = ( inout->child(idx)->get_annotation<TypeAnnotation>()->type );
+        sumw += t.unified_width();
+      }
+      auto new_annotation = std::make_shared<TypeAnnotation>();
+      new_annotation->type = RfMapVarType(sumw);
+      inout->set_annotation(new_annotation);
+      return;
+    } else if (inout->get_op() == verilog_expr::voperator::REPEAT) {
+      assert( inout->get_child_cnt() == 2 );
+      unsigned ntimes;
+      if(!_compute_const(inout->child(0), ntimes))
+        ILA_ASSERT(false);
+      auto tp = ( inout->child(1)->get_annotation<TypeAnnotation>()->type );
+
+      auto new_annotation = std::make_shared<TypeAnnotation>();
+      new_annotation->type = RfMapVarType(tp.unified_width()*ntimes);
+      inout->set_annotation(new_annotation);
+
+      return ;      
+    }
+    ILA_ASSERT(false) << "BUG: Operator " << int(inout->get_op()) << " is not handled";
+
+    auto new_annotation = std::make_shared<TypeAnnotation>();
+    new_annotation->type = RfMapVarType(0);
+    inout->set_annotation(new_annotation);
+} // infer_type_op
+
 RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in) {
 
   if(in->is_constant()) {
@@ -489,6 +682,8 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
       in->get_op() == verilog_expr::voperator::LT ||
       in->get_op() == verilog_expr::voperator::C_EQ ||
       in->get_op() == verilog_expr::voperator::L_EQ ||
+      in->get_op() == verilog_expr::voperator::C_NEQ ||
+      in->get_op() == verilog_expr::voperator::L_NEQ ||
       in->get_op() == verilog_expr::voperator::L_NEG ||
       in->get_op() == verilog_expr::voperator::L_AND ||
       in->get_op() == verilog_expr::voperator::L_OR
@@ -497,7 +692,7 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
     } else if (in->get_op() == verilog_expr::voperator::INDEX) {
       RfMapVarType child_type = TypeInferTravserRfExpr(in->child(0));
       if (child_type.is_array())
-        return child_type.unified_width(); // data width
+        return RfMapVarType(child_type.unified_width()); // data width
       // TODO: check index within ?
       if (child_type.is_bv())
         return RfMapVarType(1);
@@ -505,6 +700,7 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
     } else if (
       in->get_op() == verilog_expr::voperator::IDX_PRT_SEL_PLUS ||
       in->get_op() == verilog_expr::voperator::IDX_PRT_SEL_MINUS) {
+      assert(in->get_child().size() == 3);
       unsigned diff;
       bool succ = _compute_const(in->child(2), diff /*ref*/);
       // TODO: check index within ?
@@ -520,7 +716,7 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
       if(!succ)
         return RfMapVarType();
       // TODO: check width!
-      return std::max(l,r)-std::min(l,r) + 1;
+      return RfMapVarType(std::max(l,r)-std::min(l,r) + 1);
     } else if (in->get_op() == verilog_expr::voperator::STORE_OP) {
       // TODO: check width!
       // actually not implemented
@@ -552,6 +748,7 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
       auto tp = TypeInferTravserRfExpr(in->child(1));
       return RfMapVarType(tp.unified_width()*ntimes);      
     }
+    ILA_ASSERT(false) << "BUG: Operator " << int(in->get_op()) << " is not handled";
   } // end of else has op
   return RfMapVarType();
 } // TypeInferTravserRfExpr

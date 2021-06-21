@@ -165,6 +165,13 @@ void VlgSglTgtGen::ConstructWrapper_generate_header() {
   vlg_wrapper.add_preheader("\n" + _vtg_config.WrapperPreheader + "\n");
 } // ConstructWrapper_generate_header
 
+void VlgSglTgtGen::ConstructWrapper_add_inputmap_assumptions() {
+
+  for (const auto & iv_rfmap : refinement_map.ila_input_var_map) {
+    
+  }
+}
+
 // for special memory, we don't need to do anything?
 void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   ILA_CHECK(target_type == target_type_t::INSTRUCTIONS)
@@ -175,44 +182,33 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  nlohmann::json& state_mapping = IN("state mapping", rf_vmap)
-                                      ? rf_vmap["state mapping"]
-                                      : rf_vmap["state-mapping"];
-  for (auto& i : state_mapping.items()) {
-    auto sname = i.key();
-    if (!IN(sname, ila_state_names)) {
+  for (const auto & sv_rfmap : refinement_map.ila_state_var_map) {
+    const auto & sname = sv_rfmap.first;
+    if(!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
     }
+
     if (_vtg_config.OnlyAssumeUpdatedVarsEq &&
         _instr_ptr->update(sname) == nullptr) {
       ILA_DLOG("VtargetGen") << "Skip assume EQ on variable:" << sname
                              << " for instruction:" << _instr_ptr->name().str();
       continue;
     }
-
     ila_state_names.erase(sname);
-    // __START__ ==> vmap
     ILA_DLOG("VtargetGen.ConstructWrapper_add_varmap_assumptions") << sname;
 
     std::string problem_name = "variable_map_assume_";
-    if (_vtg_config.PerVariableProblemCosa &&
-        _backend != backend_selector::RELCHC)
-      problem_name += "_" + sname;
-    // if we are targeting yosys, we should make sure they have the same
-    // problem_name so the it knowns these are the assumptions for varmap
-
+    
     if (_backend == backend_selector::RELCHC) {
-
-      add_an_assumption(GetStateVarMapExpr(sname, i.value()), problem_name);
+      Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, true, "", "" );
       // its signal reference will be replaced, but this should be fine
       // because the names on any level is the same!
     } else
-      add_an_assumption("(~ __START__ )|| (" +
-                            GetStateVarMapExpr(sname, i.value()) + ")",
-                        problem_name);
-  }
+      Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, true, "(~ __START__ )|| (", ")" );
+  } // end for each state variable
+
   ILA_DLOG("VtargetGen") << "STEP:"
                          << "5.2.2";
   // check for unmapped states

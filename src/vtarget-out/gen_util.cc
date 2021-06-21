@@ -162,6 +162,92 @@ std::string VlgSglTgtGen::ReplExpr(const rfmap::RfExpr & in) {
   return new_node->to_verilog();
 }
 
+std::string VlgSglTgtGen::TranslateMap(const rfmap::RfExpr & in, const std::string & ila_vn) {
+  if(refinement_map.IsLastLevelBooleanOp(in))
+    return ReplExpr(in);
+  auto vnode = verilog_expr::VExprAst::MakeVar("ILA."+ila_vn);
+  auto eq_node = verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_EQ, vnode, in);
+  return ReplExpr(eq_node);
+}
+
+void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
+  const rfmap::IlaVarMapping &vmap, const std::string & problem_name, bool true_for_assumpt_false_for_assert,
+  const std::string & prefix, const std::string & suffix) {
+  
+#define ADD_CONSTR(p1) do{ \
+  if(true_for_assumpt_false_for_assert)  \
+     add_an_assumption(prefix + (p1) + suffix, problem_name);  \
+  else   \
+     add_an_assertion(prefix + (p1) + suffix, problem_name); \
+  }while(0)
+  
+  bool is_mem = _host->state(ila_state_name)->is_mem();
+  if(!is_mem) {
+    ILA_ERROR_IF(vmap.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM)
+      << "ila sv " << ila_state_name << " is not memory!";
+    if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::SINGLE) {
+      ADD_CONSTR(TranslateMap(vmap.single_map.single_map, ila_state_name));
+    } else if (vmap.type == rfmap::IlaVarMapping::StateVarMapType::CONDITIONAL) {
+      std::vector<std::string> all_mappings;
+      std::string prev_neg; // make sure it is a priority condition lists
+      for (const auto & cond_map_pair : vmap.single_map.cond_map) {
+        std::string cond_expr = ReplExpr(cond_map_pair.first);
+        std::string vmap_expr = TranslateMap(cond_map_pair.second, ila_state_name);
+
+        all_mappings.push_back("~ (" + prev_neg + "(" + cond_expr + ") ) || (" +
+                               vmap_expr + ")");
+        prev_neg += "~(" + cond_expr + ")&&";
+      } // end for each condition map item
+      ILA_ERROR_IF(all_mappings.empty()) << "Conditional map is empty!";
+      auto map_str = "(" + Join(all_mappings, " )&&( ") + ")";
+      ADD_CONSTR(map_str);
+    } // end map type
+  } else {
+    if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM) {
+      // TODO: (note: multiple ports!)
+      //  assume : START |-> 
+      //         ( ila.ren && rtl.renexpr && (ila.raddr == rtl.raddrexpr) |->
+      //             (ila.rdata === rtl.rdataexpr) )
+
+      //  assert : IEND |->
+      //         ( ila.wen_d1 == rtl.wenexpr && ( ila.wen |-> 
+      //             (ila.wdata_d1 == rtl.wdataexpr) && (ila.waddr_d1 == rtl.waddrexpr) ) )
+
+
+    } // same for jg/non-jg
+    else {
+      bool is_jg = _backend == backend_selector::JASPERGOLD;
+      bool is_pono = _backend == backend_selector::PONO;
+      if(is_jg) {
+        // same as non-mem var
+        if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::SINGLE) {
+          ADD_CONSTR(TranslateMap(vmap.single_map.single_map, ila_state_name));
+        } else if (vmap.type == rfmap::IlaVarMapping::StateVarMapType::CONDITIONAL) {
+          std::vector<std::string> all_mappings;
+          std::string prev_neg; // make sure it is a priority condition lists
+          for (const auto & cond_map_pair : vmap.single_map.cond_map) {
+            std::string cond_expr = ReplExpr(cond_map_pair.first);
+            std::string vmap_expr = TranslateMap(cond_map_pair.second, ila_state_name);
+
+            all_mappings.push_back("~ (" + prev_neg + "(" + cond_expr + ") ) || (" +
+                                  vmap_expr + ")");
+            prev_neg += "~(" + cond_expr + ")&&";
+          } // end for each condition map item
+          ILA_ERROR_IF(all_mappings.empty()) << "Conditional map is empty!";
+          auto map_str = "(" + Join(all_mappings, " )&&( ") + ")";
+          ADD_CONSTR(map_str);
+        } // end map type
+      } else {
+         //TODO: to smt-lib2
+         ILA_CHECK(is_pono) << "Only PONO/JG backend can handle array eq property";
+         if ()
+
+      } // end of is_jg / else
+    } // end of is_extmem / else
+  } // end for memory-case
+
+#undef ADD_CONSTR
+} // end of Gen_varmap_assumpt_assert
 
 // ila-state -> ref (json)
 // return a verilog verilog, that should be asserted to be true for this purpose

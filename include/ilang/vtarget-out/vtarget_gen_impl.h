@@ -163,18 +163,16 @@ protected:
   static unsigned get_width(const ExprPtr& n);
   /// Parse and modify a condition string
   std::string ReplExpr(const rfmap::RfExpr & in);
+  /// treat `in` as var map, if it is not a Boolean, add `==`
+  std::string TranslateMap(const rfmap::RfExpr & in, const std::string & ila_vn);
   /// handle a single string map (s-name/equ-string)
   std::string PerStateMap(const std::string& ila_state_name_or_equ,
                           const std::string& vlg_st_name);
   /// handle a var map
-  /// will create new variables "m?" and return it
-  /// 1.  "ila-state":"**MEM**.?"
-  /// 2a. "ila-state":"statename"  --> PerStateMap
-  /// 2b. "ila-state":"(cond)&map"   --> PerStateMap
-  /// 3.  "ila-state":[ "cond&map" ]
-  /// 4.  "ila-state":[ {"cond":,"map":}, ]
-  std::string GetStateVarMapExpr(const std::string& ila_state_name,
-                                 nlohmann::json& m, bool is_assert = false);
+  void Gen_varmap_assumpt_assert(const std::string& ila_state_name,
+    const rfmap::IlaVarMapping &vmap, const std::string & problem_name, bool true_for_assumpt_false_for_assert,
+    const std::string & prefix, const std::string & suffix);
+
   /// add a start condition if it is given
   void handle_start_condition(const std::vector<rfmap::RfExpr> & dc);
   /// Find the current instruction-mapping
@@ -444,20 +442,11 @@ public:
 
   /// generate the runable script name
   const std::vector<std::string>& GetRunnableScriptName() const;
-  /// return the result from parsing supplymentary information
-  const VlgTgtSupplementaryInfo& GetSupplementaryInfo() const;
 
-protected:
-  // --------------------- METHODS ---------------------------- //
-  /// subroutine for generating synthesis using chc targets
 
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);
-  /// load json from a file name to the given j
-  void load_json(const std::string& fname, nlohmann::json& j);
-  /// Get instance name from rfmap
-  void set_module_instantiation_name();
 
 private:
   /// If it is in a bad state
