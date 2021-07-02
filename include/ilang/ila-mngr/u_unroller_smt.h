@@ -59,6 +59,11 @@ public:
     return smt_gen_.GetShimFunc(func);
   }
 
+  /// Return the deciding variables used for the previous unrolling. 
+  inline const ExprPtrVec& GetLastDecidingVars() {
+    return deciding_vars_;
+  }
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying (templated) SMT generator.
