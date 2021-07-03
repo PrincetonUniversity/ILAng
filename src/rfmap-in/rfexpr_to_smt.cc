@@ -104,8 +104,16 @@ static std::string bvboolconvert(bool out_bool, bool in_bool, size_t inwidth, co
 	// else: !in_bool && out_bool
 	return "(not (= " + in + " "+ smt_const(0, inwidth) +"))";	
 }
+// typeconvert
+// intype == outtype 
+// bv_n -> bool
+// bool -> bv_n
+// bv_n -> bv_(n+m)
+// E: truncate
+// E: array -> ?
+// E: ? -> array
 
-std::string RfExpr2Smt::to_smt2_const(const std::shared_ptr<verilog_expr::VExprAstConstant> & in, bool request_bool) {
+std::string RfExpr2Smt::to_smt2_const(const std::shared_ptr<verilog_expr::VExprAstConstant> & in, SmtType expected_type) {
   unsigned out;
   bool succ = _compute_const(in, out);
   if(!succ)
@@ -117,7 +125,7 @@ std::string RfExpr2Smt::to_smt2_const(const std::shared_ptr<verilog_expr::VExprA
 
 } // to_smt2_const
 
-std::string RfExpr2Smt::to_smt2_var(const std::shared_ptr<verilog_expr::VExprAstVar> & in, bool request_bool) {
+std::string RfExpr2Smt::to_smt2_var(const std::shared_ptr<verilog_expr::VExprAstVar> & in, SmtType expected_type) {
   RfMapVarType tp = in->get_annotation<TypeAnnotation>()->type;
   auto ret = "|" + in->get_name().first+"|";
   if(!tp.is_array())
@@ -126,7 +134,7 @@ std::string RfExpr2Smt::to_smt2_var(const std::shared_ptr<verilog_expr::VExprAst
 } // to_smt2_var
 
 
-std::string RfExpr2Smt::to_smt2(const RfExpr &in, bool request_bool) {
+std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
   if(in->is_var()) {
     auto ptr = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(in);
     ILA_NOT_NULL(ptr);
@@ -154,33 +162,32 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, bool request_bool) {
       (op_ == verilog_expr::voperator::L_NEG)) {
 
   	RfMapVarType tp = get_type(child_.at(0));
-    return bvboolconvert(request_bool, true, tp.unified_width(),
-    	"("+opstr + " " + to_smt2(child_.at(0), true)+")");
+    return type_convert( expected_type, SmtType(tp,true),
+    	"("+opstr + " " + to_smt2(child_.at(0), SmtType(tp,true) )+")");
   }
 
   if ( child_.size() == 1 &&
       (op_ == verilog_expr::voperator::B_NEG)) {
 
   	RfMapVarType tp = get_type(child_.at(0));
-    return bvboolconvert(request_bool, false, tp.unified_width(),
-    	"("+opstr + " " + to_smt2(child_.at(0), false)+")");
+    return type_convert(expected_type, SmtType(tp,false),
+    	"("+opstr + " " + to_smt2(child_.at(0), SmtType(tp,false))+")");
   }
 
   if (child_.size() == 1 &&
   		op_ == verilog_expr::voperator::PLUS) {
 
-  	RfMapVarType tp = get_type(child_.at(0));
-  	return bvboolconvert(request_bool, false, tp.unified_width(),
-  		to_smt2(child_.at(0), false));
+  	RfMapVarType tp = get_type(in);
+  	return type_convert(expected_type, SmtType(tp,false),
+  		to_smt2(child_.at(0), SmtType(tp,false)));
   }
 
   if (child_.size() == 1 &&
   		op_ == verilog_expr::voperator::MINUS) {
 
-
-  	RfMapVarType tp = get_type(child_.at(0));
-  	return bvboolconvert(request_bool, false, tp.unified_width(),
-  		"(bvsub " + smt_const(0,tp.unified_width()) + " "+to_smt2(child_.at(0), false));
+  	RfMapVarType tp = get_type(in);
+  	return type_convert(expected_type, SmtType(tp,false),
+  		"(bvsub " + smt_const(0,tp.unified_width()) + " "+to_smt2(child_.at(0), SmtType(tp,false)));
   }
 
   if (child_.size() == 1 &&
@@ -192,10 +199,10 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, bool request_bool) {
       op_ == verilog_expr::voperator::B_EQU
       )) {
 
-  	RfMapVarType tp = get_type(child_.at(0));
+  	RfMapVarType tp = get_type(in);
 
-  	return bvboolconvert(request_bool, false, tp.unified_width(),
-  		split_bit(opstr, tp.unified_width(), to_smt2(child_.at(0), false)));
+  	return type_convert(expected_type, SmtType(tp,false),
+  		split_bit(opstr, tp.unified_width(), to_smt2(child_.at(0), SmtType(tp,false))));
   }
 
   RfMapVarType parent_tp = get_type(in);

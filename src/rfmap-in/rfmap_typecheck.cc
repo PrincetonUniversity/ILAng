@@ -20,7 +20,7 @@ std::string TypedVerilogRefinementMap::new_id() {
 TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const VerilogRefinementMap & refinement,
   var_typecheck_t type_checker
- ) : VerilogRefinementMap(refinement), counter(0), typechecker(type_checker) {
+ ) : VerilogRefinementMap(refinement), counter(0), TypeAnalysisUtility(type_checker) {
   initialize();
 }
 
@@ -29,7 +29,7 @@ TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const std::string & instcond_json_file,
   var_typecheck_t type_checker
   ) : VerilogRefinementMap(varmap_json_file, instcond_json_file),
-    counter(0), typechecker(type_checker) {
+    counter(0), TypeAnalysisUtility(type_checker) {
   initialize();
 } // TypedVerilogRefinementMap::TypedVerilogRefinementMap
  
@@ -48,6 +48,7 @@ void TypedVerilogRefinementMap::initialize() {
 } // initialize
 
 
+// this function will iteratively make a new copy of the whole AST.
 RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
   const RfExpr & in,
   bool replace_internal_wire) 
@@ -127,14 +128,15 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
     return ret_copy; // will return the annotated one anyway
   } // is_var
   else if (in->is_constant()) {
-    if(in->get_annotation<TypeAnnotation>() == nullptr) {
+    auto cptr = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(in);
+    ILA_NOT_NULL(cptr);
+    auto ret_copy = std::make_shared<verilog_expr::VExprAstConstant>(*cptr);
+    if(tp_annotate == nullptr || tp_annotate->type.is_unknown()) {
       RfVarTypeOrig tp;
-      auto cptr = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(in);
-      ILA_NOT_NULL(cptr);
       tp.type = RfMapVarType(std::get<1>(cptr->get_constant())); // base, width,...
-      in->set_annotation(std::make_shared<TypeAnnotation>(tp));
+      ret_copy->set_annotation(std::make_shared<TypeAnnotation>(tp));
     }
-    return in; // no annotation needed
+    return ret_copy; // no annotation needed
   } else {
     // check type 
     auto ret_copy = std::make_shared<verilog_expr::VExprAst>(*in);
@@ -175,11 +177,16 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
           return new_node; 
         } else {
           ILA_CHECK(false) << "FIXME: currently does not handle dynamic index into array";
+          // HZ note: in the future we can do this
+          // by allowing array shadowing, this will definitely need smt-lib2 expression
+          // or Jasper's capability, because we can never connect a whole Verilog array out
+          // using Yosys's SVA.
+
         } // end if it is const
       } 
     } // special handling for array[idx]
     // to determine the type of ret_copy
-    infer_type_op(ret_copy);
+    infer_type_based_on_op_child(ret_copy);
     return ret_copy; // may use new_node instead in the special case
   } // end of is_op
   assert(false); // Should not be reachable  
@@ -447,7 +454,74 @@ bool TypedVerilogRefinementMap::IsLastLevelBooleanOp(const RfExpr & in) {
   return (boolean_op.find(op) == boolean_op.end());
 }
 
-void TypedVerilogRefinementMap::infer_type_op(const RfExpr & inout) {
+void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
+  for(auto & name_delay_pair: aux_delays) {
+    if(name_delay_pair.second.width == 0) {
+      auto tp = TypeInferTravserRfExpr(name_delay_pair.second.signal);
+      ILA_ERROR_IF(tp.is_array()) << "Currently does not support to delay a memory variable";
+      ILA_ERROR_IF(tp.is_unknown()) << "Type inference failed on: " << name_delay_pair.second.signal->to_verilog();
+      name_delay_pair.second.width = tp.unified_width();
+
+      // replendish all_var_def_types
+      VarDef internal_var_def;
+      internal_var_def.width = tp.unified_width(); 
+      internal_var_def.type = VarDef::var_type::REG;
+
+      all_var_def_types.emplace(name_delay_pair.first, internal_var_def);
+    }
+  }
+  for (auto & name_vr : value_recorder) {
+    if (name_vr.second.width == 0) {
+      auto tp = TypeInferTravserRfExpr(name_vr.second.value);
+      ILA_ERROR_IF(tp.is_array()) << "Currently does not support to delay a memory variable";
+      ILA_ERROR_IF(tp.is_unknown()) << "Type inference failed on: " << name_vr.second.value->to_verilog();
+      name_vr.second.width = tp.unified_width();
+
+      // replendish all_var_def_types
+      VarDef internal_var_def;
+      internal_var_def.width = tp.unified_width(); 
+      internal_var_def.type = VarDef::var_type::REG;
+
+      all_var_def_types.emplace(name_vr.first, internal_var_def);
+    }
+  }  // replendish internal defined vars
+} // ComputeDelayValueHolderWidth
+
+// ------------------------------------------------------------------
+// type inference rules
+
+// differences from TypedVerilogRefinementMap::ReplacingRtlIlaVar
+// 1. no var replacement (__ILA_I_, __ILA_SO_, __DOT__), array[idx]
+// 2. no special name handling
+void TypeAnalysisUtility::AnnotateType(const RfExpr & inout)  {
+  auto tp_annotate = inout->get_annotation<TypeAnnotation>();
+
+  if(inout->is_var()) {
+    auto var_ptr = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(inout);
+    ILA_NOT_NULL(var_ptr);
+    auto n = var_ptr->get_name();
+
+    if(tp_annotate == nullptr || tp_annotate->type.is_unknown()) {
+      auto rtl_ila_tp = typechecker(n.first);
+      inout->set_annotation(std::make_shared<TypeAnnotation>(rtl_ila_tp));
+    }    
+  } else if (inout->is_constant()) {
+    if(tp_annotate == nullptr || tp_annotate->type.is_unknown()) {
+      RfVarTypeOrig tp;
+      auto cptr = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(inout);
+      ILA_NOT_NULL(cptr);
+      tp.type = RfMapVarType(std::get<1>(cptr->get_constant())); // base, width,...
+      inout->set_annotation(std::make_shared<TypeAnnotation>(tp));
+    } // end if no annotation
+  } else { // op
+    for (size_t idx = 0 ; idx < inout->get_child_cnt(); ++ idx)
+      AnnotateType(inout->child(idx));
+    infer_type_based_on_op_child(inout);
+    // for each child
+  } // end if-else- op
+} // TypeAnalysisUtility::AnnotateType
+
+void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr & inout) {
   assert(
     inout->get_op() != verilog_expr::voperator::MK_CONST &&
     inout->get_op() != verilog_expr::voperator::MK_VAR  );
@@ -752,42 +826,6 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
   } // end of else has op
   return RfMapVarType();
 } // TypeInferTravserRfExpr
-
-void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
-  for(auto & name_delay_pair: aux_delays) {
-    if(name_delay_pair.second.width == 0) {
-      auto tp = TypeInferTravserRfExpr(name_delay_pair.second.signal);
-      ILA_ERROR_IF(tp.is_array()) << "Currently does not support to delay a memory variable";
-      ILA_ERROR_IF(tp.is_unknown()) << "Type inference failed on: " << name_delay_pair.second.signal->to_verilog();
-      name_delay_pair.second.width = tp.unified_width();
-
-      // replendish all_var_def_types
-      VarDef internal_var_def;
-      internal_var_def.width = tp.unified_width(); 
-      internal_var_def.type = VarDef::var_type::REG;
-
-      all_var_def_types.emplace(name_delay_pair.first, internal_var_def);
-    }
-  }
-  for (auto & name_vr : value_recorder) {
-    if (name_vr.second.width == 0) {
-      auto tp = TypeInferTravserRfExpr(name_vr.second.value);
-      ILA_ERROR_IF(tp.is_array()) << "Currently does not support to delay a memory variable";
-      ILA_ERROR_IF(tp.is_unknown()) << "Type inference failed on: " << name_vr.second.value->to_verilog();
-      name_vr.second.width = tp.unified_width();
-
-      // replendish all_var_def_types
-      VarDef internal_var_def;
-      internal_var_def.width = tp.unified_width(); 
-      internal_var_def.type = VarDef::var_type::REG;
-
-      all_var_def_types.emplace(name_vr.first, internal_var_def);
-    }
-  }
-  // replendish internal defined vars
-  
-
-} // ComputeDelayValueHolderWidth
 
 
 } // namespace rfmap

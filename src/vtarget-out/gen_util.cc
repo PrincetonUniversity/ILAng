@@ -213,7 +213,7 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
       //         ( ila.wen_d1 == rtl.wenexpr && ( ila.wen |-> 
       //             (ila.wdata_d1 == rtl.wdataexpr) && (ila.waddr_d1 == rtl.waddrexpr) ) )
 
-
+      #error "connect according to the above"
     } // same for jg/non-jg
     else {
       bool is_jg = _backend == backend_selector::JASPERGOLD;
@@ -240,7 +240,8 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
       } else {
          //TODO: to smt-lib2
          ILA_CHECK(is_pono) << "Only PONO/JG backend can handle array eq property";
-         if ()
+         
+          #error "to smtlib2, need ReplacingRtlIlaVar first which will infer type"
 
       } // end of is_jg / else
     } // end of is_extmem / else

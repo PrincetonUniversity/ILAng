@@ -106,10 +106,34 @@ bool _compute_const(const RfExpr & in, unsigned & out);
 // try find_rtl_type -> TypeAnnotation
 // type annotation & checking & replacing : all-together
 
-struct TypedVerilogRefinementMap : public VerilogRefinementMap {
+class TypeAnalysisUtility {
+
+public:
+  typedef std::function<RfVarTypeOrig(const std::string &)> var_typecheck_t;
+  TypeAnalysisUtility(var_typecheck_t type_checker) : typechecker(type_checker) { }
+
+public:
+  /// Annotate the type of a refinement expression
+  /// and this process will be recursive
+  // this function is to help with unit testing
+  void AnnotateType(const RfExpr & inout);
+
+protected:
+  var_typecheck_t typechecker;
+
+  // internal use only, does not do recursion itself
+  // therefore, an order of invocation is needed
+  static void infer_type_based_on_op_child(const RfExpr & inout) ;
+
+}; // struct TypeAnalysisUtility
+
+
+struct TypedVerilogRefinementMap : 
+  public VerilogRefinementMap,
+  public TypeAnalysisUtility {
 
   // type definitions
-  typedef std::function<RfVarTypeOrig(const std::string &)> var_typecheck_t;
+  using var_typecheck_t = TypeAnalysisUtility::var_typecheck_t;
   using VarDef = GeneralVerilogMonitor::VarDef;
   
   // constructor
@@ -162,11 +186,7 @@ protected:
   void TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) ;
   void TraverseCondMap(SingleVarMap & inout, std::function<void(RfExpr & inout)> func) ;
 
-  var_typecheck_t typechecker;
 
-  // internal use only, does not do recursion itself
-  // therefore, an order of invocation is needed
-  void infer_type_op(const RfExpr & inout) ;
 private:
   
   // help with naming
@@ -178,7 +198,10 @@ private:
   void collect_inline_delay_func(RfExpr & inout);
   void CollectInlineDelayValueHolder();
 
-  RfMapVarType TypeInferTravserRfExpr(const RfExpr & in);
+  // this function is used in value holder/delay : width determination
+  // will use all_var_def_types
+  RfMapVarType TypeInferTravserRfExpr(const RfExpr & in); 
+  
   void ComputeDelayValueHolderWidth();
 
 }; // TypedVerilogRefinementMap
