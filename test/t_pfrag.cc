@@ -91,42 +91,90 @@ namespace pf2graph {
     ProgramFragment pf {{ /* no params */ }, {
       Assume {asthub::Eq(ctr.get(), 0)},
       Call {inst_inc},
-      Assert {asthub::Eq(ctr.get(), 1)}
+      Assert {asthub::Eq(ctr.get(), 1)},
+      Call {inst_dec},
+      Call {inst_dec},
+      Assert {asthub::Eq(ctr.get(), 0)},  // dec should not go less than 0
+      Call {inst_inc},
+      Call {inst_inc},
+      Call {inst_dec},
+      Call {inst_inc},
+      Assert {asthub::Eq(ctr.get(), 2)},
     }};
 
     PFToCHCEncoder encoder {m.get(), pf};
+    
+    // std::cout << "\nEncoded successfully!\n" << std::endl;
+
+    // std::cout << encoder.to_string() << std::endl;
+
+    z3::check_result res = encoder.check_assertions();
+    EXPECT_EQ(res, z3::unsat);
+  }
+
+  TEST(Pf2cfg, UnrollerSMTTest) {
+    
+    using namespace pfast;
+    using namespace asthub;
+
+    auto m = SimpleCpu("m");
+
+    Block b;
+
+    // initial conditions of CPU
+    for (size_t i = 0; i != m->init_num(); i++) {
+      b.push_back(Assume{m->init(i)});
+    }
+
+    MemVal init_mem_val(0);
+    init_mem_val.set_data(0, GenLoad(0, 0));
+    init_mem_val.set_data(1, GenLoad(1, 1));
+    init_mem_val.set_data(2, GenAdd(2, 0, 1));
+    init_mem_val.set_data(3, GenStore(2, 2));
+
+    { // instruction memory
+      auto ir = m->state("ir");
+      b.push_back(Assume{Eq(ir, MemConst(init_mem_val, 8, 8))});
+    }
+
+    // concretize data
+    b.insert(b.end(), {
+      Assume{Eq(m->state("r0"), 7)},
+      Assume{Eq(m->state("r1"), 7)},
+      Assume{Eq(Load(m->state("mem"), 0), 3)},
+      Assume{Eq(Load(m->state("mem"), 1), 3)}
+    });
+
+    // program
+    b.insert(b.end(), {
+      Call{m->instr("Load")},
+      Call{m->instr("Load")},
+      Call{m->instr("Add")},
+      Call{m->instr("Store")}
+    });
+
+    // check stored result
+    b.push_back(Assert{Eq(Load(m->state("mem"), 2), 6)});
+
+    ProgramFragment pf {{ }, b}; /* no params */
+
+    PFToCHCEncoder encoder {m, pf};
     
     std::cout << "\nEncoded successfully!\n" << std::endl;
 
     std::cout << encoder.to_string() << std::endl;
 
-    z3::check_result res = encoder.check_assertions();
+    z3::check_result res = z3::sat;
+
+    try {
+      res = encoder.check_assertions();
+    } catch (z3::exception e) {
+      std::cout << "Got error:\n" << e << std::endl;
+    }
+
     EXPECT_EQ(res, z3::unsat);
 
   }
-
-  // TEST(Pf2cfg, UnrollerSMTTest) {
-    
-  //   using namespace pfast;
-
-  //   auto m = SimpleCpu("m");
-
-  //   Block b;
-
-  //   // initial conditions of CPU
-  //   for (size_t i = 0; i != m->init_num(); i++) {
-  //     b.push_back(Assert(m->init(i)));
-  //   }
-
-  //   // 
-  //   ProgramFragment pf {{ /* no params */ }, {
-  //     Call(m->instr("Load")),
-  //     Call(m->instr("Load")),
-  //     Call(m->instr("Add")),
-  //     Call(m->instr("Store"))
-  //   }};
-
-  // }
 
 }
 

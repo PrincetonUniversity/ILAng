@@ -59,24 +59,30 @@ namespace ilang {
     std::string to_string(const ProgramFragment& pf);
 
     struct Assert {
-      const Constraint assertion;
+      Constraint assertion;
       /// Checks structural equality
       bool operator==(const Assert& b) const {
         return asthub::TopEq(assertion, b.assertion);
       }
     };
 
+    static_assert(std::is_copy_constructible_v<Assert>, "assert not copy constructible");
+    static_assert(std::is_copy_assignable_v<Assert>, "assert not copy assignable");
+
     struct Assume {
-      const Constraint assumption;
+      Constraint assumption;
       /// Checks structural equality
       bool operator==(const Assume& b) const {
         return asthub::TopEq(assumption, b.assumption);
       }
     };
 
+    static_assert(std::is_copy_constructible_v<Assume>, "assume not copy constructible");
+    static_assert(std::is_copy_assignable_v<Assume>, "assume not copy assignable");
+
     struct Call {
-      const InstrPtr instr;
-      const Constraint input_constraint;
+      InstrPtr instr;
+      Constraint input_constraint;
 
       /// Checks structural equality
       bool operator==(const Call& b) const {
@@ -85,6 +91,12 @@ namespace ilang {
           && (!input_constraint || asthub::TopEq(input_constraint, b.input_constraint));
       }
     };
+
+    static_assert(std::is_copy_constructible_v<Call>, "call not copy constructible");
+    static_assert(std::is_copy_assignable_v<Call>, "assert not copy assignable");
+
+    static_assert(std::is_copy_assignable_v<Stmt>, "stmt not copy constructible");
+
 
     /// \class PrettyPrinter
     /// A visitor for pretty-printing program-fragment AST elements
