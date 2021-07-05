@@ -203,23 +203,19 @@ PFToCHCEncoder::PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pgraph::CutPoint
 }
 
 
-std::string PFToCHCEncoder::to_string() { 
-  z3::expr_vector queries {ctx_};
-  z3::expr q = get_error_query();
-  queries.push_back(q);
-  return ctxfp_.to_string(queries);  // TODO: add query
+std::string PFToCHCEncoder::to_string() {
+  z3::func_decl_vector queries = get_error_queries();
+  std::stringstream encoding;
+  encoding << ctxfp_.to_string();
+  for (const z3::func_decl& f : queries) {
+    encoding << "(query " << f.name() << ")\n";
+  }
+  return encoding.str();
 }
 
 
 void PFToCHCEncoder::encode() {
   Z3ExprAdapter z3_adapter {ctx_};
-
-  // for (const auto& v : pred_scope_) {
-  //   // auto v_start = z3_adapter.GetShimExpr(v, PRED_START_SUFFIX).decl();
-  //   auto v_end = z3_adapter.GetShimExpr(v, PRED_END_SUFFIX).decl();
-  //   // ctxfp_.register_relation(v_start);
-  //   ctxfp_.register_relation(v_end);
-  // }
 
   for (const auto& [loc, edges] : pg_) {
      for (const auto& [edge, next] : edges) {
@@ -240,7 +236,9 @@ void PFToCHCEncoder::encode_transition(
   InstrVec seq {};
   int step_ctr = 0;
 
-  unroller.AssertStep(get_or_make_loc_predicate(start), 0);
+  if (start != pgraph::LOC_BEGIN) {
+      unroller.AssertStep(get_or_make_loc_predicate(start), 0);
+  }
   
   for (auto& stmt : transition) {
     std::visit([&unroller, &seq, &step_ctr](const auto& s) {
@@ -360,25 +358,15 @@ ExprPtr PFToCHCEncoder::new_predicate(const std::string& name, const ExprPtrVec&
   return asthub::AppFunc(f, args);
 }
 
-z3::expr PFToCHCEncoder::get_error_query() {
-  Z3ExprAdapter z3_adapter {ctx_};
-
-  z3::expr_vector exists_args {ctx_};
-  for (const auto& v : get_scope(pgraph::LOC_ERROR)) {
-    exists_args.push_back(z3_adapter.GetShimExpr(v, PRED_END_SUFFIX));
-  }
+z3::func_decl_vector PFToCHCEncoder::get_error_queries() {
+  z3::func_decl_vector queries {ctx_};
 
   ExprPtr p = get_or_make_loc_predicate(pgraph::LOC_ERROR);
-  return z3::exists(exists_args, z3_adapter.GetShimExpr(p, PRED_END_SUFFIX));
-
-  // z3::func_decl_vector queries {ctx_};
-
-  // ExprPtr p = get_or_make_loc_predicate(pgraph::LOC_ERROR);
-  // queries.push_back(
-  //   std::dynamic_pointer_cast<ExprOpAppFunc>(p)
-  //     ->func()->GetZ3FuncDecl(ctx_));
+  queries.push_back(
+    std::dynamic_pointer_cast<ExprOpAppFunc>(p)
+      ->func()->GetZ3FuncDecl(ctx_));
   
-  // return queries;
+  return queries;
 }
 
 }

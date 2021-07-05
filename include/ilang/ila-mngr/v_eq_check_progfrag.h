@@ -168,8 +168,8 @@ namespace ilang {
     std::string to_string();
 
     Result check_assertions() {
-      z3::expr q = get_error_query();
-      // z3::func_decl_vector q = get_error_query();
+      // z3::expr q = get_error_query();
+      z3::func_decl_vector q = get_error_query();
       return ctxfp_.query(q);
     }
 
@@ -209,8 +209,7 @@ namespace ilang {
     Predicate get_or_make_loc_predicate(const std::string& name);
     Predicate new_predicate(const std::string& name, const ExprPtrVec& args);
 
-    z3::expr get_error_query();
-    // z3::func_decl_vector get_error_query();
+    z3::func_decl_vector get_error_queries();
 
   };
 
