@@ -83,7 +83,7 @@ namespace pf2graph {
     InstrPtr inst_dec;
     { auto instr = m.NewInstr("DEC");
       instr.SetDecode(op == OP_DEC);
-      instr.SetUpdate(ctr, Ite(ctr == 0, BvConst(0, 8), ctr + 1));
+      instr.SetUpdate(ctr, Ite(ctr == 0, BvConst(0, 8), ctr - 1));
       inst_dec = instr.get();
     }
 
@@ -99,6 +99,60 @@ namespace pf2graph {
       Call {inst_inc},
       Call {inst_dec},
       Call {inst_inc},
+      Assert {asthub::Eq(ctr.get(), 2)}
+    }};
+
+    PFToCHCEncoder encoder {m.get(), pf};
+    
+    // std::cout << "\nEncoded successfully!\n" << std::endl;
+
+    // std::cout << encoder.to_string() << std::endl;
+
+    EXPECT_NO_THROW(encoder.to_string());
+
+    PFToCHCEncoder::Result res = encoder.check_assertions();
+    EXPECT_EQ(res, PFToCHCEncoder::VALID);
+  }
+
+  TEST(Pf2cfg, CounterFail) {
+
+    // create ILA
+
+    Ila m {"Counter"};
+
+    constexpr int OP_INC = 1;
+    constexpr int OP_DEC = 2;
+
+    auto ctr = m.NewBvState("ctr", 8);
+    auto op = m.NewBvInput("op", 2);
+
+    InstrPtr inst_inc;
+    {
+      auto instr = m.NewInstr("INC");
+      instr.SetDecode(op == OP_INC);
+      instr.SetUpdate(ctr, ctr + 1);
+      inst_inc = instr.get();
+    }
+
+    InstrPtr inst_dec;
+    { auto instr = m.NewInstr("DEC");
+      instr.SetDecode(op == OP_DEC);
+      instr.SetUpdate(ctr, Ite(ctr == 0, BvConst(0, 8), ctr + 1));
+      inst_dec = instr.get();
+    }
+
+    // program fragment
+    ProgramFragment pf {{ /* no params */ }, {
+      Assume {asthub::Eq(ctr.get(), 0)},
+      Call {inst_inc},
+      Assert {asthub::Eq(ctr.get(), 1)},
+      Call {inst_dec},
+      Call {inst_dec},
+      Assert {asthub::Eq(ctr.get(), 3)},  // should fail
+      Call {inst_inc},
+      Call {inst_inc},
+      Call {inst_dec},
+      Call {inst_inc},
       Assert {asthub::Eq(ctr.get(), 2)},
     }};
 
@@ -109,7 +163,7 @@ namespace pf2graph {
     // std::cout << encoder.to_string() << std::endl;
 
     PFToCHCEncoder::Result res = encoder.check_assertions();
-    EXPECT_EQ(res, PFToCHCEncoder::VALID);
+    EXPECT_EQ(res, PFToCHCEncoder::INVALID);
   }
 
   TEST(Pf2cfg, UnrollerSMTTest) {
