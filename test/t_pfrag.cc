@@ -108,8 +108,8 @@ namespace pf2graph {
 
     // std::cout << encoder.to_string() << std::endl;
 
-    z3::check_result res = encoder.check_assertions();
-    EXPECT_EQ(res, z3::unsat);
+    PFToCHCEncoder::Result res = encoder.check_assertions();
+    EXPECT_EQ(res, PFToCHCEncoder::VALID);
   }
 
   TEST(Pf2cfg, UnrollerSMTTest) {
@@ -160,19 +160,12 @@ namespace pf2graph {
 
     PFToCHCEncoder encoder {m, pf};
     
-    std::cout << "\nEncoded successfully!\n" << std::endl;
+    // std::cout << "\nEncoded successfully!\n" << std::endl;
 
-    std::cout << encoder.to_string() << std::endl;
+    // std::cout << encoder.to_string() << std::endl;
 
-    z3::check_result res = z3::sat;
-
-    try {
-      res = encoder.check_assertions();
-    } catch (z3::exception e) {
-      std::cout << "Got error:\n" << e << std::endl;
-    }
-
-    EXPECT_EQ(res, z3::unsat);
+    PFToCHCEncoder::Result res = encoder.check_assertions();
+    EXPECT_EQ(res, PFToCHCEncoder::VALID);
 
   }
 

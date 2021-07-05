@@ -193,6 +193,11 @@ PFToCHCEncoder::PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pfast::ProgramFr
 
 PFToCHCEncoder::PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pgraph::CutPointGraph& pg, const ExprSet& params):
     ila_ {ila}, pg_ {pg}, params_ {params} {
+
+  z3::params p {ctx_};
+  p.set("engine", "spacer");
+  ctxfp_.set(p);
+
   record_scopes(pg_, params_);
   encode();
 }

@@ -154,15 +154,20 @@ namespace ilang {
   // Decision: use PathUnroller.Unroll, PathUnroller.GetSMTCurrent
   class PFToCHCEncoder {
 
-    using Predicate = z3::func_decl;
+    using Predicate = ExprPtr;
 
   public:
+    using Result = z3::check_result;
+
+    static constexpr Result VALID = z3::unsat;
+    static constexpr Result INVALID = z3::sat; 
+
     PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pfast::ProgramFragment& pf);
     ~PFToCHCEncoder()=default;
 
     std::string to_string();
 
-    z3::check_result check_assertions() {
+    Result check_assertions() {
       z3::expr q = get_error_query();
       // z3::func_decl_vector q = get_error_query();
       return ctxfp_.query(q);
@@ -201,8 +206,8 @@ namespace ilang {
       return pred_scope_;  // for now, same scope for the whole graph
     }
 
-    ExprPtr get_or_make_loc_predicate(const std::string& name);
-    ExprPtr new_predicate(const std::string& name, const ExprPtrVec& args);
+    Predicate get_or_make_loc_predicate(const std::string& name);
+    Predicate new_predicate(const std::string& name, const ExprPtrVec& args);
 
     z3::expr get_error_query();
     // z3::func_decl_vector get_error_query();
