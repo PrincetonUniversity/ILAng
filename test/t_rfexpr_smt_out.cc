@@ -19,7 +19,10 @@ namespace ilang {
 	std::string rfstr = (s); \
 	auto rfexpr = rfmap::VerilogRefinementMap::ParseRfExprFromString(rfstr); \
 	annotator.AnnotateType(rfexpr); \
-	std::cout << RfExpr2Smt::to_smt2(rfexpr, (b)) << std::endl; \
+	std::cout << rfmap::RfExpr2Smt::to_smt2(rfexpr, \
+		(b) ? rfmap::SmtType() : \
+		      rfmap::SmtType( (rfexpr->get_annotation<rfmap::TypeAnnotation>())->type, false )) \
+		<< std::endl; \
 } while(0)
 
 TEST(TestRfexpr, ToSmt) {
@@ -39,7 +42,7 @@ TEST(TestRfexpr, ToSmt) {
 
   auto check_var_type = 
   	[&var_type](const std::string & n) -> rfmap::RfVarTypeOrig {
-  		RfVarTypeOrig ret;
+  		rfmap::RfVarTypeOrig ret;
   		auto pos = var_type.find(n);
   		if(pos != var_type.end())
   			ret.type = pos->second;
@@ -49,13 +52,12 @@ TEST(TestRfexpr, ToSmt) {
   rfmap::TypeAnalysisUtility annotator(check_var_type);
 
 
-	PRINT_SMT("a[4] == b[4]" , true);
-	PRINT_SMT("a[5:4] + c[4:3] != array1[a][2:1]" , true);
-	PRINT_SMT(" c ? array1 : array2 " , false);
-	PRINT_SMT(" c == 1'b1? array1 : array2 " , false);
-	PRINT_SMT(" array3[b+1] " , false);
-
-
+	PRINT_SMT("a[4] == b[4]" , true); // should be (extract)
+	PRINT_SMT("a[5:4] + c[4:3] != array1[a][2:1]" , true); // extract and select
+	PRINT_SMT(" c ? array1 : array2 " , false); // should handle array well
+	PRINT_SMT(" c == 1'b1? array1 : array2 " , false); // should be able to convert
+	PRINT_SMT(" array3[b+1] " , false); // should set the right type of 1
+	PRINT_SMT(" a+b == c " , true); // should expand b, c
 
 } // TEST(TestRfexpr, ToSmt)
 
