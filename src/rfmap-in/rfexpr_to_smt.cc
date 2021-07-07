@@ -95,15 +95,59 @@ static std::string split_bit(const std::string & opstr,
   return ret;
 }
 
-// make sure in_bool -> out_bool
-static std::string bvboolconvert(bool out_bool, bool in_bool, size_t inwidth, const std::string & in) {
-	if(in_bool == out_bool)
-	  return in;
-	if(in_bool && !out_bool)
-		return "(ite " + in + " #b1 #b0)";
-	// else: !in_bool && out_bool
-	return "(not (= " + in + " "+ smt_const(0, inwidth) +"))";	
+static SmtType common_type(RfMapVarType tp1, RfMapVarType tp2) {
+  if(tp1.is_array() || tp2.is_array()) {
+    ILA_CHECK(tp2.is_array() && tp1.is_array() &&
+      tp2.addr_width == tp1.addr_width && 
+      tp2.data_width == tp1.data_width);
+    return SmtType(tp1, false);
+  }
+
+  if(tp1.is_bv() && tp2.is_bv()) {
+    return SmtType( std::max(tp1.unified_width(), tp2.unified_width()) );
+  }
+
+  if(tp1.is_unknown() || tp2.is_unknown()) {
+    if (!tp1.is_unknown())
+      return SmtType(tp1,false);
+    if (!tp2.is_unknown())
+      return SmtType(tp2,false);
+  }
+  ILA_CHECK(false) << "unable to determine common type";
 }
+
+static std::string extend_width(const std::string & in, unsigned inw, unsigned outw) {
+  ILA_CHECK(outw > inw);
+  return "(concat " + smt_const(0, outw-inw) + " " + in + ")";
+}
+// make sure in_bool -> out_bool
+static std::string type_convert(SmtType out_tp, SmtType in_tp, const std::string & in) {
+	if(out_tp == in_tp)
+	  return in;
+
+  if(out_tp.is_bool() && in_tp.is_bv()) {
+    return "(not (= " + in + " "+ smt_const(0, in_tp.unified_width()) +"))";	
+  }
+
+  if(in_tp.is_bool() && out_tp.is_bv()) {
+    return extend_width("(ite " + in + " #b1 #b0)",1,out_tp.unified_width()) ;
+  }
+
+  if(in_tp.is_bv() && out_tp.is_bv() && 
+     in_tp.unified_width() != out_tp.unified_width())
+  {
+    ILA_ASSERT(out_tp.unified_width() > in_tp.unified_width())
+      << "[Convert to SMT] cutting input bit-vector, not allowed.";
+    return extend_width(in, in_tp.unified_width(), out_tp.unified_width());
+  }
+
+  if(in_tp.is_array() || out_tp.is_array()) {
+    ILA_CHECK(false) << "Unable to convert array of different sizes";
+  }
+  ILA_CHECK(false) << "Unable to convert types";
+  return "|ERROR|";
+}
+
 // typeconvert
 // intype == outtype 
 // bv_n -> bool
@@ -121,15 +165,16 @@ std::string RfExpr2Smt::to_smt2_const(const std::shared_ptr<verilog_expr::VExprA
 
   auto b_w_l = in->get_constant();
   auto width = std::get<1>(b_w_l);
-  return bvboolconvert(request_bool, false, width, smt_const(out, width) );
+  return type_convert(expected_type, SmtType(width), smt_const(out, width) );
 
 } // to_smt2_const
 
 std::string RfExpr2Smt::to_smt2_var(const std::shared_ptr<verilog_expr::VExprAstVar> & in, SmtType expected_type) {
-  RfMapVarType tp = in->get_annotation<TypeAnnotation>()->type;
+  RfMapVarType tp = get_type(in);
   auto ret = "|" + in->get_name().first+"|";
   if(!tp.is_array())
-    ret = bvboolconvert(request_bool, false, tp.unified_width(), ret);
+    ret = type_convert(expected_type, SmtType(tp.unified_width()), ret);
+  ILA_ASSERT(expected_type == SmtType(tp,false));
   return ret;
 } // to_smt2_var
 
@@ -138,21 +183,21 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
   if(in->is_var()) {
     auto ptr = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(in);
     ILA_NOT_NULL(ptr);
-    return to_smt2_var(ptr, request_bool);
+    return to_smt2_var(ptr, expected_type);
   }
   if (in->is_constant()) {
     auto ptr = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(in);
     ILA_NOT_NULL(ptr);
-    return to_smt2_const(ptr, request_bool);
+    return to_smt2_const(ptr, expected_type);
   }
 
   auto op_ = in->get_op();
   const auto & child_ = in->get_child();
 
-  assert(op_ != verilog_expr::voperator::MK_CONST && op_ != verilog_expr::voperator::MK_CONST);
+  ILA_ASSERT(op_ != verilog_expr::voperator::MK_CONST && op_ != verilog_expr::voperator::MK_CONST);
 
   unsigned idx = static_cast<unsigned>(op_);
-  assert(idx < voperator_str_smt.size());
+  ILA_ASSERT(idx < voperator_str_smt.size());
   auto opstr = voperator_str_smt.at(idx);
   if (opstr == "#notsupported")
     throw verilog_expr::VexpException(verilog_expr::ExceptionCause::UntranslatedSmtlib2, opstr );
@@ -218,9 +263,11 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
     case verilog_expr::voperator::LSR:
     case verilog_expr::voperator::DIV:
     case verilog_expr::voperator::MOD:
-      assert(child_.size() == 2);
-      return bvboolconvert(request_bool, false, parent_tp.unified_width(),
-      "("+opstr+" " + to_smt2(child_.at(0),false) + " " + to_smt2(child_.at(1),false)+")"
+      ILA_ASSERT(child_.size() == 2);
+      return type_convert(expected_type, SmtType(parent_tp,false),
+      "(" + opstr+" " 
+          + to_smt2(child_.at(0),SmtType(parent_tp,false)) + " " 
+          + to_smt2(child_.at(1),SmtType(parent_tp,false))+")"
       );
     	break;
 
@@ -230,26 +277,38 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
     case verilog_expr::voperator::LT:
     case verilog_expr::voperator::C_EQ:
     case verilog_expr::voperator::L_EQ:
-      assert(child_.size() == 2);
-      return bvboolconvert(request_bool, true, parent_tp.unified_width(),
-      "("+opstr+" " + to_smt2(child_.at(0),false) + " " + to_smt2(child_.at(1),false)+")"
-      );
-    
-    	break;
+      ILA_ASSERT(child_.size() == 2);
+      {
+        SmtType common_tp = common_type(get_type(child_.at(0)), get_type(child_.at(1)));
+        return type_convert(expected_type, SmtType(parent_tp,true),
+          "(" + opstr 
+              + " " + to_smt2(child_.at(0),common_tp) 
+              + " " + to_smt2(child_.at(1),common_tp)+")"
+        );
+      }
+      break;
 
     case verilog_expr::voperator::C_NEQ:
     case verilog_expr::voperator::L_NEQ:
-      assert(child_.size() == 2);
-      return bvboolconvert(request_bool, true, parent_tp.unified_width(),
-      "(not (= " + to_smt2(child_.at(0),false) + " " + to_smt2(child_.at(1),false)+"))"
-      );
-      break;
+      ILA_ASSERT(child_.size() == 2);
+      { // expect common_type to make bool false?
+        SmtType common_tp = common_type(get_type(child_.at(0)), get_type(child_.at(1)));
+        return type_convert(expected_type, SmtType(parent_tp,true),
+          "(not (= " + 
+            to_smt2(child_.at(0),common_tp) + " " + 
+            to_smt2(child_.at(1),common_tp) + "))"
+        );
+        break;
+      }
 
     case verilog_expr::voperator::L_AND:
     case verilog_expr::voperator::L_OR:
-      assert(child_.size() == 2);
-      return bvboolconvert(request_bool, true, parent_tp.unified_width(),
-      "(" + opstr + " " + to_smt2(child_.at(0),true) + " " + to_smt2(child_.at(1),true)+")"
+      ILA_ASSERT(child_.size() == 2);
+      return type_convert(expected_type, SmtType(parent_tp,true),
+      "(" + opstr 
+        + " " + to_smt2(child_.at(0),SmtType(get_type(child_.at(0)),true))
+        + " " + to_smt2(child_.at(1),SmtType(get_type(child_.at(1)),true))
+        + ")"
       );
       break;
 
@@ -259,13 +318,19 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
     case verilog_expr::voperator::B_EQU:
     case verilog_expr::voperator::B_NAND:
     case verilog_expr::voperator::B_NOR:
-      assert(child_.size() == 2);
-      return bvboolconvert(request_bool, false, parent_tp.unified_width(),
-      "(" + opstr + " " + to_smt2(child_.at(0),false) + " " + to_smt2(child_.at(1),false)+")"
-      );
-      break;
+      {
+        SmtType common_tp = common_type(get_type(child_.at(0)), get_type(child_.at(1)));
+        
+        ILA_ASSERT(child_.size() == 2);
+        return type_convert(expected_type, SmtType(parent_tp, false),
+          "(" + opstr 
+              + " " + to_smt2(child_.at(0),common_tp)
+              + " " + to_smt2(child_.at(1),common_tp)
+              + ")"
+          );
+        break;
+      }
 
-    	
     default:
     	break;
   } // end switch
@@ -273,8 +338,10 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
   if(op_ == verilog_expr::voperator::INDEX) {
   	RfMapVarType tp = get_type(child_.at(0));
     if(tp.is_array()) {
-      return bvboolconvert(request_bool, false, tp.unified_width(),
-        "(select " + to_smt2(child_.at(0),false) + " " + to_smt2(child_.at(1),false) + ")");
+      return type_convert(expected_type, SmtType(tp.unified_width()),
+        "(select " + to_smt2(child_.at(0), SmtType(tp, false) ) 
+                   + " "
+                   + to_smt2(child_.at(1), SmtType(tp.addr_width)) + ")");
     } // else is bv
     // request to index to be constant
     unsigned bitidx;
@@ -282,9 +349,13 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
     if(!succ)
       throw verilog_expr::VexpException(verilog_expr::ExceptionCause::UnknownNumberSmtTranslation);
     auto bitidxstr = std::to_string(bitidx);
-    return  bvboolconvert(request_bool, false,1,
-      "((_ extract " + bitidxstr + " " + bitidxstr+") " + to_smt2(child_.at(0),false)+")");
-  }
+    return type_convert(expected_type, SmtType(1) /* (_ BitVec 1) */,
+      "((_ extract " + bitidxstr + " " + bitidxstr+") "
+       + to_smt2( child_.at(0),
+                  SmtType(tp, false)
+              )
+       + ")" );
+  } // end if INDEX
 
   if(op_ == verilog_expr::voperator::IDX_PRT_SEL_PLUS ||
      op_ == verilog_expr::voperator::IDX_PRT_SEL_MINUS ||
@@ -303,48 +374,70 @@ std::string RfExpr2Smt::to_smt2(const RfExpr &in, SmtType expected_type) {
       r = l - r + 1;
     auto lstr = std::to_string(l);
     auto rstr = std::to_string(r);
-    return  bvboolconvert(request_bool, false,l-r+1,
-      "((_ extract " + lstr + " " + rstr+") " + to_smt2(child_.at(0),false)+")");
-  }
+  	RfMapVarType tp = get_type(child_.at(0));
+    return  type_convert(expected_type, SmtType(l-r+1),
+      "((_ extract " + lstr + " " + rstr+") " 
+        + to_smt2( child_.at(0),
+                   SmtType(tp, false) 
+                 )
+        + ")");
+  } // IDX_PRT_SEL_PLUS, IDX_PRT_SEL_MINUS, RANGE_INDEX
   
   if (op_ == verilog_expr::voperator::STORE_OP) {
-    return "(store " + to_smt2(child_.at(0),false) + " " + to_smt2(child_.at(1),false)+")";
-  }
+  	SmtType tp0(get_type(child_.at(0)), false);
+  	SmtType tp1(get_type(child_.at(1)), false);
+    // no need to convert
+    ILA_ASSERT(expected_type == tp0);
+    return "(store " 
+      + to_smt2(child_.at(0),tp0) + " "
+      + to_smt2(child_.at(1),tp1) + ")";
+    // do not convert as we are unable to do so
+  } // STORE_OP
 
   if (op_ == verilog_expr::voperator::TERNARY) {
-    RfMapVarType tp = get_type(child_.at(1));
-    if(tp.is_array())
-      return "(ite " + to_smt2(child_.at(0), true) + " " +
-        to_smt2(child_.at(1), false) + " " +
-        to_smt2(child_.at(2), false) +")";
-    return bvboolconvert(request_bool, false, tp.unified_width(),
-      "(ite " + to_smt2(child_.at(0), true) + " " +
-        to_smt2(child_.at(1), false) + " " +
-        to_smt2(child_.at(2), false) +")");
+    RfMapVarType parent_tp = get_type(in);
+    // you need to handle the case of array
+    SmtType common_tp = common_type(get_type(child_.at(1)), get_type(child_.at(2)));
+      
+    if(parent_tp.is_array()) {
+      // do not convert as we are unable to do so
+      return "(ite " + to_smt2(child_.at(0), SmtType() ) + " " +
+        to_smt2(child_.at(1), common_tp) + " " +
+        to_smt2(child_.at(2), common_tp) + ")";
+    } // else
+    
+    return type_convert(expected_type, common_tp,
+      "(ite " + to_smt2(child_.at(0), SmtType()) + " " +
+        to_smt2(child_.at(1), common_tp) + " " +
+        to_smt2(child_.at(2), common_tp) + ")");
   }
 
   if (op_ == verilog_expr::voperator::FUNCTION_APP)
     throw verilog_expr::VexpException(verilog_expr::ExceptionCause::UntranslatedSmtlib2);
   
   if (op_ == verilog_expr::voperator::CONCAT) {
-    assert( in->get_child_cnt() == 2 );
-    return bvboolconvert(request_bool, false, parent_tp.unified_width(),
-      "(concat " + to_smt2(child_.at(0), false) + " " +
-      to_smt2(child_.at(1), false) + ")");
-  }
+    ILA_ASSERT( in->get_child_cnt() == 2 );
+    return type_convert(expected_type, SmtType(parent_tp,false),
+      "(concat "
+        + to_smt2(child_.at(0), SmtType(get_type(child_.at(0)), false) ) + " "
+        + to_smt2(child_.at(1), SmtType(get_type(child_.at(1)), false) ) + ")");
+  } // CONCAT
 
   if (op_ == verilog_expr::voperator::REPEAT) {
-    assert( in->get_child_cnt() == 2 );
+    ILA_ASSERT( in->get_child_cnt() == 2 );
     unsigned ntimes;
     if(!_compute_const(in->child(0), ntimes))
       throw verilog_expr::VexpException(verilog_expr::ExceptionCause::UnknownNumberSmtTranslation);
-    assert(ntimes > 0);
-    std::string ret = "(concat";
-    std::string c1 = to_smt2(child_.at(1), false);
-    for(unsigned idx = 0; idx < ntimes; ++idx)
-      ret += " " + c1;
-    ret += ")";
-    return ret;
+    ILA_ASSERT(ntimes > 0);
+    std::string c1 = to_smt2(
+      child_.at(1),
+      SmtType(get_type(child_.at(1)),false) );
+    std::string ret = "(concat " + c1 + " " + c1 + ")" ;
+    
+    for(unsigned idx = 2; idx < ntimes; ++idx)
+      ret = "(concat " + ret + " " + c1 + ")";
+
+    return type_convert(expected_type, SmtType(parent_tp,false), ret);
   }
   throw verilog_expr::VexpException(verilog_expr::ExceptionCause::UntranslatedSmtlib2);
 

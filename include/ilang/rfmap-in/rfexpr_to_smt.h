@@ -21,7 +21,7 @@ struct SmtType: public RfMapVarType {
 
   bool is_bool() const { return bool_or_bv && (RfMapVarType::is_bv()); }
   bool is_bv() const { return (!bool_or_bv) && (RfMapVarType::is_bv()); }
-  bool operator=(const SmtType & r) const {
+  bool operator==(const SmtType & r) const {
     if(bool_or_bv != r.bool_or_bv)
       return false;
     if(type != r.type)
