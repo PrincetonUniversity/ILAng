@@ -198,6 +198,7 @@ PFToCHCEncoder::PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pgraph::CutPoint
   p.set("engine", "spacer");
   ctxfp_.set(p);
 
+  total_scope_ = params_;  // initialize total_scope_, will add more in record_scopes
   record_scopes(pg_, params_);
   encode();
 }

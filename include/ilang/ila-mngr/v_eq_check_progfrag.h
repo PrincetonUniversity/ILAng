@@ -169,7 +169,7 @@ namespace ilang {
 
     Result check_assertions() {
       // z3::expr q = get_error_query();
-      z3::func_decl_vector q = get_error_query();
+      z3::func_decl_vector q = get_error_queries();
       return ctxfp_.query(q);
     }
 
