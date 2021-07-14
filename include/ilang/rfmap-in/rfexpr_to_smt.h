@@ -33,6 +33,8 @@ struct SmtType: public RfMapVarType {
     return false; // unknown type , unknown 
   } // operator=
 
+  std::string type_to_smt2() const;
+
 }; // SmtType
 
 struct RfExpr2Smt{

@@ -82,7 +82,9 @@ VlgSglTgtGen::VlgSglTgtGen(
       //    [this](const std::string& n) -> bool { return TryFindIlaInput(n); },
       //    [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
       // ref to refmaps
-      refinement_map(refinement, ??? ),
+      refinement_map(refinement, ??? /*type checker*/,
+        vlg_ila.GetDecodeSignalName(instr_ptr),
+        vlg_ila.GetValidSignalName(instr_ptr)),
 
       target_type(target_tp), // whether it is
                               // invariant/instructions

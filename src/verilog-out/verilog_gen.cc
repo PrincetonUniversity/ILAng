@@ -1301,6 +1301,23 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
   ExportFuncDefs();
 }
 
+
+// get valid signal name in advace
+std::string VerilogGenerator::GetValidSignalName(const InstrPtr& instr_ptr_) const {
+
+  auto ila_ptr_ = instr_ptr_->host();
+  return "__ILA_" + sanitizeName(ila_ptr_->name().str()) + "_valid__";
+}
+
+// get decode signal name in advace
+std::string VerilogGenerator::GetDecodeSignalName(const InstrPtr& instr_ptr_) const {
+
+  auto ila_ptr_ = instr_ptr_->host();
+  return "__ILA_" + sanitizeName(ila_ptr_->name().str()) +
+                    "_decode_of_" + sanitizeName(instr_ptr_->name().str()) +
+                    "__";
+}
+
 // here we will add all updates, those not touched will be update to itself
 // add inputs / states / functions
 // do remember to export its parents' state (hierarchically collect its parents)
@@ -1341,7 +1358,7 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
   ParseNonMemUpdateExpr(valid_ptr);
   vlg_name_t valid_sig_name = getVlgFromExpr(valid_ptr);
   if (validName == "")
-    validName = "__ILA_" + sanitizeName(ila_ptr_->name().str()) + "_valid__";
+    validName = GetValidSignalName(instr_ptr_);
   add_wire(validName, 1);
   add_output(validName, 1);
   add_assign_stmt(validName, valid_sig_name);
@@ -1354,9 +1371,7 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
   }
   ParseNonMemUpdateExpr(decode_ptr);
   vlg_name_t decode_sig_name = getVlgFromExpr(decode_ptr);
-  auto decodeName = "__ILA_" + sanitizeName(ila_ptr_->name().str()) +
-                    "_decode_of_" + sanitizeName(instr_ptr_->name().str()) +
-                    "__";
+  auto decodeName = GetDecodeSignalName(instr_ptr_);
   decodeNames.push_back(decodeName);
   add_wire(decodeName, 1);
   add_output(decodeName, 1);

@@ -165,9 +165,16 @@ protected:
   std::string ReplExpr(const rfmap::RfExpr & in);
   /// treat `in` as var map, if it is not a Boolean, add `==`
   std::string TranslateMap(const rfmap::RfExpr & in, const std::string & ila_vn);
-  /// handle a single string map (s-name/equ-string)
-  std::string PerStateMap(const std::string& ila_state_name_or_equ,
-                          const std::string& vlg_st_name);
+  
+  /// translate a conditional map to vlg expression
+  std::string condition_map_to_str(
+      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>> & cond_map,
+      const std::string & ila_state_name);
+  
+  std::string non_mem_map_to_str(
+    const rfmap::SingleVarMap & single_map,
+    const std::string & ila_state_name);
+
   /// handle a var map
   void Gen_varmap_assumpt_assert(const std::string& ila_state_name,
     const rfmap::IlaVarMapping &vmap, const std::string & problem_name, bool true_for_assumpt_false_for_assert,
@@ -290,10 +297,21 @@ public:
 protected:
   // helper function to be implemented by COSA/JASPER
   /// Add an assumption -- backend dependent
-  virtual void add_a_direct_assumption(const std::string& aspt,
-                                       const std::string& dspt) = 0;
+  virtual void add_a_direct_assumption(const std::string& aspt, 
+                                       const std::string& dspt)  = 0;
   /// Add an assertion
-  virtual void add_a_direct_assertion(const std::string& asst,
+  virtual void add_a_direct_assertion(const std::string& aspt, 
+                                      const std::string& dspt)  = 0;
+  
+  /// Add SMT-lib2 assumption
+  virtual void add_a_direct_smt_assumption(const std::string& arg,
+                                       const std::string& ret,
+                                       const std::string& body,
+                                       const std::string& dspt) = 0;
+  /// Add SMT-lib2 assertion
+  virtual void add_a_direct_smt_assertion(const std::string& arg,
+                                      const std::string& ret,
+                                      const std::string& body,
                                       const std::string& dspt) = 0;
 
   // helper function to be implemented by COSA, Yosys, invsyn, jasper is not
@@ -303,6 +321,18 @@ protected:
   /// Add an assertion -- JasperGold will override this
   virtual void add_an_assertion(const std::string& asst,
                                 const std::string& dspt);
+
+  // Add SMT assumption (using rfexpr)
+  virtual void add_smt_assumption(
+    const std::unordered_map<std::string, rfmap::RfVar> & vars,
+    const rfmap::RfExpr & body,
+    const std::string & dspt);
+
+  // Add SMT assertion (using rfexpr)
+  virtual void add_smt_assertion(
+    const std::unordered_map<std::string, rfmap::RfVar> & vars,
+    const rfmap::RfExpr & body,
+    const std::string & dspt);
 
   /// Add an assignment which in JasperGold could be an assignment, but in CoSA
   /// has to be an assumption

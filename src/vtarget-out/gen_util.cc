@@ -170,9 +170,42 @@ std::string VlgSglTgtGen::TranslateMap(const rfmap::RfExpr & in, const std::stri
   return ReplExpr(eq_node);
 }
 
+std::string VlgSglTgtGen::condition_map_to_str(
+    const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>> & cond_map,
+    const std::string & ila_state_name)
+{
+  std::vector<std::string> all_mappings;
+  std::string prev_neg; // make sure it is a priority condition lists
+  for (const auto & cond_map_pair : cond_map) {
+    std::string cond_expr = ReplExpr(cond_map_pair.first);
+    std::string vmap_expr = TranslateMap(cond_map_pair.second, ila_state_name);
+
+    all_mappings.push_back("~ (" + prev_neg + "(" + cond_expr + ") ) || (" +
+                            vmap_expr + ")");
+    prev_neg += "~(" + cond_expr + ")&&";
+  } // end for each condition map item
+  ILA_ERROR_IF(all_mappings.empty()) << "Conditional map is empty!";
+  auto map_str = "(" + Join(all_mappings, " )&&( ") + ")";
+  return map_str;
+} // end of condition_map_to_str
+
+std::string VlgSglTgtGen::non_mem_map_to_str(
+  const rfmap::SingleVarMap & single_map,
+  const std::string & ila_state_name)
+{
+  if(single_map.single_map != nullptr) {
+    return (TranslateMap(single_map.single_map, ila_state_name));
+  } else {
+    auto map_str = condition_map_to_str( single_map.cond_map, ila_state_name);
+    return (map_str);
+  } // end map type
+} // non_mem_map_to_str
+
 void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
   const rfmap::IlaVarMapping &vmap, const std::string & problem_name, bool true_for_assumpt_false_for_assert,
   const std::string & prefix, const std::string & suffix) {
+  // NOTE: prefix has ( ~ __START__ || ...
+  //       and suffix has .. )
   
 #define ADD_CONSTR(p1) do{ \
   if(true_for_assumpt_false_for_assert)  \
@@ -185,23 +218,8 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
   if(!is_mem) {
     ILA_ERROR_IF(vmap.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM)
       << "ila sv " << ila_state_name << " is not memory!";
-    if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::SINGLE) {
-      ADD_CONSTR(TranslateMap(vmap.single_map.single_map, ila_state_name));
-    } else if (vmap.type == rfmap::IlaVarMapping::StateVarMapType::CONDITIONAL) {
-      std::vector<std::string> all_mappings;
-      std::string prev_neg; // make sure it is a priority condition lists
-      for (const auto & cond_map_pair : vmap.single_map.cond_map) {
-        std::string cond_expr = ReplExpr(cond_map_pair.first);
-        std::string vmap_expr = TranslateMap(cond_map_pair.second, ila_state_name);
-
-        all_mappings.push_back("~ (" + prev_neg + "(" + cond_expr + ") ) || (" +
-                               vmap_expr + ")");
-        prev_neg += "~(" + cond_expr + ")&&";
-      } // end for each condition map item
-      ILA_ERROR_IF(all_mappings.empty()) << "Conditional map is empty!";
-      auto map_str = "(" + Join(all_mappings, " )&&( ") + ")";
-      ADD_CONSTR(map_str);
-    } // end map type
+    auto map_str = non_mem_map_to_str(vmap.single_map, ila_state_name);
+    ADD_CONSTR(map_str);
   } else {
     if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM) {
       // TODO: (note: multiple ports!)
@@ -209,17 +227,83 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
       //         ( ila.ren && rtl.renexpr && (ila.raddr == rtl.raddrexpr) |->
       //             (ila.rdata === rtl.rdataexpr) )
 
-      //  assert : IEND |->
-      //         ( ila.wen_d1 == rtl.wenexpr && ( ila.wen |-> 
-      //             (ila.wdata_d1 == rtl.wdataexpr) && (ila.waddr_d1 == rtl.waddrexpr) ) )
+      if(true_for_assumpt_false_for_assert) {
+        // mem read assumption
+        const auto & read_ports = vlg_ila.ila_rports.at(ila_state_name);
+        unsigned rfmap_node_idx = 0;
 
-      #error "connect according to the above"
-    } // same for jg/non-jg
-    else {
+        for(const auto & rport : read_ports) {
+          const auto & ila_ren = rport.second.ren;
+          const auto & ila_raddr = rport.second.raddr;
+          const auto & ila_rdata = rport.second.rdata;
+
+          while(!(vmap.externmem_map.at(rfmap_node_idx).rport_mapped)
+            && rfmap_node_idx < vmap.externmem_map.size())
+              ++ rfmap_node_idx;
+
+          ILA_ERROR_IF(rfmap_node_idx >= vmap.externmem_map.size())
+            <<"#ila.read-port=" << read_ports.size() << " does not match #rfmap.read-port" 
+            <<", and this is a mismatch for sname:" << ila_state_name;
+          
+          const auto & rfmap_rport = vmap.externmem_map.at(rfmap_node_idx);
+          
+          auto rtl_ren = non_mem_map_to_str(rfmap_rport.ren_map, ila_state_name);
+          auto rtl_raddr = non_mem_map_to_str(rfmap_rport.raddr_map, ila_state_name);
+          auto rtl_rdata = non_mem_map_to_str(rfmap_rport.rdata_map, ila_state_name);
+          
+          auto constr = "~(" + ila_ren + "&&(" + rtl_ren + ")&&(" + ila_raddr + "==(" + rtl_raddr +"))) || ";
+          constr += "(" + ila_rdata + "==(" + rtl_rdata+"))";
+          ADD_CONSTR(constr);
+
+          ++ rfmap_node_idx;
+
+        } // for each read port
+
+      } else {
+        //  assert : IEND |->
+        //         ( ila.wen_d1 == rtl.wenexpr && ( ila.wen |-> 
+        //             (ila.wdata_d1 == rtl.wdataexpr) && (ila.waddr_d1 == rtl.waddrexpr) ) )
+      
+        // mem write assertion
+        // vlg_ila.ila_wports
+        const auto & write_ports = vlg_ila.ila_wports.at(ila_state_name);
+        unsigned rfmap_node_idx = 0;
+
+        for(const auto & wport : write_ports) {
+          // the reason for _d1: see ConstructWrapper_get_ila_module_inst
+          // in single_target_connect.cc
+          const auto & ila_wen = wport.second.wen + "_d1";
+          const auto & ila_waddr = wport.second.waddr + "_d1";
+          const auto & ila_wdata = wport.second.wdata + "_d1";
+
+          while(!(vmap.externmem_map.at(rfmap_node_idx).wport_mapped)
+            && rfmap_node_idx < vmap.externmem_map.size())
+              ++ rfmap_node_idx;
+
+          ILA_ERROR_IF(rfmap_node_idx >= vmap.externmem_map.size())
+            <<"#ila.write-port=" << write_ports.size() << " does not match #rfmap.write-port" 
+            <<", and this is a mismatch for sname:" << ila_state_name;
+          
+          const auto & rfmap_wport = vmap.externmem_map.at(rfmap_node_idx);
+          
+          auto rtl_wen = non_mem_map_to_str(rfmap_wport.wen_map, ila_state_name);
+          auto rtl_waddr = non_mem_map_to_str(rfmap_wport.waddr_map, ila_state_name);
+          auto rtl_wdata = non_mem_map_to_str(rfmap_wport.wdata_map, ila_state_name);
+          
+          auto constr = "("+ila_wen + "==(" + rtl_wen+")) &&( ~" + ila_wen 
+            +"||(" + ila_waddr +"==("+rtl_waddr+") && " +ila_wdata +"==("+ rtl_wdata +")"     +"))";
+          ADD_CONSTR(constr);
+
+          ++ rfmap_node_idx;
+        } // for each write port
+      } // end of if assume else assert
+    } // end of extern mem
+    else { // the case when internal mem
       bool is_jg = _backend == backend_selector::JASPERGOLD;
       bool is_pono = _backend == backend_selector::PONO;
       if(is_jg) {
         // same as non-mem var
+        
         if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::SINGLE) {
           ADD_CONSTR(TranslateMap(vmap.single_map.single_map, ila_state_name));
         } else if (vmap.type == rfmap::IlaVarMapping::StateVarMapType::CONDITIONAL) {
@@ -237,12 +321,63 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
           auto map_str = "(" + Join(all_mappings, " )&&( ") + ")";
           ADD_CONSTR(map_str);
         } // end map type
-      } else {
-         //TODO: to smt-lib2
-         ILA_CHECK(is_pono) << "Only PONO/JG backend can handle array eq property";
-         
-          #error "to smtlib2, need ReplacingRtlIlaVar first which will infer type"
 
+      } else {
+        //TODO: to smt-lib2
+        ILA_CHECK(is_pono) << "Only PONO/JG backend can handle array eq property";
+        
+        rfmap::RfExpr mem_map;
+        if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::SINGLE)
+          mem_map = vmap.single_map.single_map;
+        else {
+          std::vector<rfmap::RfExpr> all_mappings;
+          rfmap::RfExpr prev_neg; // make sure it is a priority condition lists
+          for (const auto & cond_map_pair : vmap.single_map.cond_map) {
+            rfmap::RfExpr cond = cond_map_pair.first;
+            if (prev_neg != nullptr)
+              cond = verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_AND, prev_neg, cond);
+            rfmap::RfExpr single_mem_map = refinement_map.IsLastLevelBooleanOp(cond_map_pair.second) ?
+              cond_map_pair.second : (
+                verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_EQ,
+                  cond_map_pair.second,
+                  verilog_expr::VExprAst::MakeVar("ILA."+ila_state_name))
+              );
+            all_mappings.push_back( 
+              verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_OR,
+                verilog_expr::VExprAst::MakeUnaryAst (verilog_expr::voperator::L_NEG, cond),
+                single_mem_map));
+            if (prev_neg == nullptr)
+              prev_neg = verilog_expr::VExprAst::MakeUnaryAst (verilog_expr::voperator::L_NEG, cond);
+            else
+              prev_neg = verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_AND, prev_neg, 
+                verilog_expr::VExprAst::MakeUnaryAst (verilog_expr::voperator::L_NEG, cond));
+          } // end of for each cond_map pair
+          ILA_CHECK(!all_mappings.empty());
+          mem_map = all_mappings.at(0);
+          for (size_t idx = 1; idx < all_mappings.size(); ++ idx)
+            mem_map = verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_AND,
+              mem_map, all_mappings.at(idx));
+        } // end of else (if condmap)
+        
+        rfmap::RfExpr start_or_end = true_for_assumpt_false_for_assert ?
+          verilog_expr::VExprAst::MakeSpecialName("decode") :
+          verilog_expr::VExprAst::MakeSpecialName("commit");
+        
+        mem_map = /* ~start_or_end || (mem_map) */
+          verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_OR,
+            verilog_expr::VExprAst::MakeUnaryAst (verilog_expr::voperator::L_NEG, start_or_end),
+            mem_map);
+          
+        auto var_replaced_mem_map = refinement_map.ReplacingRtlIlaVar(mem_map,  is_pono /*true*/);
+        // get var/type
+        // convert to smt-lib2
+        std::unordered_map<std::string, rfmap::RfVar> vars_in_map;
+        refinement_map.GetVars(var_replaced_mem_map, vars_in_map);
+        
+        if(true_for_assumpt_false_for_assert)
+          add_smt_assumption(vars_in_map, mem_map, problem_name);
+        else
+          add_smt_assertion(vars_in_map, mem_map, problem_name);
       } // end of is_jg / else
     } // end of is_extmem / else
   } // end for memory-case
@@ -373,8 +508,8 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
 void VlgSglTgtGen::handle_start_condition(const std::vector<rfmap::RfExpr> & dc) {
   for (const auto & c : dc) {
     auto cond = ReplExpr(c);
-    cond = ReplaceAll(ReplaceAll(cond, "$decode", vlg_ila.decodeNames[0]),
-                      "$valid", vlg_ila.validName);
+    //cond = ReplaceAll(ReplaceAll(cond, "$decode", vlg_ila.decodeNames[0]),
+    //                  "$valid", vlg_ila.validName);
     add_an_assumption("(~ __START__) || (" + cond +")", "start_condition");
   }
 } // handle_start_condition

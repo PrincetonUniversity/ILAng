@@ -27,7 +27,7 @@ namespace rfmap {
 */
 
 typedef verilog_expr::VExprAst::VExprAstPtr RfExpr;
-
+typedef verilog_expr::VExprAstVar::VExprAstVarPtr RfVar;
 
 /*
 "ILA_mem_state_var_2" : {                            // case 4 : external RTL memory
@@ -48,12 +48,15 @@ struct SingleVarMap{
 };
 
 struct ExternalMemPortMap {
+  bool wport_mapped;
+  bool rport_mapped;
   SingleVarMap wen_map;
   SingleVarMap waddr_map;
   SingleVarMap wdata_map;
   SingleVarMap ren_map;
   SingleVarMap raddr_map;
   SingleVarMap rdata_map;
+  ExternalMemPortMap() : wport_mapped(false), rport_mapped(false) {}
 }; // struct ExternalMemPortMap
 
 struct IlaVarMapping {

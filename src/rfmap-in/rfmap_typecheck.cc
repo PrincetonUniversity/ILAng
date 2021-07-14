@@ -6,6 +6,7 @@
 #include <ilang/util/log.h>
 
 #include <string>
+#include <list>
 #include <cassert>
 
 namespace ilang {
@@ -19,28 +20,37 @@ std::string TypedVerilogRefinementMap::new_id() {
 
 TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const VerilogRefinementMap & refinement,
-  var_typecheck_t type_checker
+  var_typecheck_t type_checker,
+  const std::string & ila_inst_decode_signal_name,
+  const std::string & ila_valid_signal_name
  ) : VerilogRefinementMap(refinement), counter(0), TypeAnalysisUtility(type_checker) {
-  initialize();
+  initialize(ila_inst_decode_signal_name,ila_valid_signal_name);
 }
 
 TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const std::string & varmap_json_file,
   const std::string & instcond_json_file,
-  var_typecheck_t type_checker
+  var_typecheck_t type_checker,
+  const std::string & ila_inst_decode_signal_name,
+  const std::string & ila_valid_signal_name
   ) : VerilogRefinementMap(varmap_json_file, instcond_json_file),
     counter(0), TypeAnalysisUtility(type_checker) {
-  initialize();
+  initialize(ila_inst_decode_signal_name,ila_valid_signal_name);
 } // TypedVerilogRefinementMap::TypedVerilogRefinementMap
  
-void TypedVerilogRefinementMap::initialize() {
+void TypedVerilogRefinementMap::initialize(
+  const std::string & ila_inst_decode_signal_name,
+  const std::string & ila_valid_signal_name) {
   // collect those with unknown types
   // a. delay
   // b. value holder
   CollectInlineDelayValueHolder();
 
   // collect those new vars with user-defined types
-  CollectInternallyDefinedVars();
+  CollectInternallyDefinedVars(
+    ila_inst_decode_signal_name,
+    ila_valid_signal_name
+  );
 
   // determine the types of delay and value holder
   ComputeDelayValueHolderWidth();
@@ -91,6 +101,7 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
       }
       // put back the annotation? in new expr?
     } // end if it is unknown
+    ILA_WARN_IF(tp.type.is_unknown()) << "type of var: " << (n.second?"#":"") << n.first << " is still unknown.";
 
     
     if(tp.var_ref_type == RfVarTypeOrig::VARTYPE::RTLV) {
@@ -252,7 +263,10 @@ void TypedVerilogRefinementMap::CollectInlineDelayValueHolder() {
 }
 
 
-void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
+void TypedVerilogRefinementMap::CollectInternallyDefinedVars(
+  const std::string & ila_inst_decode_signal_name,
+  const std::string & ila_valid_signal_name
+) {
   for (const auto & n_st : phase_tracker) {
     for (const auto & var_def : n_st.second.event_alias ) {
       VarDef tmp;
@@ -280,11 +294,15 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
   }
 
   // add internal signals
-  {
+  { // add decode,commit, $decode, $valid
     VarDef tmp;
     tmp.width = 1;
     tmp.type = VarDef::var_type::WIRE;
-    all_var_def_types.emplace("decode", tmp);
+    auto onebit_anno = std::make_shared<TypeAnnotation>();
+    onebit_anno->type = RfMapVarType(1);
+    onebit_anno->var_ref_type = RfVarTypeOrig::VARTYPE::INTERNAL;
+
+    all_var_def_types.emplace("decode", tmp); // these are the stage info
     all_var_def_types.emplace("commit", tmp);
 
     // decode and commit stage replacement
@@ -293,12 +311,36 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
         verilog_expr::VExprAst::MakeSpecialName("decode"),
         verilog_expr::VExprAst::MakeSpecialName("__START__")
         ));
+
     var_replacement.emplace("commit", 
       VarReplacement(
         verilog_expr::VExprAst::MakeSpecialName("commit"),
         verilog_expr::VExprAst::MakeSpecialName("__IEND__")
         ));
-  }
+    
+    var_replacement.at("decode").newvar->set_annotation(onebit_anno);
+    var_replacement.at("commit").newvar->set_annotation(onebit_anno);
+    
+    all_var_def_types.emplace("$decode", tmp); // these are the ila.decode/ila.valid info
+    all_var_def_types.emplace("$valid", tmp);
+
+
+    // decode and commit stage replacement
+    var_replacement.emplace("$decode", 
+      VarReplacement(
+        verilog_expr::VExprAst::MakeSpecialName("$decode"),
+        verilog_expr::VExprAst::MakeSpecialName(ila_inst_decode_signal_name)
+        ));
+    var_replacement.emplace("$valid", 
+      VarReplacement(
+        verilog_expr::VExprAst::MakeSpecialName("commit"),
+        verilog_expr::VExprAst::MakeSpecialName(ila_valid_signal_name)
+        ));
+
+    var_replacement.at("$decode").newvar->set_annotation(onebit_anno);
+    var_replacement.at("$valid").newvar->set_annotation(onebit_anno);
+
+  } // end of add decode,commit, $decode, $valid
   
     
 } // CollectInternallyDefinedVars
@@ -433,26 +475,7 @@ bool _compute_const(const RfExpr & in, unsigned & out) {
   return true;  
 }
 
-bool TypedVerilogRefinementMap::IsLastLevelBooleanOp(const RfExpr & in) {
-  std::set<verilog_expr::voperator> boolean_op = {
-    verilog_expr::voperator::GTE,
-    verilog_expr::voperator::LTE,
-    verilog_expr::voperator::GT,
-    verilog_expr::voperator::LT,
-    verilog_expr::voperator::C_EQ,
-    verilog_expr::voperator::L_EQ,
-    verilog_expr::voperator::C_NEQ,
-    verilog_expr::voperator::L_NEQ,
-    verilog_expr::voperator::L_NEG,
-    verilog_expr::voperator::L_AND,
-    verilog_expr::voperator::L_OR
-  };
 
-  if(in->is_constant() || in->is_var())
-    return false;
-  auto op = in->get_op();
-  return (boolean_op.find(op) == boolean_op.end());
-}
 
 void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
   for(auto & name_delay_pair: aux_delays) {
@@ -487,9 +510,221 @@ void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
   }  // replendish internal defined vars
 } // ComputeDelayValueHolderWidth
 
-// ------------------------------------------------------------------
-// type inference rules
 
+RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in) {
+
+  if(in->is_constant()) {
+    auto c = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(in)->get_constant();
+    return RfMapVarType(std::get<1>(c));
+  } else if (in->is_var()) {
+    auto n = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(in)->get_name();
+
+    auto pos_def_var = all_var_def_types.find(n.first);
+
+    if(n.second) { // is a special name
+      // check special name first
+      if (pos_def_var != all_var_def_types.end())
+       return RfMapVarType(pos_def_var->second.width);
+
+      RfVarTypeOrig rtl_ila_vartype = typechecker(n.first);
+      if (!rtl_ila_vartype.type.is_unknown())
+        return rtl_ila_vartype.type;
+      // then rtl ila name
+    } else {
+      // check rtl ila name first
+      // then special name
+      RfVarTypeOrig rtl_ila_vartype = typechecker(n.first);
+      if (!rtl_ila_vartype.type.is_unknown())
+        return rtl_ila_vartype.type;
+      if (pos_def_var != all_var_def_types.end())
+       return RfMapVarType(pos_def_var->second.width);
+      
+    } // if # ... # else not
+    return RfMapVarType();  // unknown type  
+  } else { // has op
+    if(in->get_op() == verilog_expr::voperator::STAR ||
+       in->get_op() == verilog_expr::voperator::PLUS ||
+       in->get_op() == verilog_expr::voperator::MINUS ||
+       in->get_op() == verilog_expr::voperator::DIV ||
+       in->get_op() == verilog_expr::voperator::POW ||
+       in->get_op() == verilog_expr::voperator::MOD ||
+       in->get_op() == verilog_expr::voperator::B_NEG ||
+       in->get_op() == verilog_expr::voperator::B_AND ||
+       in->get_op() == verilog_expr::voperator::B_OR ||
+       in->get_op() == verilog_expr::voperator::B_XOR ||
+       in->get_op() == verilog_expr::voperator::B_NAND ||
+       in->get_op() == verilog_expr::voperator::B_NOR
+      ) {
+        // the max of the args
+        unsigned nchild = in->get_child_cnt();
+        unsigned maxw = 0;
+        for(size_t idx = 0; idx < nchild; idx ++) {
+          RfMapVarType t = TypeInferTravserRfExpr( in->child(idx) );
+          if(t.is_bv())
+            maxw = std::max(maxw, t.unified_width());
+        }
+        return RfMapVarType(maxw);
+    } else if (
+       in->get_op() == verilog_expr::voperator::ASL ||
+       in->get_op() == verilog_expr::voperator::ASR ||
+       in->get_op() == verilog_expr::voperator::LSL ||
+       in->get_op() == verilog_expr::voperator::LSR ||
+       in->get_op() == verilog_expr::voperator::AT
+       ) { // the left type
+       assert( in->get_child_cnt() == 2);
+       return TypeInferTravserRfExpr(in->child(0));
+    } else if ( in->get_op() == verilog_expr::voperator::DELAY) {
+      // arg 1: width of first
+      // arg 2: width is 1 !!!
+      assert(in->get_child_cnt() == 1 ||  in->get_child_cnt() == 2);
+      if (in->get_child_cnt() == 2)
+        return RfMapVarType(1);
+      
+      // set return type to be the same as the first one
+      return TypeInferTravserRfExpr(in->child(0));
+    } else if (
+      in->get_op() == verilog_expr::voperator::GTE ||
+      in->get_op() == verilog_expr::voperator::LTE ||
+      in->get_op() == verilog_expr::voperator::GT ||
+      in->get_op() == verilog_expr::voperator::LT ||
+      in->get_op() == verilog_expr::voperator::C_EQ ||
+      in->get_op() == verilog_expr::voperator::L_EQ ||
+      in->get_op() == verilog_expr::voperator::C_NEQ ||
+      in->get_op() == verilog_expr::voperator::L_NEQ ||
+      in->get_op() == verilog_expr::voperator::L_NEG ||
+      in->get_op() == verilog_expr::voperator::L_AND ||
+      in->get_op() == verilog_expr::voperator::L_OR
+      ) {
+      return RfMapVarType(1);
+    } else if (in->get_op() == verilog_expr::voperator::INDEX) {
+      RfMapVarType child_type = TypeInferTravserRfExpr(in->child(0));
+      if (child_type.is_array())
+        return RfMapVarType(child_type.unified_width()); // data width
+      // TODO: check index within ?
+      if (child_type.is_bv())
+        return RfMapVarType(1);
+      return RfMapVarType(); // UNKNOWN type
+    } else if (
+      in->get_op() == verilog_expr::voperator::IDX_PRT_SEL_PLUS ||
+      in->get_op() == verilog_expr::voperator::IDX_PRT_SEL_MINUS) {
+      assert(in->get_child().size() == 3);
+      unsigned diff;
+      bool succ = _compute_const(in->child(2), diff /*ref*/);
+      // TODO: check index within ?
+      if (succ)
+        return RfMapVarType(diff);
+      return RfMapVarType();
+    } else if (in->get_op() == verilog_expr::voperator::RANGE_INDEX) {
+      assert(in->get_child_cnt() == 3);
+      unsigned l,r;
+      
+      bool succ = _compute_const(in->child(1), l /*ref*/),
+      succ = succ && _compute_const(in->child(2), r /*ref*/);
+      if(!succ)
+        return RfMapVarType();
+      // TODO: check width!
+      return RfMapVarType(std::max(l,r)-std::min(l,r) + 1);
+    } else if (in->get_op() == verilog_expr::voperator::STORE_OP) {
+      // TODO: check width!
+      // actually not implemented
+      return TypeInferTravserRfExpr(in->child(0));
+    } else if (in->get_op() == verilog_expr::voperator::TERNARY) {
+      auto left =  TypeInferTravserRfExpr(in->child(1));
+      auto right =  TypeInferTravserRfExpr(in->child(2));
+      if(left.is_array() || right.is_array())
+        return left; // TODO: check compatibility
+      return RfMapVarType(std::max(left.unified_width(), right.unified_width()));
+    } else if (in->get_op() == verilog_expr::voperator::FUNCTION_APP) {
+      return RfMapVarType();
+    } else if(in->get_op() == verilog_expr::voperator::CONCAT) {
+      unsigned nchild = in->get_child_cnt();
+      unsigned sumw = 0;
+      for(size_t idx = 0; idx < nchild; idx ++) {
+        RfMapVarType t = TypeInferTravserRfExpr( in->child(idx) );
+        if(t.is_bv())
+          sumw += t.unified_width();
+        else
+          return RfMapVarType(); // cannot decide
+      }
+      return RfMapVarType(sumw);
+    } else if (in->get_op() == verilog_expr::voperator::REPEAT) {
+      assert( in->get_child_cnt() == 2 );
+      unsigned ntimes;
+      if(!_compute_const(in->child(0), ntimes))
+        return RfMapVarType();
+      auto tp = TypeInferTravserRfExpr(in->child(1));
+      return RfMapVarType(tp.unified_width()*ntimes);      
+    }
+    ILA_ASSERT(false) << "BUG: Operator " << int(in->get_op()) << " is not handled";
+  } // end of else has op
+  return RfMapVarType();
+} // TypeInferTravserRfExpr
+
+
+// --------------------------------------------------------
+//  RfExprAstUtility
+// --------------------------------------------------------
+
+
+RfVarTypeOrig RfExprAstUtility::GetType(const RfExpr & in) {
+  auto anno = in->get_annotation<TypeAnnotation>();
+  ILA_NOT_NULL(anno);
+  return *anno;
+}
+
+void RfExprAstUtility::GetVars(const RfExpr & in, 
+  std::unordered_map<std::string, RfVar> & vars_out)
+{
+  // bfs walk
+  std::vector<std::pair<RfExpr, bool> > stack;
+  stack.push_back(std::make_pair(in, false));
+  while(!stack.empty()) {
+    auto & back = stack.back();
+    if(back.second) {
+      stack.pop_back();
+      continue;
+    }
+    // back.second == false
+    back.second = true;
+    for(const auto & c : back.first->get_child())
+      stack.push_back(std::make_pair(c, false));
+    if(back.first->is_var()) {
+      ILA_ASSERT(back.first->get_child().size() == 0);
+      verilog_expr::VExprAstVar::VExprAstVarPtr varptr = 
+        std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(back.first);
+      ILA_NOT_NULL(varptr);
+      vars_out.emplace(varptr->get_name().first, varptr);
+    }
+  } // end while (stack is not empty)
+} // end of GetVars
+
+bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr & in) {
+  std::set<verilog_expr::voperator> boolean_op = {
+    verilog_expr::voperator::GTE,
+    verilog_expr::voperator::LTE,
+    verilog_expr::voperator::GT,
+    verilog_expr::voperator::LT,
+    verilog_expr::voperator::C_EQ,
+    verilog_expr::voperator::L_EQ,
+    verilog_expr::voperator::C_NEQ,
+    verilog_expr::voperator::L_NEQ,
+    verilog_expr::voperator::L_NEG,
+    verilog_expr::voperator::L_AND,
+    verilog_expr::voperator::L_OR
+  };
+
+  if(in->is_constant() || in->is_var())
+    return false;
+  auto op = in->get_op();
+  return (boolean_op.find(op) == boolean_op.end());
+}
+
+
+// --------------------------------------------------------
+//  TypeAnalysisUtility
+// --------------------------------------------------------
+
+// type inference rules
 // differences from TypedVerilogRefinementMap::ReplacingRtlIlaVar
 // 1. no var replacement (__ILA_I_, __ILA_SO_, __DOT__), array[idx]
 // 2. no special name handling
@@ -677,155 +912,6 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr & inout) {
     new_annotation->type = RfMapVarType(0);
     inout->set_annotation(new_annotation);
 } // infer_type_op
-
-RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in) {
-
-  if(in->is_constant()) {
-    auto c = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(in)->get_constant();
-    return RfMapVarType(std::get<1>(c));
-  } else if (in->is_var()) {
-    auto n = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(in)->get_name();
-
-    auto pos_def_var = all_var_def_types.find(n.first);
-
-    if(n.second) { // is a special name
-      // check special name first
-      if (pos_def_var != all_var_def_types.end())
-       return RfMapVarType(pos_def_var->second.width);
-
-      RfVarTypeOrig rtl_ila_vartype = typechecker(n.first);
-      if (!rtl_ila_vartype.type.is_unknown())
-        return rtl_ila_vartype.type;
-      // then rtl ila name
-    } else {
-      // check rtl ila name first
-      // then special name
-      RfVarTypeOrig rtl_ila_vartype = typechecker(n.first);
-      if (!rtl_ila_vartype.type.is_unknown())
-        return rtl_ila_vartype.type;
-      if (pos_def_var != all_var_def_types.end())
-       return RfMapVarType(pos_def_var->second.width);
-      
-    } // if # ... # else not
-    return RfMapVarType();  // unknown type  
-  } else { // has op
-    if(in->get_op() == verilog_expr::voperator::STAR ||
-       in->get_op() == verilog_expr::voperator::PLUS ||
-       in->get_op() == verilog_expr::voperator::MINUS ||
-       in->get_op() == verilog_expr::voperator::DIV ||
-       in->get_op() == verilog_expr::voperator::POW ||
-       in->get_op() == verilog_expr::voperator::MOD ||
-       in->get_op() == verilog_expr::voperator::B_NEG ||
-       in->get_op() == verilog_expr::voperator::B_AND ||
-       in->get_op() == verilog_expr::voperator::B_OR ||
-       in->get_op() == verilog_expr::voperator::B_XOR ||
-       in->get_op() == verilog_expr::voperator::B_NAND ||
-       in->get_op() == verilog_expr::voperator::B_NOR
-      ) {
-        // the max of the args
-        unsigned nchild = in->get_child_cnt();
-        unsigned maxw = 0;
-        for(size_t idx = 0; idx < nchild; idx ++) {
-          RfMapVarType t = TypeInferTravserRfExpr( in->child(idx) );
-          if(t.is_bv())
-            maxw = std::max(maxw, t.unified_width());
-        }
-        return RfMapVarType(maxw);
-    } else if (
-       in->get_op() == verilog_expr::voperator::ASL ||
-       in->get_op() == verilog_expr::voperator::ASR ||
-       in->get_op() == verilog_expr::voperator::LSL ||
-       in->get_op() == verilog_expr::voperator::LSR ||
-       in->get_op() == verilog_expr::voperator::AT
-       ) { // the left type
-       assert( in->get_child_cnt() == 2);
-       return TypeInferTravserRfExpr(in->child(0));
-    } else if ( in->get_op() == verilog_expr::voperator::DELAY) {
-      // arg 1: width of first
-      // arg 2: width is 1 !!!
-      assert(in->get_child_cnt() == 1 ||  in->get_child_cnt() == 2);
-      if (in->get_child_cnt() == 2)
-        return RfMapVarType(1);
-      
-      // set return type to be the same as the first one
-      return TypeInferTravserRfExpr(in->child(0));
-    } else if (
-      in->get_op() == verilog_expr::voperator::GTE ||
-      in->get_op() == verilog_expr::voperator::LTE ||
-      in->get_op() == verilog_expr::voperator::GT ||
-      in->get_op() == verilog_expr::voperator::LT ||
-      in->get_op() == verilog_expr::voperator::C_EQ ||
-      in->get_op() == verilog_expr::voperator::L_EQ ||
-      in->get_op() == verilog_expr::voperator::C_NEQ ||
-      in->get_op() == verilog_expr::voperator::L_NEQ ||
-      in->get_op() == verilog_expr::voperator::L_NEG ||
-      in->get_op() == verilog_expr::voperator::L_AND ||
-      in->get_op() == verilog_expr::voperator::L_OR
-      ) {
-      return RfMapVarType(1);
-    } else if (in->get_op() == verilog_expr::voperator::INDEX) {
-      RfMapVarType child_type = TypeInferTravserRfExpr(in->child(0));
-      if (child_type.is_array())
-        return RfMapVarType(child_type.unified_width()); // data width
-      // TODO: check index within ?
-      if (child_type.is_bv())
-        return RfMapVarType(1);
-      return RfMapVarType(); // UNKNOWN type
-    } else if (
-      in->get_op() == verilog_expr::voperator::IDX_PRT_SEL_PLUS ||
-      in->get_op() == verilog_expr::voperator::IDX_PRT_SEL_MINUS) {
-      assert(in->get_child().size() == 3);
-      unsigned diff;
-      bool succ = _compute_const(in->child(2), diff /*ref*/);
-      // TODO: check index within ?
-      if (succ)
-        return RfMapVarType(diff);
-      return RfMapVarType();
-    } else if (in->get_op() == verilog_expr::voperator::RANGE_INDEX) {
-      assert(in->get_child_cnt() == 3);
-      unsigned l,r;
-      
-      bool succ = _compute_const(in->child(1), l /*ref*/),
-      succ = succ && _compute_const(in->child(2), r /*ref*/);
-      if(!succ)
-        return RfMapVarType();
-      // TODO: check width!
-      return RfMapVarType(std::max(l,r)-std::min(l,r) + 1);
-    } else if (in->get_op() == verilog_expr::voperator::STORE_OP) {
-      // TODO: check width!
-      // actually not implemented
-      return TypeInferTravserRfExpr(in->child(0));
-    } else if (in->get_op() == verilog_expr::voperator::TERNARY) {
-      auto left =  TypeInferTravserRfExpr(in->child(1));
-      auto right =  TypeInferTravserRfExpr(in->child(2));
-      if(left.is_array() || right.is_array())
-        return left; // TODO: check compatibility
-      return RfMapVarType(std::max(left.unified_width(), right.unified_width()));
-    } else if (in->get_op() == verilog_expr::voperator::FUNCTION_APP) {
-      return RfMapVarType();
-    } else if(in->get_op() == verilog_expr::voperator::CONCAT) {
-      unsigned nchild = in->get_child_cnt();
-      unsigned sumw = 0;
-      for(size_t idx = 0; idx < nchild; idx ++) {
-        RfMapVarType t = TypeInferTravserRfExpr( in->child(idx) );
-        if(t.is_bv())
-          sumw += t.unified_width();
-        else
-          return RfMapVarType(); // cannot decide
-      }
-      return RfMapVarType(sumw);
-    } else if (in->get_op() == verilog_expr::voperator::REPEAT) {
-      assert( in->get_child_cnt() == 2 );
-      unsigned ntimes;
-      if(!_compute_const(in->child(0), ntimes))
-        return RfMapVarType();
-      auto tp = TypeInferTravserRfExpr(in->child(1));
-      return RfMapVarType(tp.unified_width()*ntimes);      
-    }
-    ILA_ASSERT(false) << "BUG: Operator " << int(in->get_op()) << " is not handled";
-  } // end of else has op
-  return RfMapVarType();
-} // TypeInferTravserRfExpr
 
 
 } // namespace rfmap

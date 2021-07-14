@@ -12,6 +12,15 @@ namespace ilang {
 namespace rfmap {
 
 
+std::string SmtType::type_to_smt2() const {
+  if(is_bool())
+    return "Bool";
+  if(is_bv())
+    return "(_ BitVec "+std::to_string(unified_width())+")";
+  ILA_ERROR_IF(!is_array()) << "Does not know how to translate unknown type";
+  return "(Array (_ BitVec " +std::to_string(addr_width)+") (_ BitVec " + std::to_string(data_width)+"))";
+}
+
 static std::vector<std::string> voperator_str_smt = {
   "bvmul", // STAR
   "bvadd",

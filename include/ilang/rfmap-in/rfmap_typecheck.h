@@ -127,10 +127,21 @@ protected:
 
 }; // struct TypeAnalysisUtility
 
+class RfExprAstUtility {
+public:
+  /// determine if a rf expr is a boolean expr
+  static bool IsLastLevelBooleanOp(const RfExpr & in);
+  /// get the variables from a expression
+  static void GetVars(const RfExpr & in, 
+    std::unordered_map<std::string, RfVar> & vars_out);
+  static RfVarTypeOrig GetType(const RfExpr & in);
+};
+
 
 struct TypedVerilogRefinementMap : 
   public VerilogRefinementMap,
-  public TypeAnalysisUtility {
+  public TypeAnalysisUtility,
+  public RfExprAstUtility {
 
   // type definitions
   using var_typecheck_t = TypeAnalysisUtility::var_typecheck_t;
@@ -140,12 +151,16 @@ struct TypedVerilogRefinementMap :
   TypedVerilogRefinementMap(
     const std::string & varmap_json_file,
     const std::string & instcond_json_file,
-    var_typecheck_t type_checker
+    var_typecheck_t type_checker,
+    const std::string & ila_inst_decode_signal_name,
+    const std::string & ila_valid_signal_name
     );
   
   TypedVerilogRefinementMap(
     const VerilogRefinementMap & refinement,
-    var_typecheck_t type_checker
+    var_typecheck_t type_checker,
+    const std::string & ila_inst_decode_signal_name,
+    const std::string & ila_valid_signal_name
   );
 
     
@@ -175,13 +190,14 @@ struct TypedVerilogRefinementMap :
   /// the replacement used for creating new wires
   std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
 
-  /// determine if a rf expr is a boolean expr
-  static bool IsLastLevelBooleanOp(const RfExpr & in);
-
 protected:
 
-  void initialize();
-  void CollectInternallyDefinedVars();
+  void initialize(
+    const std::string & ila_inst_decode_signal_name,
+    const std::string & ila_valid_signal_name);
+  void CollectInternallyDefinedVars(
+    const std::string & ila_inst_decode_signal_name,
+    const std::string & ila_valid_signal_name);
 
   void TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) ;
   void TraverseCondMap(SingleVarMap & inout, std::function<void(RfExpr & inout)> func) ;

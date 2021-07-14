@@ -27,7 +27,7 @@ struct RfMapVarType {
   RfMapVarType(unsigned w) : type(TYPE::BV), width(w) {}
   /// for array type
   RfMapVarType(unsigned a, unsigned d) : type(TYPE::MEM), addr_width(a), data_width(d) {}
-  unsigned unified_width() { return type == RfMapVarType::TYPE::BV ? width : data_width; }
+  unsigned unified_width() const { return type == RfMapVarType::TYPE::BV ? width : data_width; }
 };
 
 class RfVarTypeOrig {

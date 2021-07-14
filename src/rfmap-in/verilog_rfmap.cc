@@ -141,7 +141,14 @@ bool JsonRfmapParseMem(ExternalMemPortMap & mem_rfmap , nlohmann::json & json_ob
   if (json_obj.contains("rdata"))
     succ = succ && JsonRfmapParseCond(mem_rfmap.rdata_map, json_obj["rdata"]);
 
-  return (succ && json_obj.contains("ren") && json_obj.contains("wen"));
+  mem_rfmap.rport_mapped = json_obj.contains("ren");
+  mem_rfmap.wport_mapped = json_obj.contains("wen");
+  if(mem_rfmap.rport_mapped)
+    succ = succ && json_obj.contains("raddr") && json_obj.contains("rdata");
+  if(mem_rfmap.wport_mapped)
+    succ = succ && json_obj.contains("waddr") && json_obj.contains("wdata");
+
+  return (succ && (json_obj.contains("ren") || json_obj.contains("wen")));
 } // JsonRfmapParseMem
 
 char inline to_space(char in) { return ( (in == '-' || in == '_') ? ' ' : in); }

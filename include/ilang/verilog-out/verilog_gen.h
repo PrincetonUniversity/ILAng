@@ -477,6 +477,13 @@ public:
   void ExportIla(const InstrLvlAbsPtr& ila_ptr_);
   /// Parse an instruction
   void ExportTopLevelInstr(const InstrPtr& instr_ptr_);
+
+  /// for VerilogVerificationTargetGen
+  // get valid signal name in advace
+  std::string GetValidSignalName(const InstrPtr& instr_ptr_) const;
+  // get decode signal name in advace
+  std::string GetDecodeSignalName(const InstrPtr& instr_ptr_) const;
+
 }; // class VerilogGenerator
 
 }; // namespace ilang
