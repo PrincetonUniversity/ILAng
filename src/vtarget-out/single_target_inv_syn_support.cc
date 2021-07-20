@@ -73,14 +73,17 @@ void VlgSglTgtGen::add_inv_obj_as_assertion(InvariantObject* inv_obj) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
     vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair),
-                                ReplExpr(std::get<1>(name_expr_pair), true));
+                                ReplExpr(
+                                  refinement_map.ParseRfExprFromString(
+                                    std::get<1>(name_expr_pair))));
   }
   for (auto&& name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
     vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
     vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
-    auto new_cond = ReplExpr(inv_expr, true);
+    auto new_cond = ReplExpr(
+      refinement_map.ParseRfExprFromString(inv_expr));
     ILA_CHECK(!S_IN("][", new_cond))
         << "Inv translate error: ][ found in:" << new_cond;
     add_an_assertion(new_cond, "invariant_assert");
@@ -93,14 +96,16 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
     vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair),
-                                ReplExpr(std::get<1>(name_expr_pair), true));
+      ReplExpr(
+        refinement_map.ParseRfExprFromString(std::get<1>(name_expr_pair))));
   }
   for (auto&& name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
     vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
     vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
-    auto new_cond = ReplExpr(inv_expr, true);
+    auto new_cond = ReplExpr(
+      refinement_map.ParseRfExprFromString(inv_expr));
     ILA_CHECK(!S_IN("][", new_cond))
         << "Inv translate error: ][ found in:" << new_cond;
     add_an_assumption(new_cond, "invariant_assume");
@@ -109,11 +114,8 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
 
 void VlgSglTgtGen::add_rf_inv_as_assumption() {
   if (has_rf_invariant) {
-    nlohmann::json& inv = IN("global invariants", rf_cond)
-                              ? rf_cond["global invariants"]
-                              : rf_cond["global-invariants"];
-    for (auto& cond : inv) {
-      auto new_cond = ReplExpr(cond.get<std::string>(), true);
+    for (auto&& cond : refinement_map.global_invariants) {
+      auto new_cond = ReplExpr(cond);
       add_an_assumption(new_cond, "invariant_assume"); // without new var added
     } // for inv in global invariants field
   }
@@ -122,12 +124,9 @@ void VlgSglTgtGen::add_rf_inv_as_assumption() {
 void VlgSglTgtGen::add_rf_inv_as_assertion() {
   // the provided invariants
   if (has_rf_invariant) {
-    nlohmann::json& inv = IN("global invariants", rf_cond)
-                              ? rf_cond["global invariants"]
-                              : rf_cond["global-invariants"];
-    for (auto& cond : inv) {
+    for (auto& cond : refinement_map.global_invariants) {
       auto new_cond =
-          ReplExpr(cond.get<std::string>(), true); // force vlg state
+          ReplExpr(cond); // force vlg state
       add_an_assertion("(" + new_cond + ")", "invariant_assert");
     }
   } // has_rf_invariant
@@ -211,8 +210,9 @@ void VlgSglTgtGen::
     // this is cex reachability checking
     // -- assertions -- //
     auto new_cond =
-        ReplExpr(_advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""),
-                 true); // force vlg state
+        ReplExpr(
+          refinement_map.ParseRfExprFromString(
+            _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""))); // force vlg state
     add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
     // -- assumption -- //
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
@@ -249,45 +249,5 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
   vlg_wrapper.add_input("__STARTED__", 1);
 }
 
-void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
-  ILA_CHECK(target_type == target_type_t::INV_SYN_DESIGN_ONLY ||
-            target_type == target_type_t::INVARIANTS);
-
-  std::map<std::string, std::pair<int, int>> ila_mem_state_names;
-
-  for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx) {
-    if (_host->state(state_idx)->is_mem())
-      ila_mem_state_names.insert(
-          std::make_pair(_host->state(state_idx)->name().str(),
-                         std::make_pair<int, int>(
-                             _host->state(state_idx)->sort()->addr_width(),
-                             _host->state(state_idx)->sort()->data_width())));
-  }
-  nlohmann::json& state_mapping = IN("state mapping", rf_vmap)
-                                      ? rf_vmap["state mapping"]
-                                      : rf_vmap["state-mapping"];
-  for (auto& i : state_mapping.items()) {
-    auto sname = i.key(); // ila state name
-    if (!IN(sname, ila_mem_state_names))
-      continue; // we only care about the mem states
-    if (i.value().is_null()) {
-      ILA_ERROR << "Ignore mapping memory: " << sname;
-      continue;
-    }
-    // ILA_INFO << i.key() << i.value();
-    // Connect memory here
-    if (i.value().is_string() &&
-        StrStartsWith(i.value().get<std::string>(), "**")) {
-      _idr.SetMemNameAndWidth(
-          i.value(), sname, _vtg_config.MemAbsReadAbstraction,
-          ila_mem_state_names[sname].first, ila_mem_state_names[sname].second);
-      ila_mem_state_names.erase(sname);
-    }
-  }
-
-  // check for unmapped memory
-  for (auto&& m : ila_mem_state_names)
-    ILA_ERROR << "No mapping exists for memory : " << m.first;
-} // ConstructWrapper_inv_syn_connect_mem
 
 } // namespace ilang

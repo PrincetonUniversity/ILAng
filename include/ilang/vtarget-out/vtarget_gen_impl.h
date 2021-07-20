@@ -42,8 +42,8 @@ public:
   /// Type of the verification backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of the synthesis backend
-  using synthesis_backend_selector =
-      VlgVerifTgtGenBase::synthesis_backend_selector;
+  //using synthesis_backend_selector =
+  //    VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of record of extra info of a signal
@@ -102,13 +102,12 @@ protected:
   /// Verilog module connection
   IntefaceDirectiveRecorder _idr;
 
-  /// The refinement map with type checked
-  rfmap::TypedVerilogRefinementMap refinement_map;
-
   /// Analyzer for the implementation
   // we don't know the module name, before analyzing the rfmap. so we cannot
   // initialize in the beginning
   VerilogInfo* vlg_info_ptr;
+  /// The refinement map with type checked
+  rfmap::TypedVerilogRefinementMap refinement_map;
   /// target type
   target_type_t target_type;
   /// func apply counter
@@ -144,8 +143,7 @@ protected:
   const ExprPtr IlaGetInput(const std::string& sname) const;
   /// Get (a,d) width of a memory, if not existing, (0,0)
   std::pair<unsigned, unsigned>
-
-  GetMemInfo(const std::string& ila_mem_name) const;
+    GetMemInfo(const std::string& ila_mem_name) const;
   /// Test if a string represents an ila state name
   bool TryFindIlaState(const std::string& sname);
   /// Test if a string represents an ila input name
@@ -154,6 +152,8 @@ protected:
   bool TryFindVlgState(const std::string& sname);
   /// Try to find a ILA var according to a name
   ExprPtr TryFindIlaVarName(const std::string& sname);
+  /// return the type of a variable when its name is given
+  rfmap::RfVarTypeOrig VarTypeCheckForRfExprParsing(const std::string &);
   
   /// Check if ila name and vlg name are type compatible (not including special
   /// directives)
@@ -197,6 +197,8 @@ protected:
   void ConstructWrapper_add_cycle_count_moniter();
   /// generate the `define TRUE 1
   void ConstructWrapper_generate_header();
+  /// add input equ assumptions
+  void ConstructWrapper_add_inputmap_assumptions();
   /// add state equ assumptions
   void ConstructWrapper_add_varmap_assumptions();
   /// add state equ assertions
@@ -231,8 +233,7 @@ protected:
   /// Add invariants as assumption/assertion when target is inv_syn_design_only
   void
   ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
-  /// Connect the memory even we don't care a lot about them
-  void ConstructWrapper_inv_syn_connect_mem();
+
   /// Sometimes you need to add some signals that only appeared in Instruction
   /// target
   void ConstructWrapper_inv_syn_cond_signals();
@@ -272,9 +273,9 @@ public:
   void virtual ConstructWrapper();
   /// PreExportWork (modification and etc.)
   void virtual PreExportProcess() = 0;
-  /// create the wrapper file
+  /// create the wrapper file: set top_file_name
   void virtual Export_wrapper(const std::string& wrapper_name);
-  /// export the ila verilog
+  /// export the ila verilog, may use top_file_name if backend needs yosys
   void virtual Export_ila_vlg(const std::string& ila_vlg_name);
   /// export the script to run the verification
   void virtual Export_script(const std::string& script_name) = 0;
@@ -284,15 +285,14 @@ public:
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
-  void virtual Export_mem(const std::string& mem_name) = 0;
+  // void virtual Export_mem(const std::string& mem_name) = 0;
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   void virtual Export_modify_verilog() = 0;
   /// Take care of exporting all of a single target
   void virtual ExportAll(const std::string& wrapper_name,
                          const std::string& ila_vlg_name,
                          const std::string& script_name,
-                         const std::string& extra_name,
-                         const std::string& mem_name);
+                         const std::string& extra_name);
 
 protected:
   // helper function to be implemented by COSA/JASPER
@@ -395,12 +395,9 @@ public:
   VlgVerifTgtGen(const std::vector<std::string>& implementation_include_path,
                  const std::vector<std::string>& implementation_srcs,
                  const std::string& implementation_top_module,
-                 const std::string& refinement_variable_mapping,
-                 const std::string& refinement_conditions,
+                 const rfmap::VerilogRefinementMap & refinement,
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
                  backend_selector backend, const vtg_config_t& vtg_config,
-                 const VerilogGenerator::VlgGenConfig& config =
-                     VerilogGenerator::VlgGenConfig(),
                  advanced_parameters_t* adv_ptr = NULL);
 
   /// no copy constructor, please
@@ -421,18 +418,12 @@ protected:
   /// implementation top module name
   const std::string _vlg_impl_top_name;
   /// refinement relation - variable mapping path
-  const std::string _rf_var_map_name;
-  /// refinement relation - condition path
-  const std::string _rf_cond_name;
+  rfmap::VerilogRefinementMap _refinement;
   /// output path, output the ila-verilog, wrapper-verilog, problem.txt,
   /// run-verify-by-???
   const std::string _output_path;
   /// The pointer to the instruction that is going to export
   const InstrLvlAbsPtr& _ila_ptr;
-  /// The name of verilog top module instance in the wrapper
-  std::string _vlg_mod_inst_name;
-  /// The name of ila-verilog top module instance in the wrapper
-  std::string _ila_mod_inst_name;
   /// A pointer to create verilog analyzer
   VerilogInfo* vlg_info_ptr;
   /// to store the backend
@@ -455,9 +446,9 @@ public:
   /// Return true if it is in bad state
   bool in_bad_state(void) const { return _bad_state; }
   /// get vlg-module instance name
-  std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
+  std::string GetVlgModuleInstanceName() const { return "RTL"; }
 
-#ifdef INVSYN_INTERFACE
+#if 0
   /// generate invariant synthesis target
   void GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool useAiger);
   /// generate inv-syn target

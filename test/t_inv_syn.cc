@@ -4,7 +4,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
-#include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
+// #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include "unit-include/config.h"
@@ -14,7 +14,8 @@
 
 namespace ilang {
 
-#ifdef ILANG_BUILD_INVSYN
+// #ifdef ILANG_BUILD_INVSYN
+#if 0
 
 #define DBG_TAG "VlgVerifInvSyn"
 

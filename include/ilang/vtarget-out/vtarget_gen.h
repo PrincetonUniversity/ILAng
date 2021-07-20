@@ -32,11 +32,11 @@ public:
     NONE = 0,
     JASPERGOLD = 2,
     YOSYS = 128,              // 10000000
-    CHC = YOSYS + 8,          // 10001000
-    Z3PDR = CHC + 1,          // 10001001
-    ELD_CEGAR = CHC + 2,      // 10001010
-    GRAIN_SYGUS = CHC + 4,    // 10001100
-    ABCPDR = YOSYS + 16,      // 10010000
+    //CHC = YOSYS + 8,          // 10001000
+    //Z3PDR = CHC + 1,          // 10001001
+    //ELD_CEGAR = CHC + 2,      // 10001010
+    //GRAIN_SYGUS = CHC + 4,    // 10001100
+    //ABCPDR = YOSYS + 16,      // 10010000
     PONO = YOSYS + 32,        // 10100000
     RELCHC = YOSYS + 64       // 11000000
   };
@@ -48,13 +48,13 @@ public:
   }
 
   /// Type of invariant synthesis backend
-  enum class synthesis_backend_selector {
-    Z3       = int(backend_selector::Z3PDR)       ^ int(backend_selector::YOSYS),
-    GRAIN    = int(backend_selector::GRAIN_SYGUS) ^ int(backend_selector::YOSYS),
-    ABC      = int(backend_selector::ABCPDR)      ^ int(backend_selector::YOSYS),        
-    ELDERICA = int(backend_selector::ELD_CEGAR)   ^ int(backend_selector::YOSYS),// 0001010
-    NOSYN    = int(backend_selector::YOSYS) // 1000000
-  } ;
+  /*enum class synthesis_backend_selector {
+    // Z3       = int(backend_selector::Z3PDR)       ^ int(backend_selector::YOSYS), // 01001
+    GRAIN    = int(backend_selector::GRAIN_SYGUS) ^ int(backend_selector::YOSYS), // 01100
+    ABC      = int(backend_selector::ABCPDR)      ^ int(backend_selector::YOSYS), // 10000  
+    ELDERICA = int(backend_selector::ELD_CEGAR)   ^ int(backend_selector::YOSYS), // 01010
+    NOSYN    = int(backend_selector::YOSYS)                                     // 1000000
+  } ;*/
   /// Type of the chc target
   enum class _chc_target_t { CEX, INVCANDIDATE, GENERAL_PROPERTY };
   /// Verilog Target Generation Configuration
@@ -96,11 +96,15 @@ public:
     enum class PortDeclStyleT { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
     /// Generate a jg script to help validate Pono?
     bool PonoGenJgTesterScript;
+    /// Pono VCD output
+    std::string PonoVcdOutputName;
+    /// Binary location of Pono
+    std::string PonoPath;
     /// For Pono backend: do we add (* keep *)? default true, however, it can be
     /// buggy, so you can disable it if you want
     bool PonoAddKeep;
     /// For Pono backend: what more options to add
-    std::string PonoOtherSolverOptions;
+    std::string PonoOtherOptions;
     /// whether to force dot reference check in the generation
     /// if you expect to use Pono on the it, yes, you need to
     /// use the default setting :  NOTIFY_PANIC
@@ -218,7 +222,7 @@ public:
           // ----------- Options for Pono settings -------------- //
           ForceInstCheckReset(false), PortDeclStyle(PortDeclStyleT::AUTO),
           PonoGenJgTesterScript(false), PonoAddKeep(false),
-          PonoOtherSolverOptions(""),
+          PonoOtherOptions(""),
           PonoDotReferenceNotify(PonoDotReferenceNotify_t::NOTIFY_PANIC),
           MaxBound(127), OnlyAssumeUpdatedVarsEq(false),
 
@@ -291,8 +295,8 @@ public:
   /// Type of the backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of the synthesis backend
-  using synthesis_backend_selector =
-      VlgVerifTgtGenBase::synthesis_backend_selector;
+  //using synthesis_backend_selector =
+  //    VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
 
@@ -301,13 +305,17 @@ public:
   ///
   /// \param[in] implementation's include path (if it uses `include)
   /// \param[in] verilog's path, currently we only handle situation where all in
-  /// the same folder \param[in] name of the top module of the implementation,
-  /// leave "" to allow auto analysis \param[in] where to get variable mapping
+  ///   the same folder 
+  /// \param[in] name of the top module of the implementation,
+  ///   leave "" to allow auto analysis
+  /// \param[in] where to get variable mapping
   /// \param[in] where to get refinement relation
   /// \param[in] output path (ila-verilog, wrapper-verilog, problem.txt,
-  /// run-verify-by-???, modify-impl, it there is ) \param[in] pointer to the
-  /// ila \param[in] the backend selector \param[in] (optional) the default
-  /// configuration for outputing verilog
+  ///   run-verify-by-???, modify-impl, it there is )
+  /// \param[in] pointer to the ila
+  /// \param[in] the backend selector
+  /// \param[in] (optional) the default
+  ///   configuration for outputing verilog
   VerilogVerificationTargetGenerator(
       const std::vector<std::string>& implementation_include_path,
       const std::vector<std::string>& implementation_srcs,

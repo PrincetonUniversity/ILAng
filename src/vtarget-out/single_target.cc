@@ -82,7 +82,9 @@ VlgSglTgtGen::VlgSglTgtGen(
       //    [this](const std::string& n) -> bool { return TryFindIlaInput(n); },
       //    [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
       // ref to refmaps
-      refinement_map(refinement, ??? /*type checker*/,
+      refinement_map(refinement, /*type checker*/
+        [this](const std::string& n) -> rfmap::RfVarTypeOrig {
+          return this->VarTypeCheckForRfExprParsing(n);   },
         vlg_ila.GetDecodeSignalName(instr_ptr),
         vlg_ila.GetValidSignalName(instr_ptr)),
 
@@ -140,19 +142,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       ILA_ERROR << "Implementation bug btw. vlg gen and vtarget-gen";
       _bad_state = true;
     }
-
-    auto& instr = get_current_instruction_rf();
-    if (instr.is_null()) {
-      ILA_ERROR << "No refinement relation is defined for current instruction:"
-                << instr_ptr->name().str();
-      _bad_state = true;
-    }
-    // check for fields in
-    if (!IN("instruction", instr) || !instr["instruction"].is_string()) {
-      ILA_ERROR << "RF: `instruction` field must be a string for "
-                << instr_ptr->name().str();
-      _bad_state = true;
-    }
+    
   } // END of target_type == INSTRUCTION
   else if (target_type == target_type_t::INVARIANTS) {
     ILA_WARN_IF(instr_ptr != nullptr)
@@ -169,8 +159,26 @@ void VlgSglTgtGen::ConstructWrapper_generate_header() {
 
 void VlgSglTgtGen::ConstructWrapper_add_inputmap_assumptions() {
 
+  std::set<std::string> ila_input_names;
+
+  for (size_t input_idx = 0; input_idx < _host->input_num(); ++input_idx)
+    ila_input_names.insert(_host->input(input_idx)->name().str());
+
   for (const auto & iv_rfmap : refinement_map.ila_input_var_map) {
-    
+    const auto & iname = iv_rfmap.first;
+    if(ila_input_names.find(iname) != ila_input_names.end()) {
+      ILA_ERROR << "Cannot find ILA input with name: " << iname;
+      continue;
+    }
+    ila_input_names.erase(iname);
+  }
+
+  
+
+  if(!ila_input_names.empty()) {
+    ILA_ERROR << "Lack input var map for the following variables:";
+    for(const auto & in : ila_input_names)
+      ILA_ERROR << in;
   }
 }
 
@@ -235,45 +243,32 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  nlohmann::json& state_mapping = IN("state mapping", rf_vmap)
-                                      ? rf_vmap["state mapping"]
-                                      : rf_vmap["state-mapping"];
-  for (auto& i : state_mapping.items()) {
-    auto sname = i.key();
-    if (!IN(sname, ila_state_names)) {
+  for (const auto & sv_rfmap : refinement_map.ila_state_var_map) {
+    const auto & sname = sv_rfmap.first;
+    if(!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
     }
-    if (_vtg_config.OnlyCheckInstUpdatedVars &&
-        _instr_ptr->update(sname) == nullptr) {
-
-      // do not skip memory, though we don't use the eq signal it returns
-      if (_host->state(sname)->is_mem())
-        GetStateVarMapExpr(sname, i.value(), true);
-
-      ILA_DLOG("VtargetGen") << "Skip checking variable:" << sname
-                             << " for instruction:" << _instr_ptr->name().str();
-      continue;
-    }
-
     ila_state_names.erase(sname);
 
-    // report the need of refinement map
-    if (_instr_ptr->update(sname)) {
-      FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
-      for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
-        // handle the IteUnknown function case
-
-        ILA_ERROR_IF(!(IN("functions", rf_vmap) &&
-                       rf_vmap["functions"].is_object() &&
-                       IN(func_ptr->name().str(), rf_vmap["functions"])))
-            << "uf: " << func_ptr->name().str() << " in "
-            << _instr_ptr->name().str() << " updating state:" << sname
-            << " is not provided in rfmap!";
-      }
+    if (_vtg_config.OnlyCheckInstUpdatedVars &&
+        _instr_ptr->update(sname) == nullptr) {
+        ILA_DLOG("VtargetGen") << "Skip assume EQ on variable:" << sname
+                              << " for instruction:" << _instr_ptr->name().str();
+        continue;
     }
-
+    ILA_DLOG("VtargetGen.ConstructWrapper_add_varmap_assertions") << sname;
+    
+    // just check if we miss any function in uf section
+    FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
+    for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
+      // handle the IteUnknown function case
+      ILA_ERROR_IF(!IN(func_ptr->name().str(), refinement_map.uf_application))
+          << "uf: " << func_ptr->name().str() << " in "
+          << _instr_ptr->name().str() << " updating state:" << sname
+          << " is not provided in rfmap!";
+    }
     // ISSUE ==> vmap
     std::string precondition = "(~ __IEND__) || ";
 
@@ -292,10 +287,9 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 
     // for Yosys inv-synthesis, we don't mind the precondition
     // that's part the assertions, so it should be fine
-    add_an_assertion(precondition + "(" +
-                         GetStateVarMapExpr(sname, i.value(), true) + ")",
-                     problem_name);
-  }
+
+    Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, false, "(~ __IEND__ )|| (", ")" );
+  } // end - for each state var
 } // ConstructWrapper_add_varmap_assertions
 
 //  NON-FLUSH case
@@ -344,13 +338,10 @@ void VlgSglTgtGen::ConstructWrapper() {
     ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
     ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
   } else if (target_type == target_type_t::INVARIANTS) {
-    ConstructWrapper_inv_syn_connect_mem(); // the same as inv-syn so I add it
-                                            // here
     ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
     max_bound = _vtg_config.MaxBound;
   } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
     ConstructWrapper_inv_syn_cond_signals();
-    ConstructWrapper_inv_syn_connect_mem();
     ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
   }
 
@@ -382,10 +373,6 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_vlg_monitor();
   // add monitor -- inside the monitor, there will be
   // disable logic if it is for invariant type target
-
-  // 6. helper memory
-  ConstructWrapper_add_helper_memory(); // need to decide what is the target
-                                        // type
 
   // 5.0 add the extra wires to the top module wrapper
   if (VlgVerifTgtGenBase::backend_needs_yosys(_backend))
@@ -445,8 +432,7 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
 void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
                              const std::string& ila_vlg_name,
                              const std::string& script_name,
-                             const std::string& extra_name,
-                             const std::string& mem_name) {
+                             const std::string& extra_name) {
   PreExportProcess();
   if (os_portable_mkdir(_output_path) == false)
     ILA_WARN << "Cannot create output directory:" << _output_path;
@@ -458,9 +444,9 @@ void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
   // for Jasper, this will be put to multiple files
   // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
   Export_modify_verilog(); // this must be after Export_wrapper
-  Export_mem(mem_name);
 
-  Export_problem(extra_name);
+  Export_problem(extra_name); // for JG this is do.tcl
+                              // for Pono: this is the yosys.script and 
   Export_script(script_name);
 } // end of ExportAll
 

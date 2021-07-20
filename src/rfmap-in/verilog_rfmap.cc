@@ -48,7 +48,7 @@ static size_t find_comments(const std::string& line) {
 }
 
 // load_json and remove the comment, if succeed return true
-bool load_json(const std::string& fname, nlohmann::json& j) {
+static bool load_json(const std::string& fname, nlohmann::json& j) {
   std::ifstream fin(fname);
 
   if (!fin.is_open()) {
@@ -68,6 +68,7 @@ bool load_json(const std::string& fname, nlohmann::json& j) {
     contents += "\n";
   }
   j = nlohmann::json::parse(contents);
+  return true;
 } // load_json
 
 
@@ -91,7 +92,7 @@ RfExpr VerilogRefinementMap::ParseRfExprFromString(const std::string & in) {
 
 RfExpr ParseRfMapExpr(const std::string & in) {
   // TODO
-  auto ret = VerilogRefinementMap::ParseRfExprFromString(in)
+  auto ret = VerilogRefinementMap::ParseRfExprFromString(in);
   if (ret == nullptr)
     ParseRfExprErrFlag = true;
   return ret;
@@ -297,7 +298,7 @@ unsigned gcd(unsigned a, unsigned b) {
 // least common multiplier
 unsigned lcm(const std::vector<unsigned> & in) {
   unsigned ans = in.at(0);
-  for(int i = 1; i < in.size(); ++i) {
+  for(size_t i = 1; i < in.size(); ++i) {
     ans = ((in.at(i)*ans)/gcd(in.at(i),ans));
   }
   return ans;
@@ -1062,8 +1063,6 @@ bool VerilogRefinementMap::SelfCheckField() const {
     for (const auto & n_st : phase_tracker) {
       
       for (const auto & var_def : n_st.second.event_alias ) {
-        all_var_def_types.emplace(var_def.first)
-
         ERRIF( IN(var_def.first, var_def_names) , "Variable " + n_st.first + " has been defined already" );
         var_def_names.insert(var_def.first);
       }
@@ -1074,13 +1073,13 @@ bool VerilogRefinementMap::SelfCheckField() const {
     }
     for (const auto & n_st : value_recorder) {
       ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
-      ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
-      monitor_names.insert(n_st.first);
+      ERRIF( IN(n_st.first, var_def_names) , "Monitor name " + n_st.first + " has been used" );
+      var_def_names.insert(n_st.first);
     }
     for (const auto & n_st : customized_monitor) {
       ERRIF( !is_valid_id_name(n_st.first) ,  "Monitor name " + n_st.first + " is not valid" );
-      ERRIF( IN(n_st.first, monitor_names) , "Monitor name " + n_st.first + " has been used" );
-      monitor_names.insert(n_st.first);
+      ERRIF( IN(n_st.first, var_def_names) , "Monitor name " + n_st.first + " has been used" );
+      var_def_names.insert(n_st.first);
       
       for (const auto & var_def : n_st.second.var_defs ) {
         ERRIF( IN(var_def.first, var_def_names) , "Variable " + n_st.first + " has been defined already" );
@@ -1088,6 +1087,7 @@ bool VerilogRefinementMap::SelfCheckField() const {
       }
     }
   }
+  return true;
   // no need to check for inst_cond  
 } // bool VerilogRefinementMap::SelfCheck() const
 

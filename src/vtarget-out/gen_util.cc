@@ -155,6 +155,54 @@ unsigned VlgSglTgtGen::get_width(const ExprPtr& n) {
 }
 
 
+rfmap::RfVarTypeOrig VlgSglTgtGen::VarTypeCheckForRfExprParsing(const std::string & vname) {
+
+  if(StrStartsWith(vname,"ILA.")) {
+    rfmap::RfVarTypeOrig ret;
+    if(TryFindIlaInput(vname)) {
+      const ExprPtr ila_input_ptr = IlaGetInput(vname.substr(4));
+      ret.var_ref_type = rfmap::RfVarTypeOrig::VARTYPE::ILAI;
+      
+      ret.type = rfmap::RfMapVarType(
+        ila_input_ptr->is_bool() ? 
+        1 : ila_input_ptr->sort()->bit_width());
+      return ret;
+    } else if(TryFindIlaState(vname)) {
+      const ExprPtr ila_sv_ptr = IlaGetState(vname.substr(4));
+      ret.var_ref_type = rfmap::RfVarTypeOrig::VARTYPE::ILAS;
+      if(ila_sv_ptr->is_bool())
+        ret.type = rfmap::RfMapVarType(1);
+      else if (ila_sv_ptr->is_bv())
+        ret.type = rfmap::RfMapVarType(ila_sv_ptr->sort()->bit_width());
+      else {
+        ILA_ASSERT(ila_sv_ptr->is_mem());
+        ret.type = rfmap::RfMapVarType(ila_sv_ptr->sort()->addr_width(),
+                                       ila_sv_ptr->sort()->data_width());
+      }
+      return ret;
+    }
+    ILA_ERROR << "Cannot find ila var: " << vname;
+    return ret;
+  } // else if
+  if (StrStartsWith(vname,"RTL.")) {
+    ILA_ERROR_IF(!TryFindVlgState(vname)) << "Cannot find rtl var: " << vname;
+    auto sig_info = vlg_info_ptr->get_signal(vname);
+    auto aw = sig_info.get_addr_width();
+    auto dw = sig_info.get_width();
+    
+    rfmap::RfVarTypeOrig ret;
+    ret.var_ref_type = rfmap::RfVarTypeOrig::VARTYPE::RTLV;
+    if(aw == 0) // not an array
+      ret.type = rfmap::RfMapVarType(dw);
+    else
+      ret.type = rfmap::RfMapVarType(aw,dw);
+    return ret;    
+  }
+
+  //if(!StrStartsWith(vname,"ILA.") && !StrStartsWith(vname,"RTL."))
+  return rfmap::RfVarTypeOrig(); // unknown
+} // VarTypeCheckForRfExprParsing
+
 std::string VlgSglTgtGen::ReplExpr(const rfmap::RfExpr & in) {
   bool replace_dot = _backend != VlgSglTgtGen::backend_selector::JASPERGOLD;
   
@@ -385,125 +433,6 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
 #undef ADD_CONSTR
 } // end of Gen_varmap_assumpt_assert
 
-// ila-state -> ref (json)
-// return a verilog verilog, that should be asserted to be true for this purpose
-std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
-                                             nlohmann::json& m,
-                                             bool is_assert) {
-  if (m.is_null())
-    return VLG_TRUE;
-  if (m.is_string()) {
-    std::string rfm = m.get<std::string>();
-    if (_sdr.isSpecialStateDir(rfm)) {
-      // currently we only support **MEM** as state directive
-      if (!_sdr.isSpecialStateDirMem(rfm)) {
-        ILA_ERROR << "Unsupported state directive:" << rfm;
-        return VLG_TRUE;
-      }
-      ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr")
-          << "map mem:" << ila_state_name;
-
-      bool external = _vlg_cfg.extMem;
-      if (IN(ila_state_name, supplementary_info.memory_export))
-        external = supplementary_info.memory_export.at(ila_state_name);
-
-      ILA_ERROR_IF(!external)
-          << "Should not use MEM directive since this memory is internal:"
-          << ila_state_name;
-      // may be we need to log them here
-      if (is_assert == false) {
-        _idr.SetMemName(rfm, ila_state_name, _vtg_config.MemAbsReadAbstraction);
-        return VLG_TRUE; // no need for assumptions on memory
-      }
-      // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with
-      // _idr.abs_mems
-
-      auto ila_state = TryFindIlaVarName(ila_state_name);
-      if (!ila_state) {
-        ILA_ERROR << ila_state_name << " does not exist in ILA.";
-        return VLG_TRUE;
-      }
-      if (!ila_state->sort()->is_mem()) {
-        ILA_ERROR << ila_state_name << " is not memory, not compatible w. "
-                  << rfm;
-        return VLG_TRUE;
-      }
-      // if expand memory, it will not reach this point
-      // but will on the per_state_map branch
-      auto mem_eq_assert = _idr.ConnectMemory(
-          rfm, ila_state_name, vlg_ila.ila_rports[ila_state_name],
-          vlg_ila.ila_wports[ila_state_name], ila_state->sort()->addr_width(),
-          ila_state->sort()->data_width(), _vtg_config.MemAbsReadAbstraction);
-      // wire will be added by the absmem
-      return mem_eq_assert;
-    } else {
-      // return the mapping variable
-      return PerStateMap(ila_state_name, rfm);
-    }
-  }                   /* else */
-  if (m.is_array()) { // array of string or array of object/array
-    std::vector<std::string> all_mappings;
-    std::string prev_neg; // make sure it is a priority condition lists
-
-    for (auto& num_item_pair : m.items()) {
-      auto& item = num_item_pair.value();
-      if (item.is_string()) {
-        auto mapping = ReplExpr(item.get<std::string>());
-        all_mappings.push_back(mapping);
-      } else if (item.is_array() ||
-                 item.is_object()) { // it should only by size of 2
-        std::string cond(VLG_TRUE), vmap(VLG_TRUE);
-        for (const auto& i : (item).items()) {
-          if (i.key() == "0" || i.key() == "cond") {
-            if (i.value().is_null())
-              continue;
-            else if (i.value().is_string()) {
-              cond = ReplExpr(i.value().get<std::string>()); // set the condtion
-              continue;
-            } else {
-              ILA_ERROR
-                  << "Expecting the first element/`cond` to be a string/null";
-              continue;
-            }
-          }
-          if (i.key() == "1" || i.key() == "map") {
-            if (i.value().is_null())
-              continue;
-            else if (i.value().is_string()) {
-              vmap = PerStateMap(ila_state_name, i.value().get<std::string>());
-              continue; // set the mapping
-            } else {
-              ILA_ERROR
-                  << "Expecting the second element/`map` to be a string/null";
-              continue;
-            }
-          }
-          ILA_ERROR << "mapping for statename:" << ila_state_name
-                    << " contains unsupported construct.";
-          break;
-        }
-        // cond ==> vmap    i.e.  ~cond || vmap
-        all_mappings.push_back("~ (" + prev_neg + "(" + cond + ") ) || (" +
-                               vmap + ")");
-        prev_neg += "~(" + cond + ")&&";
-      } else {
-        ILA_ERROR << "Unable to handle this piece of JSON input:" << item;
-        return VLG_TRUE;
-      }
-    } // for (item in m)
-
-    if (all_mappings.size() == 0) {
-      ILA_ERROR << "Variable mapping for " << ila_state_name << " is empty!";
-      return VLG_TRUE;
-    }
-
-    return "(" + Join(all_mappings, " )&&( ") + ")";
-  } // if it is an array
-
-  // fall-through case
-  ILA_ERROR << "Unable to handle this piece of JSON input:" << m;
-  return VLG_TRUE;
-} // GetStateVarMapExpr
 
 void VlgSglTgtGen::handle_start_condition(const std::vector<rfmap::RfExpr> & dc) {
   for (const auto & c : dc) {

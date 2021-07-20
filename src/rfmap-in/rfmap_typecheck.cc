@@ -23,7 +23,8 @@ TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   var_typecheck_t type_checker,
   const std::string & ila_inst_decode_signal_name,
   const std::string & ila_valid_signal_name
- ) : VerilogRefinementMap(refinement), counter(0), TypeAnalysisUtility(type_checker) {
+ ) : VerilogRefinementMap(refinement), TypeAnalysisUtility(type_checker),
+     counter(0) {
   initialize(ila_inst_decode_signal_name,ila_valid_signal_name);
 }
 
@@ -34,7 +35,7 @@ TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const std::string & ila_inst_decode_signal_name,
   const std::string & ila_valid_signal_name
   ) : VerilogRefinementMap(varmap_json_file, instcond_json_file),
-    counter(0), TypeAnalysisUtility(type_checker) {
+    TypeAnalysisUtility(type_checker), counter(0) {
   initialize(ila_inst_decode_signal_name,ila_valid_signal_name);
 } // TypedVerilogRefinementMap::TypedVerilogRefinementMap
  
@@ -470,7 +471,7 @@ bool _compute_const(const RfExpr & in, unsigned & out) {
     return false;
   auto bws = cst_ast_ptr->get_constant();
   auto base = std::get<0>(bws);
-  auto width = std::get<1>(bws);
+  // auto width = std::get<1>(bws);
   out = StrToLong(std::get<2>(bws), base);
   return true;  
 }
@@ -618,7 +619,7 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
       assert(in->get_child_cnt() == 3);
       unsigned l,r;
       
-      bool succ = _compute_const(in->child(1), l /*ref*/),
+      bool succ = _compute_const(in->child(1), l /*ref*/);
       succ = succ && _compute_const(in->child(2), r /*ref*/);
       if(!succ)
         return RfMapVarType();
@@ -860,7 +861,7 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr & inout) {
       assert(inout->get_child_cnt() == 3);
       unsigned l,r;
       
-      bool succ = _compute_const(inout->child(1), l /*ref*/),
+      bool succ = _compute_const(inout->child(1), l /*ref*/);
       succ = succ && _compute_const(inout->child(2), r /*ref*/);
       ILA_ASSERT(succ);
 

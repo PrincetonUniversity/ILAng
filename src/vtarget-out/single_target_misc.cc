@@ -197,7 +197,7 @@ void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
 
 void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
   for(const auto & n_tracker : refinement_map.phase_tracker) {
-    const auto & name = n_tracker.first;
+    
     const auto & tracker = n_tracker.second;
     for (const auto & vardef : tracker.var_defs) {
       const auto & vn = vardef.first;
@@ -248,7 +248,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
   const auto& monitor_rec = refinement_map.customized_monitor;
 
   for (auto&& m_rec : monitor_rec) {
-    const auto& mname = m_rec.first; // actually no use
+    
     const auto& mdef = m_rec.second; // generalMonitor
 
     std::string vlg_expr;

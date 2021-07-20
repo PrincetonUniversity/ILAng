@@ -10,10 +10,11 @@
 namespace ilang {
 
 bool VlgVerifTgtGenBase::isValidVerifBackend(backend_selector vbackend) {
-  if (vbackend == backend_selector::COSA)
+  if (vbackend == backend_selector::PONO)
     return true;
   if (vbackend == backend_selector::JASPERGOLD)
     return true;
+  /*
   if (vbackend == backend_selector::RELCHC)
     return true;
   if ((vbackend & backend_selector::YOSYS) == backend_selector::YOSYS) {
@@ -27,7 +28,7 @@ bool VlgVerifTgtGenBase::isValidVerifBackend(backend_selector vbackend) {
           vbackend == backend_selector::Z3PDR)
         return true;
     }
-  }
+  }*/
   return false;
 }
 
@@ -39,12 +40,14 @@ VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
     const std::string& refinement_conditions, const std::string& output_path,
     const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
     const vtg_config_t& vtg_config,
-    const VerilogGenerator::VlgGenConfig& config)
+    const VerilogGenerator::VlgGenConfig& notused)
     : _generator(new VlgVerifTgtGen(
           implementation_include_path, implementation_srcs,
-          implementation_top_module, refinement_variable_mapping,
-          refinement_conditions, output_path, ila_ptr, backend, vtg_config,
-          config, NULL)) {}
+          implementation_top_module,
+          rfmap::VerilogRefinementMap(
+            refinement_variable_mapping,refinement_conditions),
+          output_path, ila_ptr, backend, vtg_config,
+          NULL)) {}
 
 VerilogVerificationTargetGenerator::~VerilogVerificationTargetGenerator() {
   if (_generator)

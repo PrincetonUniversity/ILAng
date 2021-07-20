@@ -21,7 +21,6 @@ TEST(TestVlgTargetGen, PipeExample) {
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
   auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.CosaGenJgTesterScript = true;
 
   VerilogVerificationTargetGenerator vg(
       {},                                                 // no include
@@ -31,7 +30,7 @@ TEST(TestVlgTargetGen, PipeExample) {
       os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify"),          // verification dir
       ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::COSA, // engine
+      VerilogVerificationTargetGenerator::backend_selector::PONO, // engine
       vtg_config);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -39,6 +38,7 @@ TEST(TestVlgTargetGen, PipeExample) {
   vg.GenerateTargets();
 }
 
+#if 0
 TEST(TestVlgTargetGen, PipeExampleZ3) {
   auto ila_model = SimplePipe::BuildModel();
 
@@ -204,6 +204,8 @@ TEST(TestVlgTargetGen, PipeExampleAbc) {
   vg.GenerateTargets();
 }
 
+#endif
+
 TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
   auto ila_model = SimplePipe::BuildModel();
 
@@ -220,7 +222,7 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
                              "cond-rfmap-pvholder.json"), // instruction-mapping
       os_portable_append_dir(dirName, "verify_pvholder"), // verification dir
       ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::COSA // engine
+      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -264,7 +266,7 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond.json"})),
       os_portable_append_dir(dirName, "disprove/"), ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -284,7 +286,7 @@ TEST(TestVlgTargetGen, Memory) {
       os_portable_append_dir(dirName, P({"cond.json"})),
       dirName, // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -309,7 +311,7 @@ TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
       os_portable_append_dir(dirName, "cond-expand.json"),
       dirName, // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA, vtg_cfg,
+      VerilogVerificationTargetGenerator::backend_selector::PONO, vtg_cfg,
       vlg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -331,7 +333,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternal) {
       os_portable_append_dir(dirName, "cond-rfarray.json"),
       dirName, // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -352,7 +354,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
       dirName + "cond-rfarray.json", // cond path
       dirName + "rfarray_rf6/",      // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA, vtg_cfg);
+      VerilogVerificationTargetGenerator::backend_selector::PONO, vtg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -371,7 +373,7 @@ TEST(TestVlgTargetGen, MemoryRead) {
       dirName + "cond-rd.json", // cond path
       dirName,                  // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -380,8 +382,6 @@ TEST(TestVlgTargetGen, MemoryRead) {
 
 TEST(TestVlgTargetGen, MemoryAbsRead) {
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
-
-  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
 
   auto ila_model = MemorySwap::BuildModel();
 
@@ -394,7 +394,7 @@ TEST(TestVlgTargetGen, MemoryAbsRead) {
       dirName + "cond.json", // cond path
       dirName + "rdabs/",    // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA, vtg_cfg);
+      VerilogVerificationTargetGenerator::backend_selector::PONO, vtg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -403,8 +403,6 @@ TEST(TestVlgTargetGen, MemoryAbsRead) {
 
 TEST(TestVlgTargetGen, MemoryReadAbsRead) {
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
-
-  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
 
   auto ila_model = MemorySwap::BuildRdModel();
 
@@ -417,7 +415,7 @@ TEST(TestVlgTargetGen, MemoryReadAbsRead) {
       dirName + "cond-rd.json", // cond path
       dirName + "rdabs/",       // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA, vtg_cfg);
+      VerilogVerificationTargetGenerator::backend_selector::PONO, vtg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -426,8 +424,6 @@ TEST(TestVlgTargetGen, MemoryReadAbsRead) {
 
 TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
-
-  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
 
   auto ila_model = MemorySwap::BuildRdModel();
 
@@ -460,7 +456,7 @@ TEST(TestVlgTargetGen, UndetValue) {
       dirName + "cond-val.json", // cond path
       dirName,                   // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -479,28 +475,7 @@ TEST(TestVlgTargetGen, UndetFunc) {
       dirName + "cond-func.json", // cond path
       dirName,                    // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  vg.GenerateTargets();
-}
-
-TEST(TestVlgTargetGen, UndetFuncIteUnknown) {
-  auto ila_model = UndetFunc::BuildIteUknModel();
-  auto vtg_cfg = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_cfg.IteUnknownAutoIgnore = true;
-
-  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/undetf2/";
-  VerilogVerificationTargetGenerator vg(
-      {},                         // no include
-      {dirName + "func.v"},       // vlog files
-      "undetfunc",                // top_module_name
-      dirName + "vmap-func.json", // variable mapping
-      dirName + "cond-func.json", // cond path
-      dirName,                    // output path
-      ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA, vtg_cfg);
+      VerilogVerificationTargetGenerator::backend_selector::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -523,7 +498,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
         os_portable_append_dir(dirName, "out"),                // output path
         ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA);
+        VerilogVerificationTargetGenerator::backend_selector::PONO);
 
     EXPECT_FALSE(vg.in_bad_state());
 
@@ -544,7 +519,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
         os_portable_append_dir(dirName, "out"),                // output path
         ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA);
+        VerilogVerificationTargetGenerator::backend_selector::PONO);
 
     EXPECT_FALSE(vg.in_bad_state());
 
@@ -565,7 +540,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
         os_portable_append_dir(dirName, "out"),                // output path
         ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA);
+        VerilogVerificationTargetGenerator::backend_selector::PONO);
 
     EXPECT_FALSE(vg.in_bad_state());
 
@@ -586,7 +561,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
         os_portable_append_dir(dirName, "out"),                // output path
         ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA);
+        VerilogVerificationTargetGenerator::backend_selector::PONO);
 
     EXPECT_FALSE(vg.in_bad_state());
 
@@ -607,7 +582,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
         os_portable_append_dir(dirName, "out"),                // output path
         ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA);
+        VerilogVerificationTargetGenerator::backend_selector::PONO);
 
     EXPECT_FALSE(vg.in_bad_state());
 
@@ -615,58 +590,5 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
   }
 }
 
-TEST(TestVlgTargetGen, ResetAnnotationZ3) {
-  auto ila_model = MemorySwap::BuildResetterTest();
-  auto dirName = os_portable_join_dir(
-      {ILANG_TEST_SRC_ROOT, "unit-data", "vpipe", "reset"});
-
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysPath = "N/A";
-  vtg_config.GrainPath = "N/A";
-  vtg_config.Z3Path = "N/A";
-  vtg_config.AbcPath = "N/A";
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                         // no include
-      {os_portable_join_dir({dirName, "verilog", "resetter.v"})}, // vlog files
-      "resetter",                                            // top_module_name
-      os_portable_join_dir({dirName, "rfmap", "vmap.json"}), // variable mapping
-      os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
-      os_portable_append_dir(dirName, "out-z3"),             // output path
-      ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::Z3PDR, vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  vg.GenerateTargets();
-}
-
-TEST(TestVlgTargetGen, ResetAnnotationABC) {
-  auto ila_model = MemorySwap::BuildResetterTest();
-  auto dirName = os_portable_join_dir(
-      {ILANG_TEST_SRC_ROOT, "unit-data", "vpipe", "reset"});
-
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysPath = "N/A";
-  vtg_config.GrainPath = "N/A";
-  vtg_config.Z3Path = "N/A";
-  vtg_config.AbcPath = "N/A";
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                         // no include
-      {os_portable_join_dir({dirName, "verilog", "resetter.v"})}, // vlog files
-      "resetter",                                            // top_module_name
-      os_portable_join_dir({dirName, "rfmap", "vmap.json"}), // variable mapping
-      os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
-      os_portable_append_dir(dirName, "out-abc"),            // output path
-      ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::ABCPDR, vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  vg.GenerateTargets();
-}
-
-TEST(TestVlgTargetGen, AesExample) {}
 
 }; // namespace ilang
