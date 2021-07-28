@@ -6,6 +6,7 @@
 #ifndef ILANG_RFMAP_VARTYPE_H__
 #define ILANG_RFMAP_VARTYPE_H__
 
+#include <string>
 
 namespace ilang {
 namespace rfmap {
@@ -28,6 +29,14 @@ struct RfMapVarType {
   /// for array type
   RfMapVarType(unsigned a, unsigned d) : type(TYPE::MEM), addr_width(a), data_width(d) {}
   unsigned unified_width() const { return type == RfMapVarType::TYPE::BV ? width : data_width; }
+
+  std::string to_string() const {
+    if(is_unknown())
+      return "(unknown)";
+    if(is_bv)
+      return "(_ BitVec " + std::to_string(width)+")";
+    return "(Array (_ BitVec " + std::to_string(addr_width)+") (_ BitVec " + std::to_string(data_width)+"))";
+  }
 };
 
 class RfVarTypeOrig {
@@ -37,10 +46,7 @@ public:
     ILAS, /*state var*/
     ILAI, /*ila input*/
     RTLV, /*rtl signal*/
-    PHASE,  /*stage name*/
     DEFINE_VAR, /*defined vars*/
-    DELAY, /*inline delay*/
-    VALUE_RECORDER, /*inline value recorder*/
     INTERNAL /* those already translated:
     like  __CYCLE_CNT__, __START__*/ }; 
   

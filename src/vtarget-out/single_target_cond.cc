@@ -14,6 +14,8 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
+#include <ilang/rfmap-in/rfexpr_shortcut.h>
+
 namespace ilang {
 
 // ------------- CONFIGURATIONS -------------------- //
@@ -41,8 +43,13 @@ void VlgSglTgtGen::ConstructWrapper_reset_setup() {
   if (target_type == target_type_t::INSTRUCTIONS) {
     vlg_wrapper.add_input("dummy_reset", 1);
     vlg_wrapper.add_wire("dummy_reset", 1, true);
-    if (_vtg_config.InstructionNoReset)
-      add_an_assumption(" (~__RESETED__) || (dummy_reset == 0) ", "noreset");
+    rfmap_add_internal_wire("dummy_reset", 1);
+    if (_vtg_config.InstructionNoReset) {
+      add_an_assumption(
+        rfmap_imply(
+          rfmap_var("__RESETED__"), 
+          rfmap_not(rfmap_var("dummy_reset"))), "noreset");
+    }
   } else if (target_type == target_type_t::INVARIANTS ||
              target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
     if (_vtg_config.InvariantCheckNoReset) {      
@@ -73,6 +80,8 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   cnt_width = (int)std::ceil(std::log2(max_bound + 20));
   vlg_wrapper.add_reg("__CYCLE_CNT__",
                       cnt_width); // by default it will be an output reg
+  rfmap_add_internal_reg("__CYCLE_CNT__", cnt_width);
+
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __CYCLE_CNT__ <= 0;");
   vlg_wrapper.add_stmt(
@@ -81,6 +90,8 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg("__START__", 1);
+  rfmap_add_internal_reg("__START__", 1);
+  rfmap_add_replacement("decode", "__START__");
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   // how start is triggered
   
@@ -90,6 +101,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg("__STARTED__", 1);
+  rfmap_add_internal_reg("__STARTED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __STARTED__ <= 0;");
   vlg_wrapper.add_stmt(
@@ -97,6 +109,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg("__ENDED__", 1);
+  rfmap_add_internal_reg("__ENDED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __ENDED__ <= 0;");
   vlg_wrapper.add_stmt(
@@ -104,6 +117,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg("__2ndENDED__", 1);
+  rfmap_add_internal_reg("__2ndENDED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __2ndENDED__ <= 1'b0;");
   vlg_wrapper.add_stmt("else if (__ENDED__ && __EDCOND__ && ~__2ndENDED__)  "
@@ -114,6 +128,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
                               "__ENDED__ && __EDCOND__ && ~__2ndENDED__");
 
   vlg_wrapper.add_reg("__RESETED__", 1);
+  rfmap_add_internal_reg("__RESETED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __RESETED__ <= 1;");
   vlg_wrapper.add_stmt("end");
@@ -140,61 +155,71 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // find the instruction
   const auto& instr = get_current_instruction_rf();
 
-
   // __IEND__
-  std::string iend_cond = VLG_FALSE;
+  rfmap::RfExpr iend_cond;
   // bool no_started_signal = false;
   if(instr.is_readysignal()) {
-    iend_cond += "|| (" + ReplExpr(instr.ready_signal) + ")";
+    iend_cond = instr.ready_signal ;
   } else {
     ILA_ASSERT(instr.is_readybound());
     unsigned bound = instr.ready_bound;
     ILA_ERROR_IF(bound == 0) 
       << "Does not support bound : 0, please use a buffer to hold "
          "the signal.";
-    iend_cond += "|| ( __CYCLE_CNT__ == " + IntToStr(cnt_width) + "'d"
-                  + IntToStr(bound) + ")";
+    iend_cond = rfmap_eq( rfmap_var("__CYCLE_CNT__") , rfmap_const(10, cnt_width, bound));
+    //  "( __CYCLE_CNT__ == " + IntToStr(cnt_width) + "'d"
+    //              + IntToStr(bound) + ")";
   }
 
   // max bound for max checking range
-  std::string max_bound_constr;
+  rfmap::RfExpr max_bound_constr;
   if(instr.max_bound != 0) {
     max_bound_constr = 
-      "&& ( __CYCLE_CNT__ <= " + IntToStr(instr.max_bound) + ")";
+      rfmap_le( rfmap_var("__CYCLE_CNT__"),  rfmap_const(10, cnt_width, instr.max_bound));
+      // "&& ( __CYCLE_CNT__ <= " + IntToStr(instr.max_bound) + ")";
   }
 
   vlg_wrapper.add_wire("__IEND__", 1, true);
   vlg_wrapper.add_wire("__EDCOND__", 1, true);
-  // if(no_started_signal)
-  //  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ")",
-  //                            "IEND");
-  // else
-  auto end_no_recur = "(~ __ENDED__)";
+
+  rfmap_add_internal_wire("__IEND__", 1);
+  rfmap_add_internal_wire("__EDCOND__", 1);
+  rfmap_add_replacement("commit", "__IEND__");
+
+  auto end_no_recur = rfmap_not( rfmap_var("__ENDED__") );
 
   add_wire_assign_assumption("__EDCOND__",
-                             "(" + iend_cond + ") && __STARTED__ ", "EDCOND");
+                             rfmap_and(iend_cond, rfmap_var("__STARTED__")), "EDCOND");
 
   add_wire_assign_assumption("__IEND__",
-                             "(" + iend_cond +
-                                 ") && __STARTED__ && __RESETED__ && " +
-                                 end_no_recur + max_bound_constr,
+                              rfmap_and(
+                                {iend_cond, 
+                                rfmap_var("__STARTED__"),
+                                rfmap_var("__RESETED__"),
+                                end_no_recur,
+                                max_bound_constr
+                                }),
                              "IEND");
   // handle start decode
   
   if (!instr.start_condition.empty()) {
     handle_start_condition(instr.start_condition);
   } else {
-    add_an_assumption("(~ __START__) || (" + vlg_ila.decodeNames[0] + ")",
-                      "issue_decode"); // __ISSUE__ |=> decode
-    add_an_assumption("(~ __START__) || (" + vlg_ila.validName + ")",
-                      "issue_valid"); // __ISSUE__ |=> decode
+    add_an_assumption(
+      rfmap_imply(rfmap_var("__START__"), rfmap_var("$decode")),
+                      "issue_decode"); // __ISSUE__ |-> decode
+    add_an_assumption(
+      rfmap_imply(rfmap_var("__START__"), rfmap_var("$valid")),
+                      "issue_valid"); // __ISSUE__ |-> valid
   }
 
   vlg_wrapper.add_wire("__ISSUE__", 1, true);
+  rfmap_add_internal_wire("__ISSUE__", 1);
+
   if (_vtg_config.ForceInstCheckReset) {
     vlg_wrapper.add_input("__ISSUE__", 1);
   } else
-    add_wire_assign_assumption("__ISSUE__", "1", "ISSUE"); // issue ASAP
+    vlg_wrapper.add_assign_stmt("__ISSUE__", "1");
   // start decode -- issue enforce (e.g. valid, input)
 
 } // ConstructWrapper_add_condition_signals

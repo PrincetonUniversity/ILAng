@@ -77,7 +77,7 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
       yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
     // execute it
-    fout << yosys << " -s" << ys_script_name << " > __yosys_exec_result.txt\n"; 
+    fout << yosys << " -s " << ys_script_name << " > __yosys_exec_result.txt\n"; 
   }
 
 
@@ -96,7 +96,7 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
     pono = os_portable_append_dir(_vtg_config.PonoPath, pono);
   }
 
-  fout << pono << "problem.btor2" << std::endl;
+  fout << pono << " problem.btor2 " << std::endl;
 
 }
 
@@ -252,13 +252,16 @@ void VlgSglTgtGen_Pono::Export_modify_verilog() {
     auto old_name = refered_vlg_item.second.get_orig_name();
     auto new_name = refered_vlg_item.second.get_new_name();
 
-    if(StrStartsWith(new_name, "__ILA_"))
+    if(!StrStartsWith(refered_vlg_item.first, "RTL."))
       continue;
       
     auto idx = old_name.find("[");
     auto removed_range_name = old_name.substr(0, idx);
     vlg_mod.RecordKeepSignalName(removed_range_name);
     // auto sig = // no use, this is too late, vlg_wrapper already exported
+    ILA_CHECK(!S_IN("'", refered_vlg_item.second.range_o)) << "Not handling "
+      << old_name << ", ' in name is not handled";
+    ILA_CHECK(refered_vlg_item.second.range_o.empty()) << "Let's see if this is correct";
     vlg_mod.RecordConnectSigName(removed_range_name,
                                  refered_vlg_item.second.range_o);
     // vlg_wrapper.add_output(sig.first, sig.second);

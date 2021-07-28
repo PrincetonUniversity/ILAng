@@ -37,39 +37,20 @@ public:
 struct VarReplacement {
   RfExpr origvar; // this is certainly a var
   RfExpr newvar; // this is certainly a var
-  std::string range_o; // but this could be different
 
-  VarReplacement(const RfExpr & o, const RfExpr & n, const std::string & r = "") :
-    origvar(o), newvar(n), range_o (r) {}
+  VarReplacement(const RfExpr & o, const RfExpr & n);
 
+  // returns v or v[range]
   std::string get_orig_name() const {
-    if(is_orig_var_array() && !range_o.empty()) 
-        return (
-          std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
-          (origvar)->get_name().first + "[" + range_o + "]"
-        );
-    // else
     return std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(
       origvar)->get_name().first;
     }
 
   std::string get_new_name() const{
-    //if(is_orig_var_array() && !range_o.empty()) 
-    //  return (
-    //      std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
-    //      (origvar)->get_name().first + "_" + ReplaceAll(range_o,"'","") + "_"
-    //    );
-    // else
     return std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
       (newvar)->get_name().first; }
 
   RfVarTypeOrig get_type_new() const {
-    /*if(is_orig_var_array() && !range_o.empty()) {
-      TypeAnnotation ret;
-      ret.type = RfMapVarType(get_type_orig().type.data_width);
-      ret.var_ref_type = TypeAnnotation::VARTYPE::NOTVAR;
-      return ret;
-    }*/
     return get_type_orig();
   }
 
@@ -120,6 +101,8 @@ public:
 
 protected:
   var_typecheck_t typechecker;
+  // used in TypedVerilogRefinementMap::TypeInferTravserRfExpr
+  // this is only used in the first stage : aux var width determination
 
   // internal use only, does not do recursion itself
   // therefore, an order of invocation is needed
@@ -129,6 +112,7 @@ protected:
 
 class RfExprAstUtility {
 public:
+  static bool HasArrayVar(const RfExpr & in, std::map<std::string, RfVar> & array_var);
   /// determine if a rf expr is a boolean expr
   static bool IsLastLevelBooleanOp(const RfExpr & in);
   /// get the variables from a expression
@@ -148,19 +132,16 @@ struct TypedVerilogRefinementMap :
   using VarDef = GeneralVerilogMonitor::VarDef;
   
   // constructor
+  // typechecker is only used in TypeInferTraverseRfExpr
   TypedVerilogRefinementMap(
     const std::string & varmap_json_file,
     const std::string & instcond_json_file,
-    var_typecheck_t type_checker,
-    const std::string & ila_inst_decode_signal_name,
-    const std::string & ila_valid_signal_name
+    var_typecheck_t type_checker
     );
   
   TypedVerilogRefinementMap(
     const VerilogRefinementMap & refinement,
-    var_typecheck_t type_checker,
-    const std::string & ila_inst_decode_signal_name,
-    const std::string & ila_valid_signal_name
+    var_typecheck_t type_checker
   );
 
     
@@ -176,28 +157,38 @@ struct TypedVerilogRefinementMap :
   // 1. first round : only explict ones
   //    this is to collect information before running the
   //    the AST type checks
-  // 2. second round : will be populated by the AST type checks
-  // so this can NOT be used in creating vars stage?
-  // Var creating stage should deal with separate ones
   std::map<std::string, VarDef> all_var_def_types;
+  // the above is only used in the first round
+  // 2. second round : AST type check
+  // so this is NOT used in creating vars?
+  // Var creating stage should deal with separate ones
+
   // this should include phase-tracker (m,v,alias)
   // ... ? 
   void TraverseAllRfExpr(std::function<void(RfExpr & inout)> func);
 
   /// used by vtarget_gen to replace rtl/ila vars
-  RfExpr ReplacingRtlIlaVar(const RfExpr & in, bool replace_dot);
+  RfExpr ReplacingRtlIlaVar(const RfExpr & in);
+
+  /// Register internal variables and also the mapping
+  void RegisterInternalVariableWithMapping(
+    const std::string & n, 
+    const VarReplacement & in) { var_replacement.emplace(n, in); }
+
+  VarReplacement * CheckReplacement(const std::string & origname) const {
+    auto pos = var_replacement.find(origname);
+    if(pos != var_replacement.end())
+      return &(pos->second);
+    return NULL;
+  }
+
+protected:
 
   /// the replacement used for creating new wires
   std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
 
-protected:
-
-  void initialize(
-    const std::string & ila_inst_decode_signal_name,
-    const std::string & ila_valid_signal_name);
-  void CollectInternallyDefinedVars(
-    const std::string & ila_inst_decode_signal_name,
-    const std::string & ila_valid_signal_name);
+  void initialize();
+  void CollectInternallyDefinedVars();
 
   void TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) ;
   void TraverseCondMap(SingleVarMap & inout, std::function<void(RfExpr & inout)> func) ;

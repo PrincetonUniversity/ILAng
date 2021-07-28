@@ -31,7 +31,7 @@ bool VlgSglTgtGen::bad_state_return(void) {
 } // bad_state_return
 
 void VlgSglTgtGen::RfmapIlaStateSanityCheck() {
-#define ERR_IF(cond,s) do { ILA_ERROR_IF(cond) << (s); _bad_state = true; return; } while(0)
+#define ERR_IF(cond,s) do { ILA_ERROR_IF(cond) << (s); if(cond) { _bad_state = true; return;} } while(0)
 
   for(unsigned sidx = 0; sidx < _host->state_num(); ++ sidx) {
     const auto & s = _host->state(sidx);
@@ -59,13 +59,13 @@ void VlgSglTgtGen::RfmapIlaStateSanityCheck() {
 
 void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
   for(const auto & mapc : refinement_map.additional_mapping) {
-    add_an_assumption(ReplExpr(mapc), "additional_mapping_control_assume");
+    add_an_assumption(mapc, "additional_mapping_control_assume");
   }
 } // ConstructWrapper_add_additional_mapping_control
 
 void VlgSglTgtGen::ConstructWrapper_add_rf_assumptions() {
   for (const auto & assumpt : refinement_map.assumptions) {
-    add_an_assumption(ReplExpr(assumpt), "rfassumptions");
+    add_an_assumption(assumpt, "rfassumptions");
   }
 } // ConstructWrapper_add_rf_assumptions
 
@@ -112,16 +112,19 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       const auto & result_apply = each_apply.result_map;
       std::string func_result_wire = funcName + "_" + IntToStr(idx - 1) + "_result_wire";
 
-      auto res_map = "~( __START__ )||(" + func_result_wire + "==" + ReplExpr(result_apply) + ")";
+      auto res_map = rfmap_imply(rfmap_var("decode"), 
+        rfmap_eq(rfmap_var(func_result_wire), result_apply));
 
+      std::vector<rfmap::RfExpr> prep;
       std::string prep = VLG_TRUE;
       size_t arg_idx = 0;
       for (const auto & each_arg : arg_apply) {
 
         std::string func_arg = funcName + "_" + IntToStr(idx - 1) + "_arg" +
                                IntToStr(arg_idx++) + "_wire";
-
-        prep += "&&(~( __START__ )||((" + func_arg + ") == (" + ReplExpr(each_arg) + ")))";
+        prep.push_back(
+          rfmap_imply(rfmap_var("decode"),
+            rfmap_eq(rfmap_var(func_arg), each_arg)));
       }
       // (
       //   (decode |-> arg0_output == ??@?? ) && (decode |-> arg1_output == ??@?? )
@@ -129,7 +132,8 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       // ) |-> (
       //   (decode |-> result_input == ??@??)
       // )
-      add_an_assumption("~(" + prep + ") || (" + res_map + ")", "funcmap");
+      add_an_assumption(
+        rfmap_imply(rfmap_and(prep), res_map), "funcmap");
     } // for each apply in the list of apply
 
     name_to_fnapp_vec.erase(funcName); // remove from it   
@@ -145,27 +149,31 @@ void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
   for(const auto & delay_unit : refinement_map.aux_delays) {
     const auto & name = delay_unit.first;
     const auto & du = delay_unit.second;
+    unsigned width = du.width;
+    auto rhs = du.signal;
+    if (du.delay_type != rfmap::SignalDelay::delay_typeT::SINGLE && du.width > 1) {
+      width = 1;
+      rhs = rfmap_reduce_or( rhs );;
+    }
     
     ILA_ERROR_IF(du.num_cycle == 0) << "Cannot delay 0 cycle";
     std::string last_reg;
     for(size_t didx = 1; didx <= du.num_cycle; ++ didx) {
       auto curr_name = name+"_d_"+std::to_string(didx);
       auto prev_name = name+"_d_"+std::to_string(didx-1);
-      vlg_wrapper.add_reg(curr_name, delay_unit.second.width);
+      vlg_wrapper.add_reg(curr_name, width);
       if(didx == 1) {
         // delay from signal
-        auto rhs = ReplExpr(du.signal);
-        if (du.delay_type != rfmap::SignalDelay::delay_typeT::SINGLE && du.width > 1)
-          rhs = "|(" + rhs + ")";
-        vlg_wrapper.add_always_stmt(curr_name + " <= " + rhs);
-      } else {
-        vlg_wrapper.add_always_stmt(curr_name + " <= " + prev_name + " ;");
+        vlg_wrapper.add_wire(prev_name, width , true);
+        rfmap_add_internal_wire(prev_name, width);
+        add_wire_assign_assumption(prev_name, rhs, "delay_unit");
       }
+      vlg_wrapper.add_always_stmt(curr_name + " <= " + prev_name + " ;");
       if(didx == du.num_cycle)
         last_reg = curr_name;
     } // end - for each delay
     if(du.delay_type == rfmap::SignalDelay::delay_typeT::SINGLE) {
-      vlg_wrapper.add_wire(name, du.width);
+      vlg_wrapper.add_wire(name, width);
       vlg_wrapper.add_assign_stmt(name, last_reg);
       continue;
     } // else
@@ -197,9 +205,11 @@ void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
 
 void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
   for(const auto & n_tracker : refinement_map.phase_tracker) {
-    
+    const auto & tracker_name = n_tracker.first;
     const auto & tracker = n_tracker.second;
+
     for (const auto & vardef : tracker.var_defs) {
+      // already in refinement_map.all_var_def_types
       const auto & vn = vardef.first;
       if ( vardef.second.type == rfmap::GeneralVerilogMonitor::VarDef::var_type::REG )
         vlg_wrapper.add_reg(vn, vardef.second.width);
@@ -208,20 +218,65 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
     }
     for ( const auto & event_alias : tracker.event_alias) {
       vlg_wrapper.add_wire( event_alias.first, 1);
-      vlg_wrapper.add_assign_stmt(event_alias.first, ReplExpr(event_alias.second));
+      rfmap_add_internal_wire( event_alias.first, 1);
+      // add_wire_assign_assumption
+      add_wire_assign_assumption(event_alias.first, event_alias.second, "stage_tracker");
     }
     unsigned sidx = 0;
     for (const auto & stage : tracker.rules) {
-      std::string stage_name = stage.stage_name.empty() ? "stage" + std::to_string(sidx) : stage.stage_name;
+      std::string stage_name = tracker_name + "_" +
+        ( stage.stage_name.empty() ? 
+          "stage" + std::to_string(sidx) : 
+          stage.stage_name);
       vlg_wrapper.add_reg(stage_name , 1);
+
+      std::string enter_cond_wire_name = stage_name + "_enter_cond";
+      std::string exit_cond_wire_name = stage_name + "_exit_cond";
+      std::string enter_action_wire_name = stage_name + "_enter_action";
+      std::string exit_action_wire_name = stage_name + "_exit_action";
       
-      vlg_wrapper.add_always_stmt("if(" + ReplExpr(stage.enter_rule)  + ") begin " + stage_name + " <= 1'b1;" );
-      for(const auto & action : stage.enter_action)
-        vlg_wrapper.add_always_stmt(action.LHS + " <= " + ReplExpr(action.RHS));
+      vlg_wrapper.add_always_stmt("if(" + enter_cond_wire_name  + ") begin " + stage_name + " <= 1'b1;" );
+      vlg_wrapper.add_wire(enter_cond_wire_name, 1, true);
+      rfmap_add_internal_wire(enter_cond_wire_name, 1);
+      add_wire_assign_assumption(enter_cond_wire_name, stage.enter_rule, "phase_tracker" );
+
+      unsigned idx = 0;
+      for(const auto & action : stage.enter_action) {
+        auto pos_def_var = refinement_map.all_var_def_types.find(action.LHS);
+        ILA_ERROR_IF(pos_def_var == refinement_map.all_var_def_types.end())
+          << "Cannot find var def for " << action.LHS << " used in LHS of phase tracker "
+          << tracker_name;
+
+        std::string action_name = enter_action_wire_name+std::to_string(idx++);
+        vlg_wrapper.add_always_stmt(action.LHS + " <= " + action_name + ";");
+        
+        
+        vlg_wrapper.add_wire(action_name, pos_def_var->second.width, true);
+        rfmap_add_internal_wire(action_name, pos_def_var->second.width);
+        add_wire_assign_assumption(action_name, action.RHS, "phase_tracker");
+      }
+
       vlg_wrapper.add_always_stmt("end");
-      vlg_wrapper.add_always_stmt("else if(" + ReplExpr(stage.exit_rule) + ") begin " + stage_name + " <= 1'b0;");
-      for(const auto & action : stage.exit_action)
-        vlg_wrapper.add_always_stmt(action.LHS + " <= " + ReplExpr(action.RHS));
+      vlg_wrapper.add_always_stmt("else if(" + exit_cond_wire_name + ") begin " + stage_name + " <= 1'b0;");
+
+      vlg_wrapper.add_wire(exit_cond_wire_name, 1, true);
+      rfmap_add_internal_wire(exit_cond_wire_name, 1);
+      add_wire_assign_assumption(exit_cond_wire_name, stage.exit_rule, "phase_tracker" );
+
+      idx = 0;
+      for(const auto & action : stage.exit_action){
+        auto pos_def_var = refinement_map.all_var_def_types.find(action.LHS);
+        ILA_ERROR_IF(pos_def_var == refinement_map.all_var_def_types.end())
+          << "Cannot find var def for " << action.LHS << " used in LHS of phase tracker "
+          << tracker_name;
+
+        std::string action_name = exit_action_wire_name+std::to_string(idx++);
+        vlg_wrapper.add_always_stmt(action.LHS + " <= " + action_name + ";");
+        vlg_wrapper.add_wire(action_name, pos_def_var->second.width, true);
+        rfmap_add_internal_wire(action_name, pos_def_var->second.width);
+        add_wire_assign_assumption(action_name, action.RHS, "phase_tracker");
+      }
+
       vlg_wrapper.add_always_stmt("end");
 
       sidx ++;
@@ -233,10 +288,12 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
   for(const auto & post_val_holder : refinement_map.value_recorder) {
     const auto & pv_name = post_val_holder.first;
     vlg_wrapper.add_reg(pv_name, post_val_holder.second.width);
+    rfmap_add_internal_reg(pv_name, post_val_holder.second.width);
+
     add_reg_cassign_assumption(pv_name, 
-      ReplExpr(post_val_holder.second.value), 
+      post_val_holder.second.value, 
       post_val_holder.second.width,
-      ReplExpr(post_val_holder.second.condition),
+      post_val_holder.second.condition,
       "post_value_holder");
   }
 } // ConstructWrapper_add_post_value_holder
@@ -249,6 +306,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
 
   for (auto&& m_rec : monitor_rec) {
     
+    const auto& mname = m_rec.first;
     const auto& mdef = m_rec.second; // generalMonitor
 
     std::string vlg_expr;
@@ -260,16 +318,28 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
       continue;
 
     for (const auto & n_def : mdef.var_defs) {
+      // already in refinement_map.all_var_def
       if(n_def.second.type == rfmap::GeneralVerilogMonitor::VarDef::var_type::REG)
         vlg_wrapper.add_reg(n_def.first, n_def.second.width);
       else
         vlg_wrapper.add_wire(n_def.first, n_def.second.width);
     }
 
+    unsigned idx = 0;
     std::vector<std::pair<std::string, std::string>> replace_list;
     for (const auto & vref : mdef.var_uses) {
       auto vref_node = ::verilog_expr::VExprAst::MakeVar(vref);
-      auto new_name = ReplExpr(vref_node);
+      auto new_name = mname + "_auxvar" + std::to_string(idx ++);
+      
+      auto tp = VarTypeCheckForRfExprParsing(vref);
+      ILA_ERROR_IF(tp.type.is_unknown()) << "Cannot determine width of "
+        << vref << " in monitor " << mname;
+
+      auto width = tp.type.unified_width();   
+      vlg_wrapper.add_wire(new_name, width, true);
+      rfmap_add_internal_wire(new_name, width);
+      add_wire_assign_assumption(new_name, vref_node, "monitor_auxvar");   
+
       replace_list.push_back(std::make_pair(vref, new_name));
     }
 

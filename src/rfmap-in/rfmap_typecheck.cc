@@ -20,40 +20,34 @@ std::string TypedVerilogRefinementMap::new_id() {
 
 TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const VerilogRefinementMap & refinement,
-  var_typecheck_t type_checker,
-  const std::string & ila_inst_decode_signal_name,
-  const std::string & ila_valid_signal_name
+  var_typecheck_t type_checker
  ) : VerilogRefinementMap(refinement), TypeAnalysisUtility(type_checker),
      counter(0) {
-  initialize(ila_inst_decode_signal_name,ila_valid_signal_name);
+  initialize();
 }
 
 TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const std::string & varmap_json_file,
   const std::string & instcond_json_file,
-  var_typecheck_t type_checker,
-  const std::string & ila_inst_decode_signal_name,
-  const std::string & ila_valid_signal_name
+  var_typecheck_t type_checker
   ) : VerilogRefinementMap(varmap_json_file, instcond_json_file),
     TypeAnalysisUtility(type_checker), counter(0) {
-  initialize(ila_inst_decode_signal_name,ila_valid_signal_name);
+  initialize();
 } // TypedVerilogRefinementMap::TypedVerilogRefinementMap
  
-void TypedVerilogRefinementMap::initialize(
-  const std::string & ila_inst_decode_signal_name,
-  const std::string & ila_valid_signal_name) {
+void TypedVerilogRefinementMap::initialize() {
   // collect those with unknown types
   // a. delay
   // b. value holder
   CollectInlineDelayValueHolder();
 
-  // collect those new vars with user-defined types
-  CollectInternallyDefinedVars(
-    ila_inst_decode_signal_name,
-    ila_valid_signal_name
-  );
+  // put existing internal vars in 
+  // all_var_def_types
+  CollectInternallyDefinedVars();
 
   // determine the types of delay and value holder
+  // and add them to all_var_def_types
+  // will use current all_var_def_types
   ComputeDelayValueHolderWidth();
 
 } // initialize
@@ -61,9 +55,9 @@ void TypedVerilogRefinementMap::initialize(
 
 // this function will iteratively make a new copy of the whole AST.
 RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
-  const RfExpr & in,
-  bool replace_internal_wire) 
+  const RfExpr & in) 
 {
+#error "modify ReplExpr"
   // skip state memory mapped 
   // provide a function to ReplExpr...
   auto tp_annotate = in->get_annotation<TypeAnnotation>();
@@ -73,135 +67,20 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
     ILA_NOT_NULL(var_ptr);
     auto n = var_ptr->get_name();
 
-    if(var_replacement.find(n.first) != var_replacement.end()) {
-      return var_replacement.at(n.first).newvar;
-    }
+    ILA_CHECK(var_replacement.find(n.first) != var_replacement.end())
+      << "variable " << n.first << " has no replacement";
 
-    RfVarTypeOrig tp;
-
-    if(tp_annotate != nullptr)
-      tp = *tp_annotate;
-    if(tp.type.is_unknown()) {
-      auto pos_def_var = all_var_def_types.find(n.first);
-      auto rtl_ila_tp = typechecker(n.first);
-
-      if(n.second) { // if it is special name
-        if(pos_def_var != all_var_def_types.end()) {
-          tp.var_ref_type = RfVarTypeOrig::VARTYPE::DEFINE_VAR;
-          tp.type = RfMapVarType(pos_def_var->second.width);
-        } else {
-          tp = rtl_ila_tp;
-        }
-      } else { // if it is not special name
-        if(!rtl_ila_tp.type.is_unknown())
-          tp = rtl_ila_tp;
-        else if(pos_def_var != all_var_def_types.end()) {
-          tp.var_ref_type = RfVarTypeOrig::VARTYPE::DEFINE_VAR;
-          tp.type = RfMapVarType(pos_def_var->second.width);
-        }
-      }
-      // put back the annotation? in new expr?
-    } // end if it is unknown
-    ILA_WARN_IF(tp.type.is_unknown()) << "type of var: " << (n.second?"#":"") << n.first << " is still unknown.";
-
-    
-    if(tp.var_ref_type == RfVarTypeOrig::VARTYPE::RTLV) {
-
-      bool is_array = tp.type.is_array();
-      if(!replace_internal_wire || is_array) {
-        auto ret_copy = std::make_shared<verilog_expr::VExprAstVar>(*var_ptr);
-        ret_copy->set_annotation(std::make_shared<TypeAnnotation>(tp));
-        return ret_copy;
-        // 1 will not do replacement
-        // 2 will not record that
-      }
-
-      auto new_name = ReplaceAll(n.first, ".", "__DOT__");
-      auto new_node = verilog_expr::VExprAst::MakeSpecialName(new_name);
-      new_node->set_annotation(std::make_shared<TypeAnnotation>(tp));
-      var_replacement.emplace(n.first, VarReplacement(in, new_node));
-      return new_node;
-    } else if (tp.var_ref_type == RfVarTypeOrig::VARTYPE::ILAI) {
-      auto new_name = "__ILA_I_" + n.first;
-      auto new_node = verilog_expr::VExprAst::MakeSpecialName(new_name);
-      new_node->set_annotation(std::make_shared<TypeAnnotation>(tp));
-      var_replacement.emplace(n.first, VarReplacement(in, new_node));
-      return new_node;      
-    } else if (tp.var_ref_type == RfVarTypeOrig::VARTYPE::ILAS) {
-      auto new_name = "__ILA_SO_" + n.first;
-      auto new_node = verilog_expr::VExprAst::MakeSpecialName(new_name);
-      new_node->set_annotation(std::make_shared<TypeAnnotation>(tp));
-      var_replacement.emplace(n.first, VarReplacement(in, new_node));
-      return new_node;
-    }
-    
-    auto ret_copy = std::make_shared<verilog_expr::VExprAstVar>(*var_ptr);
-    ret_copy->set_annotation(std::make_shared<TypeAnnotation>(tp));
-    return ret_copy; // will return the annotated one anyway
-  } // is_var
-  else if (in->is_constant()) {
-    auto cptr = std::dynamic_pointer_cast<verilog_expr::VExprAstConstant>(in);
-    ILA_NOT_NULL(cptr);
-    auto ret_copy = std::make_shared<verilog_expr::VExprAstConstant>(*cptr);
-    if(tp_annotate == nullptr || tp_annotate->type.is_unknown()) {
-      RfVarTypeOrig tp;
-      tp.type = RfMapVarType(std::get<1>(cptr->get_constant())); // base, width,...
-      ret_copy->set_annotation(std::make_shared<TypeAnnotation>(tp));
-    }
-    return ret_copy; // no annotation needed
-  } else {
-    // check type 
-    auto ret_copy = std::make_shared<verilog_expr::VExprAst>(*in);
-    for (size_t idx = 0 ; idx < ret_copy->get_child_cnt(); ++ idx) {
-      ret_copy->child(idx) = 
-        ReplacingRtlIlaVar(
-          ret_copy->get_child().at(idx), replace_internal_wire);
-    } // for each child
-
-    if(!replace_internal_wire &&
-       ret_copy->child(0)->is_var() && 
-       ret_copy->get_op() == verilog_expr::voperator::INDEX) {
-
-      std::shared_ptr<TypeAnnotation> annotate = 
-        ret_copy->child(0)->get_annotation<TypeAnnotation>();
-
-      if(annotate != nullptr && annotate->type.is_array()) {
-        assert(ret_copy->get_child_cnt() == 2);
-        auto array_index = ret_copy->child(1);
-        auto n = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
-          ( ret_copy->child(0) )->get_name();
-        
-        if( array_index->is_constant() ) {
-          std::string range_o = array_index->to_verilog();
-
-          auto new_name = ReplaceAll(n.first, ".", "__DOT__") + "_"+ ReplaceAll(range_o,"'","") +"_";
-          auto orig_name = n.first+"["+range_o+"]";
-          
-          if(var_replacement.find(orig_name) != var_replacement.end())
-            return var_replacement.at(orig_name).newvar;
-
-          auto new_node = verilog_expr::VExprAst::MakeSpecialName(new_name);
-          auto new_annotation = std::make_shared<TypeAnnotation>();
-          new_annotation->type = RfMapVarType(annotate->type.unified_width());
-          new_node->set_annotation(new_annotation);
-
-          var_replacement.emplace(orig_name, VarReplacement(in, new_node, range_o));
-          return new_node; 
-        } else {
-          ILA_CHECK(false) << "FIXME: currently does not handle dynamic index into array";
-          // HZ note: in the future we can do this
-          // by allowing array shadowing, this will definitely need smt-lib2 expression
-          // or Jasper's capability, because we can never connect a whole Verilog array out
-          // using Yosys's SVA.
-
-        } // end if it is const
-      } 
-    } // special handling for array[idx]
-    // to determine the type of ret_copy
-    infer_type_based_on_op_child(ret_copy);
-    return ret_copy; // may use new_node instead in the special case
-  } // end of is_op
-  assert(false); // Should not be reachable  
+    return var_replacement.at(n.first).newvar;
+  } else if (in->is_constant()) {
+    return in;
+  }
+  // else is op
+  auto ret_copy = std::make_shared<verilog_expr::VExprAst>(*in);
+  for (size_t idx = 0 ; idx < ret_copy->get_child_cnt(); ++ idx) {
+    ret_copy->child(idx) = 
+      ReplacingRtlIlaVar(
+        ret_copy->get_child().at(idx));
+  } // for each child
 } // AnnotateSignalsAndCollectRtlVars
 
 
@@ -239,9 +118,11 @@ void TypedVerilogRefinementMap::collect_inline_delay_func(RfExpr & inout) {
     auto new_node = VExprAst::MakeVar(delay_name);
 
     if( inout->get_parameter().size() == 1 ) {
+      // Single a ##n  
       int delay = inout->get_parameter().at(0);
       aux_delays.emplace(delay_name, SignalDelay(inout->get_child().at(0), delay) );
     } else { // inout->get_parameter().size() == 2
+      // RANGE/INF a ##[n,m] / ##[n,0]   0 represents $
       int delay = inout->get_parameter().at(0);
       int delay_upper = inout->get_parameter().at(1);
       aux_delays.emplace(delay_name, SignalDelay(inout->get_child().at(0), delay, delay_upper) );
@@ -258,16 +139,19 @@ void TypedVerilogRefinementMap::collect_inline_delay_func(RfExpr & inout) {
   }
 } // collect_inline_delay_func
 
+// will convert delay and @ to internal names
+// but will not add type information
+// will put in aux_delays
+// and value_recorder
 void TypedVerilogRefinementMap::CollectInlineDelayValueHolder() {
   TraverseAllRfExpr([this](RfExpr & inout) -> void { this->collect_inline_delay_func(inout);} );
   TraverseAllRfExpr([this](RfExpr & inout) -> void { this->collect_inline_value_recorder_func(inout);} );
 }
 
-
-void TypedVerilogRefinementMap::CollectInternallyDefinedVars(
-  const std::string & ila_inst_decode_signal_name,
-  const std::string & ila_valid_signal_name
-) {
+// internal datastructure like
+// phase_tracker, value_recorder, customized_monitor, aux_delay -> all_var_def_types
+// 
+void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
   for (const auto & n_st : phase_tracker) {
     for (const auto & var_def : n_st.second.event_alias ) {
       VarDef tmp;
@@ -299,50 +183,14 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars(
     VarDef tmp;
     tmp.width = 1;
     tmp.type = VarDef::var_type::WIRE;
-    auto onebit_anno = std::make_shared<TypeAnnotation>();
-    onebit_anno->type = RfMapVarType(1);
-    onebit_anno->var_ref_type = RfVarTypeOrig::VARTYPE::INTERNAL;
 
     all_var_def_types.emplace("decode", tmp); // these are the stage info
     all_var_def_types.emplace("commit", tmp);
 
-    // decode and commit stage replacement
-    var_replacement.emplace("decode", 
-      VarReplacement(
-        verilog_expr::VExprAst::MakeSpecialName("decode"),
-        verilog_expr::VExprAst::MakeSpecialName("__START__")
-        ));
-
-    var_replacement.emplace("commit", 
-      VarReplacement(
-        verilog_expr::VExprAst::MakeSpecialName("commit"),
-        verilog_expr::VExprAst::MakeSpecialName("__IEND__")
-        ));
-    
-    var_replacement.at("decode").newvar->set_annotation(onebit_anno);
-    var_replacement.at("commit").newvar->set_annotation(onebit_anno);
-    
     all_var_def_types.emplace("$decode", tmp); // these are the ila.decode/ila.valid info
     all_var_def_types.emplace("$valid", tmp);
 
-
-    // decode and commit stage replacement
-    var_replacement.emplace("$decode", 
-      VarReplacement(
-        verilog_expr::VExprAst::MakeSpecialName("$decode"),
-        verilog_expr::VExprAst::MakeSpecialName(ila_inst_decode_signal_name)
-        ));
-    var_replacement.emplace("$valid", 
-      VarReplacement(
-        verilog_expr::VExprAst::MakeSpecialName("commit"),
-        verilog_expr::VExprAst::MakeSpecialName(ila_valid_signal_name)
-        ));
-
-    var_replacement.at("$decode").newvar->set_annotation(onebit_anno);
-    var_replacement.at("$valid").newvar->set_annotation(onebit_anno);
-
   } // end of add decode,commit, $decode, $valid
-  
     
 } // CollectInternallyDefinedVars
 
@@ -442,6 +290,7 @@ void TypedVerilogRefinementMap::TraverseRfExpr(RfExpr & inout, std::function<voi
     if(idx >= cnt) {
       parent_stack.pop_back();
       if(!parent_stack.empty()) {
+        // refer to parent 
         func( parent_stack.back().first->child( parent_stack.back().second ) );
         ++ parent_stack.back().second;
       }
@@ -477,7 +326,9 @@ bool _compute_const(const RfExpr & in, unsigned & out) {
 }
 
 
-
+// this does not rely on type annotation
+// relies on TypeInferTravserRfExpr
+//    and therefore, all_var_def_types
 void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
   for(auto & name_delay_pair: aux_delays) {
     if(name_delay_pair.second.width == 0) {
@@ -512,6 +363,7 @@ void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
 } // ComputeDelayValueHolderWidth
 
 
+// relies on typechecker and all_var_def_types
 RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in) {
 
   if(in->is_constant()) {
@@ -524,8 +376,11 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
 
     if(n.second) { // is a special name
       // check special name first
-      if (pos_def_var != all_var_def_types.end())
-       return RfMapVarType(pos_def_var->second.width);
+      if (pos_def_var != all_var_def_types.end()) {
+        ILA_WARN_IF(pos_def_var->second.width == 0) << "Using width of not yet"
+           << " determined var " << n.first;
+        return RfMapVarType(pos_def_var->second.width);
+      }
 
       RfVarTypeOrig rtl_ila_vartype = typechecker(n.first);
       if (!rtl_ila_vartype.type.is_unknown())
@@ -537,8 +392,11 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr & in
       RfVarTypeOrig rtl_ila_vartype = typechecker(n.first);
       if (!rtl_ila_vartype.type.is_unknown())
         return rtl_ila_vartype.type;
-      if (pos_def_var != all_var_def_types.end())
+      if (pos_def_var != all_var_def_types.end()) {
+        ILA_WARN_IF(pos_def_var->second.width == 0) << "Using width of not yet"
+           << " determined var " << n.first;
        return RfMapVarType(pos_def_var->second.width);
+      }
       
     } // if # ... # else not
     return RfMapVarType();  // unknown type  
@@ -699,6 +557,30 @@ void RfExprAstUtility::GetVars(const RfExpr & in,
   } // end while (stack is not empty)
 } // end of GetVars
 
+
+bool RfExprAstUtility::HasArrayVar(
+  const RfExpr & in, std::map<std::string, RfVar> & array_var)
+{
+  if(in->is_var()) {
+    auto anno = in->get_annotation<TypeAnnotation>();
+    ILA_NOT_NULL(anno);
+    auto memvar = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(in);
+    ILA_NOT_NULL(memvar);
+    if(anno->type.is_array()) {
+      array_var.emplace(std::get<0>(memvar->get_name()), memvar);
+      return true;
+    }
+    return false;
+  } else if (in->is_constant()) {
+    return false;
+  } 
+  bool has_array = false;
+  for (size_t idx = 0; idx < in->get_child_cnt(); idx ++) {
+    has_array = has_array || HasArrayVar(in->child(idx), array_var);
+  }
+  return has_array;
+}
+
 bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr & in) {
   std::set<verilog_expr::voperator> boolean_op = {
     verilog_expr::voperator::GTE,
@@ -717,7 +599,7 @@ bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr & in) {
   if(in->is_constant() || in->is_var())
     return false;
   auto op = in->get_op();
-  return (boolean_op.find(op) == boolean_op.end());
+  return (boolean_op.find(op) != boolean_op.end());
 }
 
 
@@ -729,18 +611,12 @@ bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr & in) {
 // differences from TypedVerilogRefinementMap::ReplacingRtlIlaVar
 // 1. no var replacement (__ILA_I_, __ILA_SO_, __DOT__), array[idx]
 // 2. no special name handling
+// 3. this is used only in unit test
 void TypeAnalysisUtility::AnnotateType(const RfExpr & inout)  {
   auto tp_annotate = inout->get_annotation<TypeAnnotation>();
-
+#error "modify smt expr out test"
   if(inout->is_var()) {
-    auto var_ptr = std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(inout);
-    ILA_NOT_NULL(var_ptr);
-    auto n = var_ptr->get_name();
-
-    if(tp_annotate == nullptr || tp_annotate->type.is_unknown()) {
-      auto rtl_ila_tp = typechecker(n.first);
-      inout->set_annotation(std::make_shared<TypeAnnotation>(rtl_ila_tp));
-    }    
+    ILA_ASSERT(tp_annotate != nullptr && !tp_annotate->type.is_unknown());
   } else if (inout->is_constant()) {
     if(tp_annotate == nullptr || tp_annotate->type.is_unknown()) {
       RfVarTypeOrig tp;
@@ -914,6 +790,16 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr & inout) {
     inout->set_annotation(new_annotation);
 } // infer_type_op
 
+
+
+VarReplacement:: VarReplacement(const RfExpr & o, const RfExpr & n) :
+  origvar(o), newvar(n)
+{  
+  auto annotation_ptr = newvar->get_annotation<TypeAnnotation>();
+  ILA_NOT_NULL(annotation_ptr);
+  ILA_CHECK(!annotation_ptr->type.is_unknown()) <<
+    "new var is not typed: " << newvar->to_verilog() ;
+}
 
 } // namespace rfmap
 } // namespace ilang

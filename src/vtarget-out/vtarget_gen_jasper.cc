@@ -33,24 +33,10 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
                    adv_ptr) {}
 
 void VlgSglTgtGen_Jasper::add_wire_assign_assumption(
-    const std::string& varname, const std::string& expression,
+    const std::string& varname, const rfmap::RfExpr& expression,
     const std::string& dspt) {
   // a plain assign
   vlg_wrapper.add_assign_stmt(varname, expression);
-}
-
-void VlgSglTgtGen_Jasper::add_reg_cassign_assumption(
-    const std::string& varname, const std::string& expression, int width,
-    const std::string& cond, const std::string& dspt) {
-
-  std::string rand_in_name = "__" + varname + "_init__";
-  vlg_wrapper.add_input(rand_in_name, width);
-  vlg_wrapper.add_wire(rand_in_name, width);
-
-  vlg_wrapper.add_init_stmt(varname + " <= " + rand_in_name + ";");
-  vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
-  add_an_assumption(
-      "(~(" + cond + ") || ((" + varname + ") == (" + expression + ")))", dspt);
 }
 
 

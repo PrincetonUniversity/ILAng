@@ -15,6 +15,8 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
+#include <ilang/rfmap-in/rfexpr_shortcut.h>
+
 namespace ilang {
 
 // ------------- CONFIGURATIONS -------------------- //
@@ -72,20 +74,19 @@ void VlgSglTgtGen::add_inv_obj_as_assertion(InvariantObject* inv_obj) {
   for (auto&& name_expr_pair : inv_obj->GetExtraVarDefs()) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
-    vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair),
-                                ReplExpr(
-                                  refinement_map.ParseRfExprFromString(
-                                    std::get<1>(name_expr_pair))));
+    rfmap_add_internal_wire(std::get<0>(name_expr_pair),
+                         std::get<2>(name_expr_pair));
+    add_wire_assign_assumption(std::get<0>(name_expr_pair),
+      refinement_map.ParseRfExprFromString(
+                                    std::get<1>(name_expr_pair)), "invariant_aux_var");
   }
   for (auto&& name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
     vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
     vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
-    auto new_cond = ReplExpr(
-      refinement_map.ParseRfExprFromString(inv_expr));
-    ILA_CHECK(!S_IN("][", new_cond))
-        << "Inv translate error: ][ found in:" << new_cond;
+    auto new_cond = 
+      refinement_map.ParseRfExprFromString(inv_expr);
     add_an_assertion(new_cond, "invariant_assert");
   }
 } // add_inv_obj_as_assertion
@@ -95,19 +96,19 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
   for (auto&& name_expr_pair : inv_obj->GetExtraVarDefs()) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
-    vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair),
-      ReplExpr(
-        refinement_map.ParseRfExprFromString(std::get<1>(name_expr_pair))));
+    rfmap_add_internal_wire(std::get<0>(name_expr_pair),
+                         std::get<2>(name_expr_pair));
+    add_wire_assign_assumption(std::get<0>(name_expr_pair),
+        refinement_map.ParseRfExprFromString(std::get<1>(name_expr_pair)),
+      "invariant_aux_var");
   }
   for (auto&& name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
     vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
     vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
-    auto new_cond = ReplExpr(
-      refinement_map.ParseRfExprFromString(inv_expr));
-    ILA_CHECK(!S_IN("][", new_cond))
-        << "Inv translate error: ][ found in:" << new_cond;
+    auto new_cond = 
+      refinement_map.ParseRfExprFromString(inv_expr);
     add_an_assumption(new_cond, "invariant_assume");
   }
 } // add_inv_obj_as_assumption
@@ -115,8 +116,7 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
 void VlgSglTgtGen::add_rf_inv_as_assumption() {
   if (has_rf_invariant) {
     for (auto&& cond : refinement_map.global_invariants) {
-      auto new_cond = ReplExpr(cond);
-      add_an_assumption(new_cond, "invariant_assume"); // without new var added
+      add_an_assumption(cond, "invariant_assume"); // without new var added
     } // for inv in global invariants field
   }
 } // add_rf_inv_as_assumption
@@ -125,9 +125,7 @@ void VlgSglTgtGen::add_rf_inv_as_assertion() {
   // the provided invariants
   if (has_rf_invariant) {
     for (auto& cond : refinement_map.global_invariants) {
-      auto new_cond =
-          ReplExpr(cond); // force vlg state
-      add_an_assertion("(" + new_cond + ")", "invariant_assert");
+      add_an_assertion(cond, "invariant_assert");
     }
   } // has_rf_invariant
 } // add_rf_inv_as_assertion
@@ -210,10 +208,9 @@ void VlgSglTgtGen::
     // this is cex reachability checking
     // -- assertions -- //
     auto new_cond =
-        ReplExpr(
           refinement_map.ParseRfExprFromString(
-            _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""))); // force vlg state
-    add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
+            _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("")); // force vlg state
+    add_an_assertion(rfmap_not(new_cond), "cex_nonreachable_assert");
     // -- assumption -- //
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
       add_rf_inv_as_assumption();
@@ -247,6 +244,10 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
             target_type == target_type_t::INVARIANTS);
   vlg_wrapper.add_input("__START__", 1);
   vlg_wrapper.add_input("__STARTED__", 1);
+
+  rfmap_add_internal_wire("__START__", 1);
+  rfmap_add_replacement("decode", "__START__");
+  rfmap_add_internal_wire("__STARTED__", 1);
 }
 
 

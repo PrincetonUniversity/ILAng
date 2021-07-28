@@ -83,16 +83,19 @@ RfExpr VerilogRefinementMap::ParseRfExprFromString(const std::string & in) {
   intp.switchInputStream(&ss);
   try{
     intp.parse();
-    return intp.GetAstRoot();
   } catch (verilog_expr::VexpException &e) {
-
+    return nullptr;
   }
-  return nullptr;
+
+  if(intp.HasError())
+    return nullptr;
+  return intp.GetAstRoot();
 }
 
 RfExpr ParseRfMapExpr(const std::string & in) {
   // TODO
   auto ret = VerilogRefinementMap::ParseRfExprFromString(in);
+  ILA_ERROR_IF(ret == nullptr) << "Parsing string: `" << in << "` failed.";
   if (ret == nullptr)
     ParseRfExprErrFlag = true;
   return ret;
@@ -154,7 +157,7 @@ bool JsonRfmapParseMem(ExternalMemPortMap & mem_rfmap , nlohmann::json & json_ob
 
 char inline to_space(char in) { return ( (in == '-' || in == '_') ? ' ' : in); }
 
-bool SecionNameRelaxedMatch(const std::string & in1, const std::string & in2) {
+bool SectionNameRelaxedMatch(const std::string & in1, const std::string & in2) {
   if(in1.length() != in2.length())
     return false;
   for (size_t idx = 0; idx < in1.length(); ++ idx) {
@@ -163,7 +166,7 @@ bool SecionNameRelaxedMatch(const std::string & in1, const std::string & in2) {
     return false;
   }
   return true;
-} // SecionNameRelaxedMatch
+} // SectionNameRelaxedMatch
 
 nlohmann::json * GetJsonSection(nlohmann::json & in, const std::set<std::string> & sec_names, bool allow_dup = false) {
   nlohmann::json * ret = NULL;
@@ -171,13 +174,13 @@ nlohmann::json * GetJsonSection(nlohmann::json & in, const std::set<std::string>
     return NULL;
   for (const auto & n : sec_names) {
     for (const auto & n_v : in.items() ) {
-      if ( SecionNameRelaxedMatch(n_v.key(), n) ) {
+      if ( SectionNameRelaxedMatch(n_v.key(), n) ) {
 
         ILA_ERROR_IF(ret) << "Section " << n << " is duplicated.";
         if (ret && !allow_dup)
            return NULL;
         
-        ret = &(in[n]);
+        ret = &(in.at(n_v.key()));
       }
     }
   }
@@ -366,9 +369,9 @@ std::string JsonRfMapParseVarDefs(std::map<std::string, GeneralVerilogMonitor::V
     ++ pos;
     ENSURE( pos != one_def.end() && pos->is_string(), "`defs` field should be list of [name, width, type]");
     auto tp = pos->get<std::string>();
-    ENSURE( SecionNameRelaxedMatch(tp, "reg") ||  SecionNameRelaxedMatch(tp, "wire") , "`defs` field should be list of [name, width, type (wire/reg)]" );
+    ENSURE( SectionNameRelaxedMatch(tp, "reg") ||  SectionNameRelaxedMatch(tp, "wire") , "`defs` field should be list of [name, width, type (wire/reg)]" );
 
-    var_defs[var_name].type = SecionNameRelaxedMatch(tp, "reg") ? 
+    var_defs[var_name].type = SectionNameRelaxedMatch(tp, "reg") ? 
       GeneralVerilogMonitor::VarDef::var_type::REG :
       GeneralVerilogMonitor::VarDef::var_type::WIRE;
     ++ pos;
@@ -533,7 +536,7 @@ VerilogRefinementMap::VerilogRefinementMap
         } else if (i.value().begin()->is_array() ) {
           are_memports = false;
         } else
-          ERRIF(true, "Expecting array of list or objects for" + sname);
+          ERRIF(true, "Expecting array of list or objects for " + sname);
 
         if (are_memports) {
           svmp.type = IlaVarMapping::StateVarMapType::EXTERNMEM;
@@ -679,7 +682,8 @@ VerilogRefinementMap::VerilogRefinementMap
       if (cycle) {
         ENSURE(cycle->is_number_unsigned(), "cycles in reset should be unsigned integer");
         reset_specification.reset_cycle = cycle->get<unsigned>();
-      }
+      } else
+        reset_specification.reset_cycle = 1;
 
       if (customreset) {
         bool succ = JsonRfmapParseSequence(reset_specification.custom_reset_sequence, *customreset);
@@ -781,11 +785,11 @@ VerilogRefinementMap::VerilogRefinementMap
         if(template_field) {
           ENSURE(template_field->is_string(), "`template` field should be string");
           auto template_name = template_field->get<std::string>();
-          if(SecionNameRelaxedMatch(template_name,"phase tracker")) {
+          if(SectionNameRelaxedMatch(template_name,"phase tracker")) {
             phase_tracker.emplace(name, PhaseTracker());
             std::string errmsg = JsonRfmapParsePhaseTracker(phase_tracker.at(name), monitor);
             ENSURE(errmsg.empty(), errmsg);
-          } else if (SecionNameRelaxedMatch(template_name,"value recorder")) {
+          } else if (SectionNameRelaxedMatch(template_name,"value recorder")) {
             value_recorder.emplace(name, ValueRecorder());
             std::string errmsg = JsonRfmapParseValueRecorder(value_recorder.at(name), monitor);
             ENSURE(errmsg.empty(), errmsg);

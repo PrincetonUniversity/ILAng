@@ -84,9 +84,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       // ref to refmaps
       refinement_map(refinement, /*type checker*/
         [this](const std::string& n) -> rfmap::RfVarTypeOrig {
-          return this->VarTypeCheckForRfExprParsing(n);   },
-        vlg_ila.GetDecodeSignalName(instr_ptr),
-        vlg_ila.GetValidSignalName(instr_ptr)),
+          return this->VarTypeCheckForRfExprParsing(n);  }),
 
       target_type(target_tp), // whether it is
                               // invariant/instructions
@@ -171,9 +169,9 @@ void VlgSglTgtGen::ConstructWrapper_add_inputmap_assumptions() {
       continue;
     }
     ila_input_names.erase(iname);
-  }
 
-  
+    Gen_input_map_assumpt(iname, iv_rfmap.second, "variable_map_assume_");
+  }
 
   if(!ila_input_names.empty()) {
     ILA_ERROR << "Lack input var map for the following variables:";
@@ -211,12 +209,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
 
     std::string problem_name = "variable_map_assume_";
     
-    if (_backend == backend_selector::RELCHC) {
-      Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, true, "", "" );
-      // its signal reference will be replaced, but this should be fine
-      // because the names on any level is the same!
-    } else
-      Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, true, "(~ __START__ )|| (", ")" );
+    Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, true );
   } // end for each state variable
 
   ILA_DLOG("VtargetGen") << "STEP:"
@@ -269,13 +262,6 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
           << _instr_ptr->name().str() << " updating state:" << sname
           << " is not provided in rfmap!";
     }
-    // ISSUE ==> vmap
-    std::string precondition = "(~ __IEND__) || ";
-
-    if (IN(sname, vlg_ila.state_update_ite_unknown)) {
-      auto pos = vlg_ila.state_update_ite_unknown.find(sname);
-      precondition += "(~ " + pos->second.condition + ") ||";
-    }
 
     std::string problem_name = "variable_map_assert";
     // for Yosys, we must keep the name the same
@@ -288,7 +274,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     // for Yosys inv-synthesis, we don't mind the precondition
     // that's part the assertions, so it should be fine
 
-    Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, false, "(~ __IEND__ )|| (", ")" );
+    Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, false);
   } // end - for each state var
 } // ConstructWrapper_add_varmap_assertions
 
@@ -315,8 +301,21 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_generate_header();
   ILA_DLOG("VtargetGen") << "STEP:" << 2;
 
+  if (target_type != target_type_t::INSTRUCTIONS)
+    max_bound = _vtg_config.MaxBound;
+
+  // if invariants, will do nothing
+  if (target_type == target_type_t::INSTRUCTIONS) {
+    // __CYCLE_CNT__, START RESETED and etc.
+    ConstructWrapper_add_cycle_count_moniter();
+    // IEND ENDCOND and etc. (will use cycle count)
+    ConstructWrapper_add_condition_signals();
+  } else
+    ConstructWrapper_inv_syn_cond_signals();
+
+
   // 1. dealing with reset
-  ConstructWrapper_reset_setup();
+  ConstructWrapper_reset_setup(); // will use __RESETED__
 
   ILA_DLOG("VtargetGen") << "STEP:" << 3;
   // -- find out the inputs
@@ -325,25 +324,8 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_ila_input();
   ILA_DLOG("VtargetGen") << "STEP:" << 5;
 
-  // 2. add some monitors (bound cnt)
-  // 3. add assumptions & assertions
-  if (target_type == target_type_t::INSTRUCTIONS) {
-
-    ILA_DLOG("VtargetGen") << "STEP:" << 5.1;
-    ConstructWrapper_add_cycle_count_moniter();
-    ILA_DLOG("VtargetGen") << "STEP:" << 5.2;
-    ConstructWrapper_add_varmap_assumptions();
-    ILA_DLOG("VtargetGen") << "STEP:" << 5.3;
-    ConstructWrapper_add_varmap_assertions();
-    ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
-    ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
-  } else if (target_type == target_type_t::INVARIANTS) {
-    ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
-    max_bound = _vtg_config.MaxBound;
-  } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
-    ConstructWrapper_inv_syn_cond_signals();
+  if (target_type == target_type_t::INV_SYN_DESIGN_ONLY)
     ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
-  }
 
   ILA_DLOG("VtargetGen") << "STEP:" << 6;
   // 4. additional mapping if any
@@ -352,16 +334,8 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   ConstructWrapper_add_rf_assumptions();
 
-  ILA_DLOG("VtargetGen") << "STEP:" << 7;
-  // if invariants, will do nothing
-  if (target_type == target_type_t::INSTRUCTIONS)
-    ConstructWrapper_add_condition_signals();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 8;
-
-  // 7. uni-functions
-  if (target_type == target_type_t::INSTRUCTIONS)
-    ConstructWrapper_add_uf_constraints();
 
   // post value holder --- ABC cannot work on this
   if (target_type == target_type_t::INSTRUCTIONS) {
@@ -381,7 +355,25 @@ void VlgSglTgtGen::ConstructWrapper() {
   ILA_DLOG("VtargetGen") << "STEP:" << 9;
   // 5. module instantiation
   ConstructWrapper_add_module_instantiation();
-}
+
+  // 7. uni-functions
+  if (target_type == target_type_t::INSTRUCTIONS)
+    ConstructWrapper_add_uf_constraints();
+
+  // 2. add some monitors (bound cnt)
+  // 3. add assumptions & assertions
+  if (target_type == target_type_t::INSTRUCTIONS) {
+
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.2;
+    ConstructWrapper_add_varmap_assumptions();
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.3;
+    ConstructWrapper_add_varmap_assertions();
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
+    ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
+  } if (target_type == target_type_t::INVARIANTS) {
+    ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
+  } 
+} // Construct_wrapper
 
 /// create the wrapper file
 void VlgSglTgtGen::Export_wrapper(const std::string& wrapper_name) {

@@ -161,24 +161,64 @@ protected:
                               const SignalInfoBase& vlg_var);
   /// get width of an ila node
   static unsigned get_width(const ExprPtr& n);
-  /// Parse and modify a condition string
-  std::string ReplExpr(const rfmap::RfExpr & in);
-  /// treat `in` as var map, if it is not a Boolean, add `==`
-  std::string TranslateMap(const rfmap::RfExpr & in, const std::string & ila_vn);
   
-  /// translate a conditional map to vlg expression
-  std::string condition_map_to_str(
+  // -----------------------------------------------------------------------
+  // Refinement map handling 
+  // -----------------------------------------------------------------------
+  /// Create a variable replacement for var
+  /// RTL_var/ ILA_IN/ ILA_SO/ INTERNL-DEFVAR
+  /// a new var is always typed
+  /// otherwise, will not 
+  /// this function get type information from
+  ///    VarTypeCheckForRfExprParsing and 
+  ///    refinement_map.all_var_def_type
+  rfmap::VarReplacement CreateVarReplacement(
+    const rfmap::RfVar & var, bool replace_internal_names);
+  /// replace var for assumptions/assertions
+  /// (should only be used inside assumptions/assertions)
+  /// 1. GetVar 2. Check Replacement 3. add replacement using the above
+  ///  function 4. do replacement for var 5. annotate type
+  rfmap::RfExpr ReplExpr(const rfmap::RfExpr & in);
+
+  /// treat `in` as var map, if it is not a Boolean, add `==`
+  /// this function is not used in `_bv` version below
+  rfmap::RfExpr TranslateMap(const rfmap::RfExpr & in, const std::string & ila_vn);
+  
+  /// translate a conditional map to rf expression
+  rfmap::RfExpr condition_map_to_rfexpr(
       const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>> & cond_map,
       const std::string & ila_state_name);
+  /// difference from condition_map_to_rfexpr is that
+  /// this will not create (v == ...) , this expects bv
+  rfmap::RfExpr condition_map_bv_to_rfexpr(
+      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>> & cond_map);
   
-  std::string non_mem_map_to_str(
+  /// translate a single map to rfexpr
+  rfmap::RfExpr singlemap_to_rfexpr(
     const rfmap::SingleVarMap & single_map,
     const std::string & ila_state_name);
+  /// translate a single map to rfexpr (expect bit-vector)
+  rfmap::RfExpr singlemap_bv_to_rfexpr(
+    const rfmap::SingleVarMap & single_map);
+
+  /// register a reg in refinement_map.all_var_def_type
+  void rfmap_add_internal_reg(const std::string &n, unsigned width);
+  /// register a wire in refinement_map.all_var_def_type
+  void rfmap_add_internal_wire(const std::string &n, unsigned width);
+  /// register a replacement in refinement_map
+  /// this will affect ReplExpr's behavior
+  /// (Note 1: ReplExpr will also create replacement, but it will not use
+  /// this function. 2: will require that the new one has been registered
+  /// in refinement_map.all_var_def_type)
+  void rfmap_add_replacement(const std::string &old, const std::string &n);
 
   /// handle a var map
   void Gen_varmap_assumpt_assert(const std::string& ila_state_name,
-    const rfmap::IlaVarMapping &vmap, const std::string & problem_name, bool true_for_assumpt_false_for_assert,
-    const std::string & prefix, const std::string & suffix);
+    const rfmap::IlaVarMapping &vmap, const std::string & problem_name, bool true_for_assumpt_false_for_assert);
+
+  // handle an input map
+  void Gen_input_map_assumpt(const std::string& ila_input_name,
+    const rfmap::IlaVarMapping &imap, const std::string & problem_name);
 
   /// add a start condition if it is given
   void handle_start_condition(const std::vector<rfmap::RfExpr> & dc);
@@ -315,35 +355,38 @@ protected:
                                       const std::string& dspt) = 0;
 
   // helper function to be implemented by COSA, Yosys, invsyn, jasper is not
-  /// Add an assumption -- JasperGold will override this
-  virtual void add_an_assumption(const std::string& aspt,
-                                 const std::string& dspt);
+  /// Add an assumption -- if aspt can be represented in vlg
+  // then will only use vlg (this is true for jg)
+  // but for those needs Yosys, array will be handled differently
+  virtual void add_an_assumption(const rfmap::RfExpr& aspt,
+                                 const std::string& dspt) = 0;
   /// Add an assertion -- JasperGold will override this
-  virtual void add_an_assertion(const std::string& asst,
-                                const std::string& dspt);
+  virtual void add_an_assertion(const rfmap::RfExpr& asst,
+                                const std::string& dspt) = 0;
 
   // Add SMT assumption (using rfexpr)
+  //  - will use add_a_direct_smt_assumption/assertion
   virtual void add_smt_assumption(
-    const std::unordered_map<std::string, rfmap::RfVar> & vars,
     const rfmap::RfExpr & body,
     const std::string & dspt);
 
   // Add SMT assertion (using rfexpr)
   virtual void add_smt_assertion(
-    const std::unordered_map<std::string, rfmap::RfVar> & vars,
     const rfmap::RfExpr & body,
     const std::string & dspt);
 
-  /// Add an assignment which in JasperGold could be an assignment, but in CoSA
-  /// has to be an assumption
+  /// Add an assignment which in JasperGold could be an assignment, but in Yosys-based solution
+  /// has to be an assumption 
   virtual void add_wire_assign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          const std::string& dspt);
-  /// Add an assignment to a register which in JasperGold could be an
-  /// assignment, but in CoSA has to be an assumption
+                                          const rfmap::RfExpr &aspt,
+                                          const std::string& dspt) = 0;
+
+  /// Add an assignment, will always be an assumption
+  /// will use add_an_assumption, and it is up to
+  /// the derived class to determine whether to add as vlg/smt assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          int width, const std::string& cond,
+                                          const rfmap::RfExpr & expression,
+                                          int width, const rfmap::RfExpr & cond,
                                           const std::string& dspt);
 
 public:
@@ -358,6 +401,8 @@ public:
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);
+  /// this function make sure ila.input and ila.sv are all mapped
+  /// in the refinement map and no more vars are mapped
   void RfmapIlaStateSanityCheck();
 
 private:

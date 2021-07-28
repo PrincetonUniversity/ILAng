@@ -93,6 +93,8 @@ struct ResetSpecification {
   unsigned reset_cycle;
   // customized reset sequence
   std::map<std::string, OneBitSignalSequence> custom_reset_sequence;
+  // default constructor
+  ResetSpecification() : reset_cycle(1) { }
 }; // ResetSpecification
 
 struct ClockSpecification {
