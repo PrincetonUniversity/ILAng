@@ -45,7 +45,7 @@ namespace pf2graph {
     return m.get();
   }
 
-  TEST(Pf2cfg, CutPointGraph) {
+  TEST(Pf2cfg, StructuralEquality) {
 
     auto file_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
     auto ila_file = os_portable_append_dir(file_dir, "aes.json");
@@ -99,22 +99,33 @@ namespace pf2graph {
     auto ctr = m->state(COUNTER_STATE_CTR);
     auto op = m->input(COUNTER_INPUT_OP);
 
+    auto ctr_w = ctr->sort()->bit_width();
+    auto lowbound = m->NewBvFreeVar("lowbound", ctr_w);
+
     // program fragment
-    ProgramFragment pf {{ /* no params */ }, {
+    ProgramFragment pf {{ lowbound }, {
       Assume {asthub::Eq(ctr, 0)},
+      Assume {asthub::Eq(lowbound, 0)},
       Call {inst_inc},
+      Update {{lowbound, asthub::Add(lowbound, asthub::BvConst(1, ctr_w))}},
       Assert {asthub::Eq(ctr, 1)},
       Call {inst_dec},
+      Update {{lowbound, asthub::Sub(lowbound, asthub::BvConst(1, ctr_w))}},
       Call {inst_dec},
+      Update {{lowbound, asthub::Sub(lowbound, asthub::BvConst(1, ctr_w))}},
       Assert {asthub::Eq(ctr, 0)},  // dec should not go less than 0
       Call {inst_inc},
       Call {inst_inc},
       Call {inst_dec},
       Call {inst_inc},
-      Assert {asthub::Eq(ctr, 2)}
+      Update {{lowbound, asthub::Add(lowbound, asthub::BvConst(3, ctr_w))}},
+      Assert {asthub::Eq(ctr, 2)},
+      Assert {asthub::Le(lowbound, ctr)}
     }};
 
-    PFToCHCEncoder encoder {m, pf};
+    z3::context ctx;
+    z3::fixedpoint ctxfp {ctx};
+    PFToCHCEncoder encoder {ctx, ctxfp, m, pf};
     
     // std::cout << "\nEncoded successfully!\n" << std::endl;
 
@@ -122,7 +133,13 @@ namespace pf2graph {
 
     EXPECT_NO_THROW(encoder.to_string());
 
-    PFToCHCEncoder::Result res = encoder.check_assertions();
+    PFToCHCEncoder::Result res = PFToCHCEncoder::INVALID;
+    try {
+      res = encoder.check_assertions();
+    } catch (const z3::exception& e) {
+      std::cout << "Error: " << e << std::endl;
+    }
+
     EXPECT_EQ(res, PFToCHCEncoder::VALID);
   }
 
@@ -152,7 +169,9 @@ namespace pf2graph {
       Assert {asthub::Eq(ctr, 2)}
     }};
 
-    PFToCHCEncoder encoder {m, pf};
+    z3::context ctx;
+    z3::fixedpoint ctxfp {ctx};
+    PFToCHCEncoder encoder {ctx, ctxfp, m, pf};
     
     // std::cout << "\nEncoded successfully!\n" << std::endl;
 
@@ -208,7 +227,15 @@ namespace pf2graph {
 
     ProgramFragment pf {{ }, b}; /* no params */
 
-    PFToCHCEncoder encoder {m, pf};
+    z3::context ctx;
+    z3::fixedpoint ctxfp {ctx};
+    
+    // use spacer instead of datalog engine
+    z3::params p {ctx};
+    p.set("engine", "spacer");
+    ctxfp.set(p);
+
+    PFToCHCEncoder encoder {ctx, ctxfp, m, pf};
     
     // std::cout << "\nEncoded successfully!\n" << std::endl;
 
@@ -268,7 +295,15 @@ namespace pf2graph {
 
     ProgramFragment pf {{x, y}, b}; /* no params */
 
-    PFToCHCEncoder encoder {m, pf};
+    z3::context ctx;
+    z3::fixedpoint ctxfp {ctx};
+    
+    // use spacer instead of datalog
+    z3::params p {ctx};
+    p.set("engine", "spacer");
+    ctxfp.set(p);
+
+    PFToCHCEncoder encoder {ctx, ctxfp, m, pf};
     
     // std::cout << "\nEncoded successfully!\n" << std::endl;
 
@@ -278,6 +313,83 @@ namespace pf2graph {
 
     EXPECT_EQ(res, PFToCHCEncoder::VALID);
 
+  }
+
+  TEST(Pf2cfg, CounterLoop) {
+
+    InstrLvlAbsPtr m = simple_counter_ila();
+    auto inst_inc = m->instr(COUNTER_INSTR_INC);
+    auto inst_dec = m->instr(COUNTER_INSTR_DEC);
+
+    auto ctr = m->state(COUNTER_STATE_CTR);
+    auto op = m->input(COUNTER_INPUT_OP);
+
+    auto ctr_w = ctr->sort()->bit_width();
+    auto x = m->NewBvFreeVar("x", ctr_w);
+    auto y = m->NewBvFreeVar("y", ctr_w);
+    auto i = m->NewBvFreeVar("i", ctr_w);
+
+    auto inv1 = asthub::And(asthub::Eq(ctr, i), asthub::Le(i, x));
+
+    auto inv2 = asthub::And(
+      asthub::Ge(ctr, asthub::BvConst(0, ctr_w)),
+      asthub::Or(asthub::Eq(ctr, asthub::Sub(x, i)),
+                 asthub::Eq(ctr, asthub::BvConst(0, ctr_w)))
+    );
+
+    // program fragment
+    ProgramFragment pf {{ x, y, i }, {
+      Assume {asthub::Eq(ctr, 0)},
+      Assume {asthub::Gt(x, 0)},
+      Assume {asthub::Gt(y, x)},
+      Assume {asthub::Lt(y, 15)},
+
+      Update { {i, asthub::BvConst(0, ctr_w)} },
+      Assert { inv1 },
+      While { asthub::Lt(i, x), {
+        Assume { inv1 },
+        Call { inst_inc, asthub::BoolConst(true) },
+        Update { {i, asthub::Add(i, asthub::BvConst(1, ctr_w))} },
+        Assert { inv1 },
+      }},
+      Assume { inv1 },
+
+      Update { {i, asthub::BvConst(0, ctr_w)} },
+      Assert { inv2 },
+      While { asthub::Lt(i, y), {
+        Assume { inv2 },
+        Call { inst_dec, asthub::BoolConst(true) },
+        Update { {i, asthub::Add(i, asthub::BvConst(1, ctr_w))} },
+        Assert { inv2 },
+      }},
+      Assume { inv2 },
+      Assert { asthub::Eq(ctr, 0) }
+    }};
+
+    z3::context ctx;
+    z3::fixedpoint ctxfp {ctx};
+
+    // use spacer instead of datalog
+    z3::params p {ctx};
+    p.set("engine", "spacer");
+    ctxfp.set(p);
+
+    PFToCHCEncoder encoder {ctx, ctxfp, m, pf};
+    
+    // std::cout << "\nEncoded successfully!\n" << std::endl;
+
+    // std::cout << encoder.to_string() << std::endl;
+
+    EXPECT_NO_THROW(encoder.to_string());
+
+    PFToCHCEncoder::Result res = PFToCHCEncoder::INVALID;
+    try {
+      res = encoder.check_assertions();
+    } catch (const z3::exception& e) {
+      std::cout << "Error: " << e << std::endl;
+    }
+
+    EXPECT_EQ(res, PFToCHCEncoder::VALID);
   }
 
 }

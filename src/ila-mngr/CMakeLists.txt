@@ -11,6 +11,7 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/p_simplify_semantic.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/p_simplify_syntactic.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/u_abs_knob.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/u_progfrag.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/u_rewrite_expr.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/u_rewrite_ila.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/u_unroller.cc

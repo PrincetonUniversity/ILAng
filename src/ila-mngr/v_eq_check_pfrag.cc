@@ -10,92 +10,7 @@
 
 namespace ilang {
 
-namespace pfast {
-
-  bool operator==(const Block& a, const Block& b) {
-    if (a.size() != b.size()) return false;
-    for (int i = 0; i != a.size(); ++i) {
-      if (a[i] == b[i]) continue;
-      return false;
-    }
-    return true;
-  }
-
-  bool operator==(const ProgramFragment& a, const ProgramFragment& b) {
-    // [TODO] check == operator on unordered sets
-    return (a.params == b.params) && (a.body == b.body);
-  }
-
-  std::string to_string(const Stmt& s) { 
-    PrettyPrinter pp {};
-    std::visit(pp, s);
-    return pp.str();
-  }
-
-  std::string to_string(const ProgramFragment& pf) { 
-    PrettyPrinter pp {};
-    pp(pf);
-    return pp.str(); 
-  }
-
-  std::string to_string(const Block& b) { 
-    PrettyPrinter pp {};
-    pp(b);
-    return pp.str(); 
-  }
-
-  void PrettyPrinter::operator()(const ProgramFragment& pf) {
-    buf_ << reserved_word("main") << "(";
-    bool first = true;
-    for (const auto& param : pf.params) {
-      if (first) first = false;
-      else buf_ << ", ";
-      buf_ << param;
-    }
-    buf_ << ") ";
-
-    this->indent_ = 0;
-    (*this)(pf.body);
-    
-    buf_ << "\n";
-  }
-
-  void PrettyPrinter::operator()(const Block& b) {
-    buf_ << "{\n";
-    this->indent_ += 2;
-    for (int i = 0; i != b.size(); ++i) {
-      buf_ << indent_str();
-      std::visit(*this, b[i]);
-      buf_ << "\n";
-    }
-    this->indent_ -= 2;
-    buf_ << indent_str() << "}";
-  }
-
-  void PrettyPrinter::operator()(const Assert& a) {
-    buf_ << reserved_word("assert") << " " << a.assertion;
-  }
-
-  void PrettyPrinter::operator()(const Assume& a) {
-    buf_ << reserved_word("assert") << " " << a.assumption;
-  }
-
-  void PrettyPrinter::operator()(const Call& c) {
-    buf_ << reserved_word("call") << " " << c.instr->name().str();
-    if (c.input_constraint) {
-      buf_ << " where " << c.input_constraint;
-    }
-  }
-
-  std::string PrettyPrinter::reserved_word(const std::string& word) { 
-    std::string res = word;
-    for (auto & c: res) c = toupper(c);
-    return res;
-  }
-
-  std::string PrettyPrinter::indent_str() { return std::string(this->indent_, ' '); }
-
-}
+template<class T> struct dependent_false : std::false_type {};
 
 namespace pgraph {
 
@@ -105,13 +20,13 @@ namespace pgraph {
 
     CutPointGraph get_pg() { return pg_; }
 
-    void operator()(const ProgramFragment& pf) { 
+    void operator()(const ProgramFragment& pf) {
       (*this)(pf.body);
+      running_seq_to_newloc(pgraph::LOC_END);
     }
 
     void operator()(const Block& b) {
       for (const Stmt& s : b) std::visit(*this, s);
-      running_seq_to_newloc("end");
     }
 
     void operator()(const Call& c) {
@@ -125,10 +40,22 @@ namespace pgraph {
     void operator()(const Assert& a) {
       running_seq_to_newloc("assert");
       add_edge_from_curloc({pfast::Assume{asthub::Not(a.assertion)}}, LOC_ERROR);
-      running_seq_.clear();
       running_seq_.emplace_back(Assume{a.assertion});
     }
 
+    void operator()(const Update& u) {
+      running_seq_.emplace_back(u);
+    }
+
+    void operator()(const While& w) {
+      running_seq_to_newloc("while");
+      Location loop_start = curloc();
+      running_seq_.emplace_back(Assume{w.loop_condition});
+      (*this)(w.body);  // visit loop body
+      running_seq_to_loc(loop_start);  // connect loop body to loop start
+      // continue after loop
+      running_seq_.emplace_back(Assume{asthub::Not(w.loop_condition)});
+    }
 
   private:
 
@@ -137,11 +64,14 @@ namespace pgraph {
     int loc_ctr_ {0};
     Location curloc_ {LOC_BEGIN};
 
-    void running_seq_to_newloc(const std::string& loc_ident) {
-      Location next = newloc(loc_ident);
+    void running_seq_to_loc(const Location& next) {
       add_edge_from_curloc(running_seq_, next);
       set_curloc(next);
       running_seq_.clear();
+    }
+
+    void running_seq_to_newloc(const std::string& loc_ident) {
+      running_seq_to_loc(newloc(loc_ident));
     }
 
     void add_edge_from_curloc(const Edge& edge, const Location& loc) {
@@ -184,19 +114,22 @@ protected:
 
 private:
   const ExprPtrVec custom_deciding_vars_;
-
 };
 
 
-PFToCHCEncoder::PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pfast::ProgramFragment& pf):
-    PFToCHCEncoder(ila, pgraph::program_graph(pf), pf.params) {}
+PFToCHCEncoder::PFToCHCEncoder(
+    z3::context& ctx, z3::fixedpoint& ctxfp,
+    const InstrLvlAbsPtr& ila, const pfast::ProgramFragment& pf
+  ): PFToCHCEncoder(ctx, ctxfp, ila, pgraph::program_graph(pf), pf.params) {}
 
-PFToCHCEncoder::PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pgraph::CutPointGraph& pg, const ExprSet& params):
-    ila_ {ila}, pg_ {pg}, params_ {params} {
+PFToCHCEncoder::PFToCHCEncoder(
+    z3::context& ctx, z3::fixedpoint& ctxfp,
+    const InstrLvlAbsPtr& ila, const pgraph::CutPointGraph& pg, const ExprSet& params
+  ): ctx_{ctx}, ctxfp_{ctxfp}, ila_ {ila}, pg_ {pg}, params_ {params} {
 
-  z3::params p {ctx_};
-  p.set("engine", "spacer");
-  ctxfp_.set(p);
+  // z3::params p {ctx_};
+  // p.set("engine", "spacer");
+  // ctxfp_.set(p);
 
   total_scope_ = params_;  // initialize total_scope_, will add more in record_scopes
   record_scopes(pg_, params_);
@@ -244,19 +177,29 @@ void PFToCHCEncoder::encode_transition(
   for (auto& stmt : transition) {
     std::visit([&unroller, &seq, &step_ctr](const auto& s) {
       using T = std::decay_t<decltype(s)>;
-      constexpr bool is_Assume = std::is_same_v<T, pfast::Assume>;
-      constexpr bool is_Call = std::is_same_v<T, pfast::Call>;
-      constexpr bool is_unknown = !(is_Assume || is_Call);
-      if constexpr (is_Assume) {
+
+      if constexpr (std::is_same_v<T, pfast::Assume>) {
         unroller.AssertStep(s.assumption, step_ctr);
-      } else if constexpr (is_Call) {
+
+      } else if constexpr (std::is_same_v<T, pfast::Call>) {
         seq.push_back(s.instr);
         if (s.input_constraint) unroller.AssertStep(s.input_constraint, step_ctr);
         ++step_ctr;
+
+      } else if constexpr (std::is_same_v<T, pfast::Update>) {
+        // [HACK] convert the update into an instruction
+        auto instr = Instr::New("update_at_" + std::to_string(step_ctr));
+        instr->set_decode(asthub::BoolConst(true));
+        for (const auto& [x, v] : s) {
+          instr->set_update(x, v);
+        }
+        seq.push_back(instr);
+        ++step_ctr;
       } else {
-        // compile-time error
+        // raise compile-time error
         static_assert(
-          is_unknown, "record_scopes not implemented for given type of BasicStmt."
+          dependent_false<T>::value, 
+          "encode_transition not implemented for given type of BasicStmt."
         );
       }
     }, stmt);
@@ -268,13 +211,6 @@ void PFToCHCEncoder::encode_transition(
       forall_args.push_back(unroller.GetSmtCurrent(v, i));
     }
   }
-  // while (max_step_count_ <= step_ctr) {
-  //   for (const auto& v : total_scope_) {
-  //     auto v_step = unroller.GetSmtCurrent(v, max_step_count_).decl();
-  //     ctxfp_.register_relation(v_step);
-  //   }
-  //   ++max_step_count_;
-  // }
  
   z3::expr_vector body {ctx_};
   
@@ -319,23 +255,23 @@ void PFToCHCEncoder::add_unique_vars(
 ) {
   std::visit([&pred_scope, &total_scope](const auto& s) {
     using T = std::decay_t<decltype(s)>;
-    constexpr bool is_Assume = std::is_same_v<T, pfast::Assume>;
-    constexpr bool is_Call = std::is_same_v<T, pfast::Call>;
-    constexpr bool is_unknown = !(is_Assume || is_Call);
-    if constexpr (is_Assume) {
-      // Assume should not use any new variables.
+    if constexpr (std::is_same_v<T, pfast::Assume>) {
+      // Assume should only use known variables.
       // OLD: absknob::InsertVar(s.assumption, scope);
-    } else if constexpr (is_Call) {
+    } else if constexpr (std::is_same_v<T, pfast::Call>) {
       // add ILA state variables to the scope
       absknob::InsertStt(s.instr->host(), pred_scope);
       absknob::InsertVar(s.instr->host(), total_scope);
       // we do not include the state of children unless an instruction
       // of the child is called.
       // Also, the constraint should not use any new variables.
+    } else if constexpr (std::is_same_v<T, pfast::Update>) {
+      // Update should only use known variables.
     } else {
       // compile-time error
       static_assert(
-        is_unknown, "record_scopes not implemented for given type of BasicStmt."
+          dependent_false<T>::value, 
+          "record_scopes not implemented for given type of BasicStmt."
       );
     }
   }, s);
