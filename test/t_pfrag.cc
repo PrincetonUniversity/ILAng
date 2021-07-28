@@ -392,6 +392,125 @@ namespace pf2graph {
     EXPECT_EQ(res, PFToCHCEncoder::VALID);
   }
 
+  TEST(Pf2cfg, Hierarchy) {
+
+    Ila m {"Broadcast"};
+
+    constexpr int msg_bits = 64;
+    constexpr int port_bits = 8;
+
+    auto next_msg = m.NewBvInput("next_msg", msg_bits);
+    auto msg = m.NewBvState("msg", msg_bits);
+    
+    auto n_ports = m.NewBvState("nports", port_bits);
+    auto ports = m.NewMemState("ports", port_bits, msg_bits);
+
+    auto cur_port = m.NewBvState("cur_port", port_bits);
+
+    m.SetValid((n_ports > 0) & (msg == 0 | next_msg == 0));
+
+    auto child = m.NewChild("broadcaster");
+    child.SetValid((n_ports > 0) & (msg != 0));
+    auto bcast_step = child.NewInstr("bcast_step");
+    {
+      bcast_step.SetDecode((msg != 0) & (cur_port < n_ports));
+      bcast_step.SetUpdate(ports, Store(ports, cur_port, msg));
+      bcast_step.SetUpdate(cur_port, cur_port + 1);
+      bcast_step.SetUpdate(msg, 
+        Ite(cur_port + 1 == n_ports, BvConst(0, msg_bits), msg));
+    }
+
+    auto broadcast = m.NewInstr("bcast");
+    {
+      broadcast.SetDecode((msg == 0) & (next_msg != 0));
+      broadcast.SetUpdate(msg, next_msg);
+      broadcast.SetUpdate(cur_port, BvConst(0, port_bits));
+      broadcast.SetProgram(child);
+    }
+
+    auto num = m.get()->NewBvFreeVar("num", msg_bits);
+    auto k = m.get()->NewBvFreeVar("k", port_bits);
+    auto i = m.get()->NewBvFreeVar("i", port_bits);
+
+    auto inv = asthub::And(
+      asthub::Le(i, n_ports.get()),
+      asthub::Or(
+        asthub::Le(i, k),
+        asthub::Eq(asthub::Load(ports.get(), k), num)
+      )
+    ); 
+
+    /* Program fragment:
+    FORALL num, k, i {
+      ASSUME 0 < k < n_ports;
+      CALL broadcast WHERE next_msg = num;
+      UPDATE i = 0;
+      ASSERT inv: (i <= n) && (i <= k || ports[k] == num);
+      WHILE i < n_ports DO {
+        ASSUME inv;
+        CALL bcast_step;
+        UPDATE i = i + 1;
+        ASSERT inv;
+      } END;
+      ASSUME inv;
+      ASSERT ports[k] == num;
+    }
+    */
+
+    ProgramFragment pf {{num, k, i}, {
+      // ASSUME 0 < k < n_ports
+      Assume { asthub::Gt(k, asthub::BvConst(0, port_bits)) },
+      Assume { asthub::Gt(n_ports.get(), k) },
+      // CALL broadcast WHERE next_msg = num
+      Call { broadcast.get(), asthub::Eq(next_msg.get(), num) },
+      // UPDATE i = 0
+      Update { {i, asthub::BvConst(0, port_bits)} },
+      // ASSERT inv: (i <= n) && (i <= k || ports[k] == num)
+      Assert { inv },
+      // WHILE i < n_ports DO
+      While { asthub::Lt(i, n_ports.get()), {
+        // ASSUME inv
+        Assume { inv },
+        // CALL bcast_step
+        Call { bcast_step.get() },
+        // UPDATE i = i + 1
+        Update { {i, asthub::Add(i, asthub::BvConst(1, port_bits))} },
+        // ASSERT inv
+        Assert { inv }
+      } }, // END
+      // ASSUME inv
+      Assume { inv },
+      // ASSERT ports[k] = num
+      Assert { asthub::Eq(asthub::Load(ports.get(), k), num) }
+    }};
+
+    z3::context ctx;
+    z3::fixedpoint ctxfp {ctx};
+
+    // use spacer instead of datalog
+    z3::params p {ctx};
+    p.set("engine", "spacer");
+    ctxfp.set(p);
+
+    PFToCHCEncoder encoder {ctx, ctxfp, m.get(), pf};
+    
+    std::cout << "\nEncoded successfully!\n" << std::endl;
+
+    std::cout << encoder.to_string() << std::endl;
+
+    EXPECT_NO_THROW(encoder.to_string());
+
+    PFToCHCEncoder::Result res = PFToCHCEncoder::INVALID;
+    try {
+      res = encoder.check_assertions();
+    } catch (const z3::exception& e) {
+      std::cout << "Error: " << e << std::endl;
+    }
+
+    EXPECT_EQ(res, PFToCHCEncoder::VALID);
+
+  }
+
 }
 
 }
