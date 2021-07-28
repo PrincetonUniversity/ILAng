@@ -9,118 +9,16 @@
 #include <variant>
 #include <vector>
 #include <set>
-#include <sstream>
 
 #include <z3++.h>
 
 #include <ilang/ila/instr_lvl_abs.h>
+
+#include <ilang/ila-mngr/u_progfrag.h>
 #include <ilang/ila-mngr/u_unroller.h>
 
 /// \namespace ilang
 namespace ilang {
-
-  /// \namespace pfast
-  /// Defines the program-fragment AST
-  namespace pfast {
-
-    using Constraint = ExprPtr;
-
-    struct Assert;
-    struct Assume;
-    struct Call;
-    // struct Update;
-
-    using Stmt = std::variant<Assert, Assume, Call>;
-
-    /// Converts to a string for pretty printing
-    std::string to_string(const Stmt& s);
-
-    struct Block : public std::vector<Stmt> {
-      using base=std::vector<Stmt>;
-      using base::base;
-      using base::operator=;
-    };
-
-    /// Checks structural equality
-    bool operator==(const Block& a, const Block& b);
-
-    /// Converts to a string for pretty printing
-    std::string to_string(const Block& b);
-
-    struct ProgramFragment {
-      ExprSet params;
-      Block body;
-    };
-    
-    /// Checks structural equality
-    bool operator==(const ProgramFragment& a, const ProgramFragment& b);
-
-    /// Converts to a string for pretty printing
-    std::string to_string(const ProgramFragment& pf);
-
-    struct Assert {
-      Constraint assertion;
-      /// Checks structural equality
-      bool operator==(const Assert& b) const {
-        return asthub::TopEq(assertion, b.assertion);
-      }
-    };
-
-    static_assert(std::is_copy_constructible_v<Assert>, "assert not copy constructible");
-    static_assert(std::is_copy_assignable_v<Assert>, "assert not copy assignable");
-
-    struct Assume {
-      Constraint assumption;
-      /// Checks structural equality
-      bool operator==(const Assume& b) const {
-        return asthub::TopEq(assumption, b.assumption);
-      }
-    };
-
-    static_assert(std::is_copy_constructible_v<Assume>, "assume not copy constructible");
-    static_assert(std::is_copy_assignable_v<Assume>, "assume not copy assignable");
-
-    struct Call {
-      InstrPtr instr;
-      Constraint input_constraint;
-
-      /// Checks structural equality
-      bool operator==(const Call& b) const {
-        return (instr == b.instr)
-          && (bool(input_constraint) == bool(b.input_constraint))
-          && (!input_constraint || asthub::TopEq(input_constraint, b.input_constraint));
-      }
-    };
-
-    static_assert(std::is_copy_constructible_v<Call>, "call not copy constructible");
-    static_assert(std::is_copy_assignable_v<Call>, "assert not copy assignable");
-
-    static_assert(std::is_copy_assignable_v<Stmt>, "stmt not copy constructible");
-
-
-    /// \class PrettyPrinter
-    /// A visitor for pretty-printing program-fragment AST elements
-    class PrettyPrinter {
-    public: 
-      PrettyPrinter(): buf_ {} {}
-      ~PrettyPrinter()=default;
-      void operator()(const ProgramFragment& pf);
-      void operator()(const Block& b);
-
-      void operator()(const Assert& a);
-      void operator()(const Assume& a);
-      void operator()(const Call& c);
-
-      std::string str() { return buf_.str(); }
-    private:
-      std::ostringstream buf_;
-      int indent_;
-
-      std::string reserved_word(const std::string& word);
-      std::string indent_str();
-    };
-
-  }
 
   /// \namespace pgraph
   /// Expresses program fragments using cut-point graphs
@@ -129,8 +27,9 @@ namespace ilang {
     using Location = std::string;
     constexpr char LOC_BEGIN[] = "begin";
     constexpr char LOC_ERROR[] = "fail";
+    constexpr char LOC_END[] = "end";
 
-    using BasicStmt = std::variant<pfast::Call, pfast::Assume>;
+    using BasicStmt = std::variant<pfast::Call, pfast::Assume, pfast::Update>;
     using StmtSeq = std::vector<BasicStmt>;
 
     using Edge = StmtSeq;
@@ -162,7 +61,9 @@ namespace ilang {
     static constexpr Result VALID = z3::unsat;
     static constexpr Result INVALID = z3::sat; 
 
-    PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pfast::ProgramFragment& pf);
+    PFToCHCEncoder(
+      z3::context& ctx, z3::fixedpoint& ctxfp, 
+      const InstrLvlAbsPtr& ila, const pfast::ProgramFragment& pf);
     ~PFToCHCEncoder()=default;
 
     std::string to_string();
@@ -180,8 +81,8 @@ namespace ilang {
     ExprPtrVec pred_scope_;
     ExprSet total_scope_;
 
-    z3::context ctx_ {};
-    z3::fixedpoint ctxfp_ {ctx_};
+    z3::context& ctx_;
+    z3::fixedpoint& ctxfp_;
 
     std::unordered_map<pgraph::Location, ExprPtr> loc_predicates_;
     int max_step_count_ {0};
@@ -189,7 +90,9 @@ namespace ilang {
     constexpr static char PRED_END_SUFFIX[] = "end";
 
     // internal constructor
-    PFToCHCEncoder(const InstrLvlAbsPtr& ila, const pgraph::CutPointGraph& pg, const ExprSet& params);
+    PFToCHCEncoder(
+      z3::context& ctx, z3::fixedpoint& ctxfp,
+      const InstrLvlAbsPtr& ila, const pgraph::CutPointGraph& pg, const ExprSet& params);
 
     void encode();
 
