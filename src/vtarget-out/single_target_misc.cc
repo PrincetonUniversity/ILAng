@@ -13,6 +13,7 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/rfmap-in/rfexpr_shortcut.h>
 
 namespace ilang {
 
@@ -153,7 +154,7 @@ void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
     auto rhs = du.signal;
     if (du.delay_type != rfmap::SignalDelay::delay_typeT::SINGLE && du.width > 1) {
       width = 1;
-      rhs = rfmap_reduce_or( rhs );;
+      rhs = rfmap_reduce_or( rhs );
     }
     
     ILA_ERROR_IF(du.num_cycle == 0) << "Cannot delay 0 cycle";

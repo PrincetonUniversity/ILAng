@@ -278,36 +278,6 @@ void TypedVerilogRefinementMap::TraverseAllRfExpr(std::function<void(RfExpr & in
   
 } // TraverseAllRfExpr
 
-void TypedVerilogRefinementMap::TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) {
-  // DFS -- Note: we need to call func on the parent's child
-  // and make sure it runs the first
-  std::vector<std::pair<RfExpr, unsigned>> parent_stack;
-  parent_stack.push_back(std::make_pair(inout,0U));
-  while(!parent_stack.empty()) {
-    auto & lastlv = parent_stack.back();
-    auto cnt = lastlv.first->get_child_cnt();
-    auto & idx = lastlv.second;
-    if(idx >= cnt) {
-      parent_stack.pop_back();
-      if(!parent_stack.empty()) {
-        // refer to parent 
-        func( parent_stack.back().first->child( parent_stack.back().second ) );
-        ++ parent_stack.back().second;
-      }
-      continue;
-    } else {
-      // enter c[idx]
-      if(lastlv.first->get_child_cnt() == 0) {
-        func ( lastlv.first->child(idx) );
-        ++idx;
-      } else {
-        parent_stack.push_back( std::make_pair(lastlv.first->child(idx), 0U ));
-      }
-    }
-  } // end of while
-  func(inout);
-} // TraverseRfExpr
-
 // ------------------------------------------------------------------------------
 
 
@@ -320,6 +290,8 @@ bool _compute_const(const RfExpr & in, unsigned & out) {
     return false;
   auto bws = cst_ast_ptr->get_constant();
   auto base = std::get<0>(bws);
+  if(base == 0)
+    base = 10;
   // auto width = std::get<1>(bws);
   out = StrToLong(std::get<2>(bws), base);
   return true;  
@@ -581,6 +553,38 @@ bool RfExprAstUtility::HasArrayVar(
   return has_array;
 }
 
+
+void RfExprAstUtility::TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) {
+  // DFS -- Note: we need to call func on the parent's child
+  // and make sure it runs the first
+  std::vector<std::pair<RfExpr, unsigned>> parent_stack;
+  parent_stack.push_back(std::make_pair(inout,0U));
+  while(!parent_stack.empty()) {
+    auto & lastlv = parent_stack.back();
+    auto cnt = lastlv.first->get_child_cnt();
+    auto & idx = lastlv.second;
+    if(idx >= cnt) {
+      parent_stack.pop_back();
+      if(!parent_stack.empty()) {
+        // refer to parent 
+        func( parent_stack.back().first->child( parent_stack.back().second ) );
+        ++ parent_stack.back().second;
+      }
+      continue;
+    } else {
+      // enter c[idx]
+      if(lastlv.first->get_child_cnt() == 0) {
+        func ( lastlv.first->child(idx) );
+        ++idx;
+      } else {
+        parent_stack.push_back( std::make_pair(lastlv.first->child(idx), 0U ));
+      }
+    }
+  } // end of while
+  func(inout);
+} // TraverseRfExpr
+
+
 bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr & in) {
   std::set<verilog_expr::voperator> boolean_op = {
     verilog_expr::voperator::GTE,
@@ -616,7 +620,9 @@ void TypeAnalysisUtility::AnnotateType(const RfExpr & inout)  {
   auto tp_annotate = inout->get_annotation<TypeAnnotation>();
 #error "modify smt expr out test"
   if(inout->is_var()) {
-    ILA_ASSERT(tp_annotate != nullptr && !tp_annotate->type.is_unknown());
+    auto ptr = std::dynamic_pointer_cast<verilog_expr::VExprAstVar> (inout);
+    ILA_CHECK(tp_annotate != nullptr && !tp_annotate->type.is_unknown())
+      << ptr->get_name().first << " has no type annotation" ;
   } else if (inout->is_constant()) {
     if(tp_annotate == nullptr || tp_annotate->type.is_unknown()) {
       RfVarTypeOrig tp;

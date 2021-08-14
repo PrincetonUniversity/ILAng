@@ -339,27 +339,13 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
 
 // ------------------------ OTERHS (refs) ----------------------------- //
 void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
-  for (auto&& refered_vlg_item : refinement_map.var_replacement) {
+  for (auto && extra_wire : rtl_extra_wire) {
+    const auto & wire_name = extra_wire.first;
+    unsigned width = extra_wire.second.width;
 
-    auto old_name = refered_vlg_item.second.get_orig_name();
-    auto new_name = refered_vlg_item.second.get_new_name();
-    if(!StrStartsWith(refered_vlg_item.first, "RTL."))
-      continue;
-
-    auto idx = old_name.find("[");
-    auto removed_range_name = old_name.substr(0, idx);
-    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name,
-                                                 refinement_map.width_info);
-
-    // + ReplaceAll(ReplaceAll(refered_vlg_item.second.range, "[","_"),"]","_");
-    // // name for verilog
-    auto width = vlg_sig_info.get_width();
-
-    vlg_wrapper.add_wire(new_name, width, 1); // keep
-    vlg_wrapper.add_output(new_name, width);  // add as output of the wrapper
-    _idr.RegisterExtraWire(new_name, new_name);
-    // these will be connected to the verilog module, so register as extra wires
-    // so, later they will be connected
+    vlg_wrapper.add_wire(wire_name, width, 1); // keep
+    vlg_wrapper.add_output(wire_name, width);  // add as output of the wrapper
+    _idr.RegisterExtraWire(wire_name, wire_name);
   }
 } // ConstructWrapper_register_extra_io_wire
 

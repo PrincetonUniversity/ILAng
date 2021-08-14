@@ -324,8 +324,18 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_ila_input();
   ILA_DLOG("VtargetGen") << "STEP:" << 5;
 
-  if (target_type == target_type_t::INV_SYN_DESIGN_ONLY)
+  if (target_type == target_type_t::INSTRUCTIONS) {
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.2;
+    ConstructWrapper_add_varmap_assumptions();
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.3;
+    ConstructWrapper_add_varmap_assertions();
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
+    ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
+  } else if (target_type == target_type_t::INVARIANTS) {
+    ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
+  } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
     ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
+  }
 
   ILA_DLOG("VtargetGen") << "STEP:" << 6;
   // 4. additional mapping if any
@@ -339,6 +349,8 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   // post value holder --- ABC cannot work on this
   if (target_type == target_type_t::INSTRUCTIONS) {
+    // the vars defined here are already 
+    // presented in refinement_map.all_var_def_type
     ConstructWrapper_add_post_value_holder();
     ConstructWrapper_add_delay_unit();
     ConstructWrapper_add_stage_tracker();
@@ -348,31 +360,29 @@ void VlgSglTgtGen::ConstructWrapper() {
   // add monitor -- inside the monitor, there will be
   // disable logic if it is for invariant type target
 
+  // 7. uni-functions
+  if (target_type == target_type_t::INSTRUCTIONS)
+    ConstructWrapper_add_uf_constraints();
+  
+  // read assumption/assertion, decide where to put them rtl/smt
+  // perform the reg[n] optimize
+  // populate the RtlExtraWire data structure
+  ConstructWrapper_translate_property_and_collect_all_rtl_connection_var(); 
+  // 1. varname 2. hierarchy 3. what to connect inside 
+
   // 5.0 add the extra wires to the top module wrapper
+  // will use var_replacement, and will set _idr
   if (VlgVerifTgtGenBase::backend_needs_yosys(_backend))
     ConstructWrapper_register_extra_io_wire();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 9;
   // 5. module instantiation
+  // for the vlg inst: will use _idr
   ConstructWrapper_add_module_instantiation();
 
-  // 7. uni-functions
-  if (target_type == target_type_t::INSTRUCTIONS)
-    ConstructWrapper_add_uf_constraints();
 
   // 2. add some monitors (bound cnt)
   // 3. add assumptions & assertions
-  if (target_type == target_type_t::INSTRUCTIONS) {
-
-    ILA_DLOG("VtargetGen") << "STEP:" << 5.2;
-    ConstructWrapper_add_varmap_assumptions();
-    ILA_DLOG("VtargetGen") << "STEP:" << 5.3;
-    ConstructWrapper_add_varmap_assertions();
-    ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
-    ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
-  } if (target_type == target_type_t::INVARIANTS) {
-    ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
-  } 
 } // Construct_wrapper
 
 /// create the wrapper file

@@ -32,14 +32,6 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
                    implementation_include_path, vtg_config, backend, target_tp,
                    adv_ptr) {}
 
-void VlgSglTgtGen_Jasper::add_wire_assign_assumption(
-    const std::string& varname, const rfmap::RfExpr& expression,
-    const std::string& dspt) {
-  // a plain assign
-  vlg_wrapper.add_assign_stmt(varname, expression);
-}
-
-
 /// Add SMT-lib2 assumption
 void VlgSglTgtGen_Jasper::add_a_direct_smt_assumption(const std::string& arg,
                                       const std::string& ret,
@@ -54,17 +46,6 @@ void VlgSglTgtGen_Jasper::add_a_direct_smt_assertion(const std::string& arg,
                                     const std::string& body,
                                     const std::string& dspt) {
   ILA_CHECK(false) << "SMT assertions should not be generated for JasperGold";
-}
-
-/// Add an assumption
-void VlgSglTgtGen_Jasper::add_an_assumption(const std::string& aspt,
-                                            const std::string& dspt) {
-  assumptions.push_back(std::make_pair(aspt, dspt));
-}
-/// Add an assertion
-void VlgSglTgtGen_Jasper::add_an_assertion(const std::string& asst,
-                                           const std::string& dspt) {
-  assertions.push_back(std::make_pair(asst, dspt));
 }
 
 /// Add an assumption

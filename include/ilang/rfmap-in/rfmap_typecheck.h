@@ -40,10 +40,10 @@ struct VarReplacement {
 
   VarReplacement(const RfExpr & o, const RfExpr & n);
 
-  // returns v or v[range]
+  // returns v, there would not be `v[range]` at all
   std::string get_orig_name() const {
-    return std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(
-      origvar)->get_name().first;
+    return std::dynamic_pointer_cast<verilog_expr::VExprAstVar>
+      (origvar)->get_name().first;
     }
 
   std::string get_new_name() const{
@@ -54,7 +54,6 @@ struct VarReplacement {
     return get_type_orig();
   }
 
-private:
   RfVarTypeOrig get_type_orig() const {
     auto annotation_ptr = newvar->get_annotation<TypeAnnotation>();
     return annotation_ptr?*annotation_ptr:RfVarTypeOrig();
@@ -73,6 +72,7 @@ private:
   bool is_orig_var_array() const {
     return get_type_orig().type.is_array();
   }
+
 };
 
 // convert RfExpr constant -> out
@@ -119,6 +119,10 @@ public:
   static void GetVars(const RfExpr & in, 
     std::unordered_map<std::string, RfVar> & vars_out);
   static RfVarTypeOrig GetType(const RfExpr & in);
+   /// will modify where the pointer is pointing to
+  /// because we will be creating new rfexpr
+  static void TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) ;
+  
 };
 
 
@@ -175,12 +179,15 @@ struct TypedVerilogRefinementMap :
     const std::string & n, 
     const VarReplacement & in) { var_replacement.emplace(n, in); }
 
-  VarReplacement * CheckReplacement(const std::string & origname) const {
+  VarReplacement * CheckReplacement(const std::string & origname) {
     auto pos = var_replacement.find(origname);
     if(pos != var_replacement.end())
-      return &(pos->second);
+      return &(var_replacement.at(origname));
     return NULL;
   }
+
+  const std::map<std::string, VarReplacement> & 
+    GetVarReplacement() const { return var_replacement; }
 
 protected:
 
@@ -188,9 +195,19 @@ protected:
   std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
 
   void initialize();
+  /// this function will not collect implicity vars
+  /// or those with 0/auto width
+  /// for the explicity vars
+  /// it will add them to the `all_var_def_types`
+  /// for the implicit ones, ComputeDelayValueHolderWidth will 
+  /// compute the width and add them to `all_var_def_types`
+
+  /// this will also create `all_var_def_types`
+  /// for 4 virtual vars: decode, commit, $decode, $valid
+  /// those replacement are added separately
   void CollectInternallyDefinedVars();
 
-  void TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) ;
+ /// deal with condition map
   void TraverseCondMap(SingleVarMap & inout, std::function<void(RfExpr & inout)> func) ;
 
 
@@ -203,6 +220,7 @@ private:
   // helper for AST traversal
   void collect_inline_value_recorder_func(RfExpr & inout);
   void collect_inline_delay_func(RfExpr & inout);
+  // this function uses the above two and the 
   void CollectInlineDelayValueHolder();
 
   // this function is used in value holder/delay : width determination

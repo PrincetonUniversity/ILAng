@@ -218,15 +218,17 @@ rfmap::VarReplacement VlgSglTgtGen::CreateVarReplacement(
   }
 
   auto pos_def_var = refinement_map.all_var_def_types.find(n.first);
-  auto rtl_ila_tp = VarTypeCheckForRfExprParsing(n.first);
+  
   if(n.second) { // if it is special name
     if(pos_def_var != refinement_map.all_var_def_types.end()) {
       tp.var_ref_type = rfmap::RfVarTypeOrig::VARTYPE::DEFINE_VAR;
       tp.type = rfmap::RfMapVarType(pos_def_var->second.width);
     } else {
+      auto rtl_ila_tp = VarTypeCheckForRfExprParsing(n.first);
       tp = rtl_ila_tp;
     }
   } else { // if it is not special name
+    auto rtl_ila_tp = VarTypeCheckForRfExprParsing(n.first);
     if(!rtl_ila_tp.type.is_unknown())
       tp = rtl_ila_tp;
     else if(pos_def_var != refinement_map.all_var_def_types.end()) {
@@ -304,6 +306,7 @@ rfmap::RfExpr VlgSglTgtGen::ReplExpr(const rfmap::RfExpr & in) {
   }
   
   auto new_node = refinement_map.ReplacingRtlIlaVar(in);
+  // AnnotateType requires all 
   refinement_map.AnnotateType(new_node);
   return new_node;
 }
@@ -533,11 +536,12 @@ void VlgSglTgtGen::rfmap_add_internal_wire(const std::string &n, unsigned width)
 /// (Note 1: ReplExpr will also create replacement, but it will not use
 /// this function. 2: will require that the new one has been registered
 /// in refinement_map.all_var_def_type)
-/// should only be used to add 
+/// !!! should only be used to add 
 ///   decode -> __START__
 ///   commit -> __IEND__
 ///   $decode -> vlg_ila.decode_signal
 ///   $valid -> vlg_ila.valid_signal 
+/// !!! whose var_def are include in refinement_map
 
 void VlgSglTgtGen::rfmap_add_replacement(const std::string &old, const std::string &n) {
   auto def_pos = refinement_map.all_var_def_types.find(n);

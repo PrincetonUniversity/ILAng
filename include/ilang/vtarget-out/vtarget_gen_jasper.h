@@ -68,24 +68,13 @@ protected:
                                       const std::string& ret,
                                       const std::string& body,
                                       const std::string& dspt) override;
-  /// Add an assumption
-  virtual void add_an_assumption(const rfmap::RfExpr& aspt,
-                                 const std::string& dspt) override;
-  /// Add an assertion
-  virtual void add_an_assertion(const rfmap::RfExpr& asst,
-                                const std::string& dspt) override;
+
   /// Add a direct assumption
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) override;
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
-
-  /// Add an assignment which in JasperGold could be an assignment, but in CoSA
-  /// has to be an assumption
-  virtual void add_wire_assign_assumption(const std::string& varname,
-                                          const rfmap::RfExpr& expression,
-                                          const std::string& dspt) override;
 
   /// Pre export work : nothing for cosa
   void virtual PreExportProcess() override {}

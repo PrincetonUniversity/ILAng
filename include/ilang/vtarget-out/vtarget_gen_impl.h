@@ -31,6 +31,26 @@
 
 namespace ilang {
 
+/// \brief What internal signal to pull out
+/// for yosys
+struct RtlExtraWire {
+  std::string wire_name;
+  std::string hierarchy;
+  std::string internal_name;
+  unsigned width;
+  RtlExtraWire(const std::string & wn,
+    const std::string & h,
+    const std::string & i,
+    unsigned _width) :
+      wire_name(wn), hierarchy(h), internal_name(i),
+      width(_width) { }
+  // for example:
+  //   RTL.a.b.c[3]
+  //   wire_name : RTL__DOT__a__DOT__b__DOT__c_3_
+  //   hierarchy RTL.a.b
+  //   internal name c[3]
+}; // end of struct RtlExtraWire
+
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
 public:
@@ -268,6 +288,22 @@ protected:
   void ConstructWrapper_add_stage_tracker();
   /// Add Verilog inline monitor
   void ConstructWrapper_add_vlg_monitor();
+  /// handle all_assumption/all_assertion
+  /// ReplExpr all assertion/assumptions
+  ///   ReplExpr will know whether to create
+  ///   `__DOT__`, but will anyway 
+  //    do the other replacement, and non-repl
+  /// for yosys: 
+  ///    1. use var_replacement to create
+  ///       extra wire
+  ///    2. check if contains array[const]
+  ///       add extra wire and replacement
+  ///    3. if it still contain array
+  ///       use add_smt_assumption/assertion
+  ///       for the others, use add_a_direct ...
+  /// for jg:
+  ///    1. use add_a_direct_assertion/assumption ...
+  void ConstructWrapper_translate_property_and_collect_all_rtl_connection_var();
 
   // -------------------------------------------------------------------------
   /// Add invariants as assumption/assertion when target is inv_syn_design_only
@@ -306,6 +342,19 @@ protected:
   vtg_config_t _vtg_config;
   /// Store the selection of backend
   backend_selector _backend;
+
+protected:
+  // ----------------------- MEMBERS for storing assumptions/assertions ------------------- //
+  /// assumptions : written by add_an_assumption,
+  ///   consumed by ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  std::map<std::string, std::vector<rfmap::RfExpr>> all_assumptions;
+  /// assumptions : written by add_an_assertion,
+  ///   consumed by ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  std::map<std::string, std::vector<rfmap::RfExpr>> all_assertions;
+  /// assign or assumptions : vector of (dspt, wire_name, rhs, wn == rhs)
+  std::vector<std::tuple<std::string,std::string, rfmap::RfExpr, rfmap::RfExpr>> assign_or_assumptions; 
+  /// map: wire_name -> (wire_name, hierarchy, internal name)
+  std::unordered_map<std::string, RtlExtraWire> rtl_extra_wire;
 
 public:
   /// Call the separate construct functions to make a wrapper (not yet export
@@ -354,15 +403,13 @@ protected:
                                       const std::string& body,
                                       const std::string& dspt) = 0;
 
-  // helper function to be implemented by COSA, Yosys, invsyn, jasper is not
-  /// Add an assumption -- if aspt can be represented in vlg
-  // then will only use vlg (this is true for jg)
-  // but for those needs Yosys, array will be handled differently
+  // helper function to add assumption/assertions to internal data-strcture
   virtual void add_an_assumption(const rfmap::RfExpr& aspt,
-                                 const std::string& dspt) = 0;
+                                 const std::string& dspt);
+
   /// Add an assertion -- JasperGold will override this
   virtual void add_an_assertion(const rfmap::RfExpr& asst,
-                                const std::string& dspt) = 0;
+                                const std::string& dspt);
 
   // Add SMT assumption (using rfexpr)
   //  - will use add_a_direct_smt_assumption/assertion
@@ -379,7 +426,7 @@ protected:
   /// has to be an assumption 
   virtual void add_wire_assign_assumption(const std::string& varname,
                                           const rfmap::RfExpr &aspt,
-                                          const std::string& dspt) = 0;
+                                          const std::string& dspt);
 
   /// Add an assignment, will always be an assumption
   /// will use add_an_assumption, and it is up to

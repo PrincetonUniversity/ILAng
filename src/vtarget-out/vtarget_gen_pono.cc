@@ -248,23 +248,13 @@ void VlgSglTgtGen_Pono::Export_modify_verilog() {
                           _vtg_config.PonoAddKeep,
                           refinement_map.width_info);
 
-  for (auto&& refered_vlg_item : refinement_map.var_replacement) {
-    auto old_name = refered_vlg_item.second.get_orig_name();
-    auto new_name = refered_vlg_item.second.get_new_name();
-
-    if(!StrStartsWith(refered_vlg_item.first, "RTL."))
-      continue;
-      
-    auto idx = old_name.find("[");
-    auto removed_range_name = old_name.substr(0, idx);
-    vlg_mod.RecordKeepSignalName(removed_range_name);
-    // auto sig = // no use, this is too late, vlg_wrapper already exported
-    ILA_CHECK(!S_IN("'", refered_vlg_item.second.range_o)) << "Not handling "
-      << old_name << ", ' in name is not handled";
-    ILA_CHECK(refered_vlg_item.second.range_o.empty()) << "Let's see if this is correct";
-    vlg_mod.RecordConnectSigName(removed_range_name,
-                                 refered_vlg_item.second.range_o);
-    // vlg_wrapper.add_output(sig.first, sig.second);
+  for (auto && wn_extraw : rtl_extra_wire) {
+    ILA_CHECK(StrStartsWith(wn_extraw.first, "RTL__DOT__"));
+    vlg_mod.RecordConnectSigName(wn_extraw.second.wire_name,
+      wn_extraw.second.hierarchy,
+      wn_extraw.second.internal_name,
+      wn_extraw.second.width);
+    // will not record keep
   }
   vlg_mod.FinishRecording();
 
