@@ -599,4 +599,89 @@ TEST(TestApi, Portable) {
   DisableDebug("Portable");
 }
 
+TEST(TestApi, Ila2Chc) {
+
+  using namespace programfragment;
+
+  Ila m {"Counter"};
+
+  auto ctr_w = 8;
+
+  auto ctr = m.NewBvState("ctr", ctr_w);
+  auto op = m.NewBvInput("op", 2);
+
+  // increment
+  auto inst_inc = m.NewInstr("inc");
+  inst_inc.SetDecode(op == 0);
+  inst_inc.SetUpdate(ctr, ctr + 1);
+
+  // decrement
+  auto inst_dec = m.NewInstr("dec");
+  inst_dec.SetDecode(op == 1);
+  inst_dec.SetUpdate(ctr, Ite(ctr == 0, BvConst(0, 8), ctr - 1));
+
+  // program fragment
+  ProgramFragment pf {};
+
+  auto x = pf.NewBvVar("x", ctr_w); // asthub::BvConst(3, ctr_w);
+  auto y = pf.NewBvVar("y", ctr_w); // asthub::BvConst(4, ctr_w);
+  auto i = pf.NewBvVar("i", ctr_w);
+  auto j = pf.NewBvVar("j", ctr_w);
+
+  auto inv1 = ((ctr == i * y) & (i <= x));
+  auto inv2 = ((ctr == (i * y + j)) & (j <= y));
+  
+  pf.AddStatements({
+    Assume {ctr == 0},
+    Assume {x > BvConst(0, ctr_w)},
+    Assume {y > BvConst(0, ctr_w)},
+    Assume {x < BvConst(3, ctr_w)},  // keeps runtime short
+    Assume {y < BvConst(4, ctr_w)},  // keeps runtime short
+
+    Update { {i, BvConst(0, ctr_w)} },
+    Assert { inv1 },
+    While { i < x, {
+      Assume { inv1 },
+        Update { {j, BvConst(0, ctr_w)} },
+      Assert { inv2 },
+      While { j < y, {
+        Assume { inv2 },
+        Call { inst_inc },
+        Update { {j, j + 1} },
+        Assert { inv2 }
+      }},
+      Assume { inv2 },
+      Update { {i, i + 1} },
+      Assert { inv1 },
+    }},
+    Assume { inv1 },
+    Assert { ctr == x * y }
+  });
+
+  z3::context ctx;
+  z3::fixedpoint ctxfp {ctx};
+
+  // use spacer instead of datalog
+  z3::params p {ctx};
+  p.set("engine", "spacer");
+  ctxfp.set(p);
+
+  IlaToChcEncoder encoder {ctx, ctxfp, m, pf};
+  
+  // std::cout << "\nEncoded successfully!\n" << std::endl;
+
+  // std::cout << encoder.to_string() << std::endl;
+
+  EXPECT_NO_THROW(encoder.to_string());
+
+  ChcResult res = ChcResult::invalid;
+  try {
+    res = encoder.check_assertions();
+  } catch (const z3::exception& e) {
+    std::cout << "Error: " << e << std::endl;
+  }
+
+  EXPECT_EQ(res, ChcResult::valid);
+}
+
 } // namespace ilang

@@ -29,8 +29,9 @@ namespace ilang {
     struct Call;
     struct Update;
     struct While;
+    struct Block;
 
-    using Stmt = std::variant<Assert, Assume, Call, Update, While>;
+    using Stmt = std::variant<Assert, Assume, Call, Update, While, Block>;
 
     /// Converts to a string for pretty printing
     std::string to_string(const Stmt& s);
@@ -40,9 +41,6 @@ namespace ilang {
       using base::base;
       using base::operator=;
     };
-
-    /// Converts to a string for pretty printing
-    std::string to_string(const Block& b);
 
     struct ProgramFragment {
       ExprSet params;
@@ -54,6 +52,7 @@ namespace ilang {
 
     /// Converts to a string for pretty printing
     std::string to_string(const ProgramFragment& pf);
+    std::ostream& operator<<(std::ostream& out, const ProgramFragment& pf);
 
     struct Assert {
       Constraint assertion;
@@ -85,7 +84,8 @@ namespace ilang {
       bool operator==(const Call& b) const {
         return (instr == b.instr)
           && (bool(input_constraint) == bool(b.input_constraint))
-          && (!input_constraint || asthub::TopEq(input_constraint, b.input_constraint));
+          && (!bool(input_constraint)
+              || asthub::TopEq(input_constraint, b.input_constraint));
       }
     };
 
