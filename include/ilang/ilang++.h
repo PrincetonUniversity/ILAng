@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <variant>
 
 #include <z3++.h>
 #ifdef SMTSWITCH_INTERFACE
@@ -56,6 +57,8 @@ class Expr;
 class Instr;
 class InstrLvlAbs;
 class Unroller;
+namespace pfast { class ProgramFragment; }
+class PFToCHCEncoder;
 
 // forward declaration
 class Ila;
@@ -755,6 +758,117 @@ smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
                              const std::string& suffix = "");
 
 #endif // SMTSWITCH_INTERFACE
+
+namespace programfragment {
+  
+  using Constraint = ExprRef;
+
+  struct Assert;
+  struct Assume;
+  struct Call;
+  struct Update;
+  struct While;
+  struct Block;
+
+  using Stmt = std::variant<Assert, Assume, Call, Update, While, Block>;
+
+  struct Block : public std::vector<Stmt> {
+    using base=std::vector<Stmt>;
+    using base::base;
+    using base::operator=;
+  };
+
+  struct Assert {
+    Constraint assertion;
+  };
+
+  struct Assume {
+    Constraint assumption;
+  };
+
+  struct Call {
+    InstrRef instr;
+    std::map<ExprRef, ExprRef> input_map {};
+  };
+
+  struct Update: public std::vector<std::pair<ExprRef, ExprRef>> {
+    using base=std::vector<std::pair<ExprRef, ExprRef>>;
+    using base::base;
+    using base::operator=;
+  };
+
+  struct While {
+    Constraint loop_condition;
+    Constraint invariant;
+    Block body;
+
+    While(const Constraint& loop_condition, const Block& body);
+    While(const Constraint& loop_condition, 
+          const Constraint& invariant, const Block& body);
+  };
+
+  class ProgramFragment {
+
+    friend bool operator==(const ProgramFragment& a, const ProgramFragment& b);
+    friend std::ostream& operator<<(std::ostream& out, const ProgramFragment& pf);
+
+  public:
+    using PfragPtr = std::shared_ptr<pfast::ProgramFragment>;
+    using PfragConstPtr = std::shared_ptr<const pfast::ProgramFragment>;
+
+    ProgramFragment();
+    ProgramFragment(const Block& b);
+    ~ProgramFragment()=default;
+
+    ExprRef NewBoolVar(const std::string& name);
+    ExprRef NewBvVar(const std::string& name, const int& bitwidth);
+    ExprRef NewMemVar(const std::string& name, 
+                      const int& addrwidth, const int& datawidth);
+
+    void RegisterApplicationParam(const ExprRef& p);
+    void RegisterHardwareParam(const ExprRef& p);
+
+    void AddStatement(const Stmt& s);
+    void AddStatements(const Block& b);
+
+    PfragConstPtr get() const;
+
+  private:
+    PfragPtr pf_;
+  };
+
+  /// Checks structural equality
+  bool operator==(const ProgramFragment& a, const ProgramFragment& b);
+
+  /// Prints a program fragment
+  std::ostream& operator<<(std::ostream& out, const ProgramFragment& pf);
+
+} // namespace programfragment
+
+enum class ChcResult: char {
+  valid=z3::unsat,
+  invalid=z3::sat,
+  unknown=z3::unknown
+};
+
+std::ostream& operator<<(std::ostream& out, const ChcResult& r);
+
+class IlaToChcEncoder {
+  public:
+    IlaToChcEncoder(
+      z3::context& ctx, z3::fixedpoint& ctxfp,
+      const Ila& ila, const programfragment::ProgramFragment& pf);
+    
+    ~IlaToChcEncoder()=default;
+
+    std::string to_string();
+
+    ChcResult check_assertions();
+  
+  private:
+    std::shared_ptr<PFToCHCEncoder> impl_;
+};
+
 
 } // namespace ilang
 

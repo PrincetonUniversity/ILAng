@@ -18,7 +18,7 @@ namespace pgraph {
 
   struct PGraphBuilder {
 
-    CutPointGraph get_pg() { return pg_; }
+    CutpointGraph get_pg() { return pg_; }
 
     void operator()(const ProgramFragment& pf) {
       (*this)(pf.body);
@@ -59,7 +59,7 @@ namespace pgraph {
 
   private:
 
-    CutPointGraph pg_ {};
+    CutpointGraph pg_ {};
     StmtSeq running_seq_ {};
     int loc_ctr_ {0};
     Location curloc_ {LOC_BEGIN};
@@ -90,7 +90,7 @@ namespace pgraph {
 
   };
 
-  CutPointGraph program_graph(const pfast::ProgramFragment& pf) {
+  CutpointGraph program_graph(const pfast::ProgramFragment& pf) {
     PGraphBuilder builder {};
     builder(pf);
     return builder.get_pg();
@@ -124,7 +124,7 @@ PFToCHCEncoder::PFToCHCEncoder(
 
 PFToCHCEncoder::PFToCHCEncoder(
     z3::context& ctx, z3::fixedpoint& ctxfp,
-    const InstrLvlAbsPtr& ila, const pgraph::CutPointGraph& pg, const ExprSet& params
+    const InstrLvlAbsPtr& ila, const pgraph::CutpointGraph& pg, const ExprSet& params
   ): ctx_{ctx}, ctxfp_{ctxfp}, ila_ {ila}, pg_ {pg}, params_ {params} {
 
   // z3::params p {ctx_};
@@ -237,7 +237,7 @@ void PFToCHCEncoder::encode_transition(
   ctxfp_.add_rule(rule, ctx_.str_symbol((start + "_to_" + end).c_str()));
 }
 
-void PFToCHCEncoder::record_scopes(const pgraph::CutPointGraph& pg, const ExprSet& params) {
+void PFToCHCEncoder::record_scopes(const pgraph::CutpointGraph& pg, const ExprSet& params) {
   ExprSet uvars {params};
   for (const auto& [loc, edges] : pg) {
     for (const auto& edgeTo : edges) {

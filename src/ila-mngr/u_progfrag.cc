@@ -28,11 +28,15 @@ namespace pfast {
     return pp.str();
   }
 
-  std::string to_string(const Block& b) { 
-    PrettyPrinter pp {};
-    pp(b);
-    return pp.str(); 
+  std::ostream& operator<<(std::ostream& out, const ProgramFragment& pf) {
+    return (out << to_string(pf));
   }
+
+  // std::string to_string(const Block& b) { 
+  //   PrettyPrinter pp {};
+  //   pp(b);
+  //   return pp.str(); 
+  // }
 
   void PrettyPrinter::operator()(const ProgramFragment& pf) {
     buf_ << reserved_word("main") << "(";
@@ -67,7 +71,7 @@ namespace pfast {
   }
 
   void PrettyPrinter::operator()(const Assume& a) {
-    buf_ << reserved_word("assert") << " " << a.assumption;
+    buf_ << reserved_word("assume") << " " << a.assumption;
   }
 
   void PrettyPrinter::operator()(const Call& c) {

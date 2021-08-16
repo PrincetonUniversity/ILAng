@@ -41,9 +41,9 @@ namespace ilang {
 
     using Edges = std::vector<EdgeTo>;
 
-    using CutPointGraph = std::unordered_map<Location, Edges>;
+    using CutpointGraph = std::unordered_map<Location, Edges>;
 
-    CutPointGraph program_graph(const pfast::ProgramFragment& pf);
+    CutpointGraph program_graph(const pfast::ProgramFragment& pf);
 
   }
 
@@ -56,10 +56,6 @@ namespace ilang {
     using Predicate = ExprPtr;
 
   public:
-    using Result = z3::check_result;
-
-    static constexpr Result VALID = z3::unsat;
-    static constexpr Result INVALID = z3::sat; 
 
     PFToCHCEncoder(
       z3::context& ctx, z3::fixedpoint& ctxfp, 
@@ -68,7 +64,7 @@ namespace ilang {
 
     std::string to_string();
 
-    Result check_assertions() {
+    z3::check_result check_assertions() {
       // z3::expr q = get_error_query();
       z3::func_decl_vector q = get_error_queries();
       return ctxfp_.query(q);
@@ -76,7 +72,7 @@ namespace ilang {
 
   private:
     const InstrLvlAbsPtr ila_;
-    const pgraph::CutPointGraph pg_;
+    const pgraph::CutpointGraph pg_;
     const ExprSet params_;
     ExprPtrVec pred_scope_;
     ExprSet total_scope_;
@@ -92,7 +88,7 @@ namespace ilang {
     // internal constructor
     PFToCHCEncoder(
       z3::context& ctx, z3::fixedpoint& ctxfp,
-      const InstrLvlAbsPtr& ila, const pgraph::CutPointGraph& pg, const ExprSet& params);
+      const InstrLvlAbsPtr& ila, const pgraph::CutpointGraph& pg, const ExprSet& params);
 
     void encode();
 
@@ -101,7 +97,7 @@ namespace ilang {
       const pgraph::StmtSeq& transition, 
       const pgraph::Location& end);
 
-    void record_scopes(const pgraph::CutPointGraph& pg, const ExprSet& params);
+    void record_scopes(const pgraph::CutpointGraph& pg, const ExprSet& params);
     void add_unique_vars(
       const pgraph::BasicStmt& s, ExprSet& pred_scope, ExprSet& total_scope);
 
