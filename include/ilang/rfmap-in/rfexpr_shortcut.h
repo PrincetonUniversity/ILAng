@@ -10,6 +10,8 @@
 
 namespace ilang {
 
+
+rfmap::RfExpr rfmap_reduce_or(const rfmap::RfExpr & in);
 rfmap::RfExpr rfmap_imply(const rfmap::RfExpr &l, const rfmap::RfExpr &r);
 rfmap::RfExpr rfmap_and(const rfmap::RfExpr &l, const rfmap::RfExpr &r);
 rfmap::RfExpr rfmap_or(const rfmap::RfExpr &l, const rfmap::RfExpr &r);

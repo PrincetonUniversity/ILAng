@@ -7,6 +7,10 @@
 
 namespace ilang {
 
+rfmap::RfExpr rfmap_reduce_or(const rfmap::RfExpr & in) {
+  return verilog_expr::VExprAst::MakeUnaryAst(verilog_expr::voperator::B_OR, in);
+}
+
 rfmap::RfExpr rfmap_imply(const rfmap::RfExpr &l, const rfmap::RfExpr &r) {
   return rfmap_or(rfmap_not(l), r);
 }
@@ -39,7 +43,7 @@ rfmap::RfExpr rfmap_or(const std::vector<rfmap::RfExpr> &v) {
 
 rfmap::RfExpr rfmap_ite(const rfmap::RfExpr &c, const rfmap::RfExpr &l,
   const rfmap::RfExpr &r) {
-  return verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::ITE,
+  return verilog_expr::VExprAst::MakeTernaryAst(verilog_expr::voperator::TERNARY,
     c, l, r);
 }
 
@@ -48,7 +52,7 @@ rfmap::RfExpr rfmap_eq(const rfmap::RfExpr &l, const rfmap::RfExpr &r) {
 }
 
 rfmap::RfExpr rfmap_le(const rfmap::RfExpr &l, const rfmap::RfExpr &r) {
-  return verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::L_LE, l, r);
+  return verilog_expr::VExprAst::MakeBinaryAst(verilog_expr::voperator::LTE, l, r);
 }
 
 rfmap::RfExpr rfmap_not(const rfmap::RfExpr &l) {
@@ -65,7 +69,7 @@ rfmap::RfExpr rfmap_const(unsigned b, unsigned w, unsigned v) {
 rfmap::RfExpr rfmap_var(const std::string &v) {
   if(StrStartsWith(v, "RTL.") || StrStartsWith(v, "ILA."))
     return verilog_expr::VExprAst::MakeVar(v);
-  return verilog_expr::VExprAst::MakeSpecial(v);
+  return verilog_expr::VExprAst::MakeSpecialName(v);
 }
 
 

@@ -91,18 +91,13 @@ class TypeAnalysisUtility {
 
 public:
   typedef std::function<RfVarTypeOrig(const std::string &)> var_typecheck_t;
-  TypeAnalysisUtility(var_typecheck_t type_checker) : typechecker(type_checker) { }
 
 public:
   /// Annotate the type of a refinement expression
   /// and this process will be recursive
-  // this function is to help with unit testing
-  void AnnotateType(const RfExpr & inout);
-
+  static void AnnotateType(const RfExpr & inout);
+  
 protected:
-  var_typecheck_t typechecker;
-  // used in TypedVerilogRefinementMap::TypeInferTravserRfExpr
-  // this is only used in the first stage : aux var width determination
 
   // internal use only, does not do recursion itself
   // therefore, an order of invocation is needed
@@ -125,11 +120,38 @@ public:
   
 };
 
+struct RfExprVarReplUtility {
+
+public:
+  /// used by vtarget_gen to replace rtl/ila vars
+  RfExpr ReplacingRtlIlaVar(const RfExpr & in);
+
+  /// Register internal variables and also the mapping
+  void RegisterInternalVariableWithMapping(
+    const std::string & n, 
+    const VarReplacement & in) { var_replacement.emplace(n, in); }
+
+  VarReplacement * CheckReplacement(const std::string & origname) {
+    auto pos = var_replacement.find(origname);
+    if(pos != var_replacement.end())
+      return &(var_replacement.at(origname));
+    return NULL;
+  }
+
+  const std::map<std::string, VarReplacement> & 
+    GetVarReplacement() const { return var_replacement; }
+
+protected:
+  /// the replacement used for creating new wires
+  std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
+
+};
 
 struct TypedVerilogRefinementMap : 
   public VerilogRefinementMap,
   public TypeAnalysisUtility,
-  public RfExprAstUtility {
+  public RfExprAstUtility,
+  public RfExprVarReplUtility {
 
   // type definitions
   using var_typecheck_t = TypeAnalysisUtility::var_typecheck_t;
@@ -171,28 +193,12 @@ struct TypedVerilogRefinementMap :
   // ... ? 
   void TraverseAllRfExpr(std::function<void(RfExpr & inout)> func);
 
-  /// used by vtarget_gen to replace rtl/ila vars
-  RfExpr ReplacingRtlIlaVar(const RfExpr & in);
-
-  /// Register internal variables and also the mapping
-  void RegisterInternalVariableWithMapping(
-    const std::string & n, 
-    const VarReplacement & in) { var_replacement.emplace(n, in); }
-
-  VarReplacement * CheckReplacement(const std::string & origname) {
-    auto pos = var_replacement.find(origname);
-    if(pos != var_replacement.end())
-      return &(var_replacement.at(origname));
-    return NULL;
-  }
-
-  const std::map<std::string, VarReplacement> & 
-    GetVarReplacement() const { return var_replacement; }
-
 protected:
 
-  /// the replacement used for creating new wires
-  std::map<std::string, VarReplacement> var_replacement; // including rtl/ilas/ilav
+  // used in TypedVerilogRefinementMap::TypeInferTravserRfExpr
+  // this is only used in the first stage : aux var width determination
+  var_typecheck_t typechecker;
+
 
   void initialize();
   /// this function will not collect implicity vars

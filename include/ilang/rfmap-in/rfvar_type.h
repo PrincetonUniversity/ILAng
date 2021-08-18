@@ -33,7 +33,7 @@ struct RfMapVarType {
   std::string to_string() const {
     if(is_unknown())
       return "(unknown)";
-    if(is_bv)
+    if(is_bv())
       return "(_ BitVec " + std::to_string(width)+")";
     return "(Array (_ BitVec " + std::to_string(addr_width)+") (_ BitVec " + std::to_string(data_width)+"))";
   }

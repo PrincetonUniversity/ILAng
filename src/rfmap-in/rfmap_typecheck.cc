@@ -21,7 +21,7 @@ std::string TypedVerilogRefinementMap::new_id() {
 TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const VerilogRefinementMap & refinement,
   var_typecheck_t type_checker
- ) : VerilogRefinementMap(refinement), TypeAnalysisUtility(type_checker),
+ ) : VerilogRefinementMap(refinement), typechecker(type_checker),
      counter(0) {
   initialize();
 }
@@ -31,7 +31,7 @@ TypedVerilogRefinementMap::TypedVerilogRefinementMap(
   const std::string & instcond_json_file,
   var_typecheck_t type_checker
   ) : VerilogRefinementMap(varmap_json_file, instcond_json_file),
-    TypeAnalysisUtility(type_checker), counter(0) {
+    typechecker(type_checker), counter(0) {
   initialize();
 } // TypedVerilogRefinementMap::TypedVerilogRefinementMap
  
@@ -54,10 +54,10 @@ void TypedVerilogRefinementMap::initialize() {
 
 
 // this function will iteratively make a new copy of the whole AST.
-RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
+RfExpr RfExprVarReplUtility::ReplacingRtlIlaVar(
   const RfExpr & in) 
 {
-#error "modify ReplExpr"
+  
   // skip state memory mapped 
   // provide a function to ReplExpr...
   auto tp_annotate = in->get_annotation<TypeAnnotation>();
@@ -81,6 +81,7 @@ RfExpr TypedVerilogRefinementMap::ReplacingRtlIlaVar(
       ReplacingRtlIlaVar(
         ret_copy->get_child().at(idx));
   } // for each child
+  return ret_copy;
 } // AnnotateSignalsAndCollectRtlVars
 
 
@@ -511,18 +512,19 @@ void RfExprAstUtility::GetVars(const RfExpr & in,
   stack.push_back(std::make_pair(in, false));
   while(!stack.empty()) {
     auto & back = stack.back();
+    auto backvar = back.first;
     if(back.second) {
       stack.pop_back();
       continue;
     }
     // back.second == false
     back.second = true;
-    for(const auto & c : back.first->get_child())
+    for(const auto & c : backvar->get_child())
       stack.push_back(std::make_pair(c, false));
-    if(back.first->is_var()) {
-      ILA_ASSERT(back.first->get_child().size() == 0);
+    if(backvar->is_var()) {
+      ILA_ASSERT(backvar->get_child().size() == 0);
       verilog_expr::VExprAstVar::VExprAstVarPtr varptr = 
-        std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(back.first);
+        std::dynamic_pointer_cast<verilog_expr::VExprAstVar>(backvar);
       ILA_NOT_NULL(varptr);
       vars_out.emplace(varptr->get_name().first, varptr);
     }
@@ -618,7 +620,7 @@ bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr & in) {
 // 3. this is used only in unit test
 void TypeAnalysisUtility::AnnotateType(const RfExpr & inout)  {
   auto tp_annotate = inout->get_annotation<TypeAnnotation>();
-#error "modify smt expr out test"
+  
   if(inout->is_var()) {
     auto ptr = std::dynamic_pointer_cast<verilog_expr::VExprAstVar> (inout);
     ILA_CHECK(tp_annotate != nullptr && !tp_annotate->type.is_unknown())

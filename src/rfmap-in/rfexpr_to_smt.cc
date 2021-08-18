@@ -77,8 +77,10 @@ static RfMapVarType get_type(const RfExpr & in) {
 
 static std::string smt_const(unsigned value, unsigned width) {
   auto ret = IntToStrCustomBase(value, 2, false);
-  if(ret.length() > width)
+  if(ret.length() > width) {
+    ILA_ERROR << "Creating SMT constant with value " << value << " width: " << width;
     throw verilog_expr::VexpException(verilog_expr::ExceptionCause::UnknownNumberSmtTranslation);
+  }
   
   std::string zero;
   if(width > ret.length())
@@ -174,6 +176,8 @@ std::string RfExpr2Smt::to_smt2_const(const std::shared_ptr<verilog_expr::VExprA
 
   auto b_w_l = in->get_constant();
   auto width = std::get<1>(b_w_l);
+  if(width == 0)
+    width = expected_type.unified_width();
   return type_convert(expected_type, SmtType(width), smt_const(out, width) );
 
 } // to_smt2_const
@@ -183,7 +187,8 @@ std::string RfExpr2Smt::to_smt2_var(const std::shared_ptr<verilog_expr::VExprAst
   auto ret = "|" + in->get_name().first+"|";
   if(!tp.is_array())
     ret = type_convert(expected_type, SmtType(tp.unified_width()), ret);
-  ILA_ASSERT(expected_type == SmtType(tp,false));
+  else
+    ILA_ASSERT(expected_type == SmtType(tp,false));
   return ret;
 } // to_smt2_var
 

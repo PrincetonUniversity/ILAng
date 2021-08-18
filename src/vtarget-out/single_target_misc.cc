@@ -117,7 +117,6 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
         rfmap_eq(rfmap_var(func_result_wire), result_apply));
 
       std::vector<rfmap::RfExpr> prep;
-      std::string prep = VLG_TRUE;
       size_t arg_idx = 0;
       for (const auto & each_arg : arg_apply) {
 

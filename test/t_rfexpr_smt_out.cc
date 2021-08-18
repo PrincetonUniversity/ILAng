@@ -14,12 +14,30 @@
 
 namespace ilang {
 
+class TypeVars {
+public:
+	static rfmap::RfExpr GiveVarTheirTypes(const rfmap::RfExpr & inout, rfmap::TypeAnalysisUtility::var_typecheck_t checker) {
+		rfmap::RfExprVarReplUtility repl;
+
+		std::unordered_map<std::string, rfmap::RfVar> vars;
+		rfmap::RfExprAstUtility::GetVars(inout, vars);
+		for(const auto & v : vars ) {
+			auto tp = checker(v.first);
+			auto newv = verilog_expr::VExprAst::MakeSpecialName(v.first);
+			auto newtp_ptr = std::make_shared<rfmap::TypeAnnotation>(tp);
+			newv->set_annotation(newtp_ptr);
+			repl.RegisterInternalVariableWithMapping(v.first, rfmap::VarReplacement(v.second, newv));
+		}
+		return repl.ReplacingRtlIlaVar(inout);
+	}
+};
 
 #define PRINT_SMT(s, b) do { \
 	std::string rfstr = (s); \
 	auto rfexpr = rfmap::VerilogRefinementMap::ParseRfExprFromString(rfstr); \
+	rfexpr = TypeVars::GiveVarTheirTypes(rfexpr, check_var_type); \
 	annotator.AnnotateType(rfexpr); \
-	std::cout << rfmap::RfExpr2Smt::to_smt2(rfexpr, \
+	ILA_DLOG("SMTOUT.TEST") << rfmap::RfExpr2Smt::to_smt2(rfexpr, \
 		(b) ? rfmap::SmtType() : \
 		      rfmap::SmtType( (rfexpr->get_annotation<rfmap::TypeAnnotation>())->type, false )) \
 		<< std::endl; \
@@ -49,7 +67,7 @@ TEST(TestRfexpr, ToSmt) {
   		return ret;
   	};
   
-  rfmap::TypeAnalysisUtility annotator(check_var_type);
+  rfmap::TypeAnalysisUtility annotator;
 
 
 	PRINT_SMT("a[4] == b[4]" , true); // should be (extract)
