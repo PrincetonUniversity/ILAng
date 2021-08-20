@@ -319,12 +319,6 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
 // ------------------------ ALL instantiation ----------------------------- //
 void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
-  // instantiate ila module
-  if (target_type == target_type_t::INSTRUCTIONS) {
-    auto ila_mod_inst = ConstructWrapper_get_ila_module_inst();
-    vlg_wrapper.add_stmt(ila_mod_inst);
-  }
-
   // instantiate verilog module
   std::string verilog_inst_str =
       vlg_info_ptr->get_top_module_name() + " " + _vlg_mod_inst_name + "(\n";

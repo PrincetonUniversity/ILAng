@@ -34,7 +34,6 @@ TEST(TestVlgTargetGen, PipeExample) {
       vtg_config);
 
   EXPECT_FALSE(vg.in_bad_state());
-
   vg.GenerateTargets();
 }
 

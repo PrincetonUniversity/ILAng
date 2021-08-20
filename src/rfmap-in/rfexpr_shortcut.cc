@@ -59,8 +59,16 @@ rfmap::RfExpr rfmap_not(const rfmap::RfExpr &l) {
   return verilog_expr::VExprAst::MakeUnaryAst (verilog_expr::voperator::L_NEG, l);
 }
 
+rfmap::RfExpr rfmap_true() {
+  return verilog_expr::VExprAst::MakeConstant(2,1,"1");
+}
+
+rfmap::RfExpr rfmap_false() {
+  return verilog_expr::VExprAst::MakeConstant(2,1,"0");
+}
+
 rfmap::RfExpr rfmap_const(unsigned b, unsigned w, unsigned v) {
-  return verilog_expr::VExprAst::MakeConstant(w, b, IntToStrCustomBase(v, b, false));
+  return verilog_expr::VExprAst::MakeConstant(b, w, IntToStrCustomBase(v, b, false));
 }
 /// if it is RTL. or ILA. then will use MakeVar
 /// otherwise will use MakeSpecial

@@ -213,6 +213,7 @@ int VerilogGeneratorBase::get_width(const ExprPtr& n) {
 }
 /// convert a widith to a verilog string
 std::string VerilogGeneratorBase::WidthToRange(int w) {
+  ILA_ERROR_IF(w==0) << "Width should be > 0 !";
   if (w > 1)
     return std::string("[") + toStr(w - 1) + ":0]";
   return "";

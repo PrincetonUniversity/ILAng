@@ -163,6 +163,12 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
     for (const auto & var_def : n_st.second.var_defs ) {
       all_var_def_types.emplace(var_def.first, var_def.second);
     }
+    for (const auto & stage : n_st.second.rules) {
+      VarDef tmp;
+      tmp.type = VarDef::var_type::REG;
+      tmp.width = 1;
+      all_var_def_types.emplace(stage.stage_name, tmp);
+    }
   }
   for (const auto & n_st : value_recorder) {
     VarDef tmp;
@@ -555,6 +561,12 @@ bool RfExprAstUtility::HasArrayVar(
   return has_array;
 }
 
+void RfExprAstUtility::RfMapNoNullNode(const RfExpr & in) {
+  ILA_NOT_NULL(in);
+  size_t cnt = in->get_child_cnt();
+  for(size_t idx = 0; idx < cnt; ++idx)
+    RfMapNoNullNode(in->child(idx));
+}
 
 void RfExprAstUtility::TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) {
   // DFS -- Note: we need to call func on the parent's child

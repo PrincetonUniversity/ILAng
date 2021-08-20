@@ -164,13 +164,13 @@ void VlgSglTgtGen::ConstructWrapper_add_inputmap_assumptions() {
 
   for (const auto & iv_rfmap : refinement_map.ila_input_var_map) {
     const auto & iname = iv_rfmap.first;
-    if(ila_input_names.find(iname) != ila_input_names.end()) {
+    if(ila_input_names.find(iname) == ila_input_names.end()) {
       ILA_ERROR << "Cannot find ILA input with name: " << iname;
       continue;
     }
     ila_input_names.erase(iname);
 
-    Gen_input_map_assumpt(iname, iv_rfmap.second, "variable_map_assume_");
+    Gen_input_map_assumpt(iname, iv_rfmap.second, "input_map_assume_");
   }
 
   if(!ila_input_names.empty()) {
@@ -325,6 +325,8 @@ void VlgSglTgtGen::ConstructWrapper() {
   ILA_DLOG("VtargetGen") << "STEP:" << 5;
 
   if (target_type == target_type_t::INSTRUCTIONS) {
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.1;
+    ConstructWrapper_add_inputmap_assumptions();
     ILA_DLOG("VtargetGen") << "STEP:" << 5.2;
     ConstructWrapper_add_varmap_assumptions();
     ILA_DLOG("VtargetGen") << "STEP:" << 5.3;
@@ -364,6 +366,12 @@ void VlgSglTgtGen::ConstructWrapper() {
   if (target_type == target_type_t::INSTRUCTIONS)
     ConstructWrapper_add_uf_constraints();
   
+  // instantiate ila module
+  if (target_type == target_type_t::INSTRUCTIONS) {
+    auto ila_mod_inst = ConstructWrapper_get_ila_module_inst();
+    vlg_wrapper.add_stmt(ila_mod_inst);
+  }
+
   // read assumption/assertion, decide where to put them rtl/smt
   // perform the reg[n] optimize
   // populate the RtlExtraWire data structure
@@ -400,8 +408,13 @@ void VlgSglTgtGen::Export_wrapper(const std::string& wrapper_name) {
   for(const auto & vlg_monitor : refinement_map.customized_monitor) {
     if(vlg_monitor.second.verilog_append.empty())
       continue;
-    fout << "/***** Monitor for " << vlg_monitor.first << " *****/\n";
+    if(!vlg_monitor.second.keep_for_invariant && 
+       target_type != target_type_t::INSTRUCTIONS)
+      continue;
+
+    fout << "/***** BEGIN of Monitor for " << vlg_monitor.first << " *****/\n";
     fout << vlg_monitor.second.verilog_append;
+    fout << "/***** END of Monitor for " << vlg_monitor.first << " *****/\n";
   }
 }
 

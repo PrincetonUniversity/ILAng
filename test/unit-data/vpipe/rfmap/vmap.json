@@ -1,5 +1,4 @@
 {
-  "instruction mapping": [],
   "state mapping": {  
   	"r0":
 	    [ [" RTL.reg_0_w_stage == 2'b10 ", " RTL.ex_alu_result == ILA.r0"],

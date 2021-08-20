@@ -274,6 +274,10 @@ rfmap::VarReplacement VlgSglTgtGen::CreateVarReplacement(
     tp.var_ref_type == rfmap::RfVarTypeOrig::VARTYPE::INTERNAL ||
     tp.var_ref_type == rfmap::RfVarTypeOrig::VARTYPE::DEFINE_VAR
     ) {
+    ILA_ERROR_IF(StrStartsWith(n.first,"$")) << "Creating non replace-able var " << n.first;
+    if(var->get_annotation<rfmap::TypeAnnotation>() == nullptr) {
+      var->set_annotation(std::make_shared<rfmap::TypeAnnotation>(tp));
+    }
     return rfmap::VarReplacement(var, var);
   }
   
@@ -301,7 +305,7 @@ rfmap::RfExpr VlgSglTgtGen::ReplExpr(const rfmap::RfExpr & in) {
       repl = refinement_map.CheckReplacement(v.first);
     }
     ILA_NOT_NULL(repl);
-    ILA_DLOG("gen_util.create_var_replacement") << repl->origvar->to_verilog()
+    ILA_DLOG("gen_util.use_var_replacement") << repl->origvar->to_verilog()
       << " --> " << repl->newvar->to_verilog();
   }
   
@@ -408,9 +412,7 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
   }while(0)
   
   bool is_mem = _host->state(ila_state_name)->is_mem();
-  if(vmap.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM) {
-    ILA_ERROR_IF(!is_mem)
-      << "ila sv " << ila_state_name << " is not memory!";
+  if(vmap.type != rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM) {
     auto map_str = singlemap_to_rfexpr(vmap.single_map, ila_state_name);
     ADD_CONSTR(map_str);
   } else {
@@ -419,6 +421,9 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
       //  assume : START |-> 
       //         ( ila.ren && rtl.renexpr && (ila.raddr == rtl.raddrexpr) |->
       //             (ila.rdata === rtl.rdataexpr) )
+
+    ILA_ERROR_IF(!is_mem)
+      << "ila sv " << ila_state_name << " is not memory!";
 
     if(true_for_assumpt_false_for_assert) {
       // mem read assumption

@@ -117,7 +117,8 @@ public:
    /// will modify where the pointer is pointing to
   /// because we will be creating new rfexpr
   static void TraverseRfExpr(RfExpr & inout, std::function<void(RfExpr & inout)> func) ;
-  
+  /// check to make sure no null ptr
+  static void RfMapNoNullNode(const RfExpr & in);
 };
 
 struct RfExprVarReplUtility {
@@ -193,6 +194,12 @@ struct TypedVerilogRefinementMap :
   // ... ? 
   void TraverseAllRfExpr(std::function<void(RfExpr & inout)> func);
 
+  // this function is used in 
+  // (1) value holder/delay : width determination
+  //                   will use all_var_def_types & typechecker
+  // (2) vlg-monitor replace-var
+  RfMapVarType TypeInferTravserRfExpr(const RfExpr & in); 
+  
 protected:
 
   // used in TypedVerilogRefinementMap::TypeInferTravserRfExpr
@@ -228,10 +235,6 @@ private:
   void collect_inline_delay_func(RfExpr & inout);
   // this function uses the above two and the 
   void CollectInlineDelayValueHolder();
-
-  // this function is used in value holder/delay : width determination
-  // will use all_var_def_types
-  RfMapVarType TypeInferTravserRfExpr(const RfExpr & in); 
   
   void ComputeDelayValueHolderWidth();
 

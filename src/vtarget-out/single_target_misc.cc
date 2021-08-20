@@ -169,6 +169,7 @@ void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
         add_wire_assign_assumption(prev_name, rhs, "delay_unit");
       }
       vlg_wrapper.add_always_stmt(curr_name + " <= " + prev_name + " ;");
+      vlg_wrapper.add_init_stmt(curr_name + "<= 0;");
       if(didx == du.num_cycle)
         last_reg = curr_name;
     } // end - for each delay
@@ -194,6 +195,7 @@ void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
       auto curr_name = name+"_d_"+std::to_string(didx);
       auto prev_name = name+"_d_"+std::to_string(didx-1);
       vlg_wrapper.add_reg(curr_name, 1);
+      vlg_wrapper.add_init_stmt(curr_name + " <= 0;");
       vlg_wrapper.add_always_stmt(curr_name + " <= " + prev_name + " ;");
       
       or_reduce += " || " + curr_name;
@@ -224,10 +226,8 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
     }
     unsigned sidx = 0;
     for (const auto & stage : tracker.rules) {
-      std::string stage_name = tracker_name + "_" +
-        ( stage.stage_name.empty() ? 
-          "stage" + std::to_string(sidx) : 
-          stage.stage_name);
+      const std::string & stage_name = stage.stage_name;
+      ILA_CHECK(!stage_name.empty()) << "stage name is empty for " << tracker_name;
       vlg_wrapper.add_reg(stage_name , 1);
 
       std::string enter_cond_wire_name = stage_name + "_enter_cond";
@@ -235,6 +235,7 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
       std::string enter_action_wire_name = stage_name + "_enter_action";
       std::string exit_action_wire_name = stage_name + "_exit_action";
       
+      vlg_wrapper.add_init_stmt(stage_name + "<= 1'b0;");
       vlg_wrapper.add_always_stmt("if(" + enter_cond_wire_name  + ") begin " + stage_name + " <= 1'b1;" );
       vlg_wrapper.add_wire(enter_cond_wire_name, 1, true);
       rfmap_add_internal_wire(enter_cond_wire_name, 1);
@@ -328,14 +329,17 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
     unsigned idx = 0;
     std::vector<std::pair<std::string, std::string>> replace_list;
     for (const auto & vref : mdef.var_uses) {
-      auto vref_node = ::verilog_expr::VExprAst::MakeVar(vref);
+
+      auto vref_node = rfmap::VerilogRefinementMap::ParseRfExprFromString(vref);
       auto new_name = mname + "_auxvar" + std::to_string(idx ++);
       
-      auto tp = VarTypeCheckForRfExprParsing(vref);
-      ILA_ERROR_IF(tp.type.is_unknown()) << "Cannot determine width of "
+
+      auto tp = refinement_map.TypeInferTravserRfExpr(vref_node);
+
+      ILA_ERROR_IF(tp.is_unknown()) << "Cannot determine width of "
         << vref << " in monitor " << mname;
 
-      auto width = tp.type.unified_width();   
+      auto width = tp.unified_width();   
       vlg_wrapper.add_wire(new_name, width, true);
       rfmap_add_internal_wire(new_name, width);
       add_wire_assign_assumption(new_name, vref_node, "monitor_auxvar");   

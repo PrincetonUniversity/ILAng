@@ -27,7 +27,9 @@ void VlgSglTgtGen::add_reg_cassign_assumption(const std::string& varname,
                                               int width,
                                               const rfmap::RfExpr& cond,
                                               const std::string& dspt) {
-                                                
+  rfmap::RfExprAstUtility::RfMapNoNullNode(expression);
+  rfmap::RfExprAstUtility::RfMapNoNullNode(cond);                                          
+  
   std::string rand_in_name = "__" + varname + "_init__";
   vlg_wrapper.add_input(rand_in_name, width);
   vlg_wrapper.add_wire(rand_in_name, width);
@@ -43,6 +45,8 @@ void VlgSglTgtGen::add_smt_assumption(
   const rfmap::RfExpr & body,
   const std::string & dspt)
 { 
+  rfmap::RfExprAstUtility::RfMapNoNullNode(body); 
+
   std::unordered_map<std::string, rfmap::RfVar> vars;
   rfmap::RfExprAstUtility::GetVars(body, vars);
 
@@ -64,6 +68,8 @@ void VlgSglTgtGen::add_smt_assertion(
   const rfmap::RfExpr & body,
   const std::string & dspt)
 {
+  rfmap::RfExprAstUtility::RfMapNoNullNode(body); 
+
   std::unordered_map<std::string, rfmap::RfVar> vars;
   rfmap::RfExprAstUtility::GetVars(body, vars);
 
@@ -83,12 +89,15 @@ void VlgSglTgtGen::add_smt_assertion(
 
 void VlgSglTgtGen::add_an_assumption(const rfmap::RfExpr& aspt,
                                 const std::string& dspt) {
+
+  rfmap::RfExprAstUtility::RfMapNoNullNode(aspt); 
   all_assumptions[dspt].push_back(aspt);
 }
 
 /// Add an assertion -- JasperGold will override this
 void VlgSglTgtGen::add_an_assertion(const rfmap::RfExpr& asst,
                               const std::string& dspt) {
+  rfmap::RfExprAstUtility::RfMapNoNullNode(asst); 
   all_assertions[dspt].push_back(asst);
 }
 
@@ -120,7 +129,7 @@ static void find_and_replace_array_const(
          inout->child(1)->is_constant() &&
          rfmap::RfExprAstUtility::GetType(inout->child(0)).type.is_array()
          ) {
-        auto hier_name = inout->to_verilog();
+        auto hier_name = inout->child(0)->to_verilog();
         auto cnst = const_to_unified_str(inout->child(1));
         if(cnst == "error" ) // if cannot convert
           return;
@@ -163,6 +172,8 @@ static void find_and_replace_array_const(
 void VlgSglTgtGen::add_wire_assign_assumption(const std::string& varname,
                                           const rfmap::RfExpr &aspt,
                                           const std::string& dspt) {
+  
+  rfmap::RfExprAstUtility::RfMapNoNullNode(aspt); 
   assign_or_assumptions.push_back(std::make_tuple(dspt, varname, aspt, nullptr));
 }
 
@@ -180,8 +191,10 @@ void VlgSglTgtGen::ConstructWrapper_translate_property_and_collect_all_rtl_conne
   } // for each assign/assumption
 
   for(auto & dspt_aspt : all_assumptions) {
-    for(auto & aspt : dspt_aspt.second) 
+    for(auto & aspt : dspt_aspt.second) {
+      
       aspt = ReplExpr(aspt);
+    }
   }
   
   for (auto & dspt_asst : all_assertions) {

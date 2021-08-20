@@ -380,7 +380,9 @@ std::string JsonRfMapParseVarDefs(std::map<std::string, GeneralVerilogMonitor::V
   return "";
 }
 
-std::string JsonRfmapParsePhaseTracker(PhaseTracker & tracker, nlohmann::json & monitor) {
+std::string JsonRfmapParsePhaseTracker(
+  PhaseTracker & tracker, nlohmann::json & monitor, const std::string & tracker_name) 
+{
   auto * event_alias = GetJsonSection(monitor, {"event-alias"});
   auto * rules = GetJsonSection(monitor, {"rules"});
   auto * aux_var = GetJsonSection(monitor, {"aux-var"});
@@ -402,8 +404,9 @@ std::string JsonRfmapParsePhaseTracker(PhaseTracker & tracker, nlohmann::json & 
 
   assert(rules);
   ENSURE(rules->is_array(), "`rules` field should be list of objects");
+  size_t sidx = 0;
   for(auto & stage : *rules) {
-    ENSURE(rules->is_object(), "`rules` field should be list of objects");
+    ENSURE(stage.is_object(), "`rules` field should be list of objects");
     auto * enter = GetJsonSection(stage, {"enter"});
     auto * exit = GetJsonSection(stage, {"exit"});
     auto * stage_name = GetJsonSection(stage, {"name"});
@@ -423,7 +426,9 @@ std::string JsonRfmapParsePhaseTracker(PhaseTracker & tracker, nlohmann::json & 
     auto & ws = tracker.rules.back();
     if(stage_name) {
       ENSURE(stage_name->is_string(), "`name` of a phase should be string");
-      ws.stage_name = stage_name->get<std::string>();
+      ws.stage_name = tracker_name+"_"+stage_name->get<std::string>();
+    } else {
+       ws.stage_name = tracker_name + "_stage" + std::to_string(sidx++);
     }
     ws.enter_rule = ParseRfMapExprJson(*enter_event);
     ws.exit_rule = ParseRfMapExprJson(*exit_event);
@@ -735,7 +740,7 @@ VerilogRefinementMap::VerilogRefinementMap
         for (auto & elem : invocations) {
           ENSURE(elem.is_object(), "Expect `functions` to be map:name->list of invocation(object)");
           auto * result = GetJsonSection(elem,{"result"});
-          auto * arg = GetJsonSection(elem, {"arg"});
+          auto * arg = GetJsonSection(elem, {"arg","args"});
           ENSURE(result && arg, "Expect invocation object has `result` and `arg` field");
           ENSURE(result->is_string(), "Expect type string in `result` field of invocation object");
           ENSURE(arg->is_array(), "Expect type list(string) in `arg` field of invocation object");
@@ -787,7 +792,8 @@ VerilogRefinementMap::VerilogRefinementMap
           auto template_name = template_field->get<std::string>();
           if(SectionNameRelaxedMatch(template_name,"phase tracker")) {
             phase_tracker.emplace(name, PhaseTracker());
-            std::string errmsg = JsonRfmapParsePhaseTracker(phase_tracker.at(name), monitor);
+            std::string errmsg = JsonRfmapParsePhaseTracker(
+              phase_tracker.at(name), monitor, name);
             ENSURE(errmsg.empty(), errmsg);
           } else if (SectionNameRelaxedMatch(template_name,"value recorder")) {
             value_recorder.emplace(name, ValueRecorder());
@@ -844,7 +850,7 @@ VerilogRefinementMap::VerilogRefinementMap
             
             if(verilog_field) {
               if( verilog_field->is_string() ) {
-                mnt_ref.verilog_append = verilog_field->get<std::string>();
+                mnt_ref.verilog_append = verilog_field->get<std::string>() + "\n";
               } else {
                 ENSURE(verilog_field->is_array() , "`append-verilog` field should be a list of string" );
                 for (auto & ps : *verilog_field) {
@@ -860,7 +866,7 @@ VerilogRefinementMap::VerilogRefinementMap
               {
                 std::stringstream buffer;
                 buffer << fin.rdbuf();
-                mnt_ref.verilog_append = buffer.str();
+                mnt_ref.verilog_append = buffer.str() + "\n";
               }
             } // append-verilog_file_field : from file
           } // verilog_append verilog

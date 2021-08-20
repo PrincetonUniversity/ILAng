@@ -51,12 +51,20 @@ VlgSglTgtGen_Pono::VlgSglTgtGen_Pono(
 /// Add an assumption
 void VlgSglTgtGen_Pono::add_a_direct_assumption(const std::string& aspt,
                                                 const std::string& dspt) {
-  _problems.assumptions[dspt].exprs.push_back(aspt);
+  auto wire_name = dspt + new_property_id();
+  vlg_wrapper.add_wire(wire_name,1);
+  vlg_wrapper.add_output(wire_name,1);
+  vlg_wrapper.add_assign_stmt(wire_name, aspt);
+  _problems.assumptions[dspt].exprs.push_back(wire_name);
 }
 /// Add an assertion
 void VlgSglTgtGen_Pono::add_a_direct_assertion(const std::string& asst,
                                                const std::string& dspt) {
-  _problems.assertions[dspt].exprs.push_back(asst);
+  auto wire_name = dspt + new_property_id();
+  vlg_wrapper.add_wire(wire_name,1);
+  vlg_wrapper.add_output(wire_name,1);
+  vlg_wrapper.add_assign_stmt(wire_name, asst);
+  _problems.assertions[dspt].exprs.push_back(wire_name);
 }
 
 /// export the script to run the verification
@@ -86,6 +94,8 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
 
   if (!_vtg_config.PonoVcdOutputName.empty())
     options += " --vcd " + _vtg_config.PonoVcdOutputName;
+  if (!_vtg_config.PonoEngine.empty())
+    options += " -e " + _vtg_config.PonoEngine;
   options += " " + _vtg_config.PonoOtherOptions;
 
   // no need, copy is good enough
@@ -96,7 +106,7 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
     pono = os_portable_append_dir(_vtg_config.PonoPath, pono);
   }
 
-  fout << pono << " problem.btor2 " << std::endl;
+  fout << pono << options << " problem.btor2 " << std::endl;
 
 }
 
@@ -211,9 +221,9 @@ void VlgSglTgtGen_Pono::PreExportProcess() {
       // there should be only one expression (for cex target)
       // ILA_CHECK(all_assert_wire_content.empty());
       if (all_assert_wire_content.empty())
-        all_assert_wire_content = p;
+        all_assert_wire_content = "(" + p + ")";
       else
-        all_assert_wire_content += " && " + p;
+        all_assert_wire_content += " && (" + p + ")";
     } // for expr
   }   // for problem
   // add assert wire (though no use : make sure will not optimized away)

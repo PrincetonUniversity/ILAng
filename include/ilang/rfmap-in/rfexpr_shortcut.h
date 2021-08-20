@@ -26,7 +26,9 @@ rfmap::RfExpr rfmap_le(const rfmap::RfExpr &l, const rfmap::RfExpr &r);
 
 rfmap::RfExpr rfmap_not(const rfmap::RfExpr &l);
 
-rfmap::RfExpr rfmap_const(unsigned w, unsigned b, unsigned v);
+rfmap::RfExpr rfmap_true();
+rfmap::RfExpr rfmap_false();
+rfmap::RfExpr rfmap_const(unsigned b, unsigned w, unsigned v);
 /// if it is RTL. or ILA. then will use MakeVar
 /// otherwise will use MakeSpecial
 /// will not determine its type

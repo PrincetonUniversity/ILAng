@@ -103,6 +103,10 @@ public:
     /// For Pono backend: do we add (* keep *)? default true, however, it can be
     /// buggy, so you can disable it if you want
     bool PonoAddKeep;
+    /// For Pono backend: the default engine (ind by default)
+    /// other options: like bmc, bmc-sp, ind, interp, mbic3, 
+    /// ic3bits, ic3ia, msat-ic3ia, ic3sa, sygus-pdr
+    std::string PonoEngine;
     /// For Pono backend: what more options to add
     std::string PonoOtherOptions;
     /// whether to force dot reference check in the generation
@@ -221,8 +225,9 @@ public:
 
           // ----------- Options for Pono settings -------------- //
           ForceInstCheckReset(false), PortDeclStyle(PortDeclStyleT::AUTO),
-          PonoGenJgTesterScript(false), PonoAddKeep(false),
-          PonoOtherOptions(""),
+          PonoGenJgTesterScript(false), PonoVcdOutputName("cex.vcd"), 
+          PonoAddKeep(false),
+          PonoEngine("ind"), PonoOtherOptions(""),
           PonoDotReferenceNotify(PonoDotReferenceNotify_t::NOTIFY_PANIC),
           MaxBound(127), OnlyAssumeUpdatedVarsEq(false),
 

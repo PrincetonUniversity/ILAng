@@ -172,7 +172,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   }
 
   // max bound for max checking range
-  rfmap::RfExpr max_bound_constr;
+  rfmap::RfExpr max_bound_constr = rfmap_true();
   if(instr.max_bound != 0) {
     max_bound_constr = 
       rfmap_le( rfmap_var("__CYCLE_CNT__"),  rfmap_const(10, cnt_width, instr.max_bound));
