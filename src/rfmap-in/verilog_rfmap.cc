@@ -127,23 +127,31 @@ bool JsonRfmapParseCond(SingleVarMap & cond_map, nlohmann::json & json_array) {
   return succ;
 } // JsonRfmapParseCond
 
+bool JsonRfmapParseSingleOrCond(SingleVarMap & sc_map, nlohmann::json & json_single_or_array) {
+  if(json_single_or_array.is_array())
+    return JsonRfmapParseCond(sc_map, json_single_or_array);
+  assert(json_single_or_array.is_string());
+  sc_map.single_map = ParseRfMapExprJson(json_single_or_array);
+  return sc_map.single_map != nullptr;
+}
+
 bool JsonRfmapParseMem(ExternalMemPortMap & mem_rfmap , nlohmann::json & json_obj) {
   assert(json_obj.is_object());
 
   bool succ = true;
 
   if (json_obj.contains("wen"))
-    succ = succ && JsonRfmapParseCond(mem_rfmap.wen_map, json_obj["wen"]);
+    succ = succ && JsonRfmapParseSingleOrCond(mem_rfmap.wen_map, json_obj["wen"]);
   if (json_obj.contains("waddr"))
-    succ = succ && JsonRfmapParseCond(mem_rfmap.waddr_map, json_obj["waddr"]);
+    succ = succ && JsonRfmapParseSingleOrCond(mem_rfmap.waddr_map, json_obj["waddr"]);
   if (json_obj.contains("wdata"))
-    succ = succ && JsonRfmapParseCond(mem_rfmap.wdata_map, json_obj["wdata"]);
+    succ = succ && JsonRfmapParseSingleOrCond(mem_rfmap.wdata_map, json_obj["wdata"]);
   if (json_obj.contains("ren"))
-    succ = succ && JsonRfmapParseCond(mem_rfmap.ren_map, json_obj["ren"]);
+    succ = succ && JsonRfmapParseSingleOrCond(mem_rfmap.ren_map, json_obj["ren"]);
   if (json_obj.contains("raddr"))
-    succ = succ && JsonRfmapParseCond(mem_rfmap.raddr_map, json_obj["raddr"]);
+    succ = succ && JsonRfmapParseSingleOrCond(mem_rfmap.raddr_map, json_obj["raddr"]);
   if (json_obj.contains("rdata"))
-    succ = succ && JsonRfmapParseCond(mem_rfmap.rdata_map, json_obj["rdata"]);
+    succ = succ && JsonRfmapParseSingleOrCond(mem_rfmap.rdata_map, json_obj["rdata"]);
 
   mem_rfmap.rport_mapped = json_obj.contains("ren");
   mem_rfmap.wport_mapped = json_obj.contains("wen");
@@ -514,9 +522,18 @@ VerilogRefinementMap::VerilogRefinementMap
   nlohmann::json rf_cond;
   load_json(varmap_json_file,   rf_vmap);
   load_json(instcond_json_file, rf_cond);
+  { // deprecated warning messages
+    nlohmann::json * model_name = GetJsonSection(rf_vmap, {"model", "models","model name","model names"});
+    ERRIF(model_name != NULL, "model names are not supported. Use `ILA` and `RTL`.");
+    nlohmann::json * instmap = GetJsonSection(rf_vmap, {"instruction mapping", "instruction map"});
+    ERRIF(instmap != NULL, "instruction mapping is no longer supported");
+    nlohmann::json * interface  = GetJsonSection(rf_vmap, {"interface mapping", "interface map"});
+    ERRIF(interface != NULL, "interface mapping is no longer supported. Use `input mapping` and `RTL interface connection`");
+  }
+
   // now json to -> Rfmap
   { // state mapping
-    nlohmann::json * state_mapping = GetJsonSection(rf_vmap,{"state mapping"});
+    nlohmann::json * state_mapping = GetJsonSection(rf_vmap,{"state mapping", "state map"});
     ERRIF(state_mapping == NULL , "state var mapping is duplicated or missing");
     for (auto& i : state_mapping->items()) {
       IlaVarMapping svmp;
@@ -567,7 +584,7 @@ VerilogRefinementMap::VerilogRefinementMap
 
   { // input mapping
     // TODO: add things here
-    nlohmann::json * input_mapping = GetJsonSection(rf_vmap,{"input mapping"});
+    nlohmann::json * input_mapping = GetJsonSection(rf_vmap,{"input mapping", "input map"});
     if(input_mapping) {
       for (auto& i : input_mapping->items()) {
         IlaVarMapping ivmp;
@@ -590,7 +607,7 @@ VerilogRefinementMap::VerilogRefinementMap
   } // input mapping
 
   { // interface map
-    nlohmann::json * rtl_if_map = GetJsonSection(rf_vmap,{"RTL interface connection"});
+    nlohmann::json * rtl_if_map = GetJsonSection(rf_vmap,{"RTL interface connection", "RTL interface connect"});
     ERRIF(rtl_if_map == nullptr, "`RTL interface connection` is duplicated or missing" );
     nlohmann::json * clock_domains = GetJsonSection(*rtl_if_map,{"CLOCK"},true);
     nlohmann::json * reset_list = GetJsonSection(*rtl_if_map,{"RESET"},true);

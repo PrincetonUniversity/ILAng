@@ -866,7 +866,7 @@ unsigned range_to_width(ast_range* range, const std::string& full_name,
   return analyzed_width;
 }
 
-
+// this returns: from [0:15] 15-0+1 == 16
 unsigned addr_range_to_width(ast_identifier id, const std::string& full_name,
                         const VerilogAnalyzer* _ana, int width) {
   if(id->range_or_idx == ID_HAS_RANGES && id->ranges && id->ranges->items > 0) {

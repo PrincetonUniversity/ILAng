@@ -75,6 +75,11 @@ protected:
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
+  /// Add a direct assertion
+  virtual void add_a_direct_sanity_assertion(const std::string& asst,
+                                      const std::string& dspt) override {
+    add_a_direct_assertion(asst,dspt);  }
+    
 
   /// Pre export work : nothing for cosa
   void virtual PreExportProcess() override {}

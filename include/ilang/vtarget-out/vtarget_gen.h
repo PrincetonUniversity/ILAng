@@ -78,6 +78,11 @@ public:
     /// Whether to pass Verilog node name in reference
     /// generation
     bool VerilogGenPassNodeName;
+    /// if false : assume (cond |-> reg == value)
+    /// if true : assume ((START || STARTED) && cond && not_triggered)
+    ///            |-> reg == value
+    bool EnforcingValueRecorderForOnlyOneCycle;
+    
 
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call
@@ -94,8 +99,8 @@ public:
     bool ForceInstCheckReset;
     /// For Pono target generator : whether to force NEW/OLD port declaration
     enum class PortDeclStyleT { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
-    /// Generate a jg script to help validate Pono?
-    bool PonoGenJgTesterScript;
+
+
     /// Pono VCD output
     std::string PonoVcdOutputName;
     /// Binary location of Pono
@@ -156,6 +161,9 @@ public:
     /// It seems for Z3, setting this to be false is faster (I don't know why)
     /// For grain-enhance, this will be (internally) overwritten to be true
     bool InvariantSynthesisReachableCheckKeepOldInvariant;
+    /// Whether to set undriven net in yosys as 0. In general this should not
+    /// be needed, but for some reason, PONO is unhappy sometimes.
+    bool YosysSetUndrivenZero;
 
     // ----------- Options for CHC Solver -------------- //
     /// CHC, whether to turn array into individual registers
@@ -215,17 +223,21 @@ public:
 
     // ----------- Extended Options for Grain -------------- //
 
+    // ----------- Refinement Sanity Check Options-------------- //
+    bool SanityCheck_ValueRecorderOverlyConstrained;
+
     /// The default constructor for default values
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), InvariantCheckNoReset(false),
           OnlyCheckInstUpdatedVars(true),
           VerilogGenPassNodeName(false),
+          EnforcingValueRecorderForOnlyOneCycle(true),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL),
 
           // ----------- Options for Pono settings -------------- //
           ForceInstCheckReset(false), PortDeclStyle(PortDeclStyleT::AUTO),
-          PonoGenJgTesterScript(false), PonoVcdOutputName("cex.vcd"), 
+          PonoVcdOutputName("cex.vcd"), 
           PonoAddKeep(false),
           PonoEngine("ind"), PonoOtherOptions(""),
           PonoDotReferenceNotify(PonoDotReferenceNotify_t::NOTIFY_PANIC),
@@ -241,6 +253,7 @@ public:
           YosysSmtStateSort(YosysStateSortT::Datatypes), InvariantSynthesisKeepMemory(true),
           InvariantCheckKeepMemory(true),
           InvariantSynthesisReachableCheckKeepOldInvariant(false),
+          YosysSetUndrivenZero(false),
 
           // ----------- Options for CHCs -------------- //
           ChcWordBlastArray(true), ChcAssumptionsReset(false),
@@ -258,8 +271,10 @@ public:
           // ----------- Options for ABC -------------- //
           AbcUseGla(false), AbcGlaTimeLimit(500), AbcGlaFrameLimit(200),
           AbcUseCorr(false), AbcUseAiger(true), AbcMinimizeInv(false),
-          AbcAssumptionStyle(AbcAssumptionStyle_t::AigMiterExtraOutput)
+          AbcAssumptionStyle(AbcAssumptionStyle_t::AigMiterExtraOutput),
 
+          // ----------- Options for Refinement Sanity Checks -------------- //
+          SanityCheck_ValueRecorderOverlyConstrained(true)
     {}
   } vtg_config_t;
 

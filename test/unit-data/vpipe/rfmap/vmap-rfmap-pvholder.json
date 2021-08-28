@@ -27,7 +27,8 @@
     "stage_tracker" : {
       "verilog": 
         ["always @(posedge clk) begin",
-         "  if (__START__) stage_tracker <= 0;",
+         "  if (rst ) stage_tracker <= 0;",
+         "  else if ( __START__ ) stage_tracker <= 0;",
          "  else if (__STARTED__ && !__ENDED__) stage_tracker <= stage_tracker + 1;",
          "end"],
       "append-verilog" : "module nouse2(input wire a, output wire b); assign b=a; endmodule",

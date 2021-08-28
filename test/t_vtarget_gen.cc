@@ -254,7 +254,7 @@ TEST(TestVlgTargetGen, PipeExampleJasperGold) {
 
 TEST(TestVlgTargetGen, PipeExampleNotEqu) {
   auto ila_model = SimplePipe::BuildModel();
-
+  
   auto dirName =
       os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "vpipe"});
   VerilogVerificationTargetGenerator vg(
@@ -271,6 +271,8 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
 
   vg.GenerateTargets();
 }
+
+// #warning "Continue your test from here"
 
 TEST(TestVlgTargetGen, Memory) {
   auto ila_model = MemorySwap::BuildModel();
@@ -293,6 +295,15 @@ TEST(TestVlgTargetGen, Memory) {
 }
 
 TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
+
+
+  DebugLog::Enable("VTG.ReplWireEq");
+  DebugLog::Enable("VTG.ReplAssert");
+  DebugLog::Enable("VTG.ReplAssume");
+  
+  DebugLog::Enable("VTG.AddWireEq");
+  DebugLog::Enable("VTG.AddAssert");
+  DebugLog::Enable("VTG.AddAssume");
 
   auto ila_model = MemorySwap::BuildSimpleSwapModel();
 

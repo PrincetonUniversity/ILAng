@@ -210,7 +210,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS, _advanced_param_ptr);
         target.ConstructWrapper();
-        target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt");
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", "gen_btor.ys");
         target.do_not_instantiate();
       } else if (_backend == backend_selector::JASPERGOLD) {
         auto target = VlgSglTgtGen_Jasper(

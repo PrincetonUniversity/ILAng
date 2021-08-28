@@ -389,6 +389,8 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
         << "the maximum allowed entry count: " << n_elem_allowed;
     if (entry_num_specified != 0 && entry_num_specified <= n_elem_allowed)
       n_elem = entry_num_specified;
+    if(cfg_.add_keep_for_internal_mem)
+      fout << "(* keep *) "; // sometimes these regs will be optimized always
     fout << "reg " << std::setw(10) << WidthToRange(data_width) << " "
          << (std::get<0>(mem.second)) << WidthToRange(n_elem) << ";\n";
   }

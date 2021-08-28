@@ -40,6 +40,8 @@ protected:
   problemset_t assumptions;
   /// problems are splitted into items
   problemset_t assertions;
+  /// problems are splitted into items
+  problemset_t sanity_assertions;
   
   /// SMT-LIB2 assumptions
   prop_t smt_assumptions;
@@ -99,6 +101,9 @@ protected:
                                        const std::string& dspt) override;
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
+                                      const std::string& dspt) override;
+  /// Add a direct assertion
+  virtual void add_a_direct_sanity_assertion(const std::string& asst,
                                       const std::string& dspt) override;
   
   /// Add SMT-lib2 assumption

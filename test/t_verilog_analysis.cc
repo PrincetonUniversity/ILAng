@@ -82,7 +82,7 @@ TEST(TestVerilogAnalysis, Include) {
 }
 
 TEST(TestVerilogAnalysis, RangeAnalysisArray) {
-#define IS_ARRAY_WIDTH(n, w) EXPECT_EQ(va.get_signal("m1." n).get_addr_width(), w)
+#define IS_ARRAY_RANGE_SIZE(n, w) EXPECT_EQ(va.get_signal("m1." n).get_addr_range_size(), w)
   {
     VerilogInfo va(
         VerilogInfo::path_vec_t(
@@ -90,17 +90,17 @@ TEST(TestVerilogAnalysis, RangeAnalysisArray) {
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
                                  "/unit-data/verilog_sample/range-array.v"}),
         "m1");
-    IS_ARRAY_WIDTH("r12", 8-1);
-    IS_ARRAY_WIDTH("r22", 8-1);
-    IS_ARRAY_WIDTH("r14", 9-1);
-    IS_ARRAY_WIDTH("r24", 7-1);
+    IS_ARRAY_RANGE_SIZE("r12", 8-1);
+    IS_ARRAY_RANGE_SIZE("r22", 8-1);
+    IS_ARRAY_RANGE_SIZE("r14", 9-1);
+    IS_ARRAY_RANGE_SIZE("r24", 7-1);
   }
 }
 
 TEST(TestVerilogAnalysis, RangeAnalysis) {
 
 #define IS_WIDTH(n, w) EXPECT_EQ(va.get_signal("m1." n).get_width(), w)
-#define NOT_ARRAY(n) EXPECT_EQ(va.get_signal("m1." n).get_addr_width(), 0)
+#define NOT_ARRAY(n) EXPECT_EQ(va.get_signal("m1." n).get_addr_range_size(), 0)
 
   { // test 1
     VerilogInfo va(

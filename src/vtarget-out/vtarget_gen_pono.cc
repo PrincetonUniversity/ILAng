@@ -23,10 +23,12 @@ static std::string yosysGenerateBtor = R"***(
 hierarchy -check
 proc
 chformal -assume -early;
+%propselect%
 memory -nomap;
 flatten
 sim -clock clk -reset rst -rstlen %rstlen% -n %cycle% -w %module%
 )***";
+// %propselect% is for 
 
 
 VlgSglTgtGen_Pono::VlgSglTgtGen_Pono(
@@ -67,6 +69,17 @@ void VlgSglTgtGen_Pono::add_a_direct_assertion(const std::string& asst,
   _problems.assertions[dspt].exprs.push_back(wire_name);
 }
 
+
+/// Add an assertion
+void VlgSglTgtGen_Pono::add_a_direct_sanity_assertion(const std::string& asst,
+                                               const std::string& dspt) {
+  auto wire_name = dspt + new_property_id();
+  vlg_wrapper.add_wire(wire_name,1);
+  vlg_wrapper.add_output(wire_name,1);
+  vlg_wrapper.add_assign_stmt(wire_name, asst);
+  _problems.sanity_assertions[dspt].exprs.push_back(wire_name);
+}
+
 /// export the script to run the verification
 void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
 
@@ -78,16 +91,15 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
   }
   fout << "#!/bin/bash" << std::endl;
  
-  {
-    std::string yosys = "yosys";
+  
+  std::string yosys = "yosys";
 
-    if (!_vtg_config.YosysPath.empty())
-      yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
+  if (!_vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
-    // execute it
-    fout << yosys << " -s " << ys_script_name << " > __yosys_exec_result.txt\n"; 
-  }
-
+  // execute it
+  fout << yosys << " -s " << ys_script_name << " > __yosys_exec_result.txt\n"; 
+  
 
   std::string pono = "pono";
   std::string options;
@@ -108,7 +120,12 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
 
   fout << pono << options << " problem.btor2 " << std::endl;
 
-}
+  if(!_problems.sanity_assertions.empty()) {
+    fout << yosys << " -s gen_sanity_prop.ys > __yosys_exec_result.sanity.txt\n"; 
+    
+    fout << pono << options << " sanity.btor2 " << std::endl;
+  }
+} // Export_script
 
 
 /// Add SMT-lib2 assumption
@@ -134,7 +151,7 @@ void VlgSglTgtGen_Pono::add_a_direct_smt_assertion(const std::string& arg,
 
 /// export the yosys script
 void VlgSglTgtGen_Pono::Export_problem(const std::string& yosys_script_name) {
-  if (_problems.assertions.empty()) {
+  if (_problems.assertions.empty() && _problems.smt_assertions.empty() && _problems.sanity_assertions.empty()) {
     ILA_ERROR << "Nothing to prove, no assertions inserted!";
     return;
   }
@@ -154,24 +171,36 @@ void VlgSglTgtGen_Pono::Export_problem(const std::string& yosys_script_name) {
                    << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
 
+    std::string property_selection_cmd;
+    if(!_problems.sanity_assertions.empty()) {
+      property_selection_cmd = "\n"
+        "select wrapper/sanitycheck\n"
+        "chformal -remove\n"
+        "select *\n";
+    }
+
     ys_script_fout << 
       ReplaceAll(
         ReplaceAll(
-          ReplaceAll(yosysGenerateBtor, 
-            "%rstlen%",
-              std::to_string(
-                refinement_map.reset_specification.reset_cycle)),
-            "%cycle%",
-              std::to_string(
-                refinement_map.reset_specification.reset_cycle)),
-        "%module%", top_mod_name);
+          ReplaceAll(
+            ReplaceAll(yosysGenerateBtor, 
+              "%rstlen%",
+                std::to_string(
+                  refinement_map.reset_specification.reset_cycle)),
+              "%cycle%",
+                std::to_string(
+                  refinement_map.reset_specification.reset_cycle)),
+          "%module%", top_mod_name),
+          "%propselect%", property_selection_cmd);
 
     // this is for pono, I don't know why it is unhappy, but we need fix this
     // in the long run
-    ys_script_fout << "setundef -undriven -zero\n";
+    if(_vtg_config.YosysSetUndrivenZero)
+      ys_script_fout << "setundef -undriven -zero\n";
+
+
     ys_script_fout << "write_btor " << write_btor_options << " problem.btor2" << std::endl;
   } // finish writing
-
 
   auto smt_property_fname =
       os_portable_append_dir(_output_path, "property.smt2");
@@ -183,6 +212,49 @@ void VlgSglTgtGen_Pono::Export_problem(const std::string& yosys_script_name) {
     for(const auto & prop : _problems.smt_assertions)
       smt_fout << prop << std::endl;
   }
+
+  // sanity checks
+  if(!_problems.sanity_assertions.empty())
+  { // export to ys_script_name
+    std::string ys_script_name_path = os_portable_append_dir(_output_path, "gen_sanity_prop.ys");
+    std::ofstream ys_script_fout(ys_script_name_path);
+
+    std::string write_btor_options;
+    write_btor_options += _vtg_config.BtorAddCommentsInOutputs ? " -v" : "";
+    write_btor_options += _vtg_config.BtorSingleProperty ? " -s" : "";
+
+    ys_script_fout << "read_verilog -sv "
+                   << os_portable_append_dir(_output_path, top_file_name)
+                   << std::endl;
+    ys_script_fout << "prep -top " << top_mod_name << std::endl;
+
+    std::string property_selection_cmd = "\n"
+      "select wrapper/normalassert\n"
+      "chformal -remove\n"
+      "select *\n";
+
+    ys_script_fout << 
+      ReplaceAll(
+        ReplaceAll(
+          ReplaceAll(
+            ReplaceAll(yosysGenerateBtor, 
+              "%rstlen%",
+                std::to_string(
+                  refinement_map.reset_specification.reset_cycle)),
+              "%cycle%",
+                std::to_string(
+                  refinement_map.reset_specification.reset_cycle)),
+          "%module%", top_mod_name),
+          "%propselect%", property_selection_cmd);
+
+    // this is for pono, I don't know why it is unhappy, but we need fix this
+    // in the long run
+    if(_vtg_config.YosysSetUndrivenZero)
+      ys_script_fout << "setundef -undriven -zero\n";
+
+
+    ys_script_fout << "write_btor " << write_btor_options << " sanity.btor2" << std::endl;
+  } // finish writing
 } // only for Pono
 
 
@@ -191,6 +263,8 @@ void VlgSglTgtGen_Pono::Export_problem(const std::string& yosys_script_name) {
 void VlgSglTgtGen_Pono::PreExportProcess() {
 
   std::string all_assert_wire_content;
+  std::string all_sanity_assert_wire_content;
+
   std::string all_assume_wire_content;
 
   // you need to add assumptions as well
@@ -208,7 +282,7 @@ void VlgSglTgtGen_Pono::PreExportProcess() {
     } // for prob.exprs
   }   // for _problems.assumption
 
-  // this is to check given invariants
+  // this is to check given assertions
   for (auto&& pbname_prob_pair : _problems.assertions) {
     // const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
@@ -227,23 +301,58 @@ void VlgSglTgtGen_Pono::PreExportProcess() {
     } // for expr
   }   // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_CHECK(!all_assert_wire_content.empty()) << "no property to check!";
+  if(_problems.smt_assertions.empty())
+    ILA_CHECK(!all_assert_wire_content.empty()) << "no property to check!";
+  
+  if(all_assert_wire_content.empty())
+  { // in case all_assert_wire_content is empty
+    all_assert_wire_content = "1'b1"; // (assert true)
+  }
+
+
+  // this is to check given sanity assertions
+  for (auto&& pbname_prob_pair : _problems.sanity_assertions) {
+    // const auto& prbname = pbname_prob_pair.first;
+    const auto& prob = pbname_prob_pair.second;
+
+    // ILA_CHECK(prbname == "cex_nonreachable_assert")
+    //  << "BUG: assertion can only be cex reachability queries.";
+    // sanity check, should only be invariant's related asserts
+
+    for (auto&& p : prob.exprs) {
+      // there should be only one expression (for cex target)
+      // ILA_CHECK(all_assert_wire_content.empty());
+      if (all_sanity_assert_wire_content.empty())
+        all_sanity_assert_wire_content = "(" + p + ")";
+      else
+        all_sanity_assert_wire_content += " && (" + p + ")";
+    } // for expr
+  }  
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__", 1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
-
+  vlg_wrapper.add_stmt(
+      "normalassert: assert property ( __all_assert_wire__ ); // the only assertion \n");
+  
   if (!all_assume_wire_content.empty()) {
     vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
     vlg_wrapper.add_output("__all_assume_wire__", 1);
     vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
+
+    vlg_wrapper.add_stmt(
+        "all_assume: assume property ( __all_assume_wire__ ); // the only sanity assertion \n");
   }
 
-  vlg_wrapper.add_stmt(
-      "assert property ( __all_assert_wire__ ); // the only assertion \n");
-  if (!all_assume_wire_content.empty())
+  if (!all_sanity_assert_wire_content.empty()) {
+    vlg_wrapper.add_wire("__sanitycheck_wire__", 1, true);
+    vlg_wrapper.add_output("__sanitycheck_wire__", 1);
+    vlg_wrapper.add_assign_stmt("__sanitycheck_wire__", all_sanity_assert_wire_content);
+
     vlg_wrapper.add_stmt(
-        "assume property ( __all_assume_wire__ ); // the only assumption \n");
+        "sanitycheck: assert property ( __sanitycheck_wire__ ); // the only assumption \n");
+  
+  }
 } // PreExportProcess
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)

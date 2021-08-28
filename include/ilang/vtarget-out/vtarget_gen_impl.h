@@ -351,6 +351,8 @@ protected:
   /// assumptions : written by add_an_assertion,
   ///   consumed by ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
   std::map<std::string, std::vector<rfmap::RfExpr>> all_assertions;
+  ///   consumed by ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  std::map<std::string, std::vector<rfmap::RfExpr>> all_sanity_assertions;
   /// assign or assumptions : vector of (dspt, wire_name, rhs, wn == rhs)
   std::vector<std::tuple<std::string,std::string, rfmap::RfExpr, rfmap::RfExpr>> assign_or_assumptions; 
   /// map: wire_name -> (wire_name, hierarchy, internal name)
@@ -391,6 +393,9 @@ protected:
   /// Add an assertion
   virtual void add_a_direct_assertion(const std::string& aspt, 
                                       const std::string& dspt)  = 0;
+  /// Add a sanity assertion
+  virtual void add_a_direct_sanity_assertion(const std::string& aspt, 
+                                      const std::string& dspt)  = 0;
   
   /// Add SMT-lib2 assumption
   virtual void add_a_direct_smt_assumption(const std::string& arg,
@@ -407,8 +412,12 @@ protected:
   virtual void add_an_assumption(const rfmap::RfExpr& aspt,
                                  const std::string& dspt);
 
-  /// Add an assertion -- JasperGold will override this
+  /// Add an assertion -- simply put in record
   virtual void add_an_assertion(const rfmap::RfExpr& asst,
+                                const std::string& dspt);
+
+  /// Add an assertion for sanity checking -- simply put in record
+  void add_a_santiy_assertion(const rfmap::RfExpr& aspt,
                                 const std::string& dspt);
 
   // Add SMT assumption (using rfexpr)

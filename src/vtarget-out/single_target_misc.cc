@@ -291,11 +291,62 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
     vlg_wrapper.add_reg(pv_name, post_val_holder.second.width);
     rfmap_add_internal_reg(pv_name, post_val_holder.second.width);
 
+    auto eq_cond = _vtg_config.EnforcingValueRecorderForOnlyOneCycle ?
+        rfmap_and({
+          rfmap_or( rfmap_var("__START__"), rfmap_var("__STARTED__") ),
+          rfmap_not(rfmap_var(pv_name+"_sn_condmet")),
+          post_val_holder.second.condition
+        }) 
+      : 
+        post_val_holder.second.condition;
+
     add_reg_cassign_assumption(pv_name, 
       post_val_holder.second.value, 
       post_val_holder.second.width,
-      post_val_holder.second.condition,
+      eq_cond,
       "post_value_holder");
+
+    // for sanity check
+    vlg_wrapper.add_reg(pv_name+"_sn_vhold", post_val_holder.second.width);
+    rfmap_add_internal_reg(pv_name+"_sn_vhold", post_val_holder.second.width);
+    vlg_wrapper.add_reg(pv_name+"_sn_value", post_val_holder.second.width);
+    rfmap_add_internal_reg(pv_name+"_sn_value", post_val_holder.second.width);
+    
+    vlg_wrapper.add_reg(pv_name+"_sn_condmet", 1);
+    rfmap_add_internal_reg(pv_name+"_sn_condmet", 1);
+    vlg_wrapper.add_reg(pv_name+"_sn_cond", 1);
+    rfmap_add_internal_reg(pv_name+"_sn_cond", 1);
+    vlg_wrapper.add_init_stmt(pv_name+"_sn_condmet <= 1'b0;");
+    vlg_wrapper.add_always_stmt("if (" + pv_name+"_sn_cond ) begin " 
+      + pv_name+"_sn_condmet <= 1'b1; "
+      + pv_name+"_sn_vhold <= " + pv_name+ "_sn_value; end"
+      );
+
+    // pv_sn_cond = <condition> && ( __START__ || __STARTED__ )
+    add_wire_assign_assumption(pv_name+"_sn_cond", 
+      rfmap_and(
+        post_val_holder.second.condition,
+        rfmap_or( rfmap_var("__START__"), rfmap_var("__STARTED__") )),
+      "pvholder_cond_assign");
+    
+    // pv_sn_value = <value>
+    add_wire_assign_assumption(pv_name+"_sn_value",
+      post_val_holder.second.value,
+      "pvholder_cond_assign");
+
+    add_a_santiy_assertion(
+      // cond && cond_met |-> value == value_stored
+      rfmap_imply(
+        rfmap_and(rfmap_var(pv_name+"_sn_condmet"),
+                  rfmap_var(pv_name+"_sn_cond")),
+        rfmap_eq( rfmap_var(pv_name+"_sn_value"),
+                  rfmap_var(pv_name+"_sn_vhold"))),
+       "post_value_holder");
+
+
+    // you need to add checker
+
+    // check no 
   }
 } // ConstructWrapper_add_post_value_holder
 
@@ -359,7 +410,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
 
 const rfmap::InstructionCompleteCondition & VlgSglTgtGen::get_current_instruction_rf() {
   ILA_NOT_NULL(_instr_ptr);
-  const auto & inst_name = _instr_ptr->name().c_str();
+  const auto & inst_name = _instr_ptr->name().str();
   auto pos = refinement_map.inst_complete_cond.find(inst_name);
   ILA_ERROR_IF(pos == refinement_map.inst_complete_cond.end())
     << "Cannot find the completion condition for " << inst_name;

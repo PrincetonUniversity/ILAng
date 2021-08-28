@@ -189,15 +189,18 @@ rfmap::RfVarTypeOrig VlgSglTgtGen::VarTypeCheckForRfExprParsing(const std::strin
   if (StrStartsWith(vname,"RTL.")) {
     ILA_ERROR_IF(!TryFindVlgState(vname)) << "Cannot find rtl var: " << vname;
     auto sig_info = vlg_info_ptr->get_signal(vname);
-    auto aw = sig_info.get_addr_width();
+    auto aw_range = sig_info.get_addr_range_size();
     auto dw = sig_info.get_width();
     
     rfmap::RfVarTypeOrig ret;
     ret.var_ref_type = rfmap::RfVarTypeOrig::VARTYPE::RTLV;
-    if(aw == 0) // not an array
+    if(aw_range == 0) // not an array
       ret.type = rfmap::RfMapVarType(dw);
-    else
+    else {
+      unsigned aw = (unsigned)(std::ceil(std::log2(aw_range)));
+      // [15:0] -> aw_range == 16 -> 4 -> ceil (4) == 4
       ret.type = rfmap::RfMapVarType(aw,dw);
+    }
     return ret;    
   }
 
@@ -257,6 +260,10 @@ rfmap::VarReplacement VlgSglTgtGen::CreateVarReplacement(
     auto dotpos = ila_sn.find('.');
     ILA_ASSERT(ila_sn.substr(0,dotpos+1) == "ILA.");
 
+    bool is_array = tp.type.is_array(); // you can never connect an array out
+    ILA_CHECK(!is_array) << "Implementation bug: currently does not support array as input";
+
+
     auto new_name = "__ILA_I_" + ila_sn.substr(dotpos+1);
     auto new_node = verilog_expr::VExprAst::MakeSpecialName(new_name);
     new_node->set_annotation(std::make_shared<rfmap::TypeAnnotation>(tp));
@@ -265,6 +272,14 @@ rfmap::VarReplacement VlgSglTgtGen::CreateVarReplacement(
     const auto & ila_sn = n.first;
     auto dotpos = ila_sn.find('.');
     ILA_ASSERT(ila_sn.substr(0,dotpos+1) == "ILA.");
+
+    bool is_array = tp.type.is_array(); // you can never connect an array out
+    // so there should not be such things like: __ILA_SO_array 
+    if(is_array) { // basically no replacement
+      auto ret_copy = std::make_shared<verilog_expr::VExprAstVar>(*var);
+      ret_copy->set_annotation(std::make_shared<rfmap::TypeAnnotation>(tp));
+      return rfmap::VarReplacement(var, ret_copy);
+    }
 
     auto new_name = "__ILA_SO_" + ila_sn.substr(dotpos+1);
     auto new_node = verilog_expr::VExprAst::MakeSpecialName(new_name);
@@ -431,9 +446,10 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
       unsigned rfmap_node_idx = 0;
 
       for(const auto & rport : read_ports) {
-        auto ila_ren = rfmap_var(rport.second.ren);
-        auto ila_raddr = rfmap_var(rport.second.raddr);
-        auto ila_rdata = rfmap_var(rport.second.rdata);
+        size_t no = rport.first;
+
+        auto ila_raddr = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_raddr");
+        auto ila_rdata = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_rdata");
 
         while(!(vmap.externmem_map.at(rfmap_node_idx).rport_mapped)
           && rfmap_node_idx < vmap.externmem_map.size())
@@ -451,7 +467,7 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
         auto rtl_rdata = singlemap_bv_to_rfexpr(rfmap_rport.rdata_map);
         
         auto constr = rfmap_imply( rfmap_and(
-          {ila_ren, rtl_ren, rfmap_eq(ila_raddr, rtl_raddr)}),
+          {rtl_ren, rfmap_eq(ila_raddr, rtl_raddr)}),
           rfmap_eq(ila_rdata, rtl_rdata));
 
         ADD_CONSTR(constr);
@@ -473,9 +489,10 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
       for(const auto & wport : write_ports) {
         // the reason for _d1: see ConstructWrapper_get_ila_module_inst
         // in single_target_connect.cc
-        auto ila_wen = rfmap_var(wport.second.wen + "_d1");
-        auto ila_waddr = rfmap_var(wport.second.waddr + "_d1");
-        auto ila_wdata = rfmap_var(wport.second.wdata + "_d1");
+        size_t no = wport.first;
+        auto ila_wen   = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_wen"   + "_d1");
+        auto ila_waddr = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_waddr" + "_d1");
+        auto ila_wdata = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_wdata" + "_d1");
 
         while(!(vmap.externmem_map.at(rfmap_node_idx).wport_mapped)
           && rfmap_node_idx < vmap.externmem_map.size())
@@ -560,5 +577,6 @@ void VlgSglTgtGen::rfmap_add_replacement(const std::string &old, const std::stri
   refinement_map.RegisterInternalVariableWithMapping(
     old, rfmap::VarReplacement(oldexpr, newexpr));
 } // rfmap_add_replacement
+
 
 }; // namespace ilang

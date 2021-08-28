@@ -57,7 +57,7 @@ void VlgSglTgtGen::add_smt_assumption(
     auto tp = refinement_map.GetType( n_expr_pair.second );
     auto smt_tp = rfmap::SmtType(tp.type, false);
     const auto & n = n_expr_pair.first;
-    arg.push_back("("+n + " " + smt_tp.type_to_smt2() + ")");
+    arg.push_back("(|"+n + "| " + smt_tp.type_to_smt2() + ")");
   } 
   add_a_direct_smt_assumption(
     "("+Join(arg, " ")+")", "Bool", body_smt2, dspt);
@@ -80,7 +80,7 @@ void VlgSglTgtGen::add_smt_assertion(
     auto tp = refinement_map.GetType( n_expr_pair.second );
     auto smt_tp = rfmap::SmtType(tp.type, false);
     const auto & n = n_expr_pair.first;
-    arg.push_back("("+n + " " + smt_tp.type_to_smt2() + ")");
+    arg.push_back("(|"+n + "| " + smt_tp.type_to_smt2() + ")");
   } 
   add_a_direct_smt_assertion(
     "("+Join(arg, " ")+")", "Bool", body_smt2, dspt);
@@ -94,11 +94,20 @@ void VlgSglTgtGen::add_an_assumption(const rfmap::RfExpr& aspt,
   all_assumptions[dspt].push_back(aspt);
 }
 
-/// Add an assertion -- JasperGold will override this
 void VlgSglTgtGen::add_an_assertion(const rfmap::RfExpr& asst,
                               const std::string& dspt) {
   rfmap::RfExprAstUtility::RfMapNoNullNode(asst); 
   all_assertions[dspt].push_back(asst);
+}
+
+void VlgSglTgtGen::add_a_santiy_assertion(const rfmap::RfExpr& asst,
+                                const std::string& dspt) {
+  if(dspt == "post_value_holder" &&
+     !_vtg_config.SanityCheck_ValueRecorderOverlyConstrained)
+    return;
+  
+  rfmap::RfExprAstUtility::RfMapNoNullNode( asst );   
+  all_sanity_assertions[dspt].push_back(asst);
 }
 
 static std::string const_to_unified_str(const rfmap::RfExpr & in) {
@@ -186,20 +195,31 @@ void VlgSglTgtGen::ConstructWrapper_translate_property_and_collect_all_rtl_conne
   for(auto & dspt_vn_rfexpr_eq : assign_or_assumptions) {
     const auto & vn = std::get<1>(dspt_vn_rfexpr_eq);
     const auto & rfe = std::get<2>(dspt_vn_rfexpr_eq);
+
+    ILA_DLOG("VTG.ReplWireEq") << vn << " := " << rfe->to_verilog(); 
     std::get<3>(dspt_vn_rfexpr_eq) = 
       ReplExpr(rfmap_eq( rfmap_var(vn), rfe));
   } // for each assign/assumption
 
   for(auto & dspt_aspt : all_assumptions) {
     for(auto & aspt : dspt_aspt.second) {
-      
+      ILA_DLOG("VTG.ReplAssume") << aspt->to_verilog() ;
       aspt = ReplExpr(aspt);
     }
   }
   
   for (auto & dspt_asst : all_assertions) {
-    for (auto & asst : dspt_asst.second) 
+    for (auto & asst : dspt_asst.second) {
+      ILA_DLOG("VTG.ReplAssert") << asst->to_verilog() ;
       asst = ReplExpr(asst);
+    }
+  }
+
+  for (auto & dspt_asst : all_sanity_assertions) {
+    for (auto & asst : dspt_asst.second) {
+      ILA_DLOG("VTG.ReplAssert") << asst->to_verilog() ;
+      asst = ReplExpr(asst);
+    }
   }
 
   if(is_jg) {
@@ -209,8 +229,15 @@ void VlgSglTgtGen::ConstructWrapper_translate_property_and_collect_all_rtl_conne
     }
     for(auto & dspt_asst : all_assertions) {
       for(auto & asst : dspt_asst.second) 
-        add_a_direct_assumption(  asst->to_verilog(), dspt_asst.first );
+        add_a_direct_assertion(  asst->to_verilog(), dspt_asst.first );
     }
+    for(auto & dspt_asst : all_sanity_assertions) {
+      for(auto & asst : dspt_asst.second) 
+        add_a_direct_sanity_assertion(  asst->to_verilog(), dspt_asst.first );
+    }
+
+
+
     for (auto & dspt_vn_rfexpr_eq : assign_or_assumptions) {
       const auto & vn = std::get<1>(dspt_vn_rfexpr_eq);
       const auto & eq = std::get<3>(dspt_vn_rfexpr_eq);
@@ -274,6 +301,8 @@ void VlgSglTgtGen::ConstructWrapper_translate_property_and_collect_all_rtl_conne
     const auto & dspt = std::get<0>(dspt_vn_rfexpr_eq);
     const auto & wn = std::get<1>(dspt_vn_rfexpr_eq);
 
+    ILA_DLOG("VTG.AddWireEq") << eq->to_verilog();
+
     std::map<std::string, rfmap::RfVar>  array_var;
     if(rfmap::RfExprAstUtility::HasArrayVar(eq, array_var))
       add_smt_assumption(eq, dspt);
@@ -283,6 +312,8 @@ void VlgSglTgtGen::ConstructWrapper_translate_property_and_collect_all_rtl_conne
 
   for(const auto & dspt_aspt : all_assumptions) {
     for(const auto & aspt : dspt_aspt.second) {
+      ILA_DLOG("VTG.AddAssume") << aspt->to_verilog();
+
       std::map<std::string, rfmap::RfVar>  array_var;
       if(rfmap::RfExprAstUtility::HasArrayVar(aspt, array_var))
         add_smt_assumption(aspt, dspt_aspt.first);
@@ -293,6 +324,8 @@ void VlgSglTgtGen::ConstructWrapper_translate_property_and_collect_all_rtl_conne
 
   for(const auto & dspt_asst : all_assertions) {
     for(const auto & asst : dspt_asst.second) {
+      ILA_DLOG("VTG.AddAssert") << asst->to_verilog();
+
       std::map<std::string, rfmap::RfVar>  array_var;
       if(rfmap::RfExprAstUtility::HasArrayVar(asst, array_var))
         add_smt_assertion(asst, dspt_asst.first);
@@ -300,6 +333,17 @@ void VlgSglTgtGen::ConstructWrapper_translate_property_and_collect_all_rtl_conne
         add_a_direct_assertion(asst->to_verilog(), dspt_asst.first);
     }
   }
+
+  for(const auto & dspt_asst : all_sanity_assertions) {
+    for(const auto & asst : dspt_asst.second) {
+      std::map<std::string, rfmap::RfVar>  array_var;
+      ILA_CHECK(!rfmap::RfExprAstUtility::HasArrayVar(asst, array_var))
+        << "Implementation bug: sanity checking assertion should not contain arrays";
+        
+      add_a_direct_sanity_assertion(asst->to_verilog(), dspt_asst.first);
+    }
+  }
+
   
 } // ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
 

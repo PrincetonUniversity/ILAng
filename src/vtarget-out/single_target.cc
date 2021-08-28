@@ -140,6 +140,13 @@ VlgSglTgtGen::VlgSglTgtGen(
       ILA_ERROR << "Implementation bug btw. vlg gen and vtarget-gen";
       _bad_state = true;
     }
+
+    // vlg_ila.ila_rports/ila_wports -> internal wire
+    // register_ila_memory_wires();
+    // no this is not needed
+    // the ports are connected to wires with names like
+    // __IMEM_xxx_...
+    // this is in single_target_connect.cc
     
   } // END of target_type == INSTRUCTION
   else if (target_type == target_type_t::INVARIANTS) {

@@ -4,7 +4,7 @@
   "instructions": [
     {
       "instruction": "SWAP",
-      "start condition":["m1.state == 0" , "$valid", "$decode" ],
+      "start condition":["RTL.state == 0" , "$valid", "$decode" ],
       "ready bound": 3
     }
   ]

@@ -41,7 +41,7 @@ typedef verilog_expr::VExprAstVar::VExprAstVarPtr RfVar;
 */
 
 struct SingleVarMap{
-  /// a single refinement string
+  /// a single refinement string, will be initialized to NULL
   RfExpr single_map;
   /// a list of pair of string
   std::vector<std::pair<RfExpr, RfExpr>> cond_map;
