@@ -118,11 +118,16 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
     pono = os_portable_append_dir(_vtg_config.PonoPath, pono);
   }
 
-  fout << pono << options << " problem.btor2 " << std::endl;
+  std::string extra_smt_properties;
+  if(!_problems.smt_assertions.empty()) {
+    extra_smt_properties += " --property-file property.smt2 ";
+  }
+
+  fout << pono << options << extra_smt_properties << " problem.btor2 " << std::endl;
 
   if(!_problems.sanity_assertions.empty()) {
     fout << yosys << " -s gen_sanity_prop.ys > __yosys_exec_result.sanity.txt\n"; 
-    
+    // here we intentionally leave out the property interface file.
     fout << pono << options << " sanity.btor2 " << std::endl;
   }
 } // Export_script
