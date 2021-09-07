@@ -772,6 +772,11 @@ VerilogRefinementMap::VerilogRefinementMap
     } // if func_section
   } // uf section
   { // additional mapping & assumptions
+    {
+      nlohmann::json * mapping_control = GetJsonSection(rf_vmap,{"mapping control"});
+      ERRIF(mapping_control!=NULL, "please rename `mapping control` to `additional mapping`");
+    }
+
     nlohmann::json * additonal_section = GetJsonSection(rf_vmap,{"additional mapping"});
     if(additonal_section) {
       ENSURE(additonal_section->is_array(), "`additional mapping` section should be a list of string");

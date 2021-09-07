@@ -229,6 +229,32 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
   vg.GenerateTargets();
 }
 
+
+
+TEST(TestVlgTargetGen, PipeStallRfmap) {
+  auto ila_model = SimplePipe::BuildStallModel();
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe_stall.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir,
+                             "vmap-rfmap-pvholder-stall.json"), // variable mapping
+      os_portable_append_dir(rfDir,
+                             "cond-rfmap-pvholder-stall.json"), // instruction-mapping
+      os_portable_append_dir(dirName, "verify_stall"), // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
 // test all kinds of rfmap issue
 // test bad states
 
@@ -296,15 +322,6 @@ TEST(TestVlgTargetGen, Memory) {
 
 TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
 
-
-  DebugLog::Enable("VTG.ReplWireEq");
-  DebugLog::Enable("VTG.ReplAssert");
-  DebugLog::Enable("VTG.ReplAssume");
-  
-  DebugLog::Enable("VTG.AddWireEq");
-  DebugLog::Enable("VTG.AddAssert");
-  DebugLog::Enable("VTG.AddAssume");
-
   auto ila_model = MemorySwap::BuildSimpleSwapModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t
@@ -331,6 +348,15 @@ TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
 
 TEST(TestVlgTargetGen, MemoryInternalExternal) {
   auto ila_model = MemorySwap::BuildRfAsMemModel();
+
+  DebugLog::Enable("VTG.ReplWireEq");
+  DebugLog::Enable("VTG.ReplAssert");
+  DebugLog::Enable("VTG.ReplAssume");
+  
+  DebugLog::Enable("VTG.AddWireEq");
+  DebugLog::Enable("VTG.AddAssert");
+  DebugLog::Enable("VTG.AddAssume");
+
 
   auto dirName =
       os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "vpipe", "vmem"});
@@ -360,7 +386,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
       {},                            // no include
       {dirName + "rf_as_mem_6rf.v"}, // vlog files
       "proc",                        // top_module_name
-      dirName + "vmap-rfarray.json", // variable mapping
+      dirName + "vmap-rfarray6.json", // variable mapping
       dirName + "cond-rfarray.json", // cond path
       dirName + "rfarray_rf6/",      // output path
       ila_model.get(),
