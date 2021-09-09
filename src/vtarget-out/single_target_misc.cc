@@ -309,13 +309,13 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
     // for sanity check
     vlg_wrapper.add_reg(pv_name+"_sn_vhold", post_val_holder.second.width);
     rfmap_add_internal_reg(pv_name+"_sn_vhold", post_val_holder.second.width);
-    vlg_wrapper.add_reg(pv_name+"_sn_value", post_val_holder.second.width);
-    rfmap_add_internal_reg(pv_name+"_sn_value", post_val_holder.second.width);
+    vlg_wrapper.add_wire(pv_name+"_sn_value", post_val_holder.second.width);
+    rfmap_add_internal_wire(pv_name+"_sn_value", post_val_holder.second.width);
     
     vlg_wrapper.add_reg(pv_name+"_sn_condmet", 1);
     rfmap_add_internal_reg(pv_name+"_sn_condmet", 1);
-    vlg_wrapper.add_reg(pv_name+"_sn_cond", 1);
-    rfmap_add_internal_reg(pv_name+"_sn_cond", 1);
+    vlg_wrapper.add_wire(pv_name+"_sn_cond", 1);
+    rfmap_add_internal_wire(pv_name+"_sn_cond", 1);
     vlg_wrapper.add_init_stmt(pv_name+"_sn_condmet <= 1'b0;");
     vlg_wrapper.add_always_stmt("if (" + pv_name+"_sn_cond ) begin " 
       + pv_name+"_sn_condmet <= 1'b1; "

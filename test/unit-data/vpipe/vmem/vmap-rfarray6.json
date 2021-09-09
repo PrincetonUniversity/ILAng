@@ -19,5 +19,9 @@
      "op":"RTL.op",
      "operand1":"RTL.operand1",
      "operand2":"RTL.operand2"
-  }
+  },
+
+  "mapping control" : [
+    "ILA.operand1 <= 5 && ILA.operand2 <= 5"
+  ]
 }

@@ -230,6 +230,54 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
 }
 
 
+TEST(TestVlgTargetGen, PipeStallRfmapShortNoValueHolder) {
+  auto ila_model = SimplePipe::BuildStallModel();
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe_stall_short.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir,
+                             "vmap-rfmap-stall-short.json"), // variable mapping
+      os_portable_append_dir(rfDir,
+                             "cond-rfmap-stall-short.json"), // instruction-mapping
+      os_portable_append_dir(dirName, "verify_stall_short_nopvholder"), // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+TEST(TestVlgTargetGen, PipeStallRfmapShort) {
+  auto ila_model = SimplePipe::BuildStallModel();
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe_stall_short.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir,
+                             "vmap-rfmap-pvholder-stall-short.json"), // variable mapping
+      os_portable_append_dir(rfDir,
+                             "cond-rfmap-pvholder-stall-short.json"), // instruction-mapping
+      os_portable_append_dir(dirName, "verify_stall_short"), // verification dir
+      ila_model.get(),                                    // ILA model
+      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
 
 TEST(TestVlgTargetGen, PipeStallRfmap) {
   auto ila_model = SimplePipe::BuildStallModel();

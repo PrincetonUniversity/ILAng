@@ -483,43 +483,45 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
     
       // mem write assertion
       // vlg_ila.ila_wports
-      const auto & write_ports = vlg_ila.ila_wports.at(ila_state_name);
-      unsigned rfmap_node_idx = 0;
+      if(vlg_ila.ila_wports.find(ila_state_name) != vlg_ila.ila_wports.end()) {
+        const auto & write_ports = vlg_ila.ila_wports.at(ila_state_name);
+        unsigned rfmap_node_idx = 0;
 
-      for(const auto & wport : write_ports) {
-        // the reason for _d1: see ConstructWrapper_get_ila_module_inst
-        // in single_target_connect.cc
-        size_t no = wport.first;
-        auto ila_wen   = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_wen"   + "_d1");
-        auto ila_waddr = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_waddr" + "_d1");
-        auto ila_wdata = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_wdata" + "_d1");
+        for(const auto & wport : write_ports) {
+          // the reason for _d1: see ConstructWrapper_get_ila_module_inst
+          // in single_target_connect.cc
+          size_t no = wport.first;
+          auto ila_wen   = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_wen"   + "_d1");
+          auto ila_waddr = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_waddr" + "_d1");
+          auto ila_wdata = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_wdata" + "_d1");
 
-        while(!(vmap.externmem_map.at(rfmap_node_idx).wport_mapped)
-          && rfmap_node_idx < vmap.externmem_map.size())
-            ++ rfmap_node_idx;
+          while(!(vmap.externmem_map.at(rfmap_node_idx).wport_mapped)
+            && rfmap_node_idx < vmap.externmem_map.size())
+              ++ rfmap_node_idx;
 
-        ILA_ERROR_IF(rfmap_node_idx >= vmap.externmem_map.size())
-          <<"#ila.write-port=" << write_ports.size() << " does not match #rfmap.write-port" 
-          <<", and this is a mismatch for sname:" << ila_state_name;
-        
-        const auto & rfmap_wport = vmap.externmem_map.at(rfmap_node_idx);
-        
-        auto rtl_wen = singlemap_bv_to_rfexpr(rfmap_wport.wen_map);
-        auto rtl_waddr = singlemap_bv_to_rfexpr(rfmap_wport.waddr_map);
-        auto rtl_wdata = singlemap_bv_to_rfexpr(rfmap_wport.wdata_map);
-        
-        auto constr = 
-          rfmap_and(
-            rfmap_eq(ila_wen , rtl_wen),
-            rfmap_imply(ila_wen,
-              rfmap_and(
-                rfmap_eq(ila_waddr, rtl_waddr), 
-                rfmap_eq(ila_wdata, rtl_wdata))));
-                
-        ADD_CONSTR(constr);
+          ILA_ERROR_IF(rfmap_node_idx >= vmap.externmem_map.size())
+            <<"#ila.write-port=" << write_ports.size() << " does not match #rfmap.write-port" 
+            <<", and this is a mismatch for sname:" << ila_state_name;
+          
+          const auto & rfmap_wport = vmap.externmem_map.at(rfmap_node_idx);
+          
+          auto rtl_wen = singlemap_bv_to_rfexpr(rfmap_wport.wen_map);
+          auto rtl_waddr = singlemap_bv_to_rfexpr(rfmap_wport.waddr_map);
+          auto rtl_wdata = singlemap_bv_to_rfexpr(rfmap_wport.wdata_map);
+          
+          auto constr = 
+            rfmap_and(
+              rfmap_eq(ila_wen , rtl_wen),
+              rfmap_imply(ila_wen,
+                rfmap_and(
+                  rfmap_eq(ila_waddr, rtl_waddr), 
+                  rfmap_eq(ila_wdata, rtl_wdata))));
+                  
+          ADD_CONSTR(constr);
 
-        ++ rfmap_node_idx;
-      } // for each write port
+          ++ rfmap_node_idx;
+        } // for each write port
+      } // end of if wport found
     } // end of if assume else assert
   }
 #undef ADD_CONSTR
