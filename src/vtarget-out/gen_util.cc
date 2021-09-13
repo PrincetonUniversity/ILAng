@@ -442,40 +442,41 @@ void VlgSglTgtGen::Gen_varmap_assumpt_assert(const std::string& ila_state_name,
 
     if(true_for_assumpt_false_for_assert) {
       // mem read assumption
-      const auto & read_ports = vlg_ila.ila_rports.at(ila_state_name);
-      unsigned rfmap_node_idx = 0;
+      if(vlg_ila.ila_rports.find(ila_state_name) != vlg_ila.ila_rports.end()) {
+        const auto & read_ports = vlg_ila.ila_rports.at(ila_state_name);
+        unsigned rfmap_node_idx = 0;
 
-      for(const auto & rport : read_ports) {
-        size_t no = rport.first;
+        for(const auto & rport : read_ports) {
+          size_t no = rport.first;
 
-        auto ila_raddr = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_raddr");
-        auto ila_rdata = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_rdata");
+          auto ila_raddr = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_raddr");
+          auto ila_rdata = rfmap_var("__IMEM_" + ila_state_name + "_" + IntToStr(no) + "_rdata");
 
-        while(!(vmap.externmem_map.at(rfmap_node_idx).rport_mapped)
-          && rfmap_node_idx < vmap.externmem_map.size())
-            ++ rfmap_node_idx;
+          while(!(vmap.externmem_map.at(rfmap_node_idx).rport_mapped)
+            && rfmap_node_idx < vmap.externmem_map.size())
+              ++ rfmap_node_idx;
 
-        ILA_ERROR_IF(rfmap_node_idx >= vmap.externmem_map.size())
-          <<"#ila.read-port=" << read_ports.size() << " does not match #rfmap.read-port" 
-          <<", and this is a mismatch for sname:" << ila_state_name;
-        
-        const auto & rfmap_rport = vmap.externmem_map.at(rfmap_node_idx);
-        
-        // expect bit-vector rather than booleans
-        auto rtl_ren = singlemap_bv_to_rfexpr(rfmap_rport.ren_map);
-        auto rtl_raddr = singlemap_bv_to_rfexpr(rfmap_rport.raddr_map);
-        auto rtl_rdata = singlemap_bv_to_rfexpr(rfmap_rport.rdata_map);
-        
-        auto constr = rfmap_imply( rfmap_and(
-          {rtl_ren, rfmap_eq(ila_raddr, rtl_raddr)}),
-          rfmap_eq(ila_rdata, rtl_rdata));
+          ILA_ERROR_IF(rfmap_node_idx >= vmap.externmem_map.size())
+            <<"#ila.read-port=" << read_ports.size() << " does not match #rfmap.read-port" 
+            <<", and this is a mismatch for sname:" << ila_state_name;
+          
+          const auto & rfmap_rport = vmap.externmem_map.at(rfmap_node_idx);
+          
+          // expect bit-vector rather than booleans
+          auto rtl_ren = singlemap_bv_to_rfexpr(rfmap_rport.ren_map);
+          auto rtl_raddr = singlemap_bv_to_rfexpr(rfmap_rport.raddr_map);
+          auto rtl_rdata = singlemap_bv_to_rfexpr(rfmap_rport.rdata_map);
+          
+          auto constr = rfmap_imply( rfmap_and(
+            {rtl_ren, rfmap_eq(ila_raddr, rtl_raddr)}),
+            rfmap_eq(ila_rdata, rtl_rdata));
 
-        ADD_CONSTR(constr);
+          ADD_CONSTR(constr);
 
-        ++ rfmap_node_idx;
+          ++ rfmap_node_idx;
 
-      } // for each read port
-
+        } // for each read port
+      } // if there is such port
     } else {
       //  assert : IEND |->
       //         ( ila.wen_d1 == rtl.wenexpr && ( ila.wen |-> 

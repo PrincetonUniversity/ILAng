@@ -1,13 +1,13 @@
 {
   "state mapping": {  
-    "rf":"rf",
+    "rf":"RTL.rf",
     "mem":{
-      "wen"   :"RTL.mem_w_en",
-      "waddr" :"RTL.mem_w_addr",
-      "wdata" :"RTL.mem_w_data",
-      "ren"   :"RTL.mem_r_en",
-      "raddr" :"RTL.mem_r_addr",
-      "rdata" :"RTL.mem_r_data"
+      "wen"   :"RTL.mem_w_en@0",
+      "waddr" :"RTL.mem_w_addr@0",
+      "wdata" :"RTL.mem_w_data@0",
+      "ren"   :"RTL.mem_r_en@0",
+      "raddr" :"RTL.mem_r_addr@0",
+      "rdata" :"RTL.mem_r_data@0"
     }},
 
   "RTL interface connection" : {
@@ -21,7 +21,7 @@
      "operand2":"RTL.operand2"
   },
 
-  "mapping control" : [
+  "additional mapping" : [
     "ILA.operand1 <= 5 && ILA.operand2 <= 5"
   ]
 }

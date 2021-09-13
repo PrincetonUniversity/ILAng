@@ -132,8 +132,9 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       // ) |-> (
       //   (decode |-> result_input == ??@??)
       // )
+      auto pre_cond = prep.empty() ? rfmap_true(): rfmap_and(prep);
       add_an_assumption(
-        rfmap_imply(rfmap_and(prep), res_map), "funcmap");
+        rfmap_imply(pre_cond, res_map), "funcmap");
     } // for each apply in the list of apply
 
     name_to_fnapp_vec.erase(funcName); // remove from it   

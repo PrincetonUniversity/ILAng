@@ -119,7 +119,7 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
   }
 
   std::string extra_smt_properties;
-  if(!_problems.smt_assertions.empty()) {
+  if(!_problems.smt_assertions.empty() || !_problems.smt_assumptions.empty()) {
     extra_smt_properties += " --property-file property.smt2 ";
   }
 

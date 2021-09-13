@@ -745,7 +745,7 @@ VerilogRefinementMap::VerilogRefinementMap
   } // clock
 
   { // uf section
-    nlohmann::json * func_section = GetJsonSection(rf_vmap,{"functions"});
+    nlohmann::json * func_section = GetJsonSection(rf_vmap,{"functions","function","uf","ufs","uninterpreted function","uninterpreted functions"});
     if (func_section) {
       ENSURE(func_section->is_object(), "Expect `functions` to be map:name->list of invocation ");
       for(auto & n_invocation_pair : func_section->items()) {
