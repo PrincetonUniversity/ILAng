@@ -75,18 +75,18 @@ void VlgSglTgtGen::add_inv_obj_as_assertion(InvariantObject* inv_obj) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
     rfmap_add_internal_wire(std::get<0>(name_expr_pair),
-                         std::get<2>(name_expr_pair));
-    add_wire_assign_assumption(std::get<0>(name_expr_pair),
-      refinement_map.ParseRfExprFromString(
-                                    std::get<1>(name_expr_pair)), "invariant_aux_var");
+                            std::get<2>(name_expr_pair));
+    add_wire_assign_assumption(
+        std::get<0>(name_expr_pair),
+        refinement_map.ParseRfExprFromString(std::get<1>(name_expr_pair)),
+        "invariant_aux_var");
   }
   for (auto&& name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
     vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
     vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
-    auto new_cond = 
-      refinement_map.ParseRfExprFromString(inv_expr);
+    auto new_cond = refinement_map.ParseRfExprFromString(inv_expr);
     add_an_assertion(new_cond, "invariant_assert");
   }
 } // add_inv_obj_as_assertion
@@ -97,18 +97,18 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
     rfmap_add_internal_wire(std::get<0>(name_expr_pair),
-                         std::get<2>(name_expr_pair));
-    add_wire_assign_assumption(std::get<0>(name_expr_pair),
+                            std::get<2>(name_expr_pair));
+    add_wire_assign_assumption(
+        std::get<0>(name_expr_pair),
         refinement_map.ParseRfExprFromString(std::get<1>(name_expr_pair)),
-      "invariant_aux_var");
+        "invariant_aux_var");
   }
   for (auto&& name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
     vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
     vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
   }
   for (auto&& inv_expr : inv_obj->GetVlgConstraints()) {
-    auto new_cond = 
-      refinement_map.ParseRfExprFromString(inv_expr);
+    auto new_cond = refinement_map.ParseRfExprFromString(inv_expr);
     add_an_assumption(new_cond, "invariant_assume");
   }
 } // add_inv_obj_as_assumption
@@ -207,9 +207,8 @@ void VlgSglTgtGen::
   if (_advanced_param_ptr && _advanced_param_ptr->_cex_obj_ptr) {
     // this is cex reachability checking
     // -- assertions -- //
-    auto new_cond =
-          refinement_map.ParseRfExprFromString(
-            _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("")); // force vlg state
+    auto new_cond = refinement_map.ParseRfExprFromString(
+        _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("")); // force vlg state
     add_an_assertion(rfmap_not(new_cond), "cex_nonreachable_assert");
     // -- assumption -- //
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
@@ -249,6 +248,5 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
   rfmap_add_replacement("decode", "__START__");
   rfmap_add_internal_wire("__STARTED__", 1);
 }
-
 
 } // namespace ilang

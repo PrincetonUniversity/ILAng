@@ -22,8 +22,8 @@
 #include "nlohmann/json.hpp"
 #include <ilang/config.h>
 #include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/rfmap-in/rfmap_typecheck.h>
+#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/directive.h>
@@ -38,12 +38,9 @@ struct RtlExtraWire {
   std::string hierarchy;
   std::string internal_name;
   unsigned width;
-  RtlExtraWire(const std::string & wn,
-    const std::string & h,
-    const std::string & i,
-    unsigned _width) :
-      wire_name(wn), hierarchy(h), internal_name(i),
-      width(_width) { }
+  RtlExtraWire(const std::string& wn, const std::string& h,
+               const std::string& i, unsigned _width)
+      : wire_name(wn), hierarchy(h), internal_name(i), width(_width) {}
   // for example:
   //   RTL.a.b.c[3]
   //   wire_name : RTL__DOT__a__DOT__b__DOT__c_3_
@@ -62,7 +59,7 @@ public:
   /// Type of the verification backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of the synthesis backend
-  //using synthesis_backend_selector =
+  // using synthesis_backend_selector =
   //    VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
@@ -85,17 +82,17 @@ public:
   /// \param[in] which backend to use, it needs this info to gen proper
   /// properties
   VlgSglTgtGen(
-    const std::string& output_path, // will be a sub directory of the output_path of its parent
-    const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
-                               // be used to verify invariants
-    const InstrLvlAbsPtr& ila_ptr,
-    const rfmap::VerilogRefinementMap & refinement,
-    VerilogInfo* _vlg_info_ptr,
-    const std::string& wrapper_name,
-    const std::vector<std::string>& implementation_srcs,
-    const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector backend,
-    const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
+      const std::string& output_path, // will be a sub directory of the
+                                      // output_path of its parent
+      const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
+                                 // be used to verify invariants
+      const InstrLvlAbsPtr& ila_ptr,
+      const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
+      const std::string& wrapper_name,
+      const std::vector<std::string>& implementation_srcs,
+      const std::vector<std::string>& implementation_include_path,
+      const vtg_config_t& vtg_config, backend_selector backend,
+      const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
 
   /// Destructor: do nothing , most importantly it is virtual
   virtual ~VlgSglTgtGen() {}
@@ -163,7 +160,7 @@ protected:
   const ExprPtr IlaGetInput(const std::string& sname) const;
   /// Get (a,d) width of a memory, if not existing, (0,0)
   std::pair<unsigned, unsigned>
-    GetMemInfo(const std::string& ila_mem_name) const;
+  GetMemInfo(const std::string& ila_mem_name) const;
   /// Test if a string represents an ila state name
   bool TryFindIlaState(const std::string& sname);
   /// Test if a string represents an ila input name
@@ -173,77 +170,79 @@ protected:
   /// Try to find a ILA var according to a name
   ExprPtr TryFindIlaVarName(const std::string& sname);
   /// return the type of a variable when its name is given
-  rfmap::RfVarTypeOrig VarTypeCheckForRfExprParsing(const std::string &);
-  
+  rfmap::RfVarTypeOrig VarTypeCheckForRfExprParsing(const std::string&);
+
   /// Check if ila name and vlg name are type compatible (not including special
   /// directives)
   static unsigned TypeMatched(const ExprPtr& ila_var,
                               const SignalInfoBase& vlg_var);
   /// get width of an ila node
   static unsigned get_width(const ExprPtr& n);
-  
+
   // -----------------------------------------------------------------------
-  // Refinement map handling 
+  // Refinement map handling
   // -----------------------------------------------------------------------
   /// Create a variable replacement for var
   /// RTL_var/ ILA_IN/ ILA_SO/ INTERNL-DEFVAR
   /// a new var is always typed
-  /// otherwise, will not 
+  /// otherwise, will not
   /// this function get type information from
-  ///    VarTypeCheckForRfExprParsing and 
+  ///    VarTypeCheckForRfExprParsing and
   ///    refinement_map.all_var_def_type
-  rfmap::VarReplacement CreateVarReplacement(
-    const rfmap::RfVar & var, bool replace_internal_names);
+  rfmap::VarReplacement CreateVarReplacement(const rfmap::RfVar& var,
+                                             bool replace_internal_names);
   /// replace var for assumptions/assertions
   /// (should only be used inside assumptions/assertions)
   /// 1. GetVar 2. Check Replacement 3. add replacement using the above
   ///  function 4. do replacement for var 5. annotate type
-  rfmap::RfExpr ReplExpr(const rfmap::RfExpr & in);
+  rfmap::RfExpr ReplExpr(const rfmap::RfExpr& in);
 
   /// treat `in` as var map, if it is not a Boolean, add `==`
   /// this function is not used in `_bv` version below
-  rfmap::RfExpr TranslateMap(const rfmap::RfExpr & in, const std::string & ila_vn);
-  
+  rfmap::RfExpr TranslateMap(const rfmap::RfExpr& in,
+                             const std::string& ila_vn);
+
   /// translate a conditional map to rf expression
   rfmap::RfExpr condition_map_to_rfexpr(
-      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>> & cond_map,
-      const std::string & ila_state_name);
+      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>>& cond_map,
+      const std::string& ila_state_name);
   /// difference from condition_map_to_rfexpr is that
   /// this will not create (v == ...) , this expects bv
   rfmap::RfExpr condition_map_bv_to_rfexpr(
-      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>> & cond_map);
-  
+      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>>& cond_map);
+
   /// translate a single map to rfexpr
-  rfmap::RfExpr singlemap_to_rfexpr(
-    const rfmap::SingleVarMap & single_map,
-    const std::string & ila_state_name);
+  rfmap::RfExpr singlemap_to_rfexpr(const rfmap::SingleVarMap& single_map,
+                                    const std::string& ila_state_name);
   /// translate a single map to rfexpr (expect bit-vector)
-  rfmap::RfExpr singlemap_bv_to_rfexpr(
-    const rfmap::SingleVarMap & single_map);
+  rfmap::RfExpr singlemap_bv_to_rfexpr(const rfmap::SingleVarMap& single_map);
 
   /// register a reg in refinement_map.all_var_def_type
-  void rfmap_add_internal_reg(const std::string &n, unsigned width);
+  void rfmap_add_internal_reg(const std::string& n, unsigned width);
   /// register a wire in refinement_map.all_var_def_type
-  void rfmap_add_internal_wire(const std::string &n, unsigned width);
+  void rfmap_add_internal_wire(const std::string& n, unsigned width);
   /// register a replacement in refinement_map
   /// this will affect ReplExpr's behavior
   /// (Note 1: ReplExpr will also create replacement, but it will not use
   /// this function. 2: will require that the new one has been registered
   /// in refinement_map.all_var_def_type)
-  void rfmap_add_replacement(const std::string &old, const std::string &n);
+  void rfmap_add_replacement(const std::string& old, const std::string& n);
 
   /// handle a var map
   void Gen_varmap_assumpt_assert(const std::string& ila_state_name,
-    const rfmap::IlaVarMapping &vmap, const std::string & problem_name, bool true_for_assumpt_false_for_assert);
+                                 const rfmap::IlaVarMapping& vmap,
+                                 const std::string& problem_name,
+                                 bool true_for_assumpt_false_for_assert);
 
   // handle an input map
   void Gen_input_map_assumpt(const std::string& ila_input_name,
-    const rfmap::IlaVarMapping &imap, const std::string & problem_name);
+                             const rfmap::IlaVarMapping& imap,
+                             const std::string& problem_name);
 
   /// add a start condition if it is given
-  void handle_start_condition(const std::vector<rfmap::RfExpr> & dc);
+  void handle_start_condition(const std::vector<rfmap::RfExpr>& dc);
   /// Find the current instruction-mapping
-  const rfmap::InstructionCompleteCondition & get_current_instruction_rf();
+  const rfmap::InstructionCompleteCondition& get_current_instruction_rf();
 
 protected:
   // --------------- STEPS OF GENERATION ------------------------//
@@ -291,9 +290,9 @@ protected:
   /// handle all_assumption/all_assertion
   /// ReplExpr all assertion/assumptions
   ///   ReplExpr will know whether to create
-  ///   `__DOT__`, but will anyway 
+  ///   `__DOT__`, but will anyway
   //    do the other replacement, and non-repl
-  /// for yosys: 
+  /// for yosys:
   ///    1. use var_replacement to create
   ///       extra wire
   ///    2. check if contains array[const]
@@ -344,17 +343,23 @@ protected:
   backend_selector _backend;
 
 protected:
-  // ----------------------- MEMBERS for storing assumptions/assertions ------------------- //
+  // ----------------------- MEMBERS for storing assumptions/assertions
+  // ------------------- //
   /// assumptions : written by add_an_assumption,
-  ///   consumed by ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  ///   consumed by
+  ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
   std::map<std::string, std::vector<rfmap::RfExpr>> all_assumptions;
   /// assumptions : written by add_an_assertion,
-  ///   consumed by ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  ///   consumed by
+  ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
   std::map<std::string, std::vector<rfmap::RfExpr>> all_assertions;
-  ///   consumed by ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  ///   consumed by
+  ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
   std::map<std::string, std::vector<rfmap::RfExpr>> all_sanity_assertions;
   /// assign or assumptions : vector of (dspt, wire_name, rhs, wn == rhs)
-  std::vector<std::tuple<std::string,std::string, rfmap::RfExpr, rfmap::RfExpr>> assign_or_assumptions; 
+  std::vector<
+      std::tuple<std::string, std::string, rfmap::RfExpr, rfmap::RfExpr>>
+      assign_or_assumptions;
   /// map: wire_name -> (wire_name, hierarchy, internal name)
   std::unordered_map<std::string, RtlExtraWire> rtl_extra_wire;
 
@@ -388,25 +393,25 @@ public:
 protected:
   // helper function to be implemented by COSA/JASPER
   /// Add an assumption -- backend dependent
-  virtual void add_a_direct_assumption(const std::string& aspt, 
-                                       const std::string& dspt)  = 0;
+  virtual void add_a_direct_assumption(const std::string& aspt,
+                                       const std::string& dspt) = 0;
   /// Add an assertion
-  virtual void add_a_direct_assertion(const std::string& aspt, 
-                                      const std::string& dspt)  = 0;
+  virtual void add_a_direct_assertion(const std::string& aspt,
+                                      const std::string& dspt) = 0;
   /// Add a sanity assertion
-  virtual void add_a_direct_sanity_assertion(const std::string& aspt, 
-                                      const std::string& dspt)  = 0;
-  
+  virtual void add_a_direct_sanity_assertion(const std::string& aspt,
+                                             const std::string& dspt) = 0;
+
   /// Add SMT-lib2 assumption
   virtual void add_a_direct_smt_assumption(const std::string& arg,
-                                       const std::string& ret,
-                                       const std::string& body,
-                                       const std::string& dspt) = 0;
+                                           const std::string& ret,
+                                           const std::string& body,
+                                           const std::string& dspt) = 0;
   /// Add SMT-lib2 assertion
   virtual void add_a_direct_smt_assertion(const std::string& arg,
-                                      const std::string& ret,
-                                      const std::string& body,
-                                      const std::string& dspt) = 0;
+                                          const std::string& ret,
+                                          const std::string& body,
+                                          const std::string& dspt) = 0;
 
   // helper function to add assumption/assertions to internal data-strcture
   virtual void add_an_assumption(const rfmap::RfExpr& aspt,
@@ -418,31 +423,29 @@ protected:
 
   /// Add an assertion for sanity checking -- simply put in record
   void add_a_santiy_assertion(const rfmap::RfExpr& aspt,
-                                const std::string& dspt);
+                              const std::string& dspt);
 
   // Add SMT assumption (using rfexpr)
   //  - will use add_a_direct_smt_assumption/assertion
-  virtual void add_smt_assumption(
-    const rfmap::RfExpr & body,
-    const std::string & dspt);
+  virtual void add_smt_assumption(const rfmap::RfExpr& body,
+                                  const std::string& dspt);
 
   // Add SMT assertion (using rfexpr)
-  virtual void add_smt_assertion(
-    const rfmap::RfExpr & body,
-    const std::string & dspt);
+  virtual void add_smt_assertion(const rfmap::RfExpr& body,
+                                 const std::string& dspt);
 
-  /// Add an assignment which in JasperGold could be an assignment, but in Yosys-based solution
-  /// has to be an assumption 
+  /// Add an assignment which in JasperGold could be an assignment, but in
+  /// Yosys-based solution has to be an assumption
   virtual void add_wire_assign_assumption(const std::string& varname,
-                                          const rfmap::RfExpr &aspt,
+                                          const rfmap::RfExpr& aspt,
                                           const std::string& dspt);
 
   /// Add an assignment, will always be an assumption
   /// will use add_an_assumption, and it is up to
   /// the derived class to determine whether to add as vlg/smt assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
-                                          const rfmap::RfExpr & expression,
-                                          int width, const rfmap::RfExpr & cond,
+                                          const rfmap::RfExpr& expression,
+                                          int width, const rfmap::RfExpr& cond,
                                           const std::string& dspt);
 
 public:
@@ -496,7 +499,7 @@ public:
   VlgVerifTgtGen(const std::vector<std::string>& implementation_include_path,
                  const std::vector<std::string>& implementation_srcs,
                  const std::string& implementation_top_module,
-                 const rfmap::VerilogRefinementMap & refinement,
+                 const rfmap::VerilogRefinementMap& refinement,
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
                  backend_selector backend, const vtg_config_t& vtg_config,
                  advanced_parameters_t* adv_ptr = NULL);
@@ -538,7 +541,6 @@ protected:
   /// to store the generate script name
   std::vector<std::string> runnable_script_name;
 
-
 public:
   // --------------------- METHODS ---------------------------- //
   /// Generate everything
@@ -564,7 +566,6 @@ public:
 
   /// generate the runable script name
   const std::vector<std::string>& GetRunnableScriptName() const;
-
 
 protected:
   /// If it is bad state, return true and display a message

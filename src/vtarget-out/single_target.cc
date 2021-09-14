@@ -33,16 +33,14 @@ VlgSglTgtGen::VlgSglTgtGen(
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr,
-    const rfmap::VerilogRefinementMap & refinement,
-    VerilogInfo* _vlg_info_ptr,
+    const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
     const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
     const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
     : _output_path(output_path), _instr_ptr(instr_ptr), _host(ila_ptr),
-      _vlg_mod_inst_name("RTL"),
-      _ila_mod_inst_name("ILA"),
+      _vlg_mod_inst_name("RTL"), _ila_mod_inst_name("ILA"),
       // default option on wrapper
       vlg_wrapper(
           VerilogGenerator::VlgGenConfig(true, // ExternalMem
@@ -57,12 +55,13 @@ VlgSglTgtGen::VlgSglTgtGen(
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
           false, // default case: internal memory
-          VerilogGeneratorBase::VlgGenConfig::funcOption::External, // external function
-          true, // w. start signal
+          VerilogGeneratorBase::VlgGenConfig::funcOption::External, // external
+                                                                    // function
+          true,                              // w. start signal
           vtg_config.VerilogGenPassNodeName, // pass node name
-          false, // no rand init
-          false, // no expand memory
-          false  // no collecte ITE unknown
+          false,                             // no rand init
+          false,                             // no expand memory
+          false                              // no collecte ITE unknown
           )),
       // interface mapping directive
       // -------- CONTROLLING THE RESET CONNECTION ------------- //
@@ -80,16 +79,17 @@ VlgSglTgtGen::VlgSglTgtGen(
       //_vext(
       //    [this](const std::string& n) -> bool { return TryFindIlaState(n); },
       //    [this](const std::string& n) -> bool { return TryFindIlaInput(n); },
-      //    [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
+      //    [this](const std::string& n) -> bool { return TryFindVlgState(n);
+      //    }),
       // ref to refmaps
       refinement_map(refinement, /*type checker*/
-        [this](const std::string& n) -> rfmap::RfVarTypeOrig {
-          return this->VarTypeCheckForRfExprParsing(n);  }),
+                     [this](const std::string& n) -> rfmap::RfVarTypeOrig {
+                       return this->VarTypeCheckForRfExprParsing(n);
+                     }),
 
       target_type(target_tp), // whether it is
                               // invariant/instructions
-      max_bound(127),
-      cnt_width(1), _advanced_param_ptr(adv_ptr),
+      max_bound(127), cnt_width(1), _advanced_param_ptr(adv_ptr),
       has_gussed_synthesized_invariant(
           adv_ptr && adv_ptr->_candidate_inv_ptr &&
           !adv_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()),
@@ -100,8 +100,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       mapping_counter(0), property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
-      _vtg_config(vtg_config), _backend(backend),
-      _bad_state(false) {
+      _vtg_config(vtg_config), _backend(backend), _bad_state(false) {
 
   ILA_NOT_NULL(_host);
 
@@ -110,7 +109,6 @@ VlgSglTgtGen::VlgSglTgtGen(
             target_type == target_type_t::INV_SYN_DESIGN_ONLY)
       << "Implementation bug: unrecognized target type!";
 
-
   if (target_type == target_type_t::INSTRUCTIONS) {
 
     ILA_NOT_NULL(instr_ptr);
@@ -118,18 +116,18 @@ VlgSglTgtGen::VlgSglTgtGen(
 
     // TODO: insert the memory export directive
     VerilogGeneratorBase::memory_export_annotation_t mem_annotation;
-    for(unsigned sidx = 0; sidx < _host->state_num(); ++ sidx) {
-      const auto & s = _host->state(sidx);
-      if(!s->is_mem())
+    for (unsigned sidx = 0; sidx < _host->state_num(); ++sidx) {
+      const auto& s = _host->state(sidx);
+      if (!s->is_mem())
         continue;
-      const auto & n = s->name().str();
+      const auto& n = s->name().str();
       auto pos = refinement_map.ila_state_var_map.find(n);
       if (pos == refinement_map.ila_state_var_map.end())
         continue;
-      if(pos->second.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM)
-        mem_annotation.emplace(n,true);
+      if (pos->second.type == rfmap::IlaVarMapping::StateVarMapType::EXTERNMEM)
+        mem_annotation.emplace(n, true);
       else
-        mem_annotation.emplace(n,false);
+        mem_annotation.emplace(n, false);
     } // end - for each mem state
 
     vlg_ila.AnnotateMemory(mem_annotation); // need to change this
@@ -147,7 +145,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     // the ports are connected to wires with names like
     // __IMEM_xxx_...
     // this is in single_target_connect.cc
-    
+
   } // END of target_type == INSTRUCTION
   else if (target_type == target_type_t::INVARIANTS) {
     ILA_WARN_IF(instr_ptr != nullptr)
@@ -169,9 +167,9 @@ void VlgSglTgtGen::ConstructWrapper_add_inputmap_assumptions() {
   for (size_t input_idx = 0; input_idx < _host->input_num(); ++input_idx)
     ila_input_names.insert(_host->input(input_idx)->name().str());
 
-  for (const auto & iv_rfmap : refinement_map.ila_input_var_map) {
-    const auto & iname = iv_rfmap.first;
-    if(ila_input_names.find(iname) == ila_input_names.end()) {
+  for (const auto& iv_rfmap : refinement_map.ila_input_var_map) {
+    const auto& iname = iv_rfmap.first;
+    if (ila_input_names.find(iname) == ila_input_names.end()) {
       ILA_ERROR << "Cannot find ILA input with name: " << iname;
       continue;
     }
@@ -180,9 +178,9 @@ void VlgSglTgtGen::ConstructWrapper_add_inputmap_assumptions() {
     Gen_input_map_assumpt(iname, iv_rfmap.second, "input_map_assume_");
   }
 
-  if(!ila_input_names.empty()) {
+  if (!ila_input_names.empty()) {
     ILA_ERROR << "Lack input var map for the following variables:";
-    for(const auto & in : ila_input_names)
+    for (const auto& in : ila_input_names)
       ILA_ERROR << in;
   }
 }
@@ -197,9 +195,9 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  for (const auto & sv_rfmap : refinement_map.ila_state_var_map) {
-    const auto & sname = sv_rfmap.first;
-    if(!IN(sname, ila_state_names)) {
+  for (const auto& sv_rfmap : refinement_map.ila_state_var_map) {
+    const auto& sname = sv_rfmap.first;
+    if (!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
@@ -215,8 +213,8 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     ILA_DLOG("VtargetGen.ConstructWrapper_add_varmap_assumptions") << sname;
 
     std::string problem_name = "variable_map_assume_";
-    
-    Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, true );
+
+    Gen_varmap_assumpt_assert(sname, sv_rfmap.second, problem_name, true);
   } // end for each state variable
 
   ILA_DLOG("VtargetGen") << "STEP:"
@@ -243,9 +241,9 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
-  for (const auto & sv_rfmap : refinement_map.ila_state_var_map) {
-    const auto & sname = sv_rfmap.first;
-    if(!IN(sname, ila_state_names)) {
+  for (const auto& sv_rfmap : refinement_map.ila_state_var_map) {
+    const auto& sname = sv_rfmap.first;
+    if (!IN(sname, ila_state_names)) {
       ILA_ERROR << sname
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
@@ -254,12 +252,12 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 
     if (_vtg_config.OnlyCheckInstUpdatedVars &&
         _instr_ptr->update(sname) == nullptr) {
-        ILA_DLOG("VtargetGen") << "Skip assume EQ on variable:" << sname
-                              << " for instruction:" << _instr_ptr->name().str();
-        continue;
+      ILA_DLOG("VtargetGen") << "Skip assume EQ on variable:" << sname
+                             << " for instruction:" << _instr_ptr->name().str();
+      continue;
     }
     ILA_DLOG("VtargetGen.ConstructWrapper_add_varmap_assertions") << sname;
-    
+
     // just check if we miss any function in uf section
     FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
     for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
@@ -320,7 +318,6 @@ void VlgSglTgtGen::ConstructWrapper() {
   } else
     ConstructWrapper_inv_syn_cond_signals();
 
-
   // 1. dealing with reset
   ConstructWrapper_reset_setup(); // will use __RESETED__
 
@@ -353,18 +350,17 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   ConstructWrapper_add_rf_assumptions();
 
-
   ILA_DLOG("VtargetGen") << "STEP:" << 8;
 
   // post value holder --- ABC cannot work on this
   if (target_type == target_type_t::INSTRUCTIONS) {
-    // the vars defined here are already 
+    // the vars defined here are already
     // presented in refinement_map.all_var_def_type
     ConstructWrapper_add_post_value_holder();
     ConstructWrapper_add_delay_unit();
     ConstructWrapper_add_stage_tracker();
   }
-  
+
   ConstructWrapper_add_vlg_monitor();
   // add monitor -- inside the monitor, there will be
   // disable logic if it is for invariant type target
@@ -372,7 +368,7 @@ void VlgSglTgtGen::ConstructWrapper() {
   // 7. uni-functions
   if (target_type == target_type_t::INSTRUCTIONS)
     ConstructWrapper_add_uf_constraints();
-  
+
   // instantiate ila module
   if (target_type == target_type_t::INSTRUCTIONS) {
     auto ila_mod_inst = ConstructWrapper_get_ila_module_inst();
@@ -382,8 +378,8 @@ void VlgSglTgtGen::ConstructWrapper() {
   // read assumption/assertion, decide where to put them rtl/smt
   // perform the reg[n] optimize
   // populate the RtlExtraWire data structure
-  ConstructWrapper_translate_property_and_collect_all_rtl_connection_var(); 
-  // 1. varname 2. hierarchy 3. what to connect inside 
+  ConstructWrapper_translate_property_and_collect_all_rtl_connection_var();
+  // 1. varname 2. hierarchy 3. what to connect inside
 
   // 5.0 add the extra wires to the top module wrapper
   // will use var_replacement, and will set _idr
@@ -394,7 +390,6 @@ void VlgSglTgtGen::ConstructWrapper() {
   // 5. module instantiation
   // for the vlg inst: will use _idr
   ConstructWrapper_add_module_instantiation();
-
 
   // 2. add some monitors (bound cnt)
   // 3. add assumptions & assertions
@@ -412,11 +407,11 @@ void VlgSglTgtGen::Export_wrapper(const std::string& wrapper_name) {
   vlg_wrapper.DumpToFile(fout);
 
   // for append verilog
-  for(const auto & vlg_monitor : refinement_map.customized_monitor) {
-    if(vlg_monitor.second.verilog_append.empty())
+  for (const auto& vlg_monitor : refinement_map.customized_monitor) {
+    if (vlg_monitor.second.verilog_append.empty())
       continue;
-    if(!vlg_monitor.second.keep_for_invariant && 
-       target_type != target_type_t::INSTRUCTIONS)
+    if (!vlg_monitor.second.keep_for_invariant &&
+        target_type != target_type_t::INSTRUCTIONS)
       continue;
 
     fout << "/***** BEGIN of Monitor for " << vlg_monitor.first << " *****/\n";
@@ -468,7 +463,7 @@ void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
   Export_modify_verilog(); // this must be after Export_wrapper
 
   Export_problem(extra_name); // for JG this is do.tcl
-                              // for Pono: this is the yosys.script and 
+                              // for Pono: this is the yosys.script and
   Export_script(script_name);
 } // end of ExportAll
 

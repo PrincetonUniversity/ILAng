@@ -268,17 +268,14 @@ void VerilogModifier::RecordAdditionalVlgModuleStmt(
   add_stmt_map[loc.first].push_back(add_stmt_t(loc.second, stmt));
 }
 
-
 // RTL.a.b.c[3]
 // vname : RTL__DOT__a__DOT__b__DOT__c_3_
 // hiearchy RTL.a.b
 // last_level_name c[3]
-void VerilogModifier::RecordConnectSigName(
-    const std::string& vname, // wirename
-    const std::string& hierarchy, // 
-    const std::string& last_level_name,
-    unsigned width)
-{
+void VerilogModifier::RecordConnectSigName(const std::string& vname, // wirename
+                                           const std::string& hierarchy, //
+                                           const std::string& last_level_name,
+                                           unsigned width) {
   ILA_CHECK(width != 0);
 
   auto mod_hier_name = Split(hierarchy, ".");
@@ -319,7 +316,7 @@ void VerilogModifier::RecordConnectSigName(
 
 } // RecordConnectSigName
 
-#if 0 // the old implementation
+#if 0  // the old implementation
 /// record the name to add a keep there
 VerilogModifier::vlg_sig_t
 VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,

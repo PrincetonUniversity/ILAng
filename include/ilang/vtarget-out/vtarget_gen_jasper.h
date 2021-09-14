@@ -38,13 +38,12 @@ public:
       const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
-      const rfmap::VerilogRefinementMap & refinement,
-      VerilogInfo* _vlg_info_ptr, const std::string& wrapper_name,
+      const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
+      const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector backend,
       const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
-
 
 protected:
   /// internal storage of problems
@@ -53,21 +52,21 @@ protected:
   /// vector of pairs of <assertions, description>
   std::vector<std::pair<std::string, std::string>> assertions;
   /// vector of clock signals that need to be taken care of
-                             
+
   /// Name of the problem file
   std::string jg_script_name;
 
 protected:
   /// Add SMT-lib2 assumption
   virtual void add_a_direct_smt_assumption(const std::string& arg,
-                                       const std::string& ret,
-                                       const std::string& body,
-                                       const std::string& dspt) override;
+                                           const std::string& ret,
+                                           const std::string& body,
+                                           const std::string& dspt) override;
   /// Add SMT-lib2 assertion
   virtual void add_a_direct_smt_assertion(const std::string& arg,
-                                      const std::string& ret,
-                                      const std::string& body,
-                                      const std::string& dspt) override;
+                                          const std::string& ret,
+                                          const std::string& body,
+                                          const std::string& dspt) override;
 
   /// Add a direct assumption
   virtual void add_a_direct_assumption(const std::string& aspt,
@@ -77,9 +76,9 @@ protected:
                                       const std::string& dspt) override;
   /// Add a direct assertion
   virtual void add_a_direct_sanity_assertion(const std::string& asst,
-                                      const std::string& dspt) override {
-    add_a_direct_assertion(asst,dspt);  }
-    
+                                             const std::string& dspt) override {
+    add_a_direct_assertion(asst, dspt);
+  }
 
   /// Pre export work : nothing for cosa
   void virtual PreExportProcess() override {}

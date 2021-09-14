@@ -12,8 +12,8 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/vtarget_gen_pono.h>
 #include <ilang/vtarget-out/vtarget_gen_jasper.h>
+#include <ilang/vtarget-out/vtarget_gen_pono.h>
 // #include <ilang/vtarget-out/vtarget_gen_relchc.h>
 // #include <ilang/vtarget-out/vtarget_gen_yosys.h>
 // for invariant synthesis
@@ -29,29 +29,25 @@ VlgVerifTgtGen::VlgVerifTgtGen(
     const std::vector<std::string>& implementation_include_path,
     const std::vector<std::string>& implementation_srcs,
     const std::string& implementation_top_module,
-    const rfmap::VerilogRefinementMap & refinement,
-    const std::string& output_path,
-    const InstrLvlAbsPtr& ila_ptr,
-    backend_selector backend,
-    const vtg_config_t& vtg_config,
+    const rfmap::VerilogRefinementMap& refinement,
+    const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
+    backend_selector backend, const vtg_config_t& vtg_config,
     advanced_parameters_t* adv_ptr)
     : _vlg_impl_include_path(implementation_include_path),
       _vlg_impl_srcs(implementation_srcs),
-      _vlg_impl_top_name(implementation_top_module),
-      _refinement(refinement),
-      _output_path(output_path),
-      _ila_ptr(ila_ptr),
+      _vlg_impl_top_name(implementation_top_module), _refinement(refinement),
+      _output_path(output_path), _ila_ptr(ila_ptr),
       // configure is only for ila, generate the start signal
       vlg_info_ptr(
           NULL), // not creating it now, because we don't have the info to do so
-      _backend(backend), _vtg_config(vtg_config),
-      _advanced_param_ptr(adv_ptr), _bad_state(false) {
-        
+      _backend(backend), _vtg_config(vtg_config), _advanced_param_ptr(adv_ptr),
+      _bad_state(false) {
+
   if (_ila_ptr == nullptr) {
     ILA_ERROR << "ILA should not be none";
     _bad_state = true;
   }
-  
+
   // TODO: check more
 }
 
@@ -64,15 +60,14 @@ const std::vector<std::string>& VlgVerifTgtGen::GetRunnableScriptName() const {
   return runnable_script_name;
 }
 
-
 void VlgVerifTgtGen::GenerateTargets(void) {
   if (bad_state_return())
     return;
 
   runnable_script_name.clear();
 
-  vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
-                                 "RTL", _vlg_impl_top_name);
+  vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs, "RTL",
+                                 _vlg_impl_top_name);
 
   if (vlg_info_ptr == NULL || vlg_info_ptr->in_bad_state()) {
     ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
@@ -88,36 +83,32 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       _vtg_config.target_select == vtg_config_t::INV) {
     // check if there are really invariants:
     bool invariantExists = false;
-    if(!_refinement.global_invariants.empty())
+    if (!_refinement.global_invariants.empty())
       invariantExists = true;
-    
-    if ((_vtg_config.ValidateSynthesizedInvariant ==
-                    vtg_config_t::_validate_synthesized_inv::ALL ||
-                _vtg_config.ValidateSynthesizedInvariant ==
-                    vtg_config_t::_validate_synthesized_inv::CONFIRMED) &&
-               (_advanced_param_ptr &&
-                _advanced_param_ptr->_inv_obj_ptr != NULL &&
-                !_advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()
-                     .empty()))
-        invariantExists = true;
 
     if ((_vtg_config.ValidateSynthesizedInvariant ==
-                    vtg_config_t::_validate_synthesized_inv::ALL ||
-                _vtg_config.ValidateSynthesizedInvariant ==
-                    vtg_config_t::_validate_synthesized_inv::CANDIDATE) &&
-               (_advanced_param_ptr &&
-                _advanced_param_ptr->_candidate_inv_ptr != NULL &&
-                !_advanced_param_ptr->_candidate_inv_ptr->GetVlgConstraints()
-                     .empty()))
-        invariantExists = true;
+             vtg_config_t::_validate_synthesized_inv::ALL ||
+         _vtg_config.ValidateSynthesizedInvariant ==
+             vtg_config_t::_validate_synthesized_inv::CONFIRMED) &&
+        (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr != NULL &&
+         !_advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty()))
+      invariantExists = true;
+
+    if ((_vtg_config.ValidateSynthesizedInvariant ==
+             vtg_config_t::_validate_synthesized_inv::ALL ||
+         _vtg_config.ValidateSynthesizedInvariant ==
+             vtg_config_t::_validate_synthesized_inv::CANDIDATE) &&
+        (_advanced_param_ptr &&
+         _advanced_param_ptr->_candidate_inv_ptr != NULL &&
+         !_advanced_param_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()))
+      invariantExists = true;
 
     auto sub_output_path = os_portable_append_dir(_output_path, "invariants");
     if (_backend == backend_selector::PONO && invariantExists) {
       auto target = VlgSglTgtGen_Pono(
           sub_output_path,
           NULL, // invariant
-          _ila_ptr, _refinement, vlg_info_ptr,
-          "wrapper", _vlg_impl_srcs,
+          _ila_ptr, _refinement, vlg_info_ptr, "wrapper", _vlg_impl_srcs,
           _vlg_impl_include_path, _vtg_config, _backend,
           target_type_t::INVARIANTS, _advanced_param_ptr);
       target.ConstructWrapper();
@@ -127,8 +118,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Jasper(
           sub_output_path,
           NULL, // invariant
-          _ila_ptr, _refinement, vlg_info_ptr,
-          "wrapper", _vlg_impl_srcs,
+          _ila_ptr, _refinement, vlg_info_ptr, "wrapper", _vlg_impl_srcs,
           _vlg_impl_include_path, _vtg_config, _backend,
           target_type_t::INVARIANTS, _advanced_param_ptr);
       target.ConstructWrapper();
@@ -205,8 +195,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Pono(
             sub_output_path,
             instr_ptr, // instruction
-            _ila_ptr, _refinement, vlg_info_ptr,
-            "wrapper", _vlg_impl_srcs,
+            _ila_ptr, _refinement, vlg_info_ptr, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS, _advanced_param_ptr);
         target.ConstructWrapper();
@@ -216,8 +205,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Jasper(
             sub_output_path,
             instr_ptr, // instruction
-            _ila_ptr, _refinement, vlg_info_ptr,
-            "wrapper", _vlg_impl_srcs,
+            _ila_ptr, _refinement, vlg_info_ptr, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS, _advanced_param_ptr);
         target.ConstructWrapper();
@@ -286,7 +274,6 @@ bool VlgVerifTgtGen::bad_state_return(void) {
       << "VlgVerifTgtGen is in a bad state, cannot proceed.";
   return _bad_state;
 } // bad_state_return
-
 
 #if 0
 

@@ -101,11 +101,9 @@ public:
   /// record the name to add a keep there
   void RecordKeepSignalName(const std::string& vname);
   /// record the name to add related wires
-  void RecordConnectSigName(
-    const std::string& vname, // wirename
-    const std::string& hierarchy, // 
-    const std::string& last_level_name,
-    unsigned width);
+  void RecordConnectSigName(const std::string& vname,     // wirename
+                            const std::string& hierarchy, //
+                            const std::string& last_level_name, unsigned width);
 
   /// record the stmt to be added to a module
   void RecordAdditionalVlgModuleStmt(const std::string& stmt,

@@ -28,33 +28,34 @@ public:
   /// Type of the backend:
   /// Pono, JasperGold, CHC for chc solver, AIGER for abc
   // YOSYS is for invariant synthesis use
-  enum class backend_selector{
+  enum class backend_selector {
     NONE = 0,
     JASPERGOLD = 2,
-    YOSYS = 128,              // 10000000
-    //CHC = YOSYS + 8,          // 10001000
-    //Z3PDR = CHC + 1,          // 10001001
-    //ELD_CEGAR = CHC + 2,      // 10001010
-    //GRAIN_SYGUS = CHC + 4,    // 10001100
-    //ABCPDR = YOSYS + 16,      // 10010000
-    PONO = YOSYS + 32,        // 10100000
-    RELCHC = YOSYS + 64       // 11000000
+    YOSYS = 128, // 10000000
+    // CHC = YOSYS + 8,          // 10001000
+    // Z3PDR = CHC + 1,          // 10001001
+    // ELD_CEGAR = CHC + 2,      // 10001010
+    // GRAIN_SYGUS = CHC + 4,    // 10001100
+    // ABCPDR = YOSYS + 16,      // 10010000
+    PONO = YOSYS + 32,  // 10100000
+    RELCHC = YOSYS + 64 // 11000000
   };
-
 
   /// decide if a backend needs Yosys
   static bool backend_needs_yosys(backend_selector b) {
-    return (int(b) & int(backend_selector::YOSYS)) == int(backend_selector::YOSYS);
+    return (int(b) & int(backend_selector::YOSYS)) ==
+           int(backend_selector::YOSYS);
   }
 
   /// Type of invariant synthesis backend
   /*enum class synthesis_backend_selector {
-    // Z3       = int(backend_selector::Z3PDR)       ^ int(backend_selector::YOSYS), // 01001
-    GRAIN    = int(backend_selector::GRAIN_SYGUS) ^ int(backend_selector::YOSYS), // 01100
-    ABC      = int(backend_selector::ABCPDR)      ^ int(backend_selector::YOSYS), // 10000  
-    ELDERICA = int(backend_selector::ELD_CEGAR)   ^ int(backend_selector::YOSYS), // 01010
-    NOSYN    = int(backend_selector::YOSYS)                                     // 1000000
-  } ;*/
+    // Z3       = int(backend_selector::Z3PDR)       ^
+  int(backend_selector::YOSYS), // 01001 GRAIN    =
+  int(backend_selector::GRAIN_SYGUS) ^ int(backend_selector::YOSYS), // 01100
+    ABC      = int(backend_selector::ABCPDR)      ^
+  int(backend_selector::YOSYS), // 10000 ELDERICA =
+  int(backend_selector::ELD_CEGAR)   ^ int(backend_selector::YOSYS), // 01010
+    NOSYN    = int(backend_selector::YOSYS) // 1000000 } ;*/
   /// Type of the chc target
   enum class _chc_target_t { CEX, INVCANDIDATE, GENERAL_PROPERTY };
   /// Verilog Target Generation Configuration
@@ -82,7 +83,6 @@ public:
     /// if true : assume ((START || STARTED) && cond && not_triggered)
     ///            |-> reg == value
     bool EnforcingValueRecorderForOnlyOneCycle;
-    
 
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call
@@ -100,7 +100,6 @@ public:
     /// For Pono target generator : whether to force NEW/OLD port declaration
     enum class PortDeclStyleT { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
 
-
     /// Pono VCD output
     std::string PonoVcdOutputName;
     /// Binary location of Pono
@@ -109,7 +108,7 @@ public:
     /// buggy, so you can disable it if you want
     bool PonoAddKeep;
     /// For Pono backend: the default engine (ind by default)
-    /// other options: like bmc, bmc-sp, ind, interp, mbic3, 
+    /// other options: like bmc, bmc-sp, ind, interp, mbic3,
     /// ic3bits, ic3ia, msat-ic3ia, ic3sa, sygus-pdr
     std::string PonoEngine;
     /// For Pono backend: what more options to add
@@ -184,7 +183,7 @@ public:
     /// CHC, whether to force assumption on the init
     bool BtorAddCommentsInOutputs;
 
-    /* TODO: future work: 
+    /* TODO: future work:
         bool YosysAssumptionOverlyConstrainedCheck;
     */
 
@@ -230,16 +229,14 @@ public:
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), InvariantCheckNoReset(false),
-          OnlyCheckInstUpdatedVars(true),
-          VerilogGenPassNodeName(false),
+          OnlyCheckInstUpdatedVars(true), VerilogGenPassNodeName(false),
           EnforcingValueRecorderForOnlyOneCycle(true),
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL),
 
           // ----------- Options for Pono settings -------------- //
           ForceInstCheckReset(false), PortDeclStyle(PortDeclStyleT::AUTO),
-          PonoVcdOutputName("cex.vcd"), 
-          PonoAddKeep(false),
-          PonoEngine("ind"), PonoOtherOptions(""),
+          PonoVcdOutputName("cex.vcd"), PonoAddKeep(false), PonoEngine("ind"),
+          PonoOtherOptions(""),
           PonoDotReferenceNotify(PonoDotReferenceNotify_t::NOTIFY_PANIC),
           MaxBound(127), OnlyAssumeUpdatedVarsEq(false),
 
@@ -250,8 +247,8 @@ public:
           YosysUndrivenNetAsInput(true), YosysSmtFlattenHierarchy(true),
           YosysSmtFlattenDatatype(false), YosysPropertyCheckShowProof(false),
           YosysSmtArrayForRegFile(false),
-          YosysSmtStateSort(YosysStateSortT::Datatypes), InvariantSynthesisKeepMemory(true),
-          InvariantCheckKeepMemory(true),
+          YosysSmtStateSort(YosysStateSortT::Datatypes),
+          InvariantSynthesisKeepMemory(true), InvariantCheckKeepMemory(true),
           InvariantSynthesisReachableCheckKeepOldInvariant(false),
           YosysSetUndrivenZero(false),
 
@@ -274,8 +271,7 @@ public:
           AbcAssumptionStyle(AbcAssumptionStyle_t::AigMiterExtraOutput),
 
           // ----------- Options for Refinement Sanity Checks -------------- //
-          SanityCheck_ValueRecorderOverlyConstrained(true)
-    {}
+          SanityCheck_ValueRecorderOverlyConstrained(true) {}
   } vtg_config_t;
 
   /// Advanced parameters used for invariant synthesizer
@@ -315,7 +311,7 @@ public:
   /// Type of the backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of the synthesis backend
-  //using synthesis_backend_selector =
+  // using synthesis_backend_selector =
   //    VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
@@ -325,7 +321,7 @@ public:
   ///
   /// \param[in] implementation's include path (if it uses `include)
   /// \param[in] verilog's path, currently we only handle situation where all in
-  ///   the same folder 
+  ///   the same folder
   /// \param[in] name of the top module of the implementation,
   ///   leave "" to allow auto analysis
   /// \param[in] where to get variable mapping

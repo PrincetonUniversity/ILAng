@@ -19,32 +19,31 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
         output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
-    const InstrLvlAbsPtr& ila_ptr, 
-    const rfmap::VerilogRefinementMap & refinement,
-    VerilogInfo* _vlg_info_ptr,
+    const InstrLvlAbsPtr& ila_ptr,
+    const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
     const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
     const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
-    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, refinement, 
-                   _vlg_info_ptr, wrapper_name, implementation_srcs,
+    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, refinement, _vlg_info_ptr,
+                   wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, backend, target_tp,
                    adv_ptr) {}
 
 /// Add SMT-lib2 assumption
 void VlgSglTgtGen_Jasper::add_a_direct_smt_assumption(const std::string& arg,
-                                      const std::string& ret,
-                                      const std::string& body,
-                                      const std::string& dspt) {
-  ILA_CHECK(false) << "SMT assumption should not be generated for JasperGold";                                   
+                                                      const std::string& ret,
+                                                      const std::string& body,
+                                                      const std::string& dspt) {
+  ILA_CHECK(false) << "SMT assumption should not be generated for JasperGold";
 }
 
 /// Add SMT-lib2 assertion
 void VlgSglTgtGen_Jasper::add_a_direct_smt_assertion(const std::string& arg,
-                                    const std::string& ret,
-                                    const std::string& body,
-                                    const std::string& dspt) {
+                                                     const std::string& ret,
+                                                     const std::string& body,
+                                                     const std::string& dspt) {
   ILA_CHECK(false) << "SMT assertions should not be generated for JasperGold";
 }
 
@@ -58,7 +57,6 @@ void VlgSglTgtGen_Jasper::add_a_direct_assertion(const std::string& asst,
                                                  const std::string& dspt) {
   assertions.push_back(std::make_pair(asst, dspt));
 }
-
 
 /// export the script to run the verification
 void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {
@@ -108,8 +106,7 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
   for (auto&& asst_dspt_pair : assertions)
     fout << "assert -name " << asst_dspt_pair.second + std::to_string(No++)
          << " {" << asst_dspt_pair.first << "}" << std::endl;
-
-} 
+}
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Jasper::Export_modify_verilog() {

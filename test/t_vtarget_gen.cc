@@ -229,7 +229,6 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
   vg.GenerateTargets();
 }
 
-
 TEST(TestVlgTargetGen, PipeStallRfmapShortNoValueHolder) {
   auto ila_model = SimplePipe::BuildStallModel();
 
@@ -237,15 +236,18 @@ TEST(TestVlgTargetGen, PipeStallRfmapShortNoValueHolder) {
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
 
   VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe_stall_short.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
+      {}, // no include
+      {os_portable_append_dir(dirName,
+                              "simple_pipe_stall_short.v")}, // vlog files
+      "pipeline_v",                                          // top_module_name
       os_portable_append_dir(rfDir,
                              "vmap-rfmap-stall-short.json"), // variable mapping
-      os_portable_append_dir(rfDir,
-                             "cond-rfmap-stall-short.json"), // instruction-mapping
-      os_portable_append_dir(dirName, "verify_stall_short_nopvholder"), // verification dir
-      ila_model.get(),                                    // ILA model
+      os_portable_append_dir(
+          rfDir,
+          "cond-rfmap-stall-short.json"), // instruction-mapping
+      os_portable_append_dir(
+          dirName, "verify_stall_short_nopvholder"), // verification dir
+      ila_model.get(),                               // ILA model
       VerilogVerificationTargetGenerator::backend_selector::PONO // engine
   );
 
@@ -261,15 +263,18 @@ TEST(TestVlgTargetGen, PipeStallRfmapShort) {
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
 
   VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe_stall_short.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir,
-                             "vmap-rfmap-pvholder-stall-short.json"), // variable mapping
-      os_portable_append_dir(rfDir,
-                             "cond-rfmap-pvholder-stall-short.json"), // instruction-mapping
+      {}, // no include
+      {os_portable_append_dir(dirName,
+                              "simple_pipe_stall_short.v")}, // vlog files
+      "pipeline_v",                                          // top_module_name
+      os_portable_append_dir(
+          rfDir,
+          "vmap-rfmap-pvholder-stall-short.json"), // variable mapping
+      os_portable_append_dir(
+          rfDir,
+          "cond-rfmap-pvholder-stall-short.json"), // instruction-mapping
       os_portable_append_dir(dirName, "verify_stall_short"), // verification dir
-      ila_model.get(),                                    // ILA model
+      ila_model.get(),                                       // ILA model
       VerilogVerificationTargetGenerator::backend_selector::PONO // engine
   );
 
@@ -278,7 +283,6 @@ TEST(TestVlgTargetGen, PipeStallRfmapShort) {
   vg.GenerateTargets();
 }
 
-
 TEST(TestVlgTargetGen, PipeStallRfmap) {
   auto ila_model = SimplePipe::BuildStallModel();
 
@@ -286,15 +290,17 @@ TEST(TestVlgTargetGen, PipeStallRfmap) {
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
 
   VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
+      {},                                                       // no include
       {os_portable_append_dir(dirName, "simple_pipe_stall.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir,
-                             "vmap-rfmap-pvholder-stall.json"), // variable mapping
-      os_portable_append_dir(rfDir,
-                             "cond-rfmap-pvholder-stall.json"), // instruction-mapping
+      "pipeline_v", // top_module_name
+      os_portable_append_dir(
+          rfDir,
+          "vmap-rfmap-pvholder-stall.json"), // variable mapping
+      os_portable_append_dir(
+          rfDir,
+          "cond-rfmap-pvholder-stall.json"),           // instruction-mapping
       os_portable_append_dir(dirName, "verify_stall"), // verification dir
-      ila_model.get(),                                    // ILA model
+      ila_model.get(),                                 // ILA model
       VerilogVerificationTargetGenerator::backend_selector::PONO // engine
   );
 
@@ -328,7 +334,7 @@ TEST(TestVlgTargetGen, PipeExampleJasperGold) {
 
 TEST(TestVlgTargetGen, PipeExampleNotEqu) {
   auto ila_model = SimplePipe::BuildModel();
-  
+
   auto dirName =
       os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "vpipe"});
   VerilogVerificationTargetGenerator vg(
@@ -421,23 +427,22 @@ TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
   DebugLog::Enable("VTG.ReplWireEq");
   DebugLog::Enable("VTG.ReplAssert");
   DebugLog::Enable("VTG.ReplAssume");
-  
+
   DebugLog::Enable("VTG.AddWireEq");
   DebugLog::Enable("VTG.AddAssert");
   DebugLog::Enable("VTG.AddAssume");
-
 
   VlgVerifTgtGenBase::vtg_config_t vtg_cfg;
   vtg_cfg.PonoAddKeep = false;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
   VerilogVerificationTargetGenerator vg(
-      {},                            // no include
-      {dirName + "rf_as_mem_6rf.v"}, // vlog files
-      "proc",                        // top_module_name
+      {},                             // no include
+      {dirName + "rf_as_mem_6rf.v"},  // vlog files
+      "proc",                         // top_module_name
       dirName + "vmap-rfarray6.json", // variable mapping
-      dirName + "cond-rfarray.json", // cond path
-      dirName + "rfarray_rf6/",      // output path
+      dirName + "cond-rfarray.json",  // cond path
+      dirName + "rfarray_rf6/",       // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::PONO, vtg_cfg);
 
@@ -464,7 +469,6 @@ TEST(TestVlgTargetGen, MemoryRead) {
 
   vg.GenerateTargets();
 }
-
 
 TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
@@ -561,7 +565,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir(
             {dirName, "rfmap", "vmap.json"}), // variable mapping
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
-        os_portable_append_dir(dirName, "out2"),                // output path
+        os_portable_append_dir(dirName, "out2"),               // output path
         ila_model.get(),
         VerilogVerificationTargetGenerator::backend_selector::PONO);
 
@@ -570,6 +574,5 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
     vg.GenerateTargets();
   }
 }
-
 
 }; // namespace ilang

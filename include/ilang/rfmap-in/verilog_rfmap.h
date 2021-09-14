@@ -2,20 +2,18 @@
 /// External Refinement Map Interface Class
 /// --- Hongce Zhang (hongcez@princeton.edu)
 
-
 #ifndef ILANG_VERILOG_RFMAP_H__
 #define ILANG_VERILOG_RFMAP_H__
 
-#include <string>
-#include <vector>
 #include <map>
-#include <unordered_map>
 #include <set>
+#include <string>
+#include <unordered_map>
+#include <vector>
 #include <vexp.h>
 
 namespace ilang {
 namespace rfmap {
-
 
 // ---------------------- varmap ------------------------------- //
 
@@ -30,17 +28,16 @@ typedef verilog_expr::VExprAst::VExprAstPtr RfExpr;
 typedef verilog_expr::VExprAstVar::VExprAstVarPtr RfVar;
 
 /*
-"ILA_mem_state_var_2" : {                            // case 4 : external RTL memory
-  "wen"   : "<refinement-expression>",
-  "waddr" : "<refinement-expression>",
+"ILA_mem_state_var_2" : {                            // case 4 : external RTL
+memory "wen"   : "<refinement-expression>", "waddr" : "<refinement-expression>",
   "wdata" : "<refinement-expression>",
   "ren"   : "<refinement-expression>",
   "raddr" : "<refinement-expression>",
   "rdata" : "<refinement-expression>"
-}, 
+},
 */
 
-struct SingleVarMap{
+struct SingleVarMap {
   /// a single refinement string, will be initialized to NULL
   RfExpr single_map;
   /// a list of pair of string
@@ -60,28 +57,24 @@ struct ExternalMemPortMap {
 }; // struct ExternalMemPortMap
 
 struct IlaVarMapping {
-  enum class StateVarMapType {
-    SINGLE,
-    CONDITIONAL,
-    EXTERNMEM
-  } type;
+  enum class StateVarMapType { SINGLE, CONDITIONAL, EXTERNMEM } type;
   /// a single refinement string
   SingleVarMap single_map;
   /// the standard 6-port map
   std::vector<ExternalMemPortMap> externmem_map;
 }; // struct IlaVarMapping
 
-struct RtlInterfaceMapping{
+struct RtlInterfaceMapping {
   /// "CLOCK" : { "clkA" : "wclk", "clkB" : ["rclk", "clk"] }
   // name of the clock domain -> list of clock pins
   std::map<std::string, std::set<std::string>> clock_domain_defs;
-  
+
   // "RESET" : "reset", // you can have a list of signals here
   std::set<std::string> reset_pins;
   // "NRESET" : ["nreset1", "nreset2"],  // like this
   std::set<std::string> nreset_pins;
   // "CUSTOMRESET" : {"name"  : "input-pin", ...}
-  std::map<std::string, std::vector<std::string>> custom_reset_domain_defs;  
+  std::map<std::string, std::vector<std::string>> custom_reset_domain_defs;
 }; // struct RtlInterfaceMapping
 
 typedef std::vector<bool> OneBitSignalSequence;
@@ -94,7 +87,7 @@ struct ResetSpecification {
   // customized reset sequence
   std::map<std::string, OneBitSignalSequence> custom_reset_sequence;
   // default constructor
-  ResetSpecification() : reset_cycle(1) { }
+  ResetSpecification() : reset_cycle(1) {}
 }; // ResetSpecification
 
 struct ClockSpecification {
@@ -108,10 +101,10 @@ struct ClockSpecification {
   // per-clock domain specification, name -> sequence
   std::map<std::string, OneBitSignalSequence> custom_clock_sequence;
   // specified by the factor
-  std::map<std::string,ClockSpecification::factor> custom_clock_factor;
+  std::map<std::string, ClockSpecification::factor> custom_clock_factor;
 }; // ClockSpecification
 
-struct UninterpretedFunctionApplication{
+struct UninterpretedFunctionApplication {
   struct Apply {
     RfExpr result_map;
     std::vector<RfExpr> arg_map;
@@ -121,7 +114,7 @@ struct UninterpretedFunctionApplication{
 
 struct GeneralVerilogMonitor {
   struct VarDef {
-    enum class var_type {REG, WIRE} type;
+    enum class var_type { REG, WIRE } type;
     unsigned width;
   }; // VarDef
 
@@ -132,7 +125,7 @@ struct GeneralVerilogMonitor {
   bool keep_for_invariant;
 
   GeneralVerilogMonitor() : keep_for_invariant(false) {}
-}; // GeneralVerilogMonitor 
+}; // GeneralVerilogMonitor
 
 struct ValueRecorder {
   RfExpr condition;
@@ -145,14 +138,13 @@ struct ValueRecorder {
 // this is not directly used
 struct SignalDelay {
 
-  SignalDelay(const RfExpr & _signal, unsigned n_cycle) :
-    delay_type(delay_typeT::SINGLE), signal(_signal),
-    num_cycle(n_cycle), width(0), upper_bnd(0) {}
+  SignalDelay(const RfExpr& _signal, unsigned n_cycle)
+      : delay_type(delay_typeT::SINGLE), signal(_signal), num_cycle(n_cycle),
+        width(0), upper_bnd(0) {}
 
-  SignalDelay(const RfExpr & _signal, unsigned n_cycle,  unsigned u_bnd) :
-    delay_type(u_bnd == 0 ? delay_typeT::TO_INFINITE : delay_typeT::RANGE),
-    signal(_signal),
-    num_cycle(n_cycle), width(0), upper_bnd(u_bnd) {}
+  SignalDelay(const RfExpr& _signal, unsigned n_cycle, unsigned u_bnd)
+      : delay_type(u_bnd == 0 ? delay_typeT::TO_INFINITE : delay_typeT::RANGE),
+        signal(_signal), num_cycle(n_cycle), width(0), upper_bnd(u_bnd) {}
 
   enum class delay_typeT { SINGLE, RANGE, TO_INFINITE } delay_type;
   RfExpr signal;
@@ -165,7 +157,7 @@ struct SignalDelay {
 struct PhaseTracker {
   struct Assignment {
     std::string LHS; // a state name
-    RfExpr RHS; // a rhs expression
+    RfExpr RHS;      // a rhs expression
   };
   typedef std::vector<Assignment> Action;
   struct Rule {
@@ -185,19 +177,19 @@ struct PhaseTracker {
 
 // ---------------------- inst-cond ------------------------------- //
 
-struct InstructionCompleteCondition{
+struct InstructionCompleteCondition {
   std::string instruction_name;
-  enum class ConditionType {BOUND, SIGNAL} type;
+  enum class ConditionType { BOUND, SIGNAL } type;
   unsigned ready_bound;
   unsigned max_bound;
   std::vector<RfExpr> start_condition;
   RfExpr ready_signal;
 
-
-  InstructionCompleteCondition() : ready_bound(0), max_bound(0), ready_signal(nullptr) {}
-  bool is_readybound() const {return type == ConditionType::BOUND; }
-  bool is_readysignal() const {return type == ConditionType::SIGNAL; }
-}; // 
+  InstructionCompleteCondition()
+      : ready_bound(0), max_bound(0), ready_signal(nullptr) {}
+  bool is_readybound() const { return type == ConditionType::BOUND; }
+  bool is_readysignal() const { return type == ConditionType::SIGNAL; }
+}; //
 
 struct VerilogRefinementMap {
   // ---------------------- varmap ------------------------------- //
@@ -213,7 +205,7 @@ struct VerilogRefinementMap {
   ClockSpecification clock_specification;
   /// Uninterpreted function map : func-name -> applications
   std::map<std::string, UninterpretedFunctionApplication> uf_application;
-  /// "additional mapping"  section 
+  /// "additional mapping"  section
   std::vector<RfExpr> additional_mapping;
   /// "assumptions" section
   std::vector<RfExpr> assumptions;
@@ -221,27 +213,28 @@ struct VerilogRefinementMap {
   std::map<std::string, PhaseTracker> phase_tracker;
   std::map<std::string, ValueRecorder> value_recorder;
   std::map<std::string, GeneralVerilogMonitor> customized_monitor;
-  
+
   // ---------------------- inst-cond ------------------------------- //
   std::map<std::string, InstructionCompleteCondition> inst_complete_cond;
   std::vector<RfExpr> global_invariants;
 
-  // ---------------------- supplementary_info ------------------------------- //
-  std::map<std::string, int> width_info; // this is needed in case our width inference failed
+  // ---------------------- supplementary_info -------------------------------
+  // //
+  std::map<std::string, int>
+      width_info; // this is needed in case our width inference failed
 
   // member function : return true if checking passed
   bool SelfCheckField() const;
 
   // from JSON
-  VerilogRefinementMap(const std::string & varmap_json_file,
-                       const std::string & instcond_json_file);
-  
-  static RfExpr ParseRfExprFromString(const std::string & in);
-  
+  VerilogRefinementMap(const std::string& varmap_json_file,
+                       const std::string& instcond_json_file);
+
+  static RfExpr ParseRfExprFromString(const std::string& in);
+
 }; // VerilogRefinementMap
 
-} // namespace ilang
 } // namespace rfmap
+} // namespace ilang
 
 #endif // ILANG_VERILOG_RFMAP_H__
-

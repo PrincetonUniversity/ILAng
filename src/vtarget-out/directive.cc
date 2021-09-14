@@ -13,7 +13,7 @@ namespace ilang {
 #define VLG_TRUE "`true"
 
 // ---------------------- class IntefaceDirectiveRecorder
-// ------------------------------- 
+// -------------------------------
 
 void IntefaceDirectiveRecorder::ConnectModuleInputAddWire(
     const std::string& short_name, unsigned width) {
@@ -94,8 +94,8 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
     }
 
     ILA_CHECK(false) << "Connecting signal: " << the_wire_connected_to_the_port
-                      << " tp: " << conn_tp
-                      << " is not declared. Implementation bug!";
+                     << " tp: " << conn_tp
+                     << " is not declared. Implementation bug!";
   }
 }
 // register extra state out name
@@ -145,7 +145,7 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
         input_wires.push_back({"__VLG_I_" + short_name, width});
         mod_inst_rec.insert(
             {short_name,
-              inf_connector_t({inf_dir_t::INPUT, "__VLG_I_" + short_name})});
+             inf_connector_t({inf_dir_t::INPUT, "__VLG_I_" + short_name})});
       }
     }
     if (is_output) {
@@ -155,16 +155,18 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
         output_wires.push_back({"__VLG_O_" + short_name, width});
         mod_inst_rec.insert(
             {short_name,
-              inf_connector_t({inf_dir_t::SO, "__VLG_O_" + short_name})});
+             inf_connector_t({inf_dir_t::SO, "__VLG_O_" + short_name})});
       }
     }
   } else if (refstr == "**START**") {
-    ILA_ERROR_IF(!is_input || width != 1) << "Expecting `" << short_name << "` to be input of width 1";
+    ILA_ERROR_IF(!is_input || width != 1)
+        << "Expecting `" << short_name << "` to be input of width 1";
     mod_inst_rec.insert(
         {short_name,
-          inf_connector_t({inf_dir_t::START, "__START__ | __STARTED__"})});
+         inf_connector_t({inf_dir_t::START, "__START__ | __STARTED__"})});
   } else if (refstr == "**RESET**") {
-    ILA_ERROR_IF(!is_input || width != 1) << "Expecting `" << short_name << "` to be input of width 1";
+    ILA_ERROR_IF(!is_input || width != 1)
+        << "Expecting `" << short_name << "` to be input of width 1";
     if (_reset_vlg)
       mod_inst_rec.insert(
           {short_name, inf_connector_t({inf_dir_t::RESET, "rst"})});
@@ -172,7 +174,8 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       mod_inst_rec.insert(
           {short_name, inf_connector_t({inf_dir_t::RESET, "dummy_reset"})});
   } else if (refstr == "**NRESET**") {
-    ILA_ERROR_IF(!is_input || width != 1) << "Expecting `" << short_name << "` to be input of width 1";
+    ILA_ERROR_IF(!is_input || width != 1)
+        << "Expecting `" << short_name << "` to be input of width 1";
     if (_reset_vlg)
       mod_inst_rec.insert(
           {short_name, inf_connector_t({inf_dir_t::RESET, "~rst"})});
@@ -180,13 +183,14 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       mod_inst_rec.insert(
           {short_name, inf_connector_t({inf_dir_t::RESET, "~dummy_reset"})});
   } else if (refstr == "**CLOCK**") {
-    ILA_ERROR_IF(!is_input || width != 1) << "Expecting `" << short_name << "` to be input of width 1";
+    ILA_ERROR_IF(!is_input || width != 1)
+        << "Expecting `" << short_name << "` to be input of width 1";
     mod_inst_rec.insert(
         {short_name, inf_connector_t({inf_dir_t::CLOCK, "clk"})});
   } else
     ILA_ASSERT(false) << "Implementation error. Should not be reachable.";
   // decide how to connect and signals to create
-    return;
+  return;
 } // IntefaceDirectiveRecorder::RegisterInterface
 
 void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
@@ -197,7 +201,5 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
 
   _reset_vlg = reset_vlg;
 }
-
-
 
 } // namespace ilang

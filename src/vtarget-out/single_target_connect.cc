@@ -99,7 +99,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
     std::string func_reg_w =
         func_app.func_name + "_" + IntToStr(func_no) + "_result_wire";
-        
+
     vlg_wrapper.add_wire(func_reg_w, func_app.result.second, true);
     rfmap_add_internal_wire(func_reg_w, func_app.result.second);
     // add as a module input, also
@@ -245,9 +245,12 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       rfmap_add_internal_reg(wdw_delay, dw);
       rfmap_add_internal_reg(waw_delay, aw);
       rfmap_add_internal_reg(wew_delay, 1);
-      vlg_wrapper.add_always_stmt("if (__START__) " + wdw_delay + " <= " + wdw + ";");
-      vlg_wrapper.add_always_stmt("if (__START__) " + waw_delay + " <= " + waw + ";");
-      vlg_wrapper.add_always_stmt("if (__START__) " + wew_delay + " <= " + wew + ";");
+      vlg_wrapper.add_always_stmt("if (__START__) " + wdw_delay + " <= " + wdw +
+                                  ";");
+      vlg_wrapper.add_always_stmt("if (__START__) " + waw_delay + " <= " + waw +
+                                  ";");
+      vlg_wrapper.add_always_stmt("if (__START__) " + wew_delay + " <= " + wew +
+                                  ";");
 
       retStr += "   ." + port.wdata + "(" + wdw + "),\n";
       retStr += "   ." + port.waddr + "(" + waw + "),\n";
@@ -288,32 +291,31 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
 void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
 
-  auto vlg_inputs =
-      vlg_info_ptr->get_top_module_io(refinement_map.width_info);
-  
-  ILA_CHECK(
-    refinement_map.rtl_interface_connection.clock_domain_defs.size() == 1
-    && IN("default", refinement_map.rtl_interface_connection.clock_domain_defs))
-    << "Not implemented. Cannot handle multi-clock.";
-  
-  ILA_CHECK(
-    refinement_map.rtl_interface_connection.custom_reset_domain_defs.empty()
-  ) << "Not implemented. Cannot handle customized reset.";
+  auto vlg_inputs = vlg_info_ptr->get_top_module_io(refinement_map.width_info);
 
-  const auto & clock_pins = refinement_map.rtl_interface_connection.clock_domain_defs.at("default");
-  const auto & reset_pins = refinement_map.rtl_interface_connection.reset_pins;
-  const auto & nreset_pins= refinement_map.rtl_interface_connection.nreset_pins;
+  ILA_CHECK(
+      refinement_map.rtl_interface_connection.clock_domain_defs.size() == 1 &&
+      IN("default", refinement_map.rtl_interface_connection.clock_domain_defs))
+      << "Not implemented. Cannot handle multi-clock.";
+
+  ILA_CHECK(
+      refinement_map.rtl_interface_connection.custom_reset_domain_defs.empty())
+      << "Not implemented. Cannot handle customized reset.";
+
+  const auto& clock_pins =
+      refinement_map.rtl_interface_connection.clock_domain_defs.at("default");
+  const auto& reset_pins = refinement_map.rtl_interface_connection.reset_pins;
+  const auto& nreset_pins = refinement_map.rtl_interface_connection.nreset_pins;
   for (auto&& name_siginfo_pair : vlg_inputs) {
     std::string refstr = "**KEEP**";
-    if(IN(name_siginfo_pair.first, clock_pins))
+    if (IN(name_siginfo_pair.first, clock_pins))
       refstr = "**CLOCK**";
     else if (IN(name_siginfo_pair.first, reset_pins))
       refstr = "**RESET**";
     else if (IN(name_siginfo_pair.first, nreset_pins))
       refstr = "**NRESET**";
-    
-    _idr.RegisterInterface(
-        name_siginfo_pair.second, refstr);
+
+    _idr.RegisterInterface(name_siginfo_pair.second, refstr);
   }
 } // ConstructWrapper_add_vlg_input_output
 
@@ -333,8 +335,8 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
 
 // ------------------------ OTERHS (refs) ----------------------------- //
 void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
-  for (auto && extra_wire : rtl_extra_wire) {
-    const auto & wire_name = extra_wire.first;
+  for (auto&& extra_wire : rtl_extra_wire) {
+    const auto& wire_name = extra_wire.first;
     unsigned width = extra_wire.second.width;
 
     vlg_wrapper.add_wire(wire_name, width, 1); // keep

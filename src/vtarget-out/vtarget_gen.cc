@@ -44,10 +44,9 @@ VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
     : _generator(new VlgVerifTgtGen(
           implementation_include_path, implementation_srcs,
           implementation_top_module,
-          rfmap::VerilogRefinementMap(
-            refinement_variable_mapping,refinement_conditions),
-          output_path, ila_ptr, backend, vtg_config,
-          NULL)) {}
+          rfmap::VerilogRefinementMap(refinement_variable_mapping,
+                                      refinement_conditions),
+          output_path, ila_ptr, backend, vtg_config, NULL)) {}
 
 VerilogVerificationTargetGenerator::~VerilogVerificationTargetGenerator() {
   if (_generator)

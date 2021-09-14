@@ -86,7 +86,6 @@ public:
   void RegisterExtraWire(const std::string& io_name,
                          const std::string& outside_name);
 
-
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg
   /// module i/o has been declared correctly.

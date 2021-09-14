@@ -42,11 +42,11 @@ protected:
   problemset_t assertions;
   /// problems are splitted into items
   problemset_t sanity_assertions;
-  
+
   /// SMT-LIB2 assumptions
   prop_t smt_assumptions;
   /// SMT-LIB2 assertions
-  prop_t smt_assertions;  
+  prop_t smt_assertions;
 
 }; // Pono_problem
 
@@ -66,8 +66,8 @@ public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
   /// \param[in] output path (ila-verilog, wrapper-verilog, problem.txt,
-  /// run-verify-by-???, modify-impl, it there is ) 
-  /// \param[in] pointer to the instruction 
+  /// run-verify-by-???, modify-impl, it there is )
+  /// \param[in] pointer to the instruction
   /// \param[in] the refinement map
   /// \param[in] pointer to verify info class
   /// \param[in] verilog module name
@@ -82,8 +82,8 @@ public:
       const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
-      const rfmap::VerilogRefinementMap & refinement,
-      VerilogInfo* _vlg_info_ptr, const std::string& wrapper_name,
+      const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
+      const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector backend,
@@ -104,18 +104,18 @@ protected:
                                       const std::string& dspt) override;
   /// Add a direct assertion
   virtual void add_a_direct_sanity_assertion(const std::string& asst,
-                                      const std::string& dspt) override;
-  
+                                             const std::string& dspt) override;
+
   /// Add SMT-lib2 assumption
   virtual void add_a_direct_smt_assumption(const std::string& arg,
-                                       const std::string& ret,
-                                       const std::string& body,
-                                       const std::string& dspt) override;
+                                           const std::string& ret,
+                                           const std::string& body,
+                                           const std::string& dspt) override;
   /// Add SMT-lib2 assertion
   virtual void add_a_direct_smt_assertion(const std::string& arg,
-                                      const std::string& ret,
-                                      const std::string& body,
-                                      const std::string& dspt) override;
+                                          const std::string& ret,
+                                          const std::string& body,
+                                          const std::string& dspt) override;
 
   /// Pre export work : nothing for pono
   void virtual PreExportProcess() override;
