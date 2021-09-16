@@ -22,15 +22,31 @@
 #include "nlohmann/json.hpp"
 #include <ilang/config.h>
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/rfmap-in/rfmap_typecheck.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/directive.h>
-#include <ilang/vtarget-out/supplementary_info.h>
-#include <ilang/vtarget-out/var_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 namespace ilang {
+
+/// \brief What internal signal to pull out
+/// for yosys
+struct RtlExtraWire {
+  std::string wire_name;
+  std::string hierarchy;
+  std::string internal_name;
+  unsigned width;
+  RtlExtraWire(const std::string& wn, const std::string& h,
+               const std::string& i, unsigned _width)
+      : wire_name(wn), hierarchy(h), internal_name(i), width(_width) {}
+  // for example:
+  //   RTL.a.b.c[3]
+  //   wire_name : RTL__DOT__a__DOT__b__DOT__c_3_
+  //   hierarchy RTL.a.b
+  //   internal name c[3]
+}; // end of struct RtlExtraWire
 
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
@@ -38,20 +54,13 @@ public:
   // --------------------- TYPE DEFINITION ------------------------ //
   /// Type of the target
   typedef enum { INVARIANTS, INSTRUCTIONS, INV_SYN_DESIGN_ONLY } target_type_t;
-  /// Type of the ready condition
-  typedef enum {
-    NA = 0,
-    READY_SIGNAL = 1,
-    READY_BOUND = 2,
-    BOTH = 3
-  } ready_type_t;
   /// Per func apply counter
   typedef std::map<std::string, unsigned> func_app_cnt_t;
   /// Type of the verification backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of the synthesis backend
-  using synthesis_backend_selector =
-      VlgVerifTgtGenBase::synthesis_backend_selector;
+  // using synthesis_backend_selector =
+  //    VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of record of extra info of a signal
@@ -78,10 +87,8 @@ public:
       const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
-      const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _supplementary_info,
-      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
-      const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+      const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
+      const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
       const vtg_config_t& vtg_config, backend_selector backend,
@@ -109,32 +116,17 @@ protected:
   VerilogGeneratorBase vlg_wrapper;
   /// Generator for the ila verilog
   VerilogGenerator vlg_ila;
-  /// inteface directive recorder
+  /// Verilog module connection
   IntefaceDirectiveRecorder _idr;
-  /// state directive recorder
-  StateMappingDirectiveRecorder _sdr;
+
   /// Analyzer for the implementation
   // we don't know the module name, before analyzing the rfmap. so we cannot
   // initialize in the beginning
   VerilogInfo* vlg_info_ptr;
-  /// variable extractor to handle property expressions
-  VarExtractor _vext;
-  /// refinement relation variable mapping
-  nlohmann::json& rf_vmap;
-  /// refinement relation instruction conditions
-  nlohmann::json& rf_cond;
-  /// An empty json for default fallthrough cases
-  nlohmann::json empty_json;
-  /// The supplementary information
-  const VlgTgtSupplementaryInfo& supplementary_info;
-  /// record all the referred vlg names, so you can add (*keep*) if needed
-  std::map<std::string, ex_info_t> _all_referred_vlg_names;
+  /// The refinement map with type checked
+  rfmap::TypedVerilogRefinementMap refinement_map;
   /// target type
   target_type_t target_type;
-  /// a shortcut of whether rf has flush condition set
-  bool has_flush;
-  /// ready type
-  ready_type_t ready_type;
   /// func apply counter
   func_app_cnt_t func_cnt;
   /// max bound , default 127
@@ -168,7 +160,6 @@ protected:
   const ExprPtr IlaGetInput(const std::string& sname) const;
   /// Get (a,d) width of a memory, if not existing, (0,0)
   std::pair<unsigned, unsigned>
-
   GetMemInfo(const std::string& ila_mem_name) const;
   /// Test if a string represents an ila state name
   bool TryFindIlaState(const std::string& sname);
@@ -178,32 +169,80 @@ protected:
   bool TryFindVlgState(const std::string& sname);
   /// Try to find a ILA var according to a name
   ExprPtr TryFindIlaVarName(const std::string& sname);
-  /// Modify a token and record its use
-  std::string ModifyCondExprAndRecordVlgName(const VarExtractor::token& t);
+  /// return the type of a variable when its name is given
+  rfmap::RfVarTypeOrig VarTypeCheckForRfExprParsing(const std::string&);
+
   /// Check if ila name and vlg name are type compatible (not including special
   /// directives)
   static unsigned TypeMatched(const ExprPtr& ila_var,
                               const SignalInfoBase& vlg_var);
   /// get width of an ila node
   static unsigned get_width(const ExprPtr& n);
-  /// Parse and modify a condition string
-  std::string ReplExpr(const std::string& expr, bool force_vlg_sts = false);
-  /// handle a single string map (s-name/equ-string)
-  std::string PerStateMap(const std::string& ila_state_name_or_equ,
-                          const std::string& vlg_st_name);
+
+  // -----------------------------------------------------------------------
+  // Refinement map handling
+  // -----------------------------------------------------------------------
+  /// Create a variable replacement for var
+  /// RTL_var/ ILA_IN/ ILA_SO/ INTERNL-DEFVAR
+  /// a new var is always typed
+  /// otherwise, will not
+  /// this function get type information from
+  ///    VarTypeCheckForRfExprParsing and
+  ///    refinement_map.all_var_def_type
+  rfmap::VarReplacement CreateVarReplacement(const rfmap::RfVar& var,
+                                             bool replace_internal_names);
+  /// replace var for assumptions/assertions
+  /// (should only be used inside assumptions/assertions)
+  /// 1. GetVar 2. Check Replacement 3. add replacement using the above
+  ///  function 4. do replacement for var 5. annotate type
+  rfmap::RfExpr ReplExpr(const rfmap::RfExpr& in);
+
+  /// treat `in` as var map, if it is not a Boolean, add `==`
+  /// this function is not used in `_bv` version below
+  rfmap::RfExpr TranslateMap(const rfmap::RfExpr& in,
+                             const std::string& ila_vn);
+
+  /// translate a conditional map to rf expression
+  rfmap::RfExpr condition_map_to_rfexpr(
+      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>>& cond_map,
+      const std::string& ila_state_name);
+  /// difference from condition_map_to_rfexpr is that
+  /// this will not create (v == ...) , this expects bv
+  rfmap::RfExpr condition_map_bv_to_rfexpr(
+      const std::vector<std::pair<rfmap::RfExpr, rfmap::RfExpr>>& cond_map);
+
+  /// translate a single map to rfexpr
+  rfmap::RfExpr singlemap_to_rfexpr(const rfmap::SingleVarMap& single_map,
+                                    const std::string& ila_state_name);
+  /// translate a single map to rfexpr (expect bit-vector)
+  rfmap::RfExpr singlemap_bv_to_rfexpr(const rfmap::SingleVarMap& single_map);
+
+  /// register a reg in refinement_map.all_var_def_type
+  void rfmap_add_internal_reg(const std::string& n, unsigned width);
+  /// register a wire in refinement_map.all_var_def_type
+  void rfmap_add_internal_wire(const std::string& n, unsigned width);
+  /// register a replacement in refinement_map
+  /// this will affect ReplExpr's behavior
+  /// (Note 1: ReplExpr will also create replacement, but it will not use
+  /// this function. 2: will require that the new one has been registered
+  /// in refinement_map.all_var_def_type)
+  void rfmap_add_replacement(const std::string& old, const std::string& n);
+
   /// handle a var map
-  /// will create new variables "m?" and return it
-  /// 1.  "ila-state":"**MEM**.?"
-  /// 2a. "ila-state":"statename"  --> PerStateMap
-  /// 2b. "ila-state":"(cond)&map"   --> PerStateMap
-  /// 3.  "ila-state":[ "cond&map" ]
-  /// 4.  "ila-state":[ {"cond":,"map":}, ]
-  std::string GetStateVarMapExpr(const std::string& ila_state_name,
-                                 nlohmann::json& m, bool is_assert = false);
+  void Gen_varmap_assumpt_assert(const std::string& ila_state_name,
+                                 const rfmap::IlaVarMapping& vmap,
+                                 const std::string& problem_name,
+                                 bool true_for_assumpt_false_for_assert);
+
+  // handle an input map
+  void Gen_input_map_assumpt(const std::string& ila_input_name,
+                             const rfmap::IlaVarMapping& imap,
+                             const std::string& problem_name);
+
   /// add a start condition if it is given
-  void handle_start_condition(nlohmann::json& dc);
+  void handle_start_condition(const std::vector<rfmap::RfExpr>& dc);
   /// Find the current instruction-mapping
-  nlohmann::json& get_current_instruction_rf();
+  const rfmap::InstructionCompleteCondition& get_current_instruction_rf();
 
 protected:
   // --------------- STEPS OF GENERATION ------------------------//
@@ -217,6 +256,8 @@ protected:
   void ConstructWrapper_add_cycle_count_moniter();
   /// generate the `define TRUE 1
   void ConstructWrapper_generate_header();
+  /// add input equ assumptions
+  void ConstructWrapper_add_inputmap_assumptions();
   /// add state equ assumptions
   void ConstructWrapper_add_varmap_assumptions();
   /// add state equ assertions
@@ -236,26 +277,38 @@ protected:
   void ConstructWrapper_register_extra_io_wire();
   /// Add instantiation statement of the two modules
   void ConstructWrapper_add_module_instantiation();
-  /// Add instantiation of the memory and put the needed mem implementation in
-  /// extra export This also include the assertions
-  void ConstructWrapper_add_helper_memory();
   /// Add buffers and assumption/assertions about the
   void ConstructWrapper_add_uf_constraints();
   /// Add post value holder (val @ cond == ...)
   void ConstructWrapper_add_post_value_holder();
-  /// A sub function of the above post-value-holder hanlder
-  int ConstructWrapper_add_post_value_holder_handle_obj(
-      nlohmann::json& pv_cond_val, const std::string& pv_name, int width,
-      bool create_reg);
+  /// Add delay unit
+  void ConstructWrapper_add_delay_unit();
+  /// Add stage tracker unit
+  void ConstructWrapper_add_stage_tracker();
   /// Add Verilog inline monitor
   void ConstructWrapper_add_vlg_monitor();
+  /// handle all_assumption/all_assertion
+  /// ReplExpr all assertion/assumptions
+  ///   ReplExpr will know whether to create
+  ///   `__DOT__`, but will anyway
+  //    do the other replacement, and non-repl
+  /// for yosys:
+  ///    1. use var_replacement to create
+  ///       extra wire
+  ///    2. check if contains array[const]
+  ///       add extra wire and replacement
+  ///    3. if it still contain array
+  ///       use add_smt_assumption/assertion
+  ///       for the others, use add_a_direct ...
+  /// for jg:
+  ///    1. use add_a_direct_assertion/assumption ...
+  void ConstructWrapper_translate_property_and_collect_all_rtl_connection_var();
 
   // -------------------------------------------------------------------------
   /// Add invariants as assumption/assertion when target is inv_syn_design_only
   void
   ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
-  /// Connect the memory even we don't care a lot about them
-  void ConstructWrapper_inv_syn_connect_mem();
+
   /// Sometimes you need to add some signals that only appeared in Instruction
   /// target
   void ConstructWrapper_inv_syn_cond_signals();
@@ -286,10 +339,29 @@ protected:
   std::vector<std::string> vlg_include_files_path;
   /// Store the configuration
   vtg_config_t _vtg_config;
-  /// Store the vlg configurations
-  const VerilogGenerator::VlgGenConfig& _vlg_cfg;
   /// Store the selection of backend
   backend_selector _backend;
+
+protected:
+  // ----------------------- MEMBERS for storing assumptions/assertions
+  // ------------------- //
+  /// assumptions : written by add_an_assumption,
+  ///   consumed by
+  ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  std::map<std::string, std::vector<rfmap::RfExpr>> all_assumptions;
+  /// assumptions : written by add_an_assertion,
+  ///   consumed by
+  ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  std::map<std::string, std::vector<rfmap::RfExpr>> all_assertions;
+  ///   consumed by
+  ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  std::map<std::string, std::vector<rfmap::RfExpr>> all_sanity_assertions;
+  /// assign or assumptions : vector of (dspt, wire_name, rhs, wn == rhs)
+  std::vector<
+      std::tuple<std::string, std::string, rfmap::RfExpr, rfmap::RfExpr>>
+      assign_or_assumptions;
+  /// map: wire_name -> (wire_name, hierarchy, internal name)
+  std::unordered_map<std::string, RtlExtraWire> rtl_extra_wire;
 
 public:
   /// Call the separate construct functions to make a wrapper (not yet export
@@ -297,9 +369,9 @@ public:
   void virtual ConstructWrapper();
   /// PreExportWork (modification and etc.)
   void virtual PreExportProcess() = 0;
-  /// create the wrapper file
+  /// create the wrapper file: set top_file_name
   void virtual Export_wrapper(const std::string& wrapper_name);
-  /// export the ila verilog
+  /// export the ila verilog, may use top_file_name if backend needs yosys
   void virtual Export_ila_vlg(const std::string& ila_vlg_name);
   /// export the script to run the verification
   void virtual Export_script(const std::string& script_name) = 0;
@@ -309,15 +381,14 @@ public:
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
-  void virtual Export_mem(const std::string& mem_name) = 0;
+  // void virtual Export_mem(const std::string& mem_name) = 0;
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   void virtual Export_modify_verilog() = 0;
   /// Take care of exporting all of a single target
   void virtual ExportAll(const std::string& wrapper_name,
                          const std::string& ila_vlg_name,
                          const std::string& script_name,
-                         const std::string& extra_name,
-                         const std::string& mem_name);
+                         const std::string& extra_name);
 
 protected:
   // helper function to be implemented by COSA/JASPER
@@ -325,27 +396,56 @@ protected:
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) = 0;
   /// Add an assertion
-  virtual void add_a_direct_assertion(const std::string& asst,
+  virtual void add_a_direct_assertion(const std::string& aspt,
                                       const std::string& dspt) = 0;
+  /// Add a sanity assertion
+  virtual void add_a_direct_sanity_assertion(const std::string& aspt,
+                                             const std::string& dspt) = 0;
 
-  // helper function to be implemented by COSA, Yosys, invsyn, jasper is not
-  /// Add an assumption -- JasperGold will override this
-  virtual void add_an_assumption(const std::string& aspt,
+  /// Add SMT-lib2 assumption
+  virtual void add_a_direct_smt_assumption(const std::string& arg,
+                                           const std::string& ret,
+                                           const std::string& body,
+                                           const std::string& dspt) = 0;
+  /// Add SMT-lib2 assertion
+  virtual void add_a_direct_smt_assertion(const std::string& arg,
+                                          const std::string& ret,
+                                          const std::string& body,
+                                          const std::string& dspt) = 0;
+
+  // helper function to add assumption/assertions to internal data-strcture
+  virtual void add_an_assumption(const rfmap::RfExpr& aspt,
                                  const std::string& dspt);
-  /// Add an assertion -- JasperGold will override this
-  virtual void add_an_assertion(const std::string& asst,
+
+  /// Add an assertion -- simply put in record
+  virtual void add_an_assertion(const rfmap::RfExpr& asst,
                                 const std::string& dspt);
 
-  /// Add an assignment which in JasperGold could be an assignment, but in CoSA
-  /// has to be an assumption
+  /// Add an assertion for sanity checking -- simply put in record
+  void add_a_santiy_assertion(const rfmap::RfExpr& aspt,
+                              const std::string& dspt);
+
+  // Add SMT assumption (using rfexpr)
+  //  - will use add_a_direct_smt_assumption/assertion
+  virtual void add_smt_assumption(const rfmap::RfExpr& body,
+                                  const std::string& dspt);
+
+  // Add SMT assertion (using rfexpr)
+  virtual void add_smt_assertion(const rfmap::RfExpr& body,
+                                 const std::string& dspt);
+
+  /// Add an assignment which in JasperGold could be an assignment, but in
+  /// Yosys-based solution has to be an assumption
   virtual void add_wire_assign_assumption(const std::string& varname,
-                                          const std::string& expression,
+                                          const rfmap::RfExpr& aspt,
                                           const std::string& dspt);
-  /// Add an assignment to a register which in JasperGold could be an
-  /// assignment, but in CoSA has to be an assumption
+
+  /// Add an assignment, will always be an assumption
+  /// will use add_an_assumption, and it is up to
+  /// the derived class to determine whether to add as vlg/smt assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          int width, const std::string& cond,
+                                          const rfmap::RfExpr& expression,
+                                          int width, const rfmap::RfExpr& cond,
                                           const std::string& dspt);
 
 public:
@@ -360,6 +460,9 @@ public:
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);
+  /// this function make sure ila.input and ila.sv are all mapped
+  /// in the refinement map and no more vars are mapped
+  void RfmapIlaStateSanityCheck();
 
 private:
   /// If it is in a bad state
@@ -396,12 +499,9 @@ public:
   VlgVerifTgtGen(const std::vector<std::string>& implementation_include_path,
                  const std::vector<std::string>& implementation_srcs,
                  const std::string& implementation_top_module,
-                 const std::string& refinement_variable_mapping,
-                 const std::string& refinement_conditions,
+                 const rfmap::VerilogRefinementMap& refinement,
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
                  backend_selector backend, const vtg_config_t& vtg_config,
-                 const VerilogGenerator::VlgGenConfig& config =
-                     VerilogGenerator::VlgGenConfig(),
                  advanced_parameters_t* adv_ptr = NULL);
 
   /// no copy constructor, please
@@ -422,18 +522,12 @@ protected:
   /// implementation top module name
   const std::string _vlg_impl_top_name;
   /// refinement relation - variable mapping path
-  const std::string _rf_var_map_name;
-  /// refinement relation - condition path
-  const std::string _rf_cond_name;
+  rfmap::VerilogRefinementMap _refinement;
   /// output path, output the ila-verilog, wrapper-verilog, problem.txt,
   /// run-verify-by-???
   const std::string _output_path;
   /// The pointer to the instruction that is going to export
   const InstrLvlAbsPtr& _ila_ptr;
-  /// The name of verilog top module instance in the wrapper
-  std::string _vlg_mod_inst_name;
-  /// The name of ila-verilog top module instance in the wrapper
-  std::string _ila_mod_inst_name;
   /// A pointer to create verilog analyzer
   VerilogInfo* vlg_info_ptr;
   /// to store the backend
@@ -447,14 +541,6 @@ protected:
   /// to store the generate script name
   std::vector<std::string> runnable_script_name;
 
-protected:
-  /// store the vmap info
-  nlohmann::json rf_vmap;
-  /// store the condition
-  nlohmann::json rf_cond;
-  /// The supplementary information
-  VlgTgtSupplementaryInfo supplementary_info;
-
 public:
   // --------------------- METHODS ---------------------------- //
   /// Generate everything
@@ -463,9 +549,9 @@ public:
   /// Return true if it is in bad state
   bool in_bad_state(void) const { return _bad_state; }
   /// get vlg-module instance name
-  std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
+  std::string GetVlgModuleInstanceName() const { return "RTL"; }
 
-#ifdef INVSYN_INTERFACE
+#if 0
   /// generate invariant synthesis target
   void GenerateInvSynTargetsAbc(bool useGla, bool useCorr, bool useAiger);
   /// generate inv-syn target
@@ -480,20 +566,10 @@ public:
 
   /// generate the runable script name
   const std::vector<std::string>& GetRunnableScriptName() const;
-  /// return the result from parsing supplymentary information
-  const VlgTgtSupplementaryInfo& GetSupplementaryInfo() const;
-
-protected:
-  // --------------------- METHODS ---------------------------- //
-  /// subroutine for generating synthesis using chc targets
 
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);
-  /// load json from a file name to the given j
-  void load_json(const std::string& fname, nlohmann::json& j);
-  /// Get instance name from rfmap
-  void set_module_instantiation_name();
 
 private:
   /// If it is in a bad state

@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Dependent Packages
-      run: sudo apt install bison flex z3 libz3-dev
+      run: sudo apt install bison flex z3 libz3-dev libfl-dev
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build

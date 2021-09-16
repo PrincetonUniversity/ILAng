@@ -1,34 +1,31 @@
 {
-  "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": {  
-    "mema":"**MEM**mema",
-    "memb":"**MEM**memb"},
-
-  "interface mapping": {
-  	 "rst":"**RESET**", 
-  	 "clk":"**CLOCK**",
-  	 "addra":"addra",
-     "addrb":"addrb",
-     "start":"start",
-     "mem_a_raddr":"**MEM**mema.raddr",
-     "mem_a_rdata":"**MEM**mema.rdata",
-     "mem_a_waddr":"**MEM**mema.waddr",
-     "mem_a_wdata":"**MEM**mema.wdata",
-     "mem_a_wen":"**MEM**mema.wen",
-     "mem_b_raddr":"**MEM**memb.raddr",
-     "mem_b_rdata":"**MEM**memb.rdata",
-     "mem_b_waddr":"**MEM**memb.waddr",
-     "mem_b_wdata":"**MEM**memb.wdata",
-     "mem_b_wen":"**MEM**memb.wen"
+    "mema":  {
+      "ren"  :  "1'b1" ,
+      "raddr" : "RTL.mem_a_raddr @ (RTL.state == 1)",
+      "rdata" : "RTL.mem_a_rdata @ (RTL.state == 1)",
+      "wen"   : "1'b1 "  ,
+      "waddr" : "RTL.mem_a_waddr @ (RTL.state == 2)",
+      "wdata" : "RTL.mem_a_wdata @ (RTL.state == 2)"
+    },
+    "memb":  {
+      "ren"  :  "1'b1" ,
+      "raddr" : "RTL.mem_b_raddr @ (RTL.state == 1)",
+      "rdata" : "RTL.mem_b_rdata @ (RTL.state == 1)",
+      "wen"   : "1'b1 "  ,
+      "waddr" : "RTL.mem_b_waddr @ (RTL.state == 2)",
+      "wdata" : "RTL.mem_b_wdata @ (RTL.state == 2)"
+    }
   },
 
-  // "mapping control" : ["__MEM_mema_0_ren == ((m1.state == 1)?1'b1:1'b0)", "__MEM_memb_0_ren == ((m1.state == 1)?1'b1:1'b0)"],
+  "input mapping": {
+     "addra":"RTL.addra",
+     "addrb":"RTL.addrb",
+     "start":"RTL.start"
+  },
 
-  "annotation": {
-    "memory-ports" : {
-      "mema.ren":"((m1.state == 1)?1'b1:1'b0)", // you can use arbitrary verilog expression here
-      "memb.ren":"m1.state == 1"
-    }
-  }
+  "RTL interface connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
+  }  
 }

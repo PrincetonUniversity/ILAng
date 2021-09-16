@@ -4,7 +4,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
-#include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
+// #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include "unit-include/config.h"
@@ -14,7 +14,8 @@
 
 namespace ilang {
 
-#ifdef ILANG_BUILD_INVSYN
+// #ifdef ILANG_BUILD_INVSYN
+#if 0
 
 #define DBG_TAG "VlgVerifInvSyn"
 
@@ -51,7 +52,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegar) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -150,7 +151,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegarWithAssumptions) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -195,7 +196,7 @@ TEST_F(TestVlgVerifInvSyn, LoadInvFromBeginning) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -319,7 +320,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegarPassed) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -361,7 +362,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbc) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -413,7 +414,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcBlif) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -466,7 +467,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcWithAssumption) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -512,7 +513,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -607,7 +608,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntGrain) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -679,7 +680,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -754,7 +755,7 @@ TEST_F(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   // cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // for freqhorn
   cfg.YosysSmtFlattenHierarchy = true;
@@ -836,7 +837,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntRelChc) {
   auto ila_model = CntTest::BuildModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.YosysPath = "N/A";
   cfg.YosysSmtFlattenHierarchy = false;
 
@@ -858,7 +859,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntRelChcNoStart) {
   auto ila_model = CntTest::BuildModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.YosysPath = "N/A";
   cfg.YosysSmtFlattenHierarchy = false;
   cfg.VerificationSettingAvoidIssueStage = true;
