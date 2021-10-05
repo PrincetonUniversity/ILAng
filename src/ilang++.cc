@@ -846,6 +846,34 @@ namespace programfragment {
 
   template<class T> struct dependent_false : std::false_type {};
 
+  ExprRef ExtendableBv::extend_to(const ExprRef& other) const {
+    int diff = expr.bit_width() - other.bit_width();
+    if (diff == 0) return expr;
+    switch (ext_mode) {
+      case EXT_ZERO: return ZExt(expr, other.bit_width());
+      case EXT_SIGNED: return SExt(expr, other.bit_width());
+    }
+    return expr;
+  }
+
+  ExprRef try_ext(const AssignmentExpr& expr, const ExprRef& target) {
+    return std::visit([&target](const auto& to_ext) {
+      using T = std::decay_t<decltype(to_ext)>;
+      if constexpr (std::is_same_v<T, ExprRef>) return to_ext;
+      else if constexpr (std::is_same_v<T, NumericType>) {
+        return BvConst(to_ext, target.bit_width());
+      } else if constexpr (std::is_same_v<T, ExtendableBv>) {
+        return to_ext.extend_to(target);
+      } else {
+        // raise compile-time error
+        static_assert(
+          dependent_false<T>::value, 
+          "try_ext not implemented for given variant of AssignmentExpr"
+        );
+      }
+    }, expr);
+  }
+
   pfast::Stmt convert_stmt(const Stmt& s);
 
   pfast::Block convert_block(const Block& b) {
@@ -867,16 +895,16 @@ namespace programfragment {
         return pfast::Assume{s.assumption.get()};
       
       } else if constexpr (std::is_same_v<T, Call>) {
-        pfast::Constraint c = asthub::BoolConst(true);
-        for (const auto& [input, assignment] : s.input_map) {
-          c = asthub::And(c, asthub::Eq(input.get(), assignment.get()));
+        ExprRef c = asthub::BoolConst(true);
+        for (const auto& [input, assignment] : s.inputs) {
+          c = c & (input == try_ext(assignment, input));
         }
-        return pfast::Call{s.instr.get(), c};
+        return pfast::Call{s.instr.get(), c.get()};
       
       } else if constexpr (std::is_same_v<T, Update>) {
         pfast::Update u {};
         for (const auto& [param, update] : s) {
-          u.emplace(param.get(), update.get());
+          u.emplace(param.get(), try_ext(update, param).get());
         }
         return u;
 

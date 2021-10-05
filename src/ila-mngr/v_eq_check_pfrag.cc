@@ -38,8 +38,9 @@ namespace pgraph {
     }
 
     void operator()(const Assert& a) {
-      running_seq_to_newloc("assert");
-      add_edge_from_curloc({pfast::Assume{asthub::Not(a.assertion)}}, LOC_ERROR);
+      running_seq_.emplace_back(pfast::Assume{asthub::Not(a.assertion)});
+      add_edge_from_curloc(running_seq_, LOC_ERROR);
+      running_seq_.pop_back();
       running_seq_.emplace_back(Assume{a.assertion});
     }
 
