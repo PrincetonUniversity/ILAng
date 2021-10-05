@@ -633,16 +633,16 @@ TEST(TestApi, Ila2Chc) {
   
   pf.AddStatements({
     Assume {ctr == 0},
-    Assume {x > BvConst(0, ctr_w)},
-    Assume {y > BvConst(0, ctr_w)},
-    Assume {x < BvConst(3, ctr_w)},  // keeps runtime short
-    Assume {y < BvConst(4, ctr_w)},  // keeps runtime short
+    Assume {x > 0},
+    Assume {y > 0},
+    Assume {x < 3},  // keeps runtime short
+    Assume {y < 4},  // keeps runtime short
 
-    Update { {i, BvConst(0, ctr_w)} },
+    Update { {i, 0} },
     Assert { inv1 },
     While { i < x, {
       Assume { inv1 },
-        Update { {j, BvConst(0, ctr_w)} },
+        Update { {j, ExtendableBv(BvConst(0, 2))} },
       Assert { inv2 },
       While { j < y, {
         Assume { inv2 },

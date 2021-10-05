@@ -761,8 +761,40 @@ smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
 
 namespace programfragment {
   
+  /// \brief The type of a constraint in the program fragment language.
   using Constraint = ExprRef;
+  
+  /// \brief Wrapper for a bitvector that allows it to be automatically 
+  /// zero/sign extended as part of an Update statement.
+  struct ExtendableBv { 
+    ExprRef expr;
+    enum ExtMode {EXT_ZERO, EXT_SIGNED} ext_mode;
 
+    /// \brief Constructs an ExtendableBv from a bitvector expr.
+    /// \param[in] expr The ILA expression to extend as needed.
+    explicit ExtendableBv(const ExprRef& expr): ExtendableBv{expr, EXT_ZERO} {}
+
+    /// \brief Constructs an ExtendableBv from a bitvector expr.
+    /// \param[in] expr The ILA expression to extend as needed.
+    /// \param[in] ext_mode How the expression should be extended.
+    explicit ExtendableBv(const ExprRef& expr, ExtMode ext_mode)
+      : expr{expr}, ext_mode{ext_mode} {}
+
+    /// Default destructor.
+    ~ExtendableBv()=default;
+
+    /// \brief Extends the wrapped bitvector expression to match the given expr.
+    /// \param[in] other The ILA expression whose bitwidth to match.
+    ExprRef extend_to(const ExprRef& other) const;
+  };
+
+  /// \brief Valid types for the RHS of an update.
+  using AssignmentExpr = std::variant<ExprRef, NumericType, ExtendableBv>;
+
+  /// \brief A list of variables and what they should be updated to.
+  using VarMap = std::vector<std::pair<ExprRef, AssignmentExpr>>;
+
+  /// forward declarations
   struct Assert;
   struct Assume;
   struct Call;
@@ -770,67 +802,112 @@ namespace programfragment {
   struct While;
   struct Block;
 
+  /// \brief A statement within a program fragment.
   using Stmt = std::variant<Assert, Assume, Call, Update, While, Block>;
 
+  /// \brief A sequence of statements.
   struct Block : public std::vector<Stmt> {
     using base=std::vector<Stmt>;
     using base::base;
     using base::operator=;
   };
 
+  /// \brief An assertion that a given constraint holds at a given 
+  /// location of a program fragment.
+  /// Will be checked once encoded for and sent to a solver.
   struct Assert {
-    Constraint assertion;
+    Constraint assertion;  // The constraint that must hold.
   };
 
+  /// \brief An assumption that a given constraint holds at a given 
+  /// location of a program fragment.
   struct Assume {
-    Constraint assumption;
+    Constraint assumption;  // The constraint assumed to hold.
   };
 
+  /// \brief "Calls" the given instruction with the given inputs.
+  /// Assumes the decode of the given instruction holds.
   struct Call {
-    InstrRef instr;
-    std::map<ExprRef, ExprRef> input_map {};
+    InstrRef instr;    // The instruction to call.
+    VarMap inputs {};  // Assignments to the inputs of instr's ILA.
   };
 
-  struct Update: public std::vector<std::pair<ExprRef, ExprRef>> {
-    using base=std::vector<std::pair<ExprRef, ExprRef>>;
+  /// \brief Updates the given variables using the expressions they
+  /// are mapped to.
+  struct Update: public VarMap {
+    using base=VarMap;
     using base::base;
     using base::operator=;
   };
 
+  /// \brief A while loop. Repeatedly executes the body while the
+  /// given loop condition holds.
   struct While {
-    Constraint loop_condition;
+    Constraint loop_condition;  // The loop condition
+    /// An invariant on the loop provided to help verification.
+    /// The invariant is asserted before the loop and at the end
+    /// of the loop body, and assumed at the start of the loop
+    /// body and after the loop ends.
     Constraint invariant;
-    Block body;
+    Block body;  // The body of the loop
 
+    /// \brief Constructs a While loop given a loop condition and body.
+    /// \param[in] loop_condition The loop condition.
+    /// \param[in] body The loop body.
     While(const Constraint& loop_condition, const Block& body);
+    /// \brief Constructs a While loop given a loop condition and body.
+    /// \param[in] loop_condition  The loop condition.
+    /// \param[in] invariant  An invariant on the loop provided 
+    /// to help verification.
+    /// The invariant is asserted before the loop and at the end
+    /// of the loop body, and assumed at the start of the loop
+    /// body and after the loop ends.
+    /// \param[in] body  The loop body.
     While(const Constraint& loop_condition, 
           const Constraint& invariant, const Block& body);
   };
 
+  /// \brief A program using an ILA.
   class ProgramFragment {
 
     friend bool operator==(const ProgramFragment& a, const ProgramFragment& b);
     friend std::ostream& operator<<(std::ostream& out, const ProgramFragment& pf);
 
   public:
+    /// Pointer to the internal representation of a program fragment.
     using PfragPtr = std::shared_ptr<pfast::ProgramFragment>;
+    /// Pointer to the internal representation of a program fragment.
     using PfragConstPtr = std::shared_ptr<const pfast::ProgramFragment>;
 
+    /// Constructs an empty program fragment.
     ProgramFragment();
+
+    /// Constructs a program fragment consisting of the given block.
     ProgramFragment(const Block& b);
+
+    /// Destroys a program fragment
     ~ProgramFragment()=default;
 
+    /// Creates a new boolean variable and registers it as a parameter
     ExprRef NewBoolVar(const std::string& name);
+
+    /// Creates a new bitvector variable and registers it as a parameter
     ExprRef NewBvVar(const std::string& name, const int& bitwidth);
+
+    /// Creates a new bitvector variable and registers it as a parameter
     ExprRef NewMemVar(const std::string& name, 
                       const int& addrwidth, const int& datawidth);
 
-    void RegisterApplicationParam(const ExprRef& p);
-    void RegisterHardwareParam(const ExprRef& p);
+    // void RegisterApplicationParam(const ExprRef& p);
+    // void RegisterHardwareParam(const ExprRef& p);
 
+    /// Adds the given statement to the program fragment
     void AddStatement(const Stmt& s);
+
+    /// Adds the given block of statements to the program fragment
     void AddStatements(const Block& b);
 
+    /// Returns the internal representation of the program fragment
     PfragConstPtr get() const;
 
   private:
@@ -845,6 +922,8 @@ namespace programfragment {
 
 } // namespace programfragment
 
+
+/// An enum representing the result of verifying the system of CHCs
 enum class ChcResult: char {
   valid=z3::unsat,
   invalid=z3::sat,
@@ -853,16 +932,25 @@ enum class ChcResult: char {
 
 std::ostream& operator<<(std::ostream& out, const ChcResult& r);
 
+/// Encodes a program fragment on an ILA into a CHC
 class IlaToChcEncoder {
   public:
+    // TODO: move parameter registration in program fragments to 
+    // internal representation, rename IlaToChcEncoder to PfToChcIncoder,
+    // and remove the Ila argument.
+
+    /// Constructs an IlaToChcEncoder
     IlaToChcEncoder(
       z3::context& ctx, z3::fixedpoint& ctxfp,
       const Ila& ila, const programfragment::ProgramFragment& pf);
     
+    /// Destructor 
     ~IlaToChcEncoder()=default;
 
+    /// Gives the system of CHCs as a string
     std::string to_string();
 
+    /// Checks the assertion of the system of CHCs
     ChcResult check_assertions();
   
   private:
