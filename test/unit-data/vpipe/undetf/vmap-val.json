@@ -1,20 +1,18 @@
 {
-  "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": {  
-    "r0":"r0",
-    "r1":"r1",
-    "r2":"r2",
-    "r3":"r3",
-    "r4":"r4"},
+    "r0":"RTL.r0",
+    "r1":"RTL.r1",
+    "r2":"RTL.r2",
+    "r3":"RTL.r3",
+    "r4":"RTL.r4"},
 
-  "interface mapping": {
-  	 "rst":"**RESET**", 
-  	 "clk":"**CLOCK**",
-  	 "d":"**KEEP**"
-  },
+  "RTL interface connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
+  },  // d keep
 
-  "mapping control" : [],
-  "functions":{ "nondet8_1":[["__START__","res1"],["__START__","res3"]],
-                "nondet8_2":[["__START__","res4"],["__START__","res5"]] }
+  "functions":{ "nondet8_1": [{"result" : "RTL.res1@0", "arg" : []},
+                              {"result" : "RTL.res3@0", "arg" : []}],
+                "nondet8_2": [{"result" : "RTL.res4@0", "arg" : []},
+                              {"result" : "RTL.res5@0", "arg" : []}] }
 }

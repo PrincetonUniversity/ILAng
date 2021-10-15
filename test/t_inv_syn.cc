@@ -4,7 +4,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
-#include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
+// #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include "unit-include/config.h"
@@ -14,7 +14,8 @@
 
 namespace ilang {
 
-#ifdef ILANG_BUILD_INVSYN
+// #ifdef ILANG_BUILD_INVSYN
+#if 0
 
 #define DBG_TAG "VlgVerifInvSyn"
 
@@ -49,9 +50,9 @@ public:
 TEST_F(TestVlgVerifInvSyn, SimpleCntCegar) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -76,7 +77,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegar) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -148,9 +149,9 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegar) {
 TEST_F(TestVlgVerifInvSyn, SimpleCntCegarWithAssumptions) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -175,7 +176,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegarWithAssumptions) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -193,9 +194,9 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegarWithAssumptions) {
 TEST_F(TestVlgVerifInvSyn, LoadInvFromBeginning) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -222,7 +223,7 @@ TEST_F(TestVlgVerifInvSyn, LoadInvFromBeginning) {
                                P({"rfmap", "vmap.json"})), // variable mapping
         os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})),
         outDir, ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        ModelCheckerSelection::COSA,
         VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
         cfg);
 
@@ -243,7 +244,7 @@ TEST_F(TestVlgVerifInvSyn, LoadInvFromBeginning) {
                                P({"rfmap", "vmap.json"})), // variable mapping
         os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})),
         outDir, ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        ModelCheckerSelection::COSA,
         VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
         cfg);
 
@@ -264,7 +265,7 @@ TEST_F(TestVlgVerifInvSyn, LoadInvFromBeginning) {
                                P({"rfmap", "vmap.json"})), // variable mapping
         os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})),
         outDir, ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        ModelCheckerSelection::COSA,
         VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
         cfg);
 
@@ -293,7 +294,7 @@ TEST_F(TestVlgVerifInvSyn, LoadInvFromBeginning) {
                                P({"rfmap", "vmap.json"})), // variable mapping
         os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})),
         outDir, ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        ModelCheckerSelection::COSA,
         VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
         cfg);
 
@@ -317,9 +318,9 @@ TEST_F(TestVlgVerifInvSyn, LoadInvFromBeginning) {
 TEST_F(TestVlgVerifInvSyn, SimpleCntCegarPassed) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -345,7 +346,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegarPassed) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -359,9 +360,9 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntCegarPassed) {
 TEST_F(TestVlgVerifInvSyn, CegarCntAbc) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -389,7 +390,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbc) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -411,9 +412,9 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbc) {
 TEST_F(TestVlgVerifInvSyn, CegarCntAbcBlif) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -443,7 +444,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcBlif) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -464,9 +465,9 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcBlif) {
 TEST_F(TestVlgVerifInvSyn, CegarCntAbcWithAssumption) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -494,7 +495,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcWithAssumption) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -510,9 +511,9 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcWithAssumption) {
 TEST_F(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
@@ -544,7 +545,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
                                P({"rfmap", "vmap.json"})), // variable mapping
         os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})),
         outDir, ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        ModelCheckerSelection::COSA,
         VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
         cfg);
 
@@ -580,7 +581,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
                                P({"rfmap", "vmap.json"})), // variable mapping
         os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})),
         outDir, ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::COSA,
+        ModelCheckerSelection::COSA,
         VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
         cfg);
 
@@ -605,9 +606,9 @@ TEST_F(TestVlgVerifInvSyn, CegarCntAbcInvStart) {
 TEST_F(TestVlgVerifInvSyn, CegarCntGrain) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -653,7 +654,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntGrain) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::GRAIN,
       cfg);
 
@@ -677,9 +678,9 @@ TEST_F(TestVlgVerifInvSyn, CegarCntGrain) {
 TEST_F(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = true;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
@@ -726,7 +727,7 @@ TEST_F(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond-noinv.json"})), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::GRAIN,
       cfg);
 
@@ -752,9 +753,9 @@ TEST_F(TestVlgVerifInvSyn, CegarCntGrainBackVars) {
 TEST_F(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
   auto ila_model = SimplePipe::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  RtlVerifyConfig cfg;
   // cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
-  cfg.CosaAddKeep = false;
+  cfg.PonoAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = true; // for freqhorn
   cfg.YosysSmtFlattenHierarchy = true;
@@ -785,7 +786,7 @@ TEST_F(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
       os_portable_join_dir({dirName, "rfmap", "vmap.json"}), // variable mapping
       os_portable_join_dir({dirName, "rfmap", "cond-noinv.json"}), outDir,
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      ModelCheckerSelection::COSA,
       VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -835,8 +836,8 @@ TEST_F(TestVlgVerifInvSyn, CegarPipelineAbcAigEnhance) {
 TEST_F(TestVlgVerifInvSyn, SimpleCntRelChc) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
-  cfg.CosaAddKeep = false;
+  RtlVerifyConfig cfg;
+  cfg.PonoAddKeep = false;
   cfg.YosysPath = "N/A";
   cfg.YosysSmtFlattenHierarchy = false;
 
@@ -847,7 +848,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntRelChc) {
       "opposite",                       // top_module_name
       dirName + "rfmap/vmap.json",      // variable mapping
       dirName + "rfmap/cond-relchc.json", dirName + "out/", ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::RELCHC, cfg);
+      ModelCheckerSelection::RELCHC, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -857,8 +858,8 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntRelChc) {
 TEST_F(TestVlgVerifInvSyn, SimpleCntRelChcNoStart) {
   auto ila_model = CntTest::BuildModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t cfg;
-  cfg.CosaAddKeep = false;
+  RtlVerifyConfig cfg;
+  cfg.PonoAddKeep = false;
   cfg.YosysPath = "N/A";
   cfg.YosysSmtFlattenHierarchy = false;
   cfg.VerificationSettingAvoidIssueStage = true;
@@ -871,7 +872,7 @@ TEST_F(TestVlgVerifInvSyn, SimpleCntRelChcNoStart) {
       dirName + "rfmap/vmap.json",      // variable mapping
       dirName + "rfmap/cond-relchc.json", dirName + "out-no-start/",
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::RELCHC, cfg);
+      ModelCheckerSelection::RELCHC, cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 

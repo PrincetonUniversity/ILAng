@@ -19,51 +19,32 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
         output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
-    const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
-    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
-    VlgTgtSupplementaryInfo& _supplementary_info, VerilogInfo* _vlg_info_ptr,
-    const std::string& vlg_mod_inst_name, const std::string& ila_mod_inst_name,
+    const InstrLvlAbsPtr& ila_ptr,
+    const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
     const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector backend,
+    const RtlVerifyConfig& vtg_config, ModelCheckerSelection backend,
     const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
-    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
-                   _supplementary_info, _vlg_info_ptr, vlg_mod_inst_name,
-                   ila_mod_inst_name, wrapper_name, implementation_srcs,
+    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, refinement, _vlg_info_ptr,
+                   wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, backend, target_tp,
                    adv_ptr) {}
 
-void VlgSglTgtGen_Jasper::add_wire_assign_assumption(
-    const std::string& varname, const std::string& expression,
-    const std::string& dspt) {
-  // a plain assign
-  vlg_wrapper.add_assign_stmt(varname, expression);
+/// Add SMT-lib2 assumption
+void VlgSglTgtGen_Jasper::add_a_direct_smt_assumption(const std::string& arg,
+                                                      const std::string& ret,
+                                                      const std::string& body,
+                                                      const std::string& dspt) {
+  ILA_CHECK(false) << "SMT assumption should not be generated for JasperGold";
 }
 
-void VlgSglTgtGen_Jasper::add_reg_cassign_assumption(
-    const std::string& varname, const std::string& expression, int width,
-    const std::string& cond, const std::string& dspt) {
-
-  std::string rand_in_name = "__" + varname + "_init__";
-  vlg_wrapper.add_input(rand_in_name, width);
-  vlg_wrapper.add_wire(rand_in_name, width);
-
-  vlg_wrapper.add_init_stmt(varname + " <= " + rand_in_name + ";");
-  vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
-  add_an_assumption(
-      "(~(" + cond + ") || ((" + varname + ") == (" + expression + ")))", dspt);
-}
-
-/// Add an assumption
-void VlgSglTgtGen_Jasper::add_an_assumption(const std::string& aspt,
-                                            const std::string& dspt) {
-  assumptions.push_back(std::make_pair(aspt, dspt));
-}
-/// Add an assertion
-void VlgSglTgtGen_Jasper::add_an_assertion(const std::string& asst,
-                                           const std::string& dspt) {
-  assertions.push_back(std::make_pair(asst, dspt));
+/// Add SMT-lib2 assertion
+void VlgSglTgtGen_Jasper::add_a_direct_smt_assertion(const std::string& arg,
+                                                     const std::string& ret,
+                                                     const std::string& body,
+                                                     const std::string& dspt) {
+  ILA_CHECK(false) << "SMT assertions should not be generated for JasperGold";
 }
 
 /// Add an assumption
@@ -75,16 +56,6 @@ void VlgSglTgtGen_Jasper::add_a_direct_assumption(const std::string& aspt,
 void VlgSglTgtGen_Jasper::add_a_direct_assertion(const std::string& asst,
                                                  const std::string& dspt) {
   assertions.push_back(std::make_pair(asst, dspt));
-}
-
-void VlgSglTgtGen_Jasper::add_addition_clock_info(
-    const std::string& clock_expr) {
-  additional_clock_expr.push_back(clock_expr);
-}
-
-void VlgSglTgtGen_Jasper::add_addition_reset_info(
-    const std::string& reset_expr) {
-  additional_reset_expr.push_back(reset_expr);
 }
 
 /// export the script to run the verification
@@ -120,22 +91,27 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
   if (top_file_name != "")
     fout << " \\\n  " << top_file_name;
 
-  if (abs_mem_name != "")
-    fout << " \\\n   " << abs_mem_name;
-
   fout << "\n\n";
 
   fout << "elaborate -top " << top_mod_name << std::endl;
-  if (additional_clock_expr.empty())
-    fout << "clock clk" << std::endl;
-  else
-    ILA_ERROR << "Not supporting multiple clock. Future work!";
 
-  if (additional_reset_expr.empty())
-    fout << "reset rst" << std::endl;
-  else
-    fout << "reset -expression " << Join(additional_reset_expr, " ")
-         << std::endl;
+  // in fact clock configuration should not stay here
+  // because this controls the top-level reset/clock
+  // whereas we want internal reset/clock signals to be
+  // changed
+  ILA_CHECK(
+    refinement_map.clock_specification.custom_clock_factor.empty() &&
+    refinement_map.clock_specification.custom_clock_sequence.empty()
+    ) << "TODO: custom clock sequence not implemented yet";
+
+  fout << "clock clk" << std::endl;
+  
+  ILA_CHECK(
+    refinement_map.reset_specification.custom_reset_sequence.empty() &&
+    refinement_map.reset_specification.initial_state.empty()
+    ) << "TODO: custom reset sequence not implemented yet";
+  
+  fout << "reset rst" << std::endl;
 
   unsigned No = 0;
   for (auto&& asmpt_dspt_pair : assumptions)
@@ -146,23 +122,8 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
   for (auto&& asst_dspt_pair : assertions)
     fout << "assert -name " << asst_dspt_pair.second + std::to_string(No++)
          << " {" << asst_dspt_pair.first << "}" << std::endl;
-
-} //
-/// export the memory abstraction (implementation)
-/// Yes, this is also implementation specific, (jasper may use a different one)
-void VlgSglTgtGen_Jasper::Export_mem(const std::string& mem_name) {
-  // TODO;
-  if (!VlgAbsMem::hasAbsMem())
-    return;
-
-  abs_mem_name = mem_name;
-
-  auto outfn = os_portable_append_dir(_output_path, mem_name);
-  std::ofstream fout(outfn); // will not append
-
-  VlgAbsMem::OutputMemFile(fout,
-                           _vtg_config.VerificationSettingAvoidIssueStage);
 }
+
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Jasper::Export_modify_verilog() {
   // COPY Files?

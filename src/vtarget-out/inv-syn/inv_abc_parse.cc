@@ -64,12 +64,12 @@ void AbcInvariantParser::parseAigerResultWoGLA(
         const auto new_name = vec.at(3) + "[" + bit_no + ":" + bit_no + "]";
         const auto blif_ref_name = vec.at(3) + "[" + bit_no + "]";
         ILA_CHECK(aig_state_order.size() == latch_no ||
-                   aig_state_order.size() == latch_no + 1)
+                  aig_state_order.size() == latch_no + 1)
             << new_name << " " << latch_no << " " << aig_state_order.size();
         if (IN(blif_ref_name, blif_valid_state_names) ||
             (IN(vec.at(3), blif_valid_state_names) && bit_no == "0")) {
           ILA_CHECK(aig_state_order.size() ==
-                     latch_no); // insert to the right index
+                    latch_no); // insert to the right index
           aig_state_order.push_back(new_name);
           aig_literal.push_back(std::make_pair(vec.at(3), StrToInt(bit_no)));
         }
@@ -102,7 +102,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
         unsigned long long flopno = flop >> 1;
         std::string literal;
         ILA_CHECK(aig_state_order.size() >=
-                   flopno) // remeber : the last one should be one
+                  flopno) // remeber : the last one should be one
             << "Referring #" << flopno
             << " flop, while size of blifstates:" << aig_state_order.size();
 
@@ -155,7 +155,7 @@ void AbcInvariantParser::parseAigerResultWoGLA(
       // void the cube if abnormal
       if (remove_this_cube) // cube_has_abnormal_var ||
         cube = "1'b0";      // cube = "1'b0"; // under-approximate it : total
-                       // under-approximate
+                            // under-approximate
       else { // if at least the cube has a normal var, it is a normal cube
         has_a_normal_cube = true;
         // only if this cube is not removed, we will add it
@@ -223,12 +223,12 @@ void AbcInvariantParser::parseAigerResultWithGLA(
         const auto new_name = vec.at(3) + "[" + bit_no + ":" + bit_no + "]";
         const auto blif_ref_name = vec.at(3) + "[" + bit_no + "]";
         ILA_CHECK(aig_state_order.size() == latch_no ||
-                   aig_state_order.size() == latch_no + 1)
+                  aig_state_order.size() == latch_no + 1)
             << new_name << " " << latch_no << " " << aig_state_order.size();
         if (IN(blif_ref_name, blif_valid_state_names) ||
             (IN(vec.at(3), blif_valid_state_names) && bit_no == "0")) {
           ILA_CHECK(aig_state_order.size() ==
-                     latch_no); // insert to the right index
+                    latch_no); // insert to the right index
           aig_state_order.push_back(new_name);
           aig_literal.push_back(std::make_pair(vec.at(3), StrToInt(bit_no)));
         }
@@ -336,7 +336,7 @@ void AbcInvariantParser::parseAigerResultWithGLA(
       // void the cube if abnormal
       if (remove_this_cube) // cube_has_abnormal_var ||
         cube = "1'b0";      // cube = "1'b0"; // under-approximate it : total
-                       // under-approximate
+                            // under-approximate
       else { // if at least the cube has a normal var, it is a normal cube
         has_a_normal_cube = true;
         // only if this cube is not removed, we will add it
@@ -469,7 +469,7 @@ void AbcInvariantParser::parse(const std::string& blif_name,
       // void the cube if abnormal
       if (remove_this_cube) // cube_has_abnormal_var ||
         cube = "1'b0";      // cube = "1'b0"; // under-approximate it : total
-                       // under-approximate
+                            // under-approximate
       else { // if at least the cube has a normal var, it is a normal cube
         has_a_normal_cube = true;
         // only if this cube is not removed, we will add it
@@ -610,7 +610,7 @@ void AbcInvariantParser::parse(const std::string& blif_name,
       // void the cube if abnormal
       if (remove_this_cube) // cube_has_abnormal_var ||
         cube = "1'b0";      // cube = "1'b0"; // under-approximate it : total
-                       // under-approximate
+                            // under-approximate
       else {
         has_a_normal_cube = true;
         if (parse_result.empty())
