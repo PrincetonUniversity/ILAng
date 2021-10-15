@@ -6,7 +6,7 @@
 #include <ilang/smt-inout/chc_inv_in_wrapper.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
-#include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
+// #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include "unit-include/config.h"
@@ -28,7 +28,7 @@ public:
 
 }; // class TestInvExtract
 
-#ifdef ILANG_BUILD_INVSYN
+#if 0
 
 TEST_F(TestInvExtract, Abc) {
 

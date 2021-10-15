@@ -38,21 +38,12 @@ public:
       const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
-      const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo& _supplementary_info,
-      VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
-      const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+      const rfmap::VerilogRefinementMap& refinement, VerilogInfo* _vlg_info_ptr,
+      const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
-      const vtg_config_t& vtg_config, backend_selector backend,
+      const RtlVerifyConfig& vtg_config, ModelCheckerSelection backend,
       const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
-
-  /// if you have signals that are controled by assumptions to be equal as
-  /// the outer clock, you need to put them here,
-  /// because the assumptions do not work in the jaspergold reset step
-  /// (unlike COSA)
-  void add_addition_clock_info(const std::string& expr);
-  void add_addition_reset_info(const std::string& expr);
 
 protected:
   /// internal storage of problems
@@ -61,41 +52,33 @@ protected:
   /// vector of pairs of <assertions, description>
   std::vector<std::pair<std::string, std::string>> assertions;
   /// vector of clock signals that need to be taken care of
-  std::vector<std::string>
-      additional_clock_expr; // we don't put the "clk" here, as by default it
-                             // will be there
-  /// vector of clock signals that need to be taken care of
-  std::vector<std::string> additional_reset_expr;
+
   /// Name of the problem file
   std::string jg_script_name;
-  /// Name of the problem file
-  std::string abs_mem_name;
 
 protected:
-  /// Add an assumption
-  virtual void add_an_assumption(const std::string& aspt,
-                                 const std::string& dspt) override;
-  /// Add an assertion
-  virtual void add_an_assertion(const std::string& asst,
-                                const std::string& dspt) override;
+  /// Add SMT-lib2 assumption
+  virtual void add_a_direct_smt_assumption(const std::string& arg,
+                                           const std::string& ret,
+                                           const std::string& body,
+                                           const std::string& dspt) override;
+  /// Add SMT-lib2 assertion
+  virtual void add_a_direct_smt_assertion(const std::string& arg,
+                                          const std::string& ret,
+                                          const std::string& body,
+                                          const std::string& dspt) override;
+
   /// Add a direct assumption
   virtual void add_a_direct_assumption(const std::string& aspt,
                                        const std::string& dspt) override;
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
-
-  /// Add an assignment which in JasperGold could be an assignment, but in CoSA
-  /// has to be an assumption
-  virtual void add_wire_assign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          const std::string& dspt) override;
-  /// Add an assignment to a register which in JasperGold could be an
-  /// assignment, but in CoSA has to be an assumption
-  virtual void add_reg_cassign_assumption(const std::string& varname,
-                                          const std::string& expression,
-                                          int width, const std::string& cond,
-                                          const std::string& dspt) override;
+  /// Add a direct assertion
+  virtual void add_a_direct_sanity_assertion(const std::string& asst,
+                                             const std::string& dspt) override {
+    add_a_direct_assertion(asst, dspt);
+  }
 
   /// Pre export work : nothing for cosa
   void virtual PreExportProcess() override {}
@@ -104,10 +87,6 @@ protected:
   /// export extra things (problem)
   virtual void
   Export_problem(const std::string& extra_name) override; // only for cosa
-  /// export the memory abstraction (implementation)
-  /// Yes, this is also implementation specific, (jasper may use a different
-  /// one)
-  virtual void Export_mem(const std::string& mem_name) override;
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
