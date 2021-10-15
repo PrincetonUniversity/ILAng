@@ -85,6 +85,7 @@ jobs:
       sudo apt-get install flex
       sudo apt-get install z3
       sudo apt-get install libz3-dev
+      sudo apt-get install libfl-dev
     displayName: 'package'
   - script: |
       mkdir -p build
