@@ -62,6 +62,8 @@ public:
   RfVarTypeOrig(const RfVarTypeOrig& r)
       : var_ref_type(r.var_ref_type), type(r.type) {}
 
+  RfVarTypeOrig& operator=(const RfVarTypeOrig&) = default;
+
 }; // class RfVarType
 
 } // namespace rfmap

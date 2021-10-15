@@ -106,6 +106,7 @@ static SmtType common_type(RfMapVarType tp1, RfMapVarType tp2) {
       return SmtType(tp2, false);
   }
   ILA_CHECK(false) << "unable to determine common type";
+  return SmtType(); // should not be reachable
 }
 
 static std::string extend_width(const std::string& in, unsigned inw,
