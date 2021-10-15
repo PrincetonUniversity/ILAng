@@ -8,7 +8,7 @@
 
 #include <fstream>
 
-#include "interpreter.h"
+#include "vexpparser/interpreter.h"
 #include "nlohmann/json.hpp"
 
 namespace ilang {

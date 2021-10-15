@@ -10,7 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <vexp.h>
+#include <vexpparser/vexp.h>
 
 namespace ilang {
 namespace rfmap {
