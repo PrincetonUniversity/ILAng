@@ -8,6 +8,7 @@
 
 #include <cmath>
 
+#include <ilang/rtl_verify.h>
 #include <ilang/ila/ast_hub.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
@@ -301,7 +302,7 @@ VlgSglTgtGen::CreateVarReplacement(const rfmap::RfVar& var,
 }
 
 rfmap::RfExpr VlgSglTgtGen::ReplExpr(const rfmap::RfExpr& in) {
-  bool replace_dot = _backend != VlgSglTgtGen::backend_selector::JASPERGOLD;
+  bool replace_dot = _backend != ModelCheckerSelection::JASPERGOLD;
 
   std::unordered_map<std::string, rfmap::RfVar> vars;
   refinement_map.GetVars(in, vars);

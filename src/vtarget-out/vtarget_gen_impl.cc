@@ -31,7 +31,7 @@ VlgVerifTgtGen::VlgVerifTgtGen(
     const std::string& implementation_top_module,
     const rfmap::VerilogRefinementMap& refinement,
     const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
-    backend_selector backend, const vtg_config_t& vtg_config,
+    ModelCheckerSelection backend, const RtlVerifyConfig& vtg_config,
     advanced_parameters_t* adv_ptr)
     : _vlg_impl_include_path(implementation_include_path),
       _vlg_impl_srcs(implementation_srcs),
@@ -79,32 +79,32 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     return;
   }
 
-  if (_vtg_config.target_select == vtg_config_t::BOTH ||
-      _vtg_config.target_select == vtg_config_t::INV) {
+  if (_vtg_config.target_select == RtlVerifyConfig::BOTH ||
+      _vtg_config.target_select == RtlVerifyConfig::INV) {
     // check if there are really invariants:
     bool invariantExists = false;
     if (!_refinement.global_invariants.empty())
       invariantExists = true;
 
     if ((_vtg_config.ValidateSynthesizedInvariant ==
-             vtg_config_t::_validate_synthesized_inv::ALL ||
+             RtlVerifyConfig::_validate_synthesized_inv::ALL ||
          _vtg_config.ValidateSynthesizedInvariant ==
-             vtg_config_t::_validate_synthesized_inv::CONFIRMED) &&
+             RtlVerifyConfig::_validate_synthesized_inv::CONFIRMED) &&
         (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr != NULL &&
          !_advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty()))
       invariantExists = true;
 
     if ((_vtg_config.ValidateSynthesizedInvariant ==
-             vtg_config_t::_validate_synthesized_inv::ALL ||
+             RtlVerifyConfig::_validate_synthesized_inv::ALL ||
          _vtg_config.ValidateSynthesizedInvariant ==
-             vtg_config_t::_validate_synthesized_inv::CANDIDATE) &&
+             RtlVerifyConfig::_validate_synthesized_inv::CANDIDATE) &&
         (_advanced_param_ptr &&
          _advanced_param_ptr->_candidate_inv_ptr != NULL &&
          !_advanced_param_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()))
       invariantExists = true;
 
     auto sub_output_path = os_portable_append_dir(_output_path, "invariants");
-    if (_backend == backend_selector::PONO && invariantExists) {
+    if (_backend == ModelCheckerSelection::PONO && invariantExists) {
       auto target = VlgSglTgtGen_Pono(
           sub_output_path,
           NULL, // invariant
@@ -114,7 +114,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "gen_btor.ys");
       target.do_not_instantiate(); // no use, just for coverage
-    } else if (_backend == backend_selector::JASPERGOLD && invariantExists) {
+    } else if (_backend == ModelCheckerSelection::JASPERGOLD && invariantExists) {
       auto target = VlgSglTgtGen_Jasper(
           sub_output_path,
           NULL, // invariant
@@ -126,7 +126,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.do_not_instantiate(); // no use, just for coverage
     }
 #if 0 
-    else if (_backend == backend_selector::RELCHC && invariantExists) {
+    else if (_backend == ModelCheckerSelection::RELCHC && invariantExists) {
       // will actually fail : not supported for using relchc for invariant
       // targets
       auto target = VlgSglTgtGen_Relchc(
@@ -140,8 +140,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2",
                        "absmem.v");
       target.do_not_instantiate();
-    } else if ((_backend & backend_selector::YOSYS) ==
-                   backend_selector::YOSYS &&
+    } else if ((_backend & ModelCheckerSelection::YOSYS) ==
+                   ModelCheckerSelection::YOSYS &&
                invariantExists) {
       auto target = VlgSglTgtGen_Yosys(
           sub_output_path,
@@ -153,11 +153,11 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           _chc_target_t::GENERAL_PROPERTY);
       target.ConstructWrapper();
       std::string design_file;
-      if (_backend == backend_selector::ABCPDR)
+      if (_backend == ModelCheckerSelection::ABCPDR)
         design_file = "wrapper.aig";
-      else if ((_backend & backend_selector::CHC) == backend_selector::CHC)
+      else if ((_backend & ModelCheckerSelection::CHC) == ModelCheckerSelection::CHC)
         design_file = "wrapper.smt2";
-      else if (_backend == backend_selector::BTOR_GENERIC)
+      else if (_backend == ModelCheckerSelection::BTOR_GENERIC)
         design_file = "wrapper.btor2";
       else
         design_file = "wrapper.unknfmt";
@@ -174,8 +174,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     // == INV)
 
   // now let's deal w. instructions in rf_cond
-  if (_vtg_config.target_select == vtg_config_t::BOTH ||
-      _vtg_config.target_select == vtg_config_t::INST) {
+  if (_vtg_config.target_select == RtlVerifyConfig::BOTH ||
+      _vtg_config.target_select == RtlVerifyConfig::INST) {
     for (auto&& instr : _refinement.inst_complete_cond) {
       std::string iname = instr.first;
       if (_vtg_config.CheckThisInstructionOnly != "" &&
@@ -191,7 +191,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
 
       auto sub_output_path = os_portable_append_dir(_output_path, iname);
 
-      if (_backend == backend_selector::PONO) {
+      if (_backend == ModelCheckerSelection::PONO) {
         auto target = VlgSglTgtGen_Pono(
             sub_output_path,
             instr_ptr, // instruction
@@ -201,7 +201,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "gen_btor.ys");
         target.do_not_instantiate();
-      } else if (_backend == backend_selector::JASPERGOLD) {
+      } else if (_backend == ModelCheckerSelection::JASPERGOLD) {
         auto target = VlgSglTgtGen_Jasper(
             sub_output_path,
             instr_ptr, // instruction
@@ -213,7 +213,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         target.do_not_instantiate();
       }
 #if 0
-      else if (_backend == backend_selector::RELCHC) {
+      else if (_backend == ModelCheckerSelection::RELCHC) {
         // will actually fail : not supported for using relchc for invariant
         // targets
         auto target = VlgSglTgtGen_Relchc(
@@ -227,8 +227,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2",
                          "absmem.v");
         target.do_not_instantiate();
-      } else if ((_backend & backend_selector::YOSYS) ==
-                 backend_selector::YOSYS) {
+      } else if ((_backend & ModelCheckerSelection::YOSYS) ==
+                 ModelCheckerSelection::YOSYS) {
         // in this case we will have two targets to generate
         // one is the target with only the design and
         // and the second one should use the smt file it generates
@@ -244,11 +244,11 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _chc_target_t::GENERAL_PROPERTY);
         target.ConstructWrapper();
         std::string design_file;
-        if (_backend == backend_selector::ABCPDR)
+        if (_backend == ModelCheckerSelection::ABCPDR)
           design_file = "wrapper.aig";
-        else if ((_backend & backend_selector::CHC) == backend_selector::CHC)
+        else if ((_backend & ModelCheckerSelection::CHC) == ModelCheckerSelection::CHC)
           design_file = "wrapper.smt2";
-        else if (_backend == backend_selector::BTOR_GENERIC)
+        else if (_backend == ModelCheckerSelection::BTOR_GENERIC)
           design_file = "wrapper.btor2";
         else
           design_file = "wrapper.unknfmt";
@@ -279,7 +279,7 @@ bool VlgVerifTgtGen::bad_state_return(void) {
 
 std::shared_ptr<smt::YosysSmtParser>
 VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
-  ILA_CHECK(_backend == backend_selector::YOSYS)
+  ILA_CHECK(_backend == ModelCheckerSelection::YOSYS)
       << "All inv-syn relies on yosys!";
 
   if (vlg_info_ptr)
@@ -295,7 +295,7 @@ VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
   // parameter override
   auto tmp_vtg_config(_vtg_config);
   tmp_vtg_config.CosaDotReferenceNotify =
-      vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC;
+      RtlVerifyConfig::CosaDotReferenceNotify_t::NOTIFY_PANIC;
 
   auto target = VlgSglTgtGen_Chc(
       os_portable_append_dir(_output_path, "inv-syn/"),
@@ -318,7 +318,7 @@ VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
 
 std::shared_ptr<smt::YosysSmtParser>
 VlgVerifTgtGen::GenerateInvSynEnhanceTargets(const InvariantInCnf& cnf) {
-  ILA_ERROR_IF(_backend != backend_selector::YOSYS)
+  ILA_ERROR_IF(_backend != ModelCheckerSelection::YOSYS)
       << "All inv-syn relies on yosys!";
 
   if (vlg_info_ptr)
@@ -336,7 +336,7 @@ VlgVerifTgtGen::GenerateInvSynEnhanceTargets(const InvariantInCnf& cnf) {
   tmp_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant = true;
   tmp_vtg_config.YosysSmtFlattenDatatype = true;
   tmp_vtg_config.CosaDotReferenceNotify =
-      vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC;
+      RtlVerifyConfig::CosaDotReferenceNotify_t::NOTIFY_PANIC;
 
   // TODO: you may need to change a bit of _advanced_param_ptr's inv
   // and maybe the assume inv part
@@ -363,7 +363,7 @@ VlgVerifTgtGen::GenerateInvSynEnhanceTargets(const InvariantInCnf& cnf) {
 
 void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr,
                                               bool useAiger) {
-  ILA_ERROR_IF(_backend != backend_selector::YOSYS)
+  ILA_ERROR_IF(_backend != ModelCheckerSelection::YOSYS)
       << "All inv-syn relies on yosys!";
 
   if (vlg_info_ptr)
@@ -378,7 +378,7 @@ void VlgVerifTgtGen::GenerateInvSynTargetsAbc(bool useGla, bool useCorr,
   // parameter override
   auto tmp_vtg_config(_vtg_config);
   tmp_vtg_config.CosaDotReferenceNotify =
-      vtg_config_t::CosaDotReferenceNotify_t::NOTIFY_PANIC;
+      RtlVerifyConfig::CosaDotReferenceNotify_t::NOTIFY_PANIC;
 
   auto target = VlgSglTgtGen_Abc(
       os_portable_append_dir(_output_path, "inv-syn-abc/"),

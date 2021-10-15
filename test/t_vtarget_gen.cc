@@ -20,7 +20,7 @@ TEST(TestVlgTargetGen, PipeExample) {
 
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
+  auto vtg_config = RtlVerifyConfig();
 
   VerilogVerificationTargetGenerator vg(
       {},                                                 // no include
@@ -30,180 +30,13 @@ TEST(TestVlgTargetGen, PipeExample) {
       os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
       os_portable_append_dir(dirName, "verify"),          // verification dir
       ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::PONO, // engine
+      ModelCheckerSelection::PONO, // engine
       vtg_config);
 
   EXPECT_FALSE(vg.in_bad_state());
   vg.GenerateTargets();
 }
 
-#if 0
-TEST(TestVlgTargetGen, PipeExampleZ3) {
-  auto ila_model = SimplePipe::BuildModel();
-
-  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
-  auto rfDir = os_portable_append_dir(dirName, "rfmap");
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysPath = "N/A";
-  vtg_config.Z3Path = "N/A";
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
-      os_portable_append_dir(dirName, "verify-z3"),       // verification dir
-      ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::Z3PDR, // engine
-      vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  vg.GenerateTargets();
-}
-
-TEST(TestVlgTargetGen, PipeExampleGrain) {
-  auto ila_model = SimplePipe::BuildModel();
-
-  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
-  auto rfDir = os_portable_append_dir(dirName, "rfmap");
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysPath = "N/A";
-  vtg_config.GrainPath = "N/A";
-  vtg_config.YosysSmtFlattenDatatype = true;
-  vtg_config.GrainHintsUseCnfStyle = true;
-  vtg_config.GrainOptions = {
-      "--skip-cnf --skip-const-check --skip-stat-collect --ante-size 1 "
-      "--conseq-size 1  --cnf cnt-no-group.cnf --use-arith-bvnot "
-      "--no-const-enum-vars-on m1.v,m1.imp"};
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
-      os_portable_append_dir(dirName, "verify-grain"),    // verification dir
-      ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::
-          GRAIN_SYGUS, // engine
-      vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  vg.GenerateTargets();
-}
-
-TEST(TestVlgTargetGen, PipeExampleGrainDeath) {
-  auto ila_model = SimplePipe::BuildModel();
-
-  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
-  auto rfDir = os_portable_append_dir(dirName, "rfmap");
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysSmtFlattenDatatype = false;
-  vtg_config.YosysPath = "N/A";
-  vtg_config.GrainPath = "N/A";
-  vtg_config.Z3Path = "N/A";
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
-      os_portable_append_dir(dirName, "verify-grain"),    // verification dir
-      ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::
-          GRAIN_SYGUS, // engine
-      vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  EXPECT_DEATH(vg.GenerateTargets(), ".*");
-}
-
-TEST(TestVlgTargetGen, PipeExampleEldaricaDeath) {
-  auto ila_model = SimplePipe::BuildModel();
-
-  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
-  auto rfDir = os_portable_append_dir(dirName, "rfmap");
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysPath = "N/A";
-  vtg_config.GrainPath = "N/A";
-  vtg_config.Z3Path = "N/A";
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
-      os_portable_append_dir(dirName, "verify-grain"),    // verification dir
-      ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::ELD_CEGAR, // engine
-      vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  EXPECT_DEATH(vg.GenerateTargets(), ".*");
-}
-
-TEST(TestVlgTargetGen, PipeExampleBtor) {
-  auto ila_model = SimplePipe::BuildModel();
-
-  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
-  auto rfDir = os_portable_append_dir(dirName, "rfmap");
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysPath = "N/A";
-  vtg_config.GrainPath = "N/A";
-  vtg_config.Z3Path = "N/A";
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
-      os_portable_append_dir(dirName, "verify-btor"),     // verification dir
-      ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::
-          BTOR_GENERIC, // engine
-      vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  vg.GenerateTargets();
-}
-
-TEST(TestVlgTargetGen, PipeExampleAbc) {
-  auto ila_model = SimplePipe::BuildModel();
-
-  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
-  auto rfDir = os_portable_append_dir(dirName, "rfmap");
-  auto vtg_config = VerilogVerificationTargetGenerator::vtg_config_t();
-  vtg_config.YosysPath = "N/A";
-  vtg_config.GrainPath = "N/A";
-  vtg_config.Z3Path = "N/A";
-  vtg_config.AbcPath = "N/A";
-
-  VerilogVerificationTargetGenerator vg(
-      {},                                                 // no include
-      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
-      "pipeline_v",                                       // top_module_name
-      os_portable_append_dir(rfDir, "vmap.json"),         // variable mapping
-      os_portable_append_dir(rfDir, "cond.json"),         // instruction-mapping
-      os_portable_append_dir(dirName, "verify-abc"),      // verification dir
-      ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::ABCPDR, // engine
-      vtg_config);
-
-  EXPECT_FALSE(vg.in_bad_state());
-
-  vg.GenerateTargets();
-}
-
-#endif
 
 TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
   auto ila_model = SimplePipe::BuildModel();
@@ -221,7 +54,7 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
                              "cond-rfmap-pvholder.json"), // instruction-mapping
       os_portable_append_dir(dirName, "verify_pvholder"), // verification dir
       ila_model.get(),                                    // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
+      ModelCheckerSelection::PONO // engine
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -248,7 +81,7 @@ TEST(TestVlgTargetGen, PipeStallRfmapShortNoValueHolder) {
       os_portable_append_dir(
           dirName, "verify_stall_short_nopvholder"), // verification dir
       ila_model.get(),                               // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
+      ModelCheckerSelection::PONO // engine
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -275,7 +108,7 @@ TEST(TestVlgTargetGen, PipeStallRfmapShort) {
           "cond-rfmap-pvholder-stall-short.json"), // instruction-mapping
       os_portable_append_dir(dirName, "verify_stall_short"), // verification dir
       ila_model.get(),                                       // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
+      ModelCheckerSelection::PONO // engine
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -301,7 +134,7 @@ TEST(TestVlgTargetGen, PipeStallRfmap) {
           "cond-rfmap-pvholder-stall.json"),           // instruction-mapping
       os_portable_append_dir(dirName, "verify_stall"), // verification dir
       ila_model.get(),                                 // ILA model
-      VerilogVerificationTargetGenerator::backend_selector::PONO // engine
+      ModelCheckerSelection::PONO // engine
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -325,7 +158,7 @@ TEST(TestVlgTargetGen, PipeExampleJasperGold) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond.json"})),
       os_portable_append_dir(dirName, "verify_jg/"), ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD);
+      ModelCheckerSelection::JASPERGOLD);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -345,7 +178,7 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
                              P({"rfmap", "vmap.json"})), // variable mapping
       os_portable_append_dir(dirName, P({"rfmap", "cond.json"})),
       os_portable_append_dir(dirName, "disprove/"), ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO);
+      ModelCheckerSelection::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -367,7 +200,7 @@ TEST(TestVlgTargetGen, Memory) {
       os_portable_append_dir(dirName, P({"cond.json"})),
       dirName, // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO);
+      ModelCheckerSelection::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -378,8 +211,7 @@ TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
 
   auto ila_model = MemorySwap::BuildSimpleSwapModel();
 
-  VerilogVerificationTargetGenerator::vtg_config_t
-      vtg_cfg; // default configuration
+  RtlVerifyConfig vtg_cfg; // default configuration
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
   vlg_cfg.extMem = false;
   auto dirName =
@@ -392,7 +224,7 @@ TEST(TestVlgTargetGen, MemoryInternal) { // test the expansion of memory
       os_portable_append_dir(dirName, "cond-expand.json"),
       dirName, // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO, vtg_cfg,
+      ModelCheckerSelection::PONO, vtg_cfg,
       vlg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -414,7 +246,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternal) {
       os_portable_append_dir(dirName, "cond-rfarray.json"),
       dirName, // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO);
+      ModelCheckerSelection::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -432,7 +264,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
   DebugLog::Enable("VTG.AddAssert");
   DebugLog::Enable("VTG.AddAssume");
 
-  VlgVerifTgtGenBase::vtg_config_t vtg_cfg;
+  RtlVerifyConfig vtg_cfg;
   vtg_cfg.PonoAddKeep = false;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
@@ -444,7 +276,7 @@ TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
       dirName + "cond-rfarray.json",  // cond path
       dirName + "rfarray_rf6/",       // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO, vtg_cfg);
+      ModelCheckerSelection::PONO, vtg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -463,7 +295,7 @@ TEST(TestVlgTargetGen, MemoryRead) {
       dirName + "cond-rd.json", // cond path
       dirName,                  // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO);
+      ModelCheckerSelection::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -471,7 +303,7 @@ TEST(TestVlgTargetGen, MemoryRead) {
 }
 
 TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
+  RtlVerifyConfig vtg_cfg;
 
   auto ila_model = MemorySwap::BuildRdModel();
 
@@ -484,7 +316,7 @@ TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
       dirName + "cond-rd.json", // cond path
       dirName + "rdabs_jg/",    // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD,
+      ModelCheckerSelection::JASPERGOLD,
       vtg_cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -504,7 +336,7 @@ TEST(TestVlgTargetGen, UndetValue) {
       dirName + "cond-val.json", // cond path
       dirName,                   // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO);
+      ModelCheckerSelection::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -523,7 +355,7 @@ TEST(TestVlgTargetGen, UndetFunc) {
       dirName + "cond-func.json", // cond path
       dirName,                    // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::PONO);
+      ModelCheckerSelection::PONO);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -546,7 +378,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
         os_portable_append_dir(dirName, "out"),                // output path
         ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::PONO);
+        ModelCheckerSelection::PONO);
 
     EXPECT_FALSE(vg.in_bad_state());
 
@@ -567,7 +399,7 @@ TEST(TestVlgTargetGen, ResetAnnotation) {
         os_portable_join_dir({dirName, "rfmap", "cond.json"}), // cond path
         os_portable_append_dir(dirName, "out2"),               // output path
         ila_model.get(),
-        VerilogVerificationTargetGenerator::backend_selector::PONO);
+        ModelCheckerSelection::PONO);
 
     EXPECT_FALSE(vg.in_bad_state());
 

@@ -56,13 +56,6 @@ public:
   typedef enum { INVARIANTS, INSTRUCTIONS, INV_SYN_DESIGN_ONLY } target_type_t;
   /// Per func apply counter
   typedef std::map<std::string, unsigned> func_app_cnt_t;
-  /// Type of the verification backend
-  using backend_selector = VlgVerifTgtGenBase::backend_selector;
-  /// Type of the synthesis backend
-  // using synthesis_backend_selector =
-  //    VlgVerifTgtGenBase::synthesis_backend_selector;
-  /// Type of configuration
-  using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of record of extra info of a signal
   using ex_info_t = VlgVerifTgtGenBase::ex_info_t;
   /// Type of advanced parameter
@@ -91,7 +84,7 @@ public:
       const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
-      const vtg_config_t& vtg_config, backend_selector backend,
+      const RtlVerifyConfig& vtg_config, ModelCheckerSelection backend,
       const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
 
   /// Destructor: do nothing , most importantly it is virtual
@@ -338,9 +331,9 @@ protected:
   /// include paths
   std::vector<std::string> vlg_include_files_path;
   /// Store the configuration
-  vtg_config_t _vtg_config;
+  RtlVerifyConfig _vtg_config;
   /// Store the selection of backend
-  backend_selector _backend;
+  ModelCheckerSelection _backend;
 
 protected:
   // ----------------------- MEMBERS for storing assumptions/assertions
@@ -474,10 +467,6 @@ private:
 /// outside
 class VlgVerifTgtGen : public VlgVerifTgtGenBase {
   // --------------------- TYPE DEFINITIONS ---------------------------- //
-  /// tell us which backend to use
-  using backend_selector = VlgVerifTgtGenBase::backend_selector;
-  /// Type of configuration
-  using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of a target
   using target_type_t = VlgSglTgtGen::target_type_t;
   /// Type of advanced parameter
@@ -501,7 +490,7 @@ public:
                  const std::string& implementation_top_module,
                  const rfmap::VerilogRefinementMap& refinement,
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
-                 backend_selector backend, const vtg_config_t& vtg_config,
+                 ModelCheckerSelection backend, const RtlVerifyConfig& vtg_config,
                  advanced_parameters_t* adv_ptr = NULL);
 
   /// no copy constructor, please
@@ -531,11 +520,11 @@ protected:
   /// A pointer to create verilog analyzer
   VerilogInfo* vlg_info_ptr;
   /// to store the backend
-  backend_selector _backend;
+  ModelCheckerSelection _backend;
   /// to store the verilog configuration
   VerilogGenerator::VlgGenConfig _cfg;
   /// to store the configuration
-  vtg_config_t _vtg_config;
+  RtlVerifyConfig _vtg_config;
   /// to store the advanced parameter configurations
   advanced_parameters_t* _advanced_param_ptr;
   /// to store the generate script name

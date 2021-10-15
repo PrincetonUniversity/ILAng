@@ -183,7 +183,7 @@ void VlgSglTgtGen::add_wire_assign_assumption(const std::string& varname,
 // populate the RtlExtraWire data structure
 void VlgSglTgtGen::
     ConstructWrapper_translate_property_and_collect_all_rtl_connection_var() {
-  bool is_jg = _backend == VlgSglTgtGen::backend_selector::JASPERGOLD;
+  bool is_jg = _backend == ModelCheckerSelection::JASPERGOLD;
 
   for (auto& dspt_vn_rfexpr_eq : assign_or_assumptions) {
     const auto& vn = std::get<1>(dspt_vn_rfexpr_eq);

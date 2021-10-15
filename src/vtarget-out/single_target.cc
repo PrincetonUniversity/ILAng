@@ -37,7 +37,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector backend,
+    const RtlVerifyConfig& vtg_config, ModelCheckerSelection backend,
     const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
     : _output_path(output_path), _instr_ptr(instr_ptr), _host(ila_ptr),
       _vlg_mod_inst_name("RTL"), _ila_mod_inst_name("ILA"),
@@ -435,7 +435,7 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
   if (VlgVerifTgtGenBase::backend_needs_yosys(_backend)) {
     fn = os_portable_append_dir(_output_path, top_file_name);
     fout.open(fn, std::ios_base::app);
-  } else if (_backend == backend_selector::JASPERGOLD) {
+  } else if (_backend == ModelCheckerSelection::JASPERGOLD) {
     fn = os_portable_append_dir(_output_path, ila_vlg_name);
     fout.open(fn);
   }

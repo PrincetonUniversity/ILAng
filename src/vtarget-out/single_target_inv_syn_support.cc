@@ -135,14 +135,14 @@ void VlgSglTgtGen::
     ConstructWrapper_add_inv_assumption_or_assertion_target_invariant() {
   ILA_CHECK(target_type == target_type_t::INVARIANTS);
   if (_vtg_config.ValidateSynthesizedInvariant ==
-          vtg_config_t::_validate_synthesized_inv::NOINV &&
+          RtlVerifyConfig::_validate_synthesized_inv::NOINV &&
       !has_rf_invariant) {
     ILA_CHECK(false)
         << "No invariant to handle for INVARIANT target, this is a bug!";
   }
 
   if (_vtg_config.ValidateSynthesizedInvariant ==
-      vtg_config_t::_validate_synthesized_inv::ALL) {
+      RtlVerifyConfig::_validate_synthesized_inv::ALL) {
     ILA_CHECK(has_confirmed_synthesized_invariant ||
               has_gussed_synthesized_invariant || has_rf_invariant)
         << "No invariant to handle for INVARIANT target, this is a bug!";
@@ -153,7 +153,7 @@ void VlgSglTgtGen::
     add_rf_inv_as_assertion();
 
   } else if (_vtg_config.ValidateSynthesizedInvariant ==
-             vtg_config_t::_validate_synthesized_inv::CANDIDATE) {
+             RtlVerifyConfig::_validate_synthesized_inv::CANDIDATE) {
     ILA_CHECK(has_gussed_synthesized_invariant)
         << "No invariant to handle for INVARIANT target, need candidate "
            "invariant!";
@@ -165,7 +165,7 @@ void VlgSglTgtGen::
     add_rf_inv_as_assumption();
 
   } else if (_vtg_config.ValidateSynthesizedInvariant ==
-             vtg_config_t::_validate_synthesized_inv::CONFIRMED) {
+             RtlVerifyConfig::_validate_synthesized_inv::CONFIRMED) {
     ILA_INFO_IF(has_confirmed_synthesized_invariant)
         << "Will ignore candidate invariants when checking confirmed "
            "invariants";
@@ -177,7 +177,7 @@ void VlgSglTgtGen::
     // assume rf
     add_rf_inv_as_assumption();
   } else if (_vtg_config.ValidateSynthesizedInvariant ==
-             vtg_config_t::_validate_synthesized_inv::NOINV) {
+             RtlVerifyConfig::_validate_synthesized_inv::NOINV) {
     // assert rf
     add_rf_inv_as_assertion();
   }

@@ -51,7 +51,7 @@ void VlgSglTgtGen::ConstructWrapper_reset_setup() {
   } else if (target_type == target_type_t::INVARIANTS ||
              target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
     if (_vtg_config.InvariantCheckNoReset) {
-      if (_backend == backend_selector::JASPERGOLD) {
+      if (_backend == ModelCheckerSelection::JASPERGOLD) {
         // no need to any thing
       } else if (VlgVerifTgtGenBase::backend_needs_yosys(_backend)) {
         add_a_direct_assumption("rst == 0", "noreset");

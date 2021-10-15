@@ -39,7 +39,7 @@ VlgSglTgtGen_Pono::VlgSglTgtGen_Pono(
     const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector vbackend,
+    const RtlVerifyConfig& vtg_config, ModelCheckerSelection vbackend,
     const target_type_t& target_tp, advanced_parameters_t* adv_ptr)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, refinement, _vlg_info_ptr,
                    wrapper_name, implementation_srcs,
@@ -231,6 +231,17 @@ void VlgSglTgtGen_Pono::Export_problem(const std::string& yosys_script_name) {
                                          "select wrapper/normalassert\n"
                                          "chformal -remove\n"
                                          "select *\n";
+
+
+  ILA_CHECK(
+    refinement_map.clock_specification.custom_clock_factor.empty() &&
+    refinement_map.clock_specification.custom_clock_sequence.empty()
+    ) << "TODO: custom clock sequence not implemented yet";
+  
+  ILA_CHECK(
+    refinement_map.reset_specification.custom_reset_sequence.empty() &&
+    refinement_map.reset_specification.initial_state.empty()
+    ) << "TODO: custom reset sequence not implemented yet";
 
     ys_script_fout << ReplaceAll(
         ReplaceAll(

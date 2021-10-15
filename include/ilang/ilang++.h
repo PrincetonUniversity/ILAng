@@ -16,6 +16,7 @@
 #endif // SMTSWITCH_INTERFACE
 
 #include <ilang/config.h>
+#include <ilang/rtl_verify.h>
 
 /// \namespace ilang
 /// Defines the core data structure and APIs for constructing and storing ILA.
@@ -744,6 +745,28 @@ private:
   }
 
 }; // class IlaZ3Unroller
+
+
+/// \brief The wrapper of Rtl verification target generator
+class IlaVerilogRefinemetChecker {
+  
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor
+  IlaVerilogRefinemetChecker(
+      const Ila& ila,
+      const std::vector<std::string>& implementation_include_path,
+      const std::vector<std::string>& implementation_srcs,
+      const std::string& implementation_top_module,
+      const std::string& refinement_variable_mapping,
+      const std::string& refinement_conditions, 
+      const std::string& output_path,
+      ModelCheckerSelection backend,
+      const RtlVerifyConfig& vtg_config = RtlVerifyConfig() );
+  /// Default virtual destructor.
+  ~IlaVerilogRefinemetChecker() {};
+  
+}; // class RtlVerifier
 
 #ifdef SMTSWITCH_INTERFACE
 

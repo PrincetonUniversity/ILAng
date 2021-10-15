@@ -86,7 +86,7 @@ public:
       const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
-      const vtg_config_t& vtg_config, backend_selector backend,
+      const RtlVerifyConfig& vtg_config, ModelCheckerSelection backend,
       const target_type_t& target_tp, advanced_parameters_t* adv_ptr);
 
 protected:
