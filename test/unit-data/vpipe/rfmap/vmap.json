@@ -1,36 +1,34 @@
 {
-  "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": {  
   	"r0":
-	    [ "~( m1.reg_0_w_stage == 2'b10 ) || (m1.ex_alu_result == m0.r0)",
-	      "~( m1.reg_0_w_stage == 2'b11 ) || (m1.ex_alu_result == m0.r0)",
-	      "~( m1.reg_0_w_stage == 2'b01 ) || (m1.ex_wb_val     == m0.r0)",
-	      "~( m1.reg_0_w_stage == 2'b00 ) || (m1.registers[0]  == m0.r0)"] ,
+	    [ [" RTL.reg_0_w_stage == 2'b10 ", " RTL.ex_alu_result == ILA.r0"],
+	      [" RTL.reg_0_w_stage == 2'b11 ", " RTL.ex_alu_result == ILA.r0"],
+	      [" RTL.reg_0_w_stage == 2'b01 ", " RTL.ex_wb_val     == ILA.r0"],
+	      [" RTL.reg_0_w_stage == 2'b00 ", " RTL.registers[0]  == ILA.r0"]] ,
     "r1":
-	    [ "~( m1.reg_1_w_stage == 2'b10 ) || (m1.ex_alu_result == m0.r1)",
-	      "~( m1.reg_1_w_stage == 2'b11 ) || (m1.ex_alu_result == m0.r1)",
-	      "~( m1.reg_1_w_stage == 2'b01 ) || (m1.ex_wb_val     == m0.r1)",
-	      "~( m1.reg_1_w_stage == 2'b00 ) || (m1.registers[1]  == m0.r1)"],
+	    [ [" RTL.reg_1_w_stage == 2'b10 ", "RTL.ex_alu_result == ILA.r1"],
+	      [" RTL.reg_1_w_stage == 2'b11 ", "RTL.ex_alu_result == ILA.r1"],
+	      [" RTL.reg_1_w_stage == 2'b01 ", "RTL.ex_wb_val     == ILA.r1"],
+	      [" RTL.reg_1_w_stage == 2'b00 ", "RTL.registers[1]  == ILA.r1"]],
     "r2":
-	    [ "~( m1.reg_2_w_stage == 2'b10 ) || (m1.ex_alu_result == m0.r2)",
-	      "~( m1.reg_2_w_stage == 2'b11 ) || (m1.ex_alu_result == m0.r2)",
-	      "~( m1.reg_2_w_stage == 2'b01 ) || (m1.ex_wb_val     == m0.r2)",
-	      "~( m1.reg_2_w_stage == 2'b00 ) || (m1.registers[2]  == m0.r2)"],
+	    [ ["RTL.reg_2_w_stage == 2'b10 ", "RTL.ex_alu_result == ILA.r2"],
+	      ["RTL.reg_2_w_stage == 2'b11 ", "RTL.ex_alu_result == ILA.r2"],
+	      ["RTL.reg_2_w_stage == 2'b01 ", "RTL.ex_wb_val     == ILA.r2"],
+	      ["RTL.reg_2_w_stage == 2'b00 ", "RTL.registers[2]  == ILA.r2"]],
     "r3":
 
-	    [ {"cond":" m1.reg_3_w_stage == 2'b10 " , "map":"m1.ex_alu_result"},
-	      {"cond":" m1.reg_3_w_stage == 2'b11 " , "map":"ex_alu_result"},
-	      {"cond":" m1.reg_3_w_stage == 2'b01 " , "map":" m1.ex_wb_val     == m0.r3"},
-	      {"cond":" m1.reg_3_w_stage == 2'b00 " , "map":" m1.registers[3]  == m0.r3"}]},
+	    [ ["RTL.reg_3_w_stage == 2'b10 " , "RTL.ex_alu_result"],
+	      ["RTL.reg_3_w_stage == 2'b11 " , "RTL.ex_alu_result"],
+	      ["RTL.reg_3_w_stage == 2'b01 " , " RTL.ex_wb_val     == ILA.r3"],
+	      ["RTL.reg_3_w_stage == 2'b00 " , " RTL.registers[3]  == ILA.r3"]]
+	  },
 
-  "interface mapping": {
-  	 "rst":"**RESET**", 
-  	 "clk":"**CLOCK**",
-  	 "inst":"inst",
-  	 "dummy_read_rf":"**KEEP**",
-  	 "dummy_rf_data":"**SO**"
+  "input mapping": {
+  	 "inst":"RTL.inst"
   },
-  // the following line has no use, it is just a case of finding wire
-  "mapping control" : ["m1.reg_0_w_stage_nxt != 2'b11"]  
+
+	"RTL interface connection" : {
+		"CLOCK" : "clk",
+		"RESET" : "rst"
+	}  
 }

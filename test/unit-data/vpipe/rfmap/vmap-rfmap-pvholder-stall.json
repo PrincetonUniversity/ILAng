@@ -1,0 +1,68 @@
+{
+  "state mapping": {  
+  	"r0":[ ["__START__", "RTL.registers[0] @ (#ex_wb_iuv# && RTL.wb_go)"] , ["1'b1", "RTL.registers[0]"] ] ,
+    "r1":[ ["__START__", "RTL.registers[1] @ (#ex_wb_iuv# && RTL.wb_go)"] , ["1'b1", "RTL.registers[1]"] ] ,
+    "r2":[ ["__START__", "RTL.registers[2] @ (#ex_wb_iuv# && RTL.wb_go)"] , ["1'b1", "RTL.registers[2]"] ] ,
+    "r3":[ ["__START__", "RTL.registers[3] @ (#ex_wb_iuv# && RTL.wb_go)"] , ["1'b1", "RTL.registers[3]"] ] },
+
+  "input mapping": {
+     "inst":"RTL.inst"
+  },
+
+  "rtl-interface-connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
+  },
+
+  "monitor" : {
+    "stage_tracker" : {
+      "verilog": 
+        [ "always @(posedge clk) begin",
+          "  if(rst)",
+          "    if_id_iuv <= 0;",
+          "  else if(__START__)",
+          "    if_id_iuv <= 1;",
+          "  else if(if_id_iuv && RTL.id_go)",
+          "    if_id_iuv <= 0;",
+          "end",
+          "",
+          "always @(posedge clk) begin",
+          "  if(rst)",
+          "    id_ex_iuv <= 0;",
+          "  else if(if_id_iuv && RTL.id_go)",
+          "    id_ex_iuv <= 1;",
+          "  else if(id_ex_iuv && RTL.ex_go)",
+          "    id_ex_iuv <= 0;",
+          "end",
+          "",
+          "always @(posedge clk) begin",
+          "  if(rst)",
+          "    ex_wb_iuv <= 0;",
+          "  else if(id_ex_iuv && RTL.ex_go)",
+          "    ex_wb_iuv <= 1;",
+          "  else if(ex_wb_iuv && RTL.wb_go)",
+          "    ex_wb_iuv <= 0;",
+          "end",
+          "",
+          "always @(posedge clk) begin",
+          "  if(rst)",
+          "    wb_iuv <= 0;",
+          "  else if(ex_wb_iuv && RTL.wb_go)",
+          "    wb_iuv <= 1;",
+          "  else if(wb_iuv )",
+          "    wb_iuv <= 0; // just last for one cycle",
+          "end"],
+      "defs" :[ 
+        ["if_id_iuv", 1, "reg"],
+        ["id_ex_iuv", 1, "reg"],
+        ["ex_wb_iuv", 1, "reg"],
+        ["wb_iuv", 1, "reg"]
+         ],
+      "refs" :["RTL.if_go", "RTL.id_go", "RTL.ex_go", "RTL.wb_go"]
+    }
+  }, // end of monitor
+  "additional mapping" : [
+    "#decode# |-> ( RTL.inst_ready && RTL.inst_valid)",
+    "#decode# |-> ( RTL.inst == ILA.inst ) " // for the other time, there is no guarantee
+  ]
+}

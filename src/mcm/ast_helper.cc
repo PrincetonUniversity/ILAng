@@ -8,6 +8,7 @@
 #include <ilang/mcm/memory_model.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 namespace ilang {
 
@@ -170,6 +171,10 @@ FunctionApplicationFinder::GetReferredFunc() const {
 }
 
 
+bool isSpecialUnknownFunction(const ExprOpAppFunc::FuncPtr & func) {
+  return StrStartsWith(func->name().str(), "__unknown__");
+}
+
 
 bool getIteUnknownCondVal(const ExprPtr & e, ExprPtr & c, ExprPtr & v) {
   if (!e->is_op())
@@ -183,7 +188,7 @@ bool getIteUnknownCondVal(const ExprPtr & e, ExprPtr & c, ExprPtr & v) {
     if ( (arg1 && arg1->op_name() == "APP") ) {
       std::shared_ptr<ExprOpAppFunc> apply_op_arg1 =
         std::dynamic_pointer_cast<ExprOpAppFunc>(arg1);
-      if ( StateMappingDirectiveRecorder::isSpecialUnknownFunction(apply_op_arg1->func())) {
+      if ( isSpecialUnknownFunction(apply_op_arg1->func())) {
         c = eop->arg(0);
         v = eop->arg(2);
         return true;
@@ -196,7 +201,7 @@ bool getIteUnknownCondVal(const ExprPtr & e, ExprPtr & c, ExprPtr & v) {
     if ( (arg2 && arg2->op_name() == "APP") ) {
       std::shared_ptr<ExprOpAppFunc> apply_op_arg2 =
         std::dynamic_pointer_cast<ExprOpAppFunc>(arg2);
-      if ( StateMappingDirectiveRecorder::isSpecialUnknownFunction(apply_op_arg2->func())) {
+      if ( isSpecialUnknownFunction(apply_op_arg2->func())) {
         c = eop->arg(0);
         v = eop->arg(1);
         return true;
