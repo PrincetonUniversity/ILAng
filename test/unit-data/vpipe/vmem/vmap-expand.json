@@ -1,17 +1,16 @@
 {
-  "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": {  
-    "mema":"mema",
-    "memb":"memb"},
+    "mema":"RTL.mema",
+    "memb":"RTL.memb"},
 
-  "interface mapping": {
-  	 "rst":"**RESET**", 
-  	 "clk":"**CLOCK**",
-  	 "addra":"addra",
-     "addrb":"addrb",
-     "start":"start"
+  "RTL interface connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
   },
 
-  "mapping control" : []
+  "input mapping": {
+     "addra":"RTL.addra",
+     "addrb":"RTL.addrb",
+     "start":"RTL.start"
+  }
 }

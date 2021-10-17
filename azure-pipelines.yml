@@ -65,6 +65,7 @@ jobs:
       sudo apt-get install flex
       sudo apt-get install z3
       sudo apt-get install libz3-dev
+      sudo apt-get install libfl-dev
       sudo apt-get install g++-7   
     displayName: 'package'
   - script: |
@@ -86,6 +87,7 @@ jobs:
       sudo apt-get install flex
       sudo apt-get install z3
       sudo apt-get install libz3-dev
+      sudo apt-get install libfl-dev
       sudo apt-get install g++-8   
     displayName: 'package'
   - script: |
@@ -139,6 +141,15 @@ jobs:
       cmake ..
       cmake --build . --target install
     displayName: 'vlog-parser'
+
+  - script: |
+      cd extern
+      cd vexpparser
+      md build
+      cd build
+      cmake .. -DCMAKE_CXX_FLAGS=/I\ %ProgramData%\\chocolatey\\lib\\winflexbison3\\tools
+      cmake --build . --target install
+    displayName: 'vexpparser'
 
   - script: |
       md build

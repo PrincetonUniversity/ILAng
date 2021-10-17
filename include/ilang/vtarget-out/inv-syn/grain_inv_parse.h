@@ -56,9 +56,9 @@ public:
 
   // -------------- CALLBACK FNs ------------------- //
 
-
   /// this is actually declare variables
-  virtual void declare_function(const std::string& name, SortPtrT sort) override;
+  virtual void declare_function(const std::string& name,
+                                SortPtrT sort) override;
 
   /// this function receives the final assert result
   // virtual void assert_formula(SmtTermInfoVlgPtr result) override; -- use the
@@ -75,10 +75,9 @@ public:
                                            SortPtrT sort) override;
   /// call back function to apply an uninterpreted function
   /// fall-through case if it is not an defined op, if failed, return NULL
-  virtual TermPtrT
-  mk_function(const std::string& name, SortPtrT sort,
-              const std::vector<int>& idx,
-              const std::vector<TermPtrT>& args) override;
+  virtual TermPtrT mk_function(const std::string& name, SortPtrT sort,
+                               const std::vector<int>& idx,
+                               const std::vector<TermPtrT>& args) override;
 
   /// call back function to make a number term
   // virtual SmtTermInfoVlgPtr mk_number(const std::string & rep, int width, int
@@ -87,8 +86,7 @@ public:
   /// this function receives the final result
   virtual void define_function(const std::string& func_name,
                                const std::vector<TermPtrT>& args,
-                               SortPtrT ret_type,
-                               TermPtrT func_body) override;
+                               SortPtrT ret_type, TermPtrT func_body) override;
 
 }; // class GrainInvariantParser
 
