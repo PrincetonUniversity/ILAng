@@ -57,6 +57,7 @@ jobs:
             - bison
             - z3
             - libz3-dev
+            - libfl-dev
             - g++-7
       before_install:
         - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
@@ -77,6 +78,7 @@ addons:
       - bison
       - z3
       - libz3-dev
+      - libfl-dev
       - g++-7
 
 notifications:

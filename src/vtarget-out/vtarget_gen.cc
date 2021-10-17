@@ -9,25 +9,26 @@
 
 namespace ilang {
 
-bool VlgVerifTgtGenBase::isValidVerifBackend(backend_selector vbackend) {
-  if (vbackend == backend_selector::COSA)
+bool VlgVerifTgtGenBase::isValidVerifBackend(ModelCheckerSelection vbackend) {
+  if (vbackend == ModelCheckerSelection::PONO)
     return true;
-  if (vbackend == backend_selector::JASPERGOLD)
+  if (vbackend == ModelCheckerSelection::JASPERGOLD)
     return true;
-  if (vbackend == backend_selector::RELCHC)
+  /*
+  if (vbackend == ModelCheckerSelection::RELCHC)
     return true;
-  if ((vbackend & backend_selector::YOSYS) == backend_selector::YOSYS) {
-    if (vbackend == backend_selector::ABCPDR)
+  if ((vbackend & ModelCheckerSelection::YOSYS) == ModelCheckerSelection::YOSYS) {
+    if (vbackend == ModelCheckerSelection::ABCPDR)
       return true;
-    if (vbackend == backend_selector::BTOR_GENERIC)
+    if (vbackend == ModelCheckerSelection::BTOR_GENERIC)
       return true;
-    if ((vbackend & backend_selector::CHC) == backend_selector::CHC) {
-      if (vbackend == backend_selector::ELD_CEGAR ||
-          vbackend == backend_selector::GRAIN_SYGUS ||
-          vbackend == backend_selector::Z3PDR)
+    if ((vbackend & ModelCheckerSelection::CHC) == ModelCheckerSelection::CHC) {
+      if (vbackend == ModelCheckerSelection::ELD_CEGAR ||
+          vbackend == ModelCheckerSelection::GRAIN_SYGUS ||
+          vbackend == ModelCheckerSelection::Z3PDR)
         return true;
     }
-  }
+  }*/
   return false;
 }
 
@@ -37,14 +38,15 @@ VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
     const std::string& implementation_top_module,
     const std::string& refinement_variable_mapping,
     const std::string& refinement_conditions, const std::string& output_path,
-    const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
-    const vtg_config_t& vtg_config,
-    const VerilogGenerator::VlgGenConfig& config)
+    const InstrLvlAbsPtr& ila_ptr, ModelCheckerSelection backend,
+    const RtlVerifyConfig& vtg_config,
+    const VerilogGenerator::VlgGenConfig& notused)
     : _generator(new VlgVerifTgtGen(
           implementation_include_path, implementation_srcs,
-          implementation_top_module, refinement_variable_mapping,
-          refinement_conditions, output_path, ila_ptr, backend, vtg_config,
-          config, NULL)) {}
+          implementation_top_module,
+          rfmap::VerilogRefinementMap(refinement_variable_mapping,
+                                      refinement_conditions),
+          output_path, ila_ptr, backend, vtg_config, NULL)) {}
 
 VerilogVerificationTargetGenerator::~VerilogVerificationTargetGenerator() {
   if (_generator)

@@ -71,7 +71,6 @@ bool GrainInvariantParser::ParseInvResultFromFile(const std::string& fname) {
 // -------------------------CALL BACK
 // FUNS--------------------------------------------------------------------
 
-
 /// this is actually declare variables
 void GrainInvariantParser::declare_function(const std::string& name,
                                             SortPtrT sort) {
@@ -104,27 +103,26 @@ void GrainInvariantParser::declare_function(const std::string& name,
       } else {
         converted_name = "__TOP_dot_" + vlg_name + "__";
       }
-      free_vars.insert(std::make_pair(converted_name, get_sort(sort).GetBoolBvWidth()));
+      free_vars.insert(
+          std::make_pair(converted_name, get_sort(sort).GetBoolBvWidth()));
     } else // else do not convert
       converted_name = vlg_name;
   }
 
   // save it
   term_pool.push_back(SmtTermInfoVerilog(converted_name, get_sort(sort), this));
-  quantifier_def_stack.back().emplace(name, term_pool.size()-1);
+  quantifier_def_stack.back().emplace(name, term_pool.size() - 1);
 } // declare_function
 
 // --------------------- DISABLE THESE FUNCTIONS ------------------------ //
 /// call back function to handle (forall
-GrainInvariantParser::TermPtrT
-GrainInvariantParser::push_quantifier_scope() {
+GrainInvariantParser::TermPtrT GrainInvariantParser::push_quantifier_scope() {
   ILA_CHECK(false)
       << "push_quantifier_scope should not appear in Grain CHC result";
   return 0;
 }
 /// call back function to handle ) of forall
-GrainInvariantParser::TermPtrT
-GrainInvariantParser::pop_quantifier_scope() {
+GrainInvariantParser::TermPtrT GrainInvariantParser::pop_quantifier_scope() {
   ILA_CHECK(false)
       << "pop_quantifier_scope should not appear in Grain CHC result";
   return 0;
@@ -145,10 +143,9 @@ void GrainInvariantParser::declare_quantified_variable(const std::string& name,
 /// or (pred (pred state)) ... you need to pass the right instance name allow
 /// side
 GrainInvariantParser::TermPtrT
-GrainInvariantParser::mk_function(
-              const std::string& name, SortPtrT sort,
-              const std::vector<int>& idx,
-              const std::vector<TermPtrT>& args) {
+GrainInvariantParser::mk_function(const std::string& name, SortPtrT sort,
+                                  const std::vector<int>& idx,
+                                  const std::vector<TermPtrT>& args) {
   // we don't really rely on the sort here: actually it should be NULL
   ILA_DLOG("GrainInvariantParser.mk_function")
       << "make func:" << name << ", #arg" << args.size() << std::endl;
@@ -165,11 +162,10 @@ GrainInvariantParser::mk_function(
   return 0; // should not be reachable
 } // mk_function
 
-void GrainInvariantParser::define_function(
-    const std::string& func_name,
-    const std::vector<TermPtrT>& args,
-    SortPtrT ret_type,
-    TermPtrT func_body) {
+void GrainInvariantParser::define_function(const std::string& func_name,
+                                           const std::vector<TermPtrT>& args,
+                                           SortPtrT ret_type,
+                                           TermPtrT func_body) {
   ILA_CHECK(false)
       << "define_function should not appear in Grain CHC result, func:"
       << func_name;

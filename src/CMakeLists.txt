@@ -19,6 +19,7 @@ add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
 add_subdirectory(smt-inout)
+add_subdirectory(rfmap-in)
 
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(target-itsy)
@@ -141,6 +142,19 @@ if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV})
   target_link_libraries(${ILANG_LIB_NAME} PUBLIC verilogparser::verilogparser)
 else()
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
+endif()
+
+##
+## refinement parser
+##
+if(NOT TARGET vexpparser::vexpparser)
+  find_package(vexpparser REQUIRED)
+endif()
+
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC vexpparser::vexpparser)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE vexpparser::vexpparser)
 endif()
 
 ##
