@@ -143,6 +143,15 @@ jobs:
     displayName: 'vlog-parser'
 
   - script: |
+      cd extern
+      cd vexpparser
+      md build
+      cd build
+      cmake ..
+      cmake --build . --target install
+    displayName: 'vexpparser'
+
+  - script: |
       md build
       cd build
       # For building the test, we need CMAKE_MSVC_RUNTIME_LIBRARY (which will be supported in CMake 3.15+)
