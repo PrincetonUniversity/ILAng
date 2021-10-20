@@ -268,6 +268,55 @@ void VerilogModifier::RecordAdditionalVlgModuleStmt(
   add_stmt_map[loc.first].push_back(add_stmt_t(loc.second, stmt));
 }
 
+// RTL.a.b.c[3]
+// vname : RTL__DOT__a__DOT__b__DOT__c_3_
+// hiearchy RTL.a.b
+// last_level_name c[3]
+void VerilogModifier::RecordConnectSigName(const std::string& vname, // wirename
+                                           const std::string& hierarchy, //
+                                           const std::string& last_level_name,
+                                           unsigned width) {
+  ILA_CHECK(width != 0);
+
+  auto mod_hier_name = Split(hierarchy, ".");
+  auto hier = mod_hier_name.size();
+  ILA_CHECK(hier >= 1);
+
+  // add module decl mod
+  std::string inst_name = mod_hier_name[0];
+  // add topmodule:
+  auto loc = vlg_info_ptr->name2loc(inst_name);
+  ILA_CHECK(loc.first != ""); // should be found
+  mod_decl_map[loc.first].push_back(mod_decl_item_t(loc.second, vname, width));
+
+  for (unsigned idx = 1; idx < hier; ++idx) { // exclude the last level name
+    inst_name += "." + mod_hier_name[idx];
+
+    auto loc = vlg_info_ptr->name2loc(inst_name);
+    ILA_CHECK(loc.first != ""); // should be found
+    mod_decl_map[loc.first].push_back(
+        mod_decl_item_t(loc.second, vname, width));
+  }
+
+  // add module inst mod: a.b.signal
+  inst_name = mod_hier_name[0];
+  for (unsigned idx = 1; idx < hier; ++idx) {
+    inst_name += "." + mod_hier_name[idx];
+    auto loc = vlg_info_ptr->get_module_inst_loc(inst_name);
+    ILA_CHECK(loc.first != ""); // should be found
+    mod_inst_map[loc.first].push_back(
+        mod_inst_item_t(loc.second, vname, width));
+  }
+
+  // use the special location (mod_decl to add wires and ...)
+  loc =
+      vlg_info_ptr->get_endmodule_loc(inst_name); // this the endmodule location
+  assign_map[loc.first].push_back(
+      assign_item_t(loc.second, vname, width, last_level_name));
+
+} // RecordConnectSigName
+
+#if 0  // the old implementation
 /// record the name to add a keep there
 VerilogModifier::vlg_sig_t
 VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
@@ -289,7 +338,8 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
 
   auto vname =
       ReplaceAll(vlg_sig_name, ".", "__DOT__") +
-      ReplaceAll(ReplaceAll(suffix, "[", "_"), "]", "_"); // name for verilog
+      (suffix.empty() ? "" : (
+        "_"+ ReplaceAll(suffix,"'","") +"_")); // name for verilog
   auto mod_hier_name = Split(vlg_sig_name, ".");
   auto hier = mod_hier_name.size();
   auto last_level_name = mod_hier_name[hier - 1];
@@ -325,11 +375,13 @@ VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   // use the special location (mod_decl to add wires and ...)
   loc =
       vlg_info_ptr->get_endmodule_loc(inst_name); // this the endmodule location
+  auto last_lv_signal_name = suffix.empty() ? short_name : (short_name + "["+ suffix+"]");
   assign_map[loc.first].push_back(
-      assign_item_t(loc.second, vname, width, short_name + suffix));
+      assign_item_t(loc.second, vname, width, last_lv_signal_name));
 
   return vlg_sig_t({vname, width});
 } // RecordConnectSigName
+#endif // end of the old implementation
 
 std::string WidthToRange(unsigned w) {
   if (w > 1)

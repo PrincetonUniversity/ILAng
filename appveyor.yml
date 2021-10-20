@@ -8,7 +8,7 @@ configuration:
 
 install:
 - sudo apt update --yes
-- sudo apt install --yes z3 libz3-dev bison flex gcc g++
+- sudo apt install --yes z3 libz3-dev bison libfl-dev flex gcc g++
 
 build_script:
 - cd $APPVEYOR_BUILD_FOLDER

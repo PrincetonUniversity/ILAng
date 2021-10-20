@@ -3,7 +3,9 @@
 verify/*
 verify_jg/*
 verify_pvholder/*
+verify_pvholder_reset/*
 disprove/*
+disprove-reset/*
 vmem/invariants
 vmem/SWAP
 vmem/SWAPExpand
