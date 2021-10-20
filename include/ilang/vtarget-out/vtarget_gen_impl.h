@@ -342,10 +342,14 @@ protected:
   ///   consumed by
   ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
   std::map<std::string, std::vector<rfmap::RfExpr>> all_assumptions;
-  /// assumptions : written by add_an_assertion,
+  /// assertions : written by add_an_assertion,
   ///   consumed by
   ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
   std::map<std::string, std::vector<rfmap::RfExpr>> all_assertions;
+  /// assumptions : written by add_a_cover,
+  ///   consumed by
+  ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
+  std::map<std::string, std::vector<rfmap::RfExpr>> all_covers;
   ///   consumed by
   ///   ConstructWrapper_translate_property_and_collect_all_rtl_connection_var
   std::map<std::string, std::vector<rfmap::RfExpr>> all_sanity_assertions;
@@ -394,6 +398,9 @@ protected:
   /// Add a sanity assertion
   virtual void add_a_direct_sanity_assertion(const std::string& aspt,
                                              const std::string& dspt) = 0;
+/// Add a sanity assertion
+  virtual void add_a_direct_cover_check(const std::string& cvr,
+                                        const std::string& dspt) = 0;
 
   /// Add SMT-lib2 assumption
   virtual void add_a_direct_smt_assumption(const std::string& arg,
@@ -412,6 +419,10 @@ protected:
 
   /// Add an assertion -- simply put in record
   virtual void add_an_assertion(const rfmap::RfExpr& asst,
+                                const std::string& dspt);
+
+  /// Add a cover -- simply put in record
+  virtual void add_a_cover(const rfmap::RfExpr& asst,
                                 const std::string& dspt);
 
   /// Add an assertion for sanity checking -- simply put in record

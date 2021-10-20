@@ -263,7 +263,8 @@ void TypedVerilogRefinementMap::TraverseAllRfExpr(
       TraverseRfExpr(a.second, func);
     for (auto& r : ptracker.second.rules) {
       TraverseRfExpr(r.enter_rule, func);
-      TraverseRfExpr(r.exit_rule, func);
+      if(r.exit_rule)
+        TraverseRfExpr(r.exit_rule, func);
       for (auto& act : r.enter_action)
         TraverseRfExpr(act.RHS, func);
       for (auto& act : r.exit_action)
@@ -573,6 +574,7 @@ void RfExprAstUtility::RfMapNoNullNode(const RfExpr& in) {
 
 void RfExprAstUtility::TraverseRfExpr(RfExpr& inout,
                                       std::function<void(RfExpr& inout)> func) {
+  ILA_NOT_NULL(inout);
   // DFS -- Note: we need to call func on the parent's child
   // and make sure it runs the first
   std::vector<std::pair<RfExpr, unsigned>> parent_stack;

@@ -77,6 +77,11 @@
           "name"  : "wb",
           "enter" : {"event" : "#ppl_stage_ex#"},
           "exit"  : {"event" : "1"}
+        },
+
+        {
+          "name"  : "teststage1",
+          "enter" : "#ppl_stage_ex#"
         }
       ]
 

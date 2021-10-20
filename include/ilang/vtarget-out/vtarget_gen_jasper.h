@@ -51,6 +51,8 @@ protected:
   std::vector<std::pair<std::string, std::string>> assumptions;
   /// vector of pairs of <assertions, description>
   std::vector<std::pair<std::string, std::string>> assertions;
+  /// vector of pairs of <assertions, description>
+  std::vector<std::pair<std::string, std::string>> covers;
   /// vector of clock signals that need to be taken care of
 
   /// Name of the problem file
@@ -74,6 +76,10 @@ protected:
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
+
+  /// Add a direct cover check
+  virtual void add_a_direct_cover_check(const std::string& cvr,
+                                    const std::string& dspt) override;
   /// Add a direct assertion
   virtual void add_a_direct_sanity_assertion(const std::string& asst,
                                              const std::string& dspt) override {

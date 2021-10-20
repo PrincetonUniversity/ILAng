@@ -58,6 +58,7 @@ namespace ilang {
     ///            |-> reg == value
     bool EnforcingValueRecorderForOnlyOneCycle;
 
+
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call
     /// generateInvariantVerificationTarget) if true, will check by default
@@ -71,6 +72,9 @@ namespace ilang {
     // ----------- Options for Pono settings -------------- //
     /// Whether to force the instruction check to start from reset state
     bool ForceInstCheckReset;
+    /// If true, will generate a separate check that cover the 
+    /// the commit condition
+    bool CheckInstrCommitSatisfiable;
     /// For Pono target generator : whether to force NEW/OLD port declaration
     enum class PortDeclStyleT { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
 
@@ -97,6 +101,8 @@ namespace ilang {
       NOTIFY_WARNING = 1,
       NOTIFY_IGNORE = 2
     } PonoDotReferenceNotify;
+    /// whether to generator a script to be used with JG as well
+    bool PonoGenJgScript;
     // The bound of BMC, default 127
     unsigned MaxBound;
     /// Only enforce var eq on updated vars, should not be used
@@ -113,8 +119,6 @@ namespace ilang {
     bool YosysSmtFlattenHierarchy;
     /// Whether to flatten the datatypes
     bool YosysSmtFlattenDatatype;
-    /// when used in property verification, show prove?
-    bool YosysPropertyCheckShowProof;
     /// Whether to word-blast array or use SMT Array
     /// By default will word-blast
     bool YosysSmtArrayForRegFile;
@@ -195,7 +199,10 @@ namespace ilang {
     } AbcAssumptionStyle;
 
     // ----------- Refinement Sanity Check Options-------------- //
+    /// if true: will check if the value recorder is triggered multiple times
     bool SanityCheck_ValueRecorderOverlyConstrained;
+    /// if true: will check if the value recorder is not triggered before commit
+    bool SanityCheck_ValueRecorderTriggeredBeforeCommit;
 
     /// The default constructor for default values
     _vtg_config()
@@ -206,10 +213,13 @@ namespace ilang {
           ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL),
 
           // ----------- Options for Pono settings -------------- //
-          ForceInstCheckReset(false), PortDeclStyle(PortDeclStyleT::AUTO),
+          ForceInstCheckReset(false), 
+          CheckInstrCommitSatisfiable(false),
+          PortDeclStyle(PortDeclStyleT::AUTO),
           PonoVcdOutputName("cex.vcd"), PonoAddKeep(false), PonoEngine("ind"),
           PonoOtherOptions(""),
           PonoDotReferenceNotify(PonoDotReferenceNotify_t::NOTIFY_PANIC),
+          PonoGenJgScript(false),
           MaxBound(127), OnlyAssumeUpdatedVarsEq(false),
 
           // ----------- Options for Pono script -------------- //
@@ -217,8 +227,8 @@ namespace ilang {
 
           // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
           YosysUndrivenNetAsInput(true), YosysSmtFlattenHierarchy(true),
-          YosysSmtFlattenDatatype(false), YosysPropertyCheckShowProof(false),
-          YosysSmtArrayForRegFile(false),
+          YosysSmtFlattenDatatype(false),
+          YosysSmtArrayForRegFile(true),
           YosysSmtStateSort(YosysStateSortT::Datatypes),
           InvariantSynthesisKeepMemory(true), InvariantCheckKeepMemory(true),
           InvariantSynthesisReachableCheckKeepOldInvariant(false),
@@ -243,7 +253,8 @@ namespace ilang {
           AbcAssumptionStyle(AbcAssumptionStyle_t::AigMiterExtraOutput),
 
           // ----------- Options for Refinement Sanity Checks -------------- //
-          SanityCheck_ValueRecorderOverlyConstrained(true) {}
+          SanityCheck_ValueRecorderOverlyConstrained(true),
+          SanityCheck_ValueRecorderTriggeredBeforeCommit(true) {}
   } RtlVerifyConfig;
 
 } // namespace ilang

@@ -41,6 +41,10 @@ TEST(TestVlgTargetGen, PipeExample) {
 TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
   auto ila_model = SimplePipe::BuildModel();
 
+  RtlVerifyConfig cfg;
+  cfg.CheckInstrCommitSatisfiable = true;
+  cfg.PonoGenJgScript = true;
+
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
   auto rfDir = os_portable_append_dir(dirName, "rfmap");
 
@@ -54,7 +58,39 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
                              "cond-rfmap-pvholder.json"), // instruction-mapping
       os_portable_append_dir(dirName, "verify_pvholder"), // verification dir
       ila_model.get(),                                    // ILA model
-      ModelCheckerSelection::PONO // engine
+      ModelCheckerSelection::PONO, // engine
+      cfg
+  );
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
+TEST(TestVlgTargetGen, PipeExampleRfmapPostResetStart) {
+  auto ila_model = SimplePipe::BuildModel();
+  RtlVerifyConfig cfg;
+  cfg.PonoGenJgScript = true;
+  cfg.ForceInstCheckReset = true;
+  cfg.CheckInstrCommitSatisfiable = true;
+  cfg.PonoOtherOptions = " -v 1 ";
+
+  auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
+  auto rfDir = os_portable_append_dir(dirName, "rfmap");
+
+  VerilogVerificationTargetGenerator vg(
+      {},                                                 // no include
+      {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
+      "pipeline_v",                                       // top_module_name
+      os_portable_append_dir(rfDir,
+                             "vmap-rfmap-pvholder.json"), // variable mapping
+      os_portable_append_dir(rfDir,
+                             "cond-rfmap-pvholder.json"), // instruction-mapping
+      os_portable_append_dir(dirName, "verify_pvholder_reset"), // verification dir
+      ila_model.get(),                                    // ILA model
+      ModelCheckerSelection::PONO, // engine
+      cfg
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -63,6 +99,10 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPost) {
 }
 
 TEST(TestVlgTargetGen, PipeStallRfmapShortNoValueHolder) {
+  RtlVerifyConfig cfg;
+  cfg.PonoEngine = "bmc";
+  cfg.PonoOtherOptions = " -k 5 -v 1 ";
+
   auto ila_model = SimplePipe::BuildStallModel();
 
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
@@ -81,7 +121,8 @@ TEST(TestVlgTargetGen, PipeStallRfmapShortNoValueHolder) {
       os_portable_append_dir(
           dirName, "verify_stall_short_nopvholder"), // verification dir
       ila_model.get(),                               // ILA model
-      ModelCheckerSelection::PONO // engine
+      ModelCheckerSelection::PONO, // engine
+      cfg
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -89,7 +130,13 @@ TEST(TestVlgTargetGen, PipeStallRfmapShortNoValueHolder) {
   vg.GenerateTargets();
 }
 
+// stall short has no instruction buffer
+// it is 1 stage shorter than stall
 TEST(TestVlgTargetGen, PipeStallRfmapShort) {
+  RtlVerifyConfig cfg;
+  cfg.PonoEngine = "bmc";
+  cfg.PonoOtherOptions = " -k 5 -v 1 ";
+  
   auto ila_model = SimplePipe::BuildStallModel();
 
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
@@ -108,7 +155,8 @@ TEST(TestVlgTargetGen, PipeStallRfmapShort) {
           "cond-rfmap-pvholder-stall-short.json"), // instruction-mapping
       os_portable_append_dir(dirName, "verify_stall_short"), // verification dir
       ila_model.get(),                                       // ILA model
-      ModelCheckerSelection::PONO // engine
+      ModelCheckerSelection::PONO, // engine
+      cfg
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -117,6 +165,10 @@ TEST(TestVlgTargetGen, PipeStallRfmapShort) {
 }
 
 TEST(TestVlgTargetGen, PipeStallRfmap) {
+  RtlVerifyConfig cfg;
+  cfg.PonoEngine = "bmc";
+  cfg.PonoOtherOptions = " -k 5 -v 1 ";
+  
   auto ila_model = SimplePipe::BuildStallModel();
 
   auto dirName = os_portable_append_dir(ILANG_TEST_DATA_DIR, "vpipe");
@@ -134,7 +186,8 @@ TEST(TestVlgTargetGen, PipeStallRfmap) {
           "cond-rfmap-pvholder-stall.json"),           // instruction-mapping
       os_portable_append_dir(dirName, "verify_stall"), // verification dir
       ila_model.get(),                                 // ILA model
-      ModelCheckerSelection::PONO // engine
+      ModelCheckerSelection::PONO, // engine
+      cfg
   );
 
   EXPECT_FALSE(vg.in_bad_state());
@@ -179,6 +232,31 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
       os_portable_append_dir(dirName, P({"rfmap", "cond.json"})),
       os_portable_append_dir(dirName, "disprove/"), ila_model.get(),
       ModelCheckerSelection::PONO);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
+TEST(TestVlgTargetGen, PipeExampleNotEquFromReset) {
+  auto ila_model = SimplePipe::BuildModel();
+  RtlVerifyConfig cfg;
+  cfg.ForceInstCheckReset = true;
+  cfg.PonoGenJgScript = true;
+
+  auto dirName =
+      os_portable_join_dir({ILANG_TEST_SRC_ROOT, "unit-data", "vpipe"});
+  VerilogVerificationTargetGenerator vg(
+      {},                                                       // no include
+      {os_portable_append_dir(dirName, "simple_pipe_wrong.v")}, //
+      "pipeline_v", // top_module_name
+      os_portable_append_dir(dirName,
+                             P({"rfmap", "vmap.json"})), // variable mapping
+      os_portable_append_dir(dirName, P({"rfmap", "cond.json"})),
+      os_portable_append_dir(dirName, "disprove-reset/"), ila_model.get(),
+      ModelCheckerSelection::PONO,
+      cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -256,13 +334,13 @@ TEST(TestVlgTargetGen, MemoryInternalExternal) {
 TEST(TestVlgTargetGen, MemoryInternalExternalEntry6) {
   auto ila_model = MemorySwap::BuildRfAsMemModelRegEntry6();
 
-  DebugLog::Enable("VTG.ReplWireEq");
-  DebugLog::Enable("VTG.ReplAssert");
-  DebugLog::Enable("VTG.ReplAssume");
+  // DebugLog::Enable("VTG.ReplWireEq");
+  // DebugLog::Enable("VTG.ReplAssert");
+  // DebugLog::Enable("VTG.ReplAssume");
 
-  DebugLog::Enable("VTG.AddWireEq");
-  DebugLog::Enable("VTG.AddAssert");
-  DebugLog::Enable("VTG.AddAssume");
+  // DebugLog::Enable("VTG.AddWireEq");
+  // DebugLog::Enable("VTG.AddAssert");
+  // DebugLog::Enable("VTG.AddAssume");
 
   RtlVerifyConfig vtg_cfg;
   vtg_cfg.PonoAddKeep = false;

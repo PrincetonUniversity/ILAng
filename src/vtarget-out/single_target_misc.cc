@@ -257,6 +257,7 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
                                   stage_name + " <= 1'b1;");
       vlg_wrapper.add_wire(enter_cond_wire_name, 1, true);
       rfmap_add_internal_wire(enter_cond_wire_name, 1);
+      ILA_NOT_NULL(stage.enter_rule);
       add_wire_assign_assumption(enter_cond_wire_name, stage.enter_rule,
                                  "phase_tracker");
 
@@ -282,8 +283,11 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
 
       vlg_wrapper.add_wire(exit_cond_wire_name, 1, true);
       rfmap_add_internal_wire(exit_cond_wire_name, 1);
-      add_wire_assign_assumption(exit_cond_wire_name, stage.exit_rule,
-                                 "phase_tracker");
+      if (stage.exit_rule == nullptr)
+        vlg_wrapper.add_assign_stmt(exit_cond_wire_name, "1'b0");
+      else
+        add_wire_assign_assumption(exit_cond_wire_name, stage.exit_rule,
+                                  "phase_tracker");
 
       idx = 0;
       for (const auto& action : stage.exit_action) {
@@ -343,8 +347,10 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
     // pv_sn_cond = <condition> && ( __START__ || __STARTED__ )
     add_wire_assign_assumption(
         pv_name + "_sn_cond",
-        rfmap_and(post_val_holder.second.condition,
-                  rfmap_or(rfmap_var("__START__"), rfmap_var("__STARTED__"))),
+        rfmap_and({post_val_holder.second.condition,
+                  rfmap_or(rfmap_var("__START__"), rfmap_var("__STARTED__")),
+                  rfmap_not(rfmap_var("__ENDED__"))
+                  }),
         "pvholder_cond_assign");
 
     // pv_sn_value = <value>
@@ -358,12 +364,18 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
                               rfmap_var(pv_name + "_sn_cond")),
                     rfmap_eq(rfmap_var(pv_name + "_sn_value"),
                              rfmap_var(pv_name + "_sn_vhold"))),
-        "post_value_holder");
+        "post_value_holder_overly_constrained");
 
-    // you need to add checker
-
-    // check no
-  }
+    // check : commit -> _cond_met
+    add_a_santiy_assertion(
+      rfmap_imply(rfmap_var("commit"), 
+      rfmap_or(
+       rfmap_var(pv_name + "_sn_condmet"),
+       rfmap_var(pv_name + "_sn_cond")
+       )),
+      "post_value_holder_triggered");
+    
+  } // for each value recorder
 } // ConstructWrapper_add_post_value_holder
 
 void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {

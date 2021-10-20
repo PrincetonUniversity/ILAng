@@ -59,7 +59,7 @@ VlgSglTgtGen::VlgSglTgtGen(
                                                                     // function
           true,                              // w. start signal
           vtg_config.VerilogGenPassNodeName, // pass node name
-          false,                             // no rand init
+          true,                             // has rand init
           false,                             // no expand memory
           false                              // no collecte ITE unknown
           )),

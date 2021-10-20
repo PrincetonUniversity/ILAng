@@ -447,21 +447,49 @@ std::string JsonRfmapParsePhaseTracker(PhaseTracker& tracker,
     auto* enter = GetJsonSection(stage, {"enter"});
     auto* exit = GetJsonSection(stage, {"exit"});
     auto* stage_name = GetJsonSection(stage, {"name"});
-    ENSURE(enter && exit,
-           "`rules` object must contain `enter` and `exit` events");
-    ENSURE(enter->is_object(),
-           "`enter` should contain `event` and (optional) `action`");
-    ENSURE(exit->is_object(),
-           "`exit` should contain `event` and (optional) `action`");
-    auto* enter_event = GetJsonSection(*enter, {"event"});
-    auto* exit_event = GetJsonSection(*exit, {"event"});
-    auto* enter_action = GetJsonSection(*enter, {"action"});
-    auto* exit_action = GetJsonSection(*exit, {"action"});
+    ENSURE(enter || exit,
+           "`rules` object must contain `enter` or `exit` events");
+    if(enter) {
+      ENSURE(enter->is_object() || enter->is_string(),
+            "`enter` should contain `event` and (optional) `action`");
+    }
+    if(exit) {
+      ENSURE(exit->is_object() || exit->is_string(),
+            "`exit` should contain `event` and (optional) `action`");
+    }
+    
+    nlohmann::json* enter_event  = NULL; 
+    nlohmann::json* enter_action = NULL;
+    nlohmann::json* exit_event   = NULL;  
+    nlohmann::json* exit_action  = NULL; 
+
+    if (enter) {
+      if(enter->is_object()) {
+        enter_event  = GetJsonSection(*enter, {"event"});
+        enter_action = GetJsonSection(*enter, {"action"});
+      } else { // is string
+        enter_event = enter;
+      }
+    }
+    if (exit) {
+      if(exit->is_object()) {
+        exit_event   = GetJsonSection(*exit, {"event"});
+        exit_action  = GetJsonSection(*exit, {"action"});
+      } else
+        exit_event = exit;
+    }
+
+    ERRIF( enter_event == NULL , "the current stage has no `entering` event, please check!" );
+    ERRIF( (enter_event == NULL && enter_action != NULL), "if you specify `enter->action`, you must provide `enter->event`." );
+    ERRIF( (exit_event == NULL && exit_action != NULL), "if you specify `exit->action`, you must provide `exit->event`." );
+    
     ENSURE(enter_event,
            "`enter` should contain `event` and (optional) `action`");
-    ENSURE(exit_event, "`exit` should contain `event` and (optional) `action`");
     ENSURE(enter_event->is_string(), "`enter` -> `event` should be a string");
-    ENSURE(exit_event->is_string(), "`exit` -> `event` should be a string");
+    if(exit) {
+      ENSURE(exit_event, "`exit` should contain `event` and (optional) `action`");
+      ENSURE(exit_event->is_string(), "`exit` -> `event` should be a string");
+    }
 
     tracker.rules.push_back(PhaseTracker::Rule());
     auto& ws = tracker.rules.back();
@@ -471,9 +499,12 @@ std::string JsonRfmapParsePhaseTracker(PhaseTracker& tracker,
     } else {
       ws.stage_name = tracker_name + "_stage" + std::to_string(sidx++);
     }
+    
     ws.enter_rule = ParseRfMapExprJson(*enter_event);
-    ws.exit_rule = ParseRfMapExprJson(*exit_event);
-
+    if(exit_event) {
+      ws.exit_rule = ParseRfMapExprJson(*exit_event);
+    }
+ 
     if (enter_action) {
       ENSURE(enter_action->is_string(), "`action` should be a string");
       auto action_str = enter_action->get<std::string>();
@@ -912,7 +943,8 @@ VerilogRefinementMap::VerilogRefinementMap(
           ENSURE(template_field->is_string(),
                  "`template` field should be string");
           auto template_name = template_field->get<std::string>();
-          if (SectionNameRelaxedMatch(template_name, "phase tracker")) {
+          if (SectionNameRelaxedMatch(template_name, "phase tracker") ||
+              SectionNameRelaxedMatch(template_name, "stage tracker") ) {
             phase_tracker.emplace(name, PhaseTracker());
             std::string errmsg = JsonRfmapParsePhaseTracker(
                 phase_tracker.at(name), monitor, name);

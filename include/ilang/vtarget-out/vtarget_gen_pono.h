@@ -42,6 +42,8 @@ protected:
   problemset_t assertions;
   /// problems are splitted into items
   problemset_t sanity_assertions;
+  /// problems are splitted into items
+  problemset_t cover_checks;
 
   /// SMT-LIB2 assumptions
   prop_t smt_assumptions;
@@ -94,6 +96,8 @@ protected:
   Pono_problem _problems;
   /// Pono problem file name
   std::string ys_script_name;
+  /// all cover assert property names
+  std::vector<std::string> all_cover_assert_property_names;
 
 protected:
   /// Add a direct assumption
@@ -102,9 +106,12 @@ protected:
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
-  /// Add a direct assertion
+  /// Add a direct sanity assertion
   virtual void add_a_direct_sanity_assertion(const std::string& asst,
                                              const std::string& dspt) override;
+  /// Add a direct cover check
+  virtual void add_a_direct_cover_check(const std::string& asst,
+                                        const std::string& dspt) override;
 
   /// Add SMT-lib2 assumption
   virtual void add_a_direct_smt_assumption(const std::string& arg,
@@ -119,6 +126,13 @@ protected:
 
   /// Pre export work : nothing for pono
   void virtual PreExportProcess() override;
+
+  // A helper function to generate Yosys script
+  void GenYosysScript(
+      const std::string& ys_script_name_path,
+      const std::string& property_selection_cmd,
+      const std::string& generated_btor_name );
+
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
   /// export extra things (problem)

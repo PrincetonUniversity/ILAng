@@ -57,6 +57,12 @@ void VlgSglTgtGen_Jasper::add_a_direct_assertion(const std::string& asst,
                                                  const std::string& dspt) {
   assertions.push_back(std::make_pair(asst, dspt));
 }
+/// Add an cover check
+void VlgSglTgtGen_Jasper::add_a_direct_cover_check(const std::string& cvr,
+                                                 const std::string& dspt) {
+  covers.push_back(std::make_pair(cvr, dspt));
+}
+
 
 /// export the script to run the verification
 void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {
@@ -122,6 +128,11 @@ void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
   for (auto&& asst_dspt_pair : assertions)
     fout << "assert -name " << asst_dspt_pair.second + std::to_string(No++)
          << " {" << asst_dspt_pair.first << "}" << std::endl;
+
+  No = 0;
+  for (auto&& cover_dspt_pair : covers)
+    fout << "cover -name " << cover_dspt_pair.second + std::to_string(No++)
+         << " {" << cover_dspt_pair.first << "}" << std::endl;
 }
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)

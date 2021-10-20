@@ -92,8 +92,11 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   rfmap_add_replacement("decode", "__START__");
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   // how start is triggered
-
-  vlg_wrapper.add_stmt("if (rst) __START__ <= 1;");
+  if(_vtg_config.ForceInstCheckReset) {
+    vlg_wrapper.add_stmt("if (__ISSUE__ && !__START__ && !__STARTED__) __START__ <= 1;");
+  } else {
+    vlg_wrapper.add_stmt("if (rst) __START__ <= 1;");
+  }
   vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
 
   vlg_wrapper.add_stmt("end");
@@ -195,6 +198,11 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
       rfmap_and({iend_cond, rfmap_var("__STARTED__"), rfmap_var("__RESETED__"),
                  end_no_recur, max_bound_constr}),
       "IEND");
+
+  if(_vtg_config.CheckInstrCommitSatisfiable) {
+    add_a_cover(rfmap_var("commit"), "inst_will_commit");
+  }
+  
   // handle start decode
 
   if (!instr.start_condition.empty()) {

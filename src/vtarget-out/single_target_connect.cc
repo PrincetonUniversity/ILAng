@@ -68,7 +68,6 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   // TODO: check whether all ports have been dealt with
   // TODO: check whether there are any extra ports we create
   std::set<std::string> port_connected; // store the name of ila port
-  std::set<std::string> port_of_ila;    // store the name of ila port also
 
   // .. record function
 
