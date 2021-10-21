@@ -970,13 +970,13 @@ namespace programfragment {
     return ExprRef{v};
   }
 
-  void ProgramFragment::RegisterApplicationParam(const ExprRef& p) {
-    // TODO: what does this entail?
-  }
+  // void ProgramFragment::RegisterApplicationParam(const ExprRef& p) {
+  //   // TODO: what does this entail?
+  // }
 
-  void ProgramFragment::RegisterHardwareParam(const ExprRef& p) {
-    // TODO: what does this entail?
-  }
+  // void ProgramFragment::RegisterHardwareParam(const ExprRef& p) {
+  //   // TODO: what does this entail?
+  // }
 
   void ProgramFragment::AddStatement(const Stmt& s) {
     pf_->body.push_back(convert_stmt(s));
