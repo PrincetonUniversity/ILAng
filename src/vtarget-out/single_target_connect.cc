@@ -305,6 +305,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
       refinement_map.rtl_interface_connection.clock_domain_defs.at("default");
   const auto& reset_pins = refinement_map.rtl_interface_connection.reset_pins;
   const auto& nreset_pins = refinement_map.rtl_interface_connection.nreset_pins;
+  const auto& custom_input = refinement_map.rtl_interface_connection.input_port_connection;
   for (auto&& name_siginfo_pair : vlg_inputs) {
     std::string refstr = "**KEEP**";
     if (IN(name_siginfo_pair.first, clock_pins))
@@ -313,6 +314,14 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
       refstr = "**RESET**";
     else if (IN(name_siginfo_pair.first, nreset_pins))
       refstr = "**NRESET**";
+    else if (IN(name_siginfo_pair.first, custom_input)) {
+      auto short_name = name_siginfo_pair.first;
+      add_wire_assign_assumption( "__VLG_II_" + short_name, custom_input.at(name_siginfo_pair.first),
+        "vlg_input_wire");
+      rfmap_add_internal_wire("__VLG_II_" + short_name,
+        name_siginfo_pair.second.get_width() );
+      refstr = "**CUSTOM_INPUT**";
+    }
 
     _idr.RegisterInterface(name_siginfo_pair.second, refstr);
   }

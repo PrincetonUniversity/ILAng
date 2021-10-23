@@ -187,9 +187,16 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
         << "Expecting `" << short_name << "` to be input of width 1";
     mod_inst_rec.insert(
         {short_name, inf_connector_t({inf_dir_t::CLOCK, "clk"})});
-  } else
+  } else if (refstr == "**CUSTOM_INPUT**") {
+    ILA_CHECK(is_input) << "Cannot assign to output port : " << short_name;
+    ILA_ERROR_IF(IN(short_name, mod_inst_rec)) << short_name << " has already been connected";
+    internal_wires.push_back({"__VLG_II_" + short_name, width});
+    mod_inst_rec.insert(
+        {short_name,
+          inf_connector_t({inf_dir_t::INPUT, "__VLG_II_" + short_name})});
+  } else {
     ILA_ASSERT(false) << "Implementation error. Should not be reachable.";
-  // decide how to connect and signals to create
+  } // decide how to connect and signals to create
   return;
 } // IntefaceDirectiveRecorder::RegisterInterface
 

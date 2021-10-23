@@ -379,27 +379,27 @@ std::string JsonRfMapParseVarDefs(
     nlohmann::json& def_field) {
 
   ENSURE(def_field.is_array(),
-         "`defs` field should be list of [name, width, type]");
+         "`defs` field should be list of [[name, width, type], ...]");
   for (auto& one_def : def_field) {
     ENSURE(one_def.is_array(),
-           "`defs` field should be list of [name, width, type]");
+           "`defs` field should be list of [[name, width, type], ...]");
     auto pos = one_def.begin();
 
     ENSURE(pos != one_def.end() && pos->is_string(),
-           "`defs` field should be list of [name, width, type]");
+           "`defs` field should be list of [[name, width, type], ...]");
     auto var_name = pos->get<std::string>();
     ENSURE(!IN(var_name, var_defs), "var " + var_name + " has been defined");
 
     ++pos;
     ENSURE(pos != one_def.end() && pos->is_number_unsigned(),
-           "`defs` field should be list of [name, width, type]");
+           "`defs` field should be list of [[name, width, type], ...]");
     var_defs[var_name].width = pos->get<unsigned>();
     ERRIF(var_defs[var_name].width == 0,
           "Definition of " + var_name + " has 0 width");
 
     ++pos;
     ENSURE(pos != one_def.end() && pos->is_string(),
-           "`defs` field should be list of [name, width, type]");
+           "`defs` field should be list of [[name, width, type], ...]");
     auto tp = pos->get<std::string>();
     ENSURE(SectionNameRelaxedMatch(tp, "reg") ||
                SectionNameRelaxedMatch(tp, "wire"),
@@ -698,6 +698,8 @@ VerilogRefinementMap::VerilogRefinementMap(
     nlohmann::json* nreset_list = GetJsonSection(*rtl_if_map, {"NRESET"}, true);
     nlohmann::json* reset_domains =
         GetJsonSection(*rtl_if_map, {"CUSTOMRESET"}, true);
+    nlohmann::json* input_ports = GetJsonSection(*rtl_if_map, 
+      {"INPUT", "INPORT", "INPUTS", "INPORTS", "INPUT-PORT", "INPUT-PORTS"}, false);
     if (clock_domains) {
       ENSURE(clock_domains->is_array() || clock_domains->is_string() ||
                  clock_domains->is_object(),
@@ -776,6 +778,17 @@ VerilogRefinementMap::VerilogRefinementMap(
         }
       } // if is_object
     }   // if reset custom domain
+    if(input_ports) {
+      ENSURE(input_ports->is_object(), "Expecting `input-port` to be a map of string->string");
+      for (const auto& n_l_pair : input_ports->items()) {
+        ENSURE(n_l_pair.value().is_string(), "Expecting `input-port` to be a map of string->string");
+        auto rfe = ParseRfMapExprJson( n_l_pair.value() );
+        auto port_name = n_l_pair.key();
+        ENSURE(rtl_interface_connection.input_port_connection.find(port_name) == rtl_interface_connection.input_port_connection.end(),
+          ("Error: port name " + port_name + " has been assigned already") );
+        rtl_interface_connection.input_port_connection.emplace(port_name, rfe);        
+      }
+    }
   }     // interface map
 
   { // reset section parsing

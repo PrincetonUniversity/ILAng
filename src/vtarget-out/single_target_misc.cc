@@ -158,6 +158,11 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
 
 void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
   for (const auto& delay_unit : refinement_map.aux_delays) {
+    std::cout << delay_unit.first << " : expr = "
+      << (delay_unit.second.signal) << std::endl;
+  }
+
+  for (const auto& delay_unit : refinement_map.aux_delays) {
     const auto& name = delay_unit.first;
     const auto& du = delay_unit.second;
     unsigned width = du.width;

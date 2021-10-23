@@ -12,7 +12,10 @@
 
   "rtl-interface-connection" : {
     "CLOCK" : "clk",
-    "RESET" : "rst"
+    "RESET" : "rst",
+    "INPUT" : {
+      "dummy_read_rf" : "#dummy_read_rf#"
+    }
   },
 
   "monitor" :{
@@ -43,7 +46,7 @@
          "  if (__START__) ref_test <= 0;",
          "  else if (__STARTED__ && !__ENDED__ && stage_tracker == 1) ref_test <= RTL.registers[0] + 1;",
          "end"],
-      "defs" :[ ["ref_test", 2, "reg"] ],
+      "defs" :[ ["ref_test", 2, "reg"], ["dummy_read_rf", 2, "wire"] ],
       "refs" :[ "RTL.registers[0]" ]
     },
 
@@ -66,11 +69,15 @@
     // pipeline tracker
     "ppl_stage" : {
       "template" : "phase tracker",
+      "event-alias" : {
+        "dsignal" : "ppl_stage_ex ## [1:$] ppl_stage_wb ##1 (1'b1)"
+      },
+      "aux-var" : [["cnt", 2, "reg"]],
       "rules" : [
         { // 
           "name"  : "ex",
           "enter" : {"event" : "#decode#"},
-          "exit"  : {"event" : "1"}
+          "exit"  : {"event" : "1", "action": " cnt <= RTL.reg_0_w_stage "}
         },
 
         { // 

@@ -103,6 +103,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
 
   vlg_wrapper.add_reg("__STARTED__", 1);
   rfmap_add_internal_reg("__STARTED__", 1);
+  rfmap_add_replacement("afterdecode", "__STARTED__");
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __STARTED__ <= 0;");
   vlg_wrapper.add_stmt(

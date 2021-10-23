@@ -75,6 +75,8 @@ struct RtlInterfaceMapping {
   std::set<std::string> nreset_pins;
   // "CUSTOMRESET" : {"name"  : "input-pin", ...}
   std::map<std::string, std::vector<std::string>> custom_reset_domain_defs;
+  // "INPUT/INPUTs/INPUT-ports",
+  std::map<std::string, RfExpr> input_port_connection;
 }; // struct RtlInterfaceMapping
 
 typedef std::vector<bool> OneBitSignalSequence;

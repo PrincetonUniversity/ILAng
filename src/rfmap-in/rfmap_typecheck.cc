@@ -115,14 +115,17 @@ void TypedVerilogRefinementMap::collect_inline_delay_func(RfExpr& inout) {
       int delay = inout->get_parameter().at(0);
       aux_delays.emplace(delay_name,
                          SignalDelay(inout->get_child().at(0), delay));
+      std::cout << "SingleDelay:" <<inout->get_child().at(0) <<std::endl;
     } else { // inout->get_parameter().size() == 2
       // RANGE/INF a ##[n,m] / ##[n,0]   0 represents $
       int delay = inout->get_parameter().at(0);
       int delay_upper = inout->get_parameter().at(1);
       aux_delays.emplace(delay_name, SignalDelay(inout->get_child().at(0),
                                                  delay, delay_upper));
+      std::cout << "2Delay:" <<inout->get_child().at(0) <<std::endl;
     }
 
+    std::cout << "Repl:" << inout ;
     if (inout->get_child().size() == 1) {
       inout = new_node;
     } else {
@@ -131,6 +134,7 @@ void TypedVerilogRefinementMap::collect_inline_delay_func(RfExpr& inout) {
                                               inout->get_child().at(1));
       inout = tmp_node;
     }
+    std::cout << "-->:" << inout <<std::endl;
   }
 } // collect_inline_delay_func
 
@@ -191,6 +195,7 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
     tmp.type = VarDef::var_type::WIRE;
 
     all_var_def_types.emplace("decode", tmp); // these are the stage info
+    all_var_def_types.emplace("afterdecode", tmp); // these are the stage info
     all_var_def_types.emplace("commit", tmp);
 
     all_var_def_types.emplace("$decode",
@@ -287,6 +292,10 @@ void TypedVerilogRefinementMap::TraverseAllRfExpr(
 
   for (auto& a : global_invariants)
     TraverseRfExpr(a, func);
+
+  for (auto& p_rf: rtl_interface_connection.input_port_connection) {
+    TraverseRfExpr(p_rf.second, func);
+  }
 
 } // TraverseAllRfExpr
 
@@ -393,6 +402,18 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
     }                      // if # ... # else not
     return RfMapVarType(); // unknown type
   } else {                 // has op
+
+    if ( in->get_child_cnt() == 1 && (      
+        in->get_op() == voperator::B_AND  ||  // & a
+        in->get_op() == voperator::B_NAND ||  // ~& a
+        in->get_op() == voperator::B_OR   ||  // | a
+        in->get_op() == voperator::B_NOR  ||  // ~| a
+        in->get_op() == voperator::B_XOR  ||  // ^ a
+        in->get_op() == voperator::B_EQU      // "^~"|"~^"
+      ) ) {
+      return RfMapVarType(1);
+    }
+
     if (in->get_op() == verilog_expr::voperator::STAR ||
         in->get_op() == verilog_expr::voperator::PLUS ||
         in->get_op() == verilog_expr::voperator::MINUS ||
@@ -593,12 +614,14 @@ void RfExprAstUtility::TraverseRfExpr(RfExpr& inout,
       continue;
     } else {
       // enter c[idx]
-      if (lastlv.first->get_child_cnt() == 0) {
-        func(lastlv.first->child(idx));
-        ++idx;
-      } else {
-        parent_stack.push_back(std::make_pair(lastlv.first->child(idx), 0U));
-      }
+      ILA_CHECK(lastlv.first->get_child_cnt() != 0);
+      // if (lastlv.first->get_child_cnt() == 0) {
+      //  ILA_CHECK(false) << "Should not be reachable!";
+      //  func(lastlv.first->child(idx));
+      //  ++idx;
+      // } else {
+      parent_stack.push_back(std::make_pair(lastlv.first->child(idx), 0U));
+      //}
     }
   } // end of while
   func(inout);
@@ -656,6 +679,21 @@ void TypeAnalysisUtility::AnnotateType(const RfExpr& inout) {
 void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
   assert(inout->get_op() != verilog_expr::voperator::MK_CONST &&
          inout->get_op() != verilog_expr::voperator::MK_VAR);
+
+  if ( inout->get_child_cnt() == 1 &&
+      (      
+      inout->get_op() == voperator::B_AND  ||
+      inout->get_op() == voperator::B_NAND ||
+      inout->get_op() == voperator::B_OR   ||
+      inout->get_op() == voperator::B_NOR  ||
+      inout->get_op() == voperator::B_XOR  ||
+      inout->get_op() == voperator::B_EQU      // "^~"|"~^"
+    ) ) {
+    auto new_annotation = std::make_shared<TypeAnnotation>();
+    new_annotation->type = RfMapVarType(1);
+    inout->set_annotation(new_annotation);
+    return;
+  }
 
   if (inout->get_op() == verilog_expr::voperator::STAR ||
       inout->get_op() == verilog_expr::voperator::PLUS ||
