@@ -1,79 +1,98 @@
 {
-  "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": {  
-  	"r0":[ ["__START__", "#r0_pvholder#"] , ["1'b1", "m1.registers[0]"] ] ,
-    "r1":[ ["__START__", "#r1_pvholder#"] , ["1'b1", "m1.registers[1]"] ] ,
-    "r2":[ ["__START__", "#r2_pvholder#"] , ["1'b1", "m1.registers[2]"] ] ,
-    "r3":[ ["__START__", "#r3_pvholder#"] , ["1'b1", "m1.registers[3]"] ] },
+  	"r0":[ ["__START__", "#r0_pvholder#"] , ["1'b1", "RTL.registers[0]"] ] ,
+    "r1":[ ["__START__", "RTL.registers[1] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[1]"] ] ,
+    "r2":[ ["__START__", "RTL.registers[2] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[2]"] ] ,
+    "r3":[ ["__START__", "RTL.registers[3] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[3]"] ] },
 
-  "interface mapping": {
-  	 "rst":"**RESET**", 
-  	 "clk":"**CLOCK**",
-  	 "inst":"inst",
-  	 "dummy_read_rf":"**KEEP**",
-  	 "dummy_rf_data":"**KEEP**"
+
+  "input mapping": {
+     "inst":"RTL.inst"
   },
 
-  "value-holder": {
-    "r0_pvholder" : [ {
-      "cond": "#stage_tracker# == 1 && 1 == 0",
-      "val":"m1.registers[0]",
-      "width":"auto"
-    },
-    {
-      "cond": "#stage_tracker# == 1 && 1 == 1",
-      "val":"m1.registers[0]"
-    }
-    ],
-    "r1_pvholder" : {
-      "cond": "#stage_tracker# == 1",
-      "val":"m1.registers[1]",
-      "width":8
-    },
-    "r2_pvholder" : {
-      "cond": "#stage_tracker# == 1",
-      "val":"m1.registers[2]",
-      "width":8
-    },
-    "r3_pvholder" : {
-      "cond": "#stage_tracker# == 1",
-      "val":"m1.registers[3]",
-      "width":8
+  "rtl-interface-connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst",
+    "INPUT" : {
+      "dummy_read_rf" : "#dummy_read_rf#"
     }
   },
-  "verilog-inline-monitors" : {
+
+  "monitor" :{
+    // monitor 1 : value recorder
+    "r0_pvholder" : { // this is just a name
+      "template" : "value recorder",
+        "cond": "#stage_tracker# == 1",
+        "val":"RTL.registers[0]"
+    },
+
+    // monitor 2 :  arb verilog - stage tracker and append verilog
     "stage_tracker" : {
       "verilog": 
         ["always @(posedge clk) begin",
-         "  if (__START__) stage_tracker <= 0;",
+         "  if (rst ) stage_tracker <= 0;",
+         "  else if ( __START__ ) stage_tracker <= 0;",
          "  else if (__STARTED__ && !__ENDED__) stage_tracker <= stage_tracker + 1;",
          "end"],
+      "append-verilog" : "module nouse2(input wire a, output wire b); assign b=a; endmodule",
       "defs" :[ ["stage_tracker", 2, "reg"] ],
       "refs" :[]
     },
 
+    // monitor 3 : ref/def test
     "ref_test" : {
       "verilog": 
         ["always @(posedge clk) begin",
          "  if (__START__) ref_test <= 0;",
-         "  else if (__STARTED__ && !__ENDED__ && stage_tracker == 1) ref_test <= m1.registers[0] + 1;",
+         "  else if (__STARTED__ && !__ENDED__ && stage_tracker == 1) ref_test <= RTL.registers[0] + 1;",
          "end"],
-      "defs" :[ ["ref_test", 2, "reg"] ],
-      "refs" :[ "m1.registers[0]" ]
+      "defs" :[ ["ref_test", 2, "reg"], ["dummy_read_rf", 2, "wire"] ],
+      "refs" :[ "RTL.registers[0]" ]
     },
-    
+
     // a monitor that always exists
     "delay_wb_write"  : {
       "verilog":
       [ "always @(posedge clk) begin",
-        "  delay_wb_write <= m1.ex_wb_val;",
-        "end"
+        "  delay_wb_write <= (#decode# & #afterdecode#) ?  RTL.ex_wb_val : delay_wb_write;",
+        "end",
+        "assign usefl = RTL.registers[RTL.ex_wb_rd] ;"
       ],
-      "defs" :[ ["delay_wb_write", 8, "reg"] ],
-      "refs" :[ "m1.ex_wb_val" ],
+      "append-verilog" : [
+          "module nouse(input wire aa, output wire bb);",
+          " /*keep-for-invariants*/ assign bb=aa;",
+          " endmodule"],
+      "defs" :[ ["delay_wb_write", 8, "reg"], ["usefl", 8, "wire"] ],
+      "refs" :[ "RTL.ex_wb_val", "#decode#", "#afterdecode#","RTL.registers[RTL.ex_wb_rd]"],
       "keep-for-invariants" : true
-    }
+    },
 
-  }// end of monitor
+    // pipeline tracker
+    "ppl_stage" : {
+      "template" : "phase tracker",
+      "event-alias" : {
+        "dsignal" : "ppl_stage_ex ## [1:$] ppl_stage_wb ##1 (1'b1)"
+      },
+      "aux-var" : [["cnt", 2, "reg"]],
+      "rules" : [
+        { // 
+          "name"  : "ex",
+          "enter" : {"event" : "#decode#"},
+          "exit"  : {"event" : "1", "action": " cnt <= RTL.reg_0_w_stage "}
+        },
+
+        { // 
+          "name"  : "wb",
+          "enter" : {"event" : "#ppl_stage_ex#"},
+          "exit"  : {"event" : "1"}
+        },
+
+        {
+          "name"  : "teststage1",
+          "enter" : "#ppl_stage_ex#"
+        }
+      ]
+
+    }    
+  }
 }

@@ -81,9 +81,26 @@ TEST(TestVerilogAnalysis, Include) {
       << "End loc of m1:" << va.get_endmodule_loc("m1");
 }
 
+TEST(TestVerilogAnalysis, RangeAnalysisArray) {
+#define IS_ARRAY_RANGE_SIZE(n, w) EXPECT_EQ(va.get_signal("m1." n).get_addr_range_size(), w)
+  {
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(
+            {std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/"}),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/range-array.v"}),
+        "m1");
+    IS_ARRAY_RANGE_SIZE("r12", 8-1);
+    IS_ARRAY_RANGE_SIZE("r22", 8-1);
+    IS_ARRAY_RANGE_SIZE("r14", 9-1);
+    IS_ARRAY_RANGE_SIZE("r24", 7-1);
+  }
+}
+
 TEST(TestVerilogAnalysis, RangeAnalysis) {
 
 #define IS_WIDTH(n, w) EXPECT_EQ(va.get_signal("m1." n).get_width(), w)
+#define NOT_ARRAY(n) EXPECT_EQ(va.get_signal("m1." n).get_addr_range_size(), 0)
 
   { // test 1
     VerilogInfo va(
@@ -97,22 +114,39 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r2", 8);
     IS_WIDTH("r3", 8);
     IS_WIDTH("r4", 8);
+    NOT_ARRAY("r1");
+    NOT_ARRAY("r2");
+    NOT_ARRAY("r3");
+    NOT_ARRAY("r4");
 
     IS_WIDTH("r12", 8);
     IS_WIDTH("r22", 8);
     IS_WIDTH("r32", 8);
     IS_WIDTH("r42", 8);
+    NOT_ARRAY("r12");
+    NOT_ARRAY("r22");
+    NOT_ARRAY("r32");
+    NOT_ARRAY("r42");
 
     IS_WIDTH("r14", 9);
     IS_WIDTH("r24", 7);
     IS_WIDTH("r34", 8);
     IS_WIDTH("r44", 8);
+    NOT_ARRAY("r14");
+    NOT_ARRAY("r24");
+    NOT_ARRAY("r34");
+    NOT_ARRAY("r44");
 
     IS_WIDTH("rm", 2);
     IS_WIDTH("a", 1); // F
     IS_WIDTH("b", 1); // F
     IS_WIDTH("c", 2); // F
     IS_WIDTH("d", 1); // F
+    NOT_ARRAY("rm");
+    NOT_ARRAY("a"); // F
+    NOT_ARRAY("b"); // F
+    NOT_ARRAY("c"); // F
+    NOT_ARRAY("d"); // F
   }                   // end of test1
   {                   // test 2
     VerilogInfo va(

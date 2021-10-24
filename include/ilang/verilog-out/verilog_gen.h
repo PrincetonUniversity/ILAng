@@ -164,22 +164,20 @@ public:
     bool expand_mem;
     /// whether to collect the ite(c, v, unknown) thing
     bool collect_ite_unknown_update;
+    /// add (* keep *) before the internal mem?
+    bool add_keep_for_internal_mem;
 
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
         bool ExternalMem = true, funcOption funcOpt = funcOption::Internal,
         bool gen_start = false, bool pass_name = false, bool rand_init = false,
-        bool ExpandMem = false, bool CollectIteUnknownUpdate = false)
+        bool ExpandMem = false, bool CollectIteUnknownUpdate = false,
+        bool AddKeepForInternalMem = true)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
           pass_node_name(pass_name), reg_random_init(rand_init),
-          expand_mem(ExpandMem), collect_ite_unknown_update(CollectIteUnknownUpdate) {}
-    /// Overwrite configuration, used by vtarget gen
-    VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start, bool rand_init, bool ExpandMem, bool CollectIteUnknownUpdate)
-        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(c.pass_node_name), reg_random_init(rand_init),
-          expand_mem(ExpandMem), collect_ite_unknown_update(CollectIteUnknownUpdate) {}
+          expand_mem(ExpandMem), collect_ite_unknown_update(CollectIteUnknownUpdate),
+          add_keep_for_internal_mem(AddKeepForInternalMem) {}
     // set other fields if there are such need (?)
   }; // end of struct VlgGenConfig
 
@@ -483,6 +481,13 @@ public:
   void ExportIla(const InstrLvlAbsPtr& ila_ptr_);
   /// Parse an instruction
   void ExportTopLevelInstr(const InstrPtr& instr_ptr_);
+
+  /// for VerilogVerificationTargetGen
+  // get valid signal name in advace
+  std::string GetValidSignalName(const InstrPtr& instr_ptr_) const;
+  // get decode signal name in advace
+  std::string GetDecodeSignalName(const InstrPtr& instr_ptr_) const;
+
 }; // class VerilogGenerator
 
 }; // namespace ilang

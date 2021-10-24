@@ -7,3 +7,6 @@
 [submodule "extern/smt-switch"]
 	path = extern/smt-switch
 	url = https://github.com/makaimann/smt-switch.git
+[submodule "extern/vexpparser"]
+	path = extern/vexpparser
+	url = https://github.com/zhanghongce/vexpparser.git
