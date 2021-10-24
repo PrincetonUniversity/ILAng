@@ -69,6 +69,7 @@ void IntefaceDirectiveRecorder::VlgAddTopInteface(
   }
   for (auto&& w : internal_wires) {
     gen.add_wire(w.first, w.second, true);
+    gen.add_output(w.first, w.second);
   }
 }
 

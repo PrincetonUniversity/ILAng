@@ -316,9 +316,10 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
       refstr = "**NRESET**";
     else if (IN(name_siginfo_pair.first, custom_input)) {
       auto short_name = name_siginfo_pair.first;
-      add_wire_assign_assumption( "__VLG_II_" + short_name, custom_input.at(name_siginfo_pair.first),
+      auto wname = "__VLG_II_" + short_name;
+      add_wire_assign_assumption( wname, custom_input.at(name_siginfo_pair.first),
         "vlg_input_wire");
-      rfmap_add_internal_wire("__VLG_II_" + short_name,
+      rfmap_add_internal_wire(wname,
         name_siginfo_pair.second.get_width() );
       refstr = "**CUSTOM_INPUT**";
     }

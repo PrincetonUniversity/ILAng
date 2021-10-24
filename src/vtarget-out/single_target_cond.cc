@@ -184,6 +184,8 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 
   vlg_wrapper.add_wire("__IEND__", 1, true);
   vlg_wrapper.add_wire("__EDCOND__", 1, true);
+  vlg_wrapper.add_output("__IEND__", 1);
+  vlg_wrapper.add_output("__EDCOND__", 1);
 
   rfmap_add_internal_wire("__IEND__", 1);
   rfmap_add_internal_wire("__EDCOND__", 1);

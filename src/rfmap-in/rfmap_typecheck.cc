@@ -69,73 +69,79 @@ RfExpr RfExprVarReplUtility::ReplacingRtlIlaVar(const RfExpr& in) {
     return in;
   }
   // else is op
-  auto ret_copy = std::make_shared<verilog_expr::VExprAst>(*in);
-  for (size_t idx = 0; idx < ret_copy->get_child_cnt(); ++idx) {
-    ret_copy->child(idx) = ReplacingRtlIlaVar(ret_copy->get_child().at(idx));
-  } // for each child
-  return ret_copy;
+  std::vector<RfExpr> retchild;
+  for (size_t idx = 0; idx < in->get_child_cnt(); ++idx) {
+    retchild.push_back(ReplacingRtlIlaVar(in->get_child().at(idx)));
+  }
+  auto ret = in->MakeCopyWithNewChild(retchild);
+  ret->set_annotation(in->get_annotation<TypeAnnotation>());
+  return ret;
 } // AnnotateSignalsAndCollectRtlVars
 
-void TypedVerilogRefinementMap::collect_inline_value_recorder_func(
-    RfExpr& inout) {
-  if (inout->get_op() == verilog_expr::voperator::AT) {
-    auto recorder_name = new_id() + "recorder";
-    auto new_node = verilog_expr::VExprAst::MakeVar(recorder_name);
+RfExpr TypedVerilogRefinementMap::collect_inline_value_recorder_func(
+    const RfExpr& in) {
+  if (in->get_op() != verilog_expr::voperator::AT) 
+    return in;
+  
+  auto recorder_name = new_id() + "recorder";
+  auto new_node = verilog_expr::VExprAst::MakeVar(recorder_name);
 
-    verilog_expr::VExprAst::VExprAstPtrVec child(inout->get_child());
-    ValueRecorder tmp_value_recorder;
-    tmp_value_recorder.width = 0;
-    tmp_value_recorder.value = child.at(0);
-    // TODO: deal with value@CLK.n
-    if (child.at(1)->is_constant()) {
-      // deal with value@0
-      auto new_cond = verilog_expr::VExprAst::MakeBinaryAst(
-          verilog_expr::voperator::L_EQ,
-          verilog_expr::VExprAst::MakeVar("__CYCLE_CNT__"), child.at(1));
-      tmp_value_recorder.condition = new_cond;
-    } else
-      tmp_value_recorder.condition = child.at(1);
-    value_recorder.emplace(recorder_name, tmp_value_recorder);
-    inout = new_node; // rewrite the node
-  }
+  verilog_expr::VExprAst::VExprAstPtrVec child(in->get_child());
+  ValueRecorder tmp_value_recorder;
+  tmp_value_recorder.width = 0;
+  tmp_value_recorder.value = child.at(0);
+  // TODO: deal with value@CLK.n
+  if (child.at(1)->is_constant()) {
+    // deal with value@0
+    auto new_cond = verilog_expr::VExprAst::MakeBinaryAst(
+        verilog_expr::voperator::L_EQ,
+        verilog_expr::VExprAst::MakeVar("__CYCLE_CNT__"), child.at(1));
+    tmp_value_recorder.condition = new_cond;
+  } else
+    tmp_value_recorder.condition = child.at(1);
+  value_recorder.emplace(recorder_name, tmp_value_recorder);
+  return new_node; // rewrite the node
 } // collect_inline_value_recorder_func
 
-void TypedVerilogRefinementMap::collect_inline_delay_func(RfExpr& inout) {
-  if (inout->get_op() == voperator::DELAY) {
-    assert(inout->get_parameter().size() == inout->get_str_parameter().size());
-    assert(inout->get_child().size() == 1 || inout->get_child().size() == 2);
-    assert(inout->get_parameter().size() == 1 ||
-           inout->get_parameter().size() == 2);
+RfExpr TypedVerilogRefinementMap::collect_inline_delay_func(const RfExpr& in) {
+  if (in->get_op() != voperator::DELAY)
+    return in;
+  // else
+  assert(in->get_parameter().size() == in->get_str_parameter().size());
+  assert(in->get_child().size() == 1 || in->get_child().size() == 2);
+  assert(in->get_parameter().size() == 1 ||
+          in->get_parameter().size() == 2);
 
-    auto delay_name = new_id() + "delay";
-    auto new_node = VExprAst::MakeVar(delay_name);
+  auto delay_name = new_id() + "delay";
+  auto new_node = VExprAst::MakeVar(delay_name);
 
-    if (inout->get_parameter().size() == 1) {
-      // Single a ##n
-      int delay = inout->get_parameter().at(0);
-      aux_delays.emplace(delay_name,
-                         SignalDelay(inout->get_child().at(0), delay));
-      std::cout << "SingleDelay:" <<inout->get_child().at(0) <<std::endl;
-    } else { // inout->get_parameter().size() == 2
-      // RANGE/INF a ##[n,m] / ##[n,0]   0 represents $
-      int delay = inout->get_parameter().at(0);
-      int delay_upper = inout->get_parameter().at(1);
-      aux_delays.emplace(delay_name, SignalDelay(inout->get_child().at(0),
-                                                 delay, delay_upper));
-      std::cout << "2Delay:" <<inout->get_child().at(0) <<std::endl;
-    }
-
-    std::cout << "Repl:" << inout ;
-    if (inout->get_child().size() == 1) {
-      inout = new_node;
-    } else {
-      assert(inout->get_child().size() == 2);
-      auto tmp_node = VExprAst::MakeBinaryAst(voperator::L_AND, new_node,
-                                              inout->get_child().at(1));
-      inout = tmp_node;
-    }
-    std::cout << "-->:" << inout <<std::endl;
+  if (in->get_parameter().size() == 1) {
+    // Single a ##n
+    int delay = in->get_parameter().at(0);
+    aux_delays.emplace(delay_name,
+                        SignalDelay(in->get_child().at(0), delay));
+    // std::cout << "SingleDelay:" <<in->get_child().at(0) <<std::endl;
+  } else { // in->get_parameter().size() == 2
+    // RANGE/INF a ##[n,m] / ##[n,0]   0 represents $
+    int delay = in->get_parameter().at(0);
+    int delay_upper = in->get_parameter().at(1);
+    aux_delays.emplace(delay_name, SignalDelay(in->get_child().at(0),
+                                                delay, delay_upper));
+    // std::cout << "2Delay:" <<in->get_child().at(0) <<std::endl;
   }
+
+  // std::cout << "Repl:" << in ;
+  RfExpr ret;
+  if (in->get_child().size() == 1) {
+    ret = new_node;
+  } else {
+    assert(in->get_child().size() == 2);
+    auto tmp_node = VExprAst::MakeBinaryAst(voperator::L_AND, new_node,
+                                            in->get_child().at(1));
+    ret = tmp_node;
+  }
+  // std::cout << "-->:" << ret <<std::endl;
+  return ret;
 } // collect_inline_delay_func
 
 // will convert delay and @ to internal names
@@ -143,11 +149,11 @@ void TypedVerilogRefinementMap::collect_inline_delay_func(RfExpr& inout) {
 // will put in aux_delays
 // and value_recorder
 void TypedVerilogRefinementMap::CollectInlineDelayValueHolder() {
-  TraverseAllRfExpr([this](RfExpr& inout) -> void {
-    this->collect_inline_delay_func(inout);
+  TraverseAllRfExpr([this](const RfExpr& in) -> RfExpr {
+    return this->collect_inline_delay_func(in);
   });
-  TraverseAllRfExpr([this](RfExpr& inout) -> void {
-    this->collect_inline_value_recorder_func(inout);
+  TraverseAllRfExpr([this](const RfExpr& in) -> RfExpr {
+    return this->collect_inline_value_recorder_func(in);
   });
 }
 
@@ -207,25 +213,25 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
 } // CollectInternallyDefinedVars
 
 void TypedVerilogRefinementMap::TraverseCondMap(
-    SingleVarMap& inout, std::function<void(RfExpr& inout)> func) {
+    SingleVarMap& inout, std::function<RfExpr(const RfExpr& inout)> func) {
   if (inout.single_map)
-    TraverseRfExpr(inout.single_map, func);
+    inout.single_map = TraverseRfExpr(inout.single_map, func);
   else
     for (auto& c : inout.cond_map) {
-      TraverseRfExpr(c.first, func);
-      TraverseRfExpr(c.second, func);
+      c.first = TraverseRfExpr(c.first, func);
+      c.second = TraverseRfExpr(c.second, func);
     }
 } // TraverseCondMap
 
 void TypedVerilogRefinementMap::TraverseAllRfExpr(
-    std::function<void(RfExpr& inout)> func) {
+    std::function<RfExpr(const RfExpr& inout)> func) {
   for (auto& sv : ila_state_var_map) {
     if (sv.second.type == IlaVarMapping::StateVarMapType::SINGLE)
-      TraverseRfExpr(sv.second.single_map.single_map, func);
+      sv.second.single_map.single_map = TraverseRfExpr(sv.second.single_map.single_map, func);
     else if (sv.second.type == IlaVarMapping::StateVarMapType::CONDITIONAL) {
       for (auto& c : sv.second.single_map.cond_map) {
-        TraverseRfExpr(c.first, func);
-        TraverseRfExpr(c.second, func);
+        c.first = TraverseRfExpr(c.first, func);
+        c.second = TraverseRfExpr(c.second, func);
       }
     } else { // extern map
       for (auto& m : sv.second.externmem_map) {
@@ -241,60 +247,60 @@ void TypedVerilogRefinementMap::TraverseAllRfExpr(
 
   for (auto& sv : ila_input_var_map) {
     if (sv.second.type == IlaVarMapping::StateVarMapType::SINGLE)
-      TraverseRfExpr(sv.second.single_map.single_map, func);
+      sv.second.single_map.single_map = TraverseRfExpr(sv.second.single_map.single_map, func);
     else /* if(sv.second.type == IlaVarMapping::StateVarMapType::CONDITIONAL) */
     {
       for (auto& c : sv.second.single_map.cond_map) {
-        TraverseRfExpr(c.first, func);
-        TraverseRfExpr(c.second, func);
+        c.first = TraverseRfExpr(c.first, func);
+        c.second = TraverseRfExpr(c.second, func);
       }
     }
   } // input var
 
   for (auto& ufa : uf_application) {
     for (auto& fapp : ufa.second.func_applications) {
-      TraverseRfExpr(fapp.result_map, func);
+      fapp.result_map = TraverseRfExpr(fapp.result_map, func);
       for (auto& a : fapp.arg_map)
-        TraverseRfExpr(a, func);
+        a = TraverseRfExpr(a, func);
     }
   } // uf application
   for (auto& a : assumptions)
-    TraverseRfExpr(a, func);
+    a = TraverseRfExpr(a, func);
   for (auto& a : additional_mapping)
-    TraverseRfExpr(a, func);
+    a = TraverseRfExpr(a, func);
 
   for (auto& ptracker : phase_tracker) {
     for (auto& a : ptracker.second.event_alias)
-      TraverseRfExpr(a.second, func);
+      a.second = TraverseRfExpr(a.second, func);
     for (auto& r : ptracker.second.rules) {
-      TraverseRfExpr(r.enter_rule, func);
+      r.enter_rule = TraverseRfExpr(r.enter_rule, func);
       if(r.exit_rule)
-        TraverseRfExpr(r.exit_rule, func);
+        r.exit_rule = TraverseRfExpr(r.exit_rule, func);
       for (auto& act : r.enter_action)
-        TraverseRfExpr(act.RHS, func);
+        act.RHS = TraverseRfExpr(act.RHS, func);
       for (auto& act : r.exit_action)
-        TraverseRfExpr(act.RHS, func);
+        act.RHS = TraverseRfExpr(act.RHS, func);
     }
   } // phase tracker
   for (auto& pv : value_recorder) {
-    TraverseRfExpr(pv.second.condition, func);
-    TraverseRfExpr(pv.second.value, func);
+    pv.second.condition = TraverseRfExpr(pv.second.condition, func);
+    pv.second.value = TraverseRfExpr(pv.second.value, func);
   }
   // ALERT: do not handle customized recorder
 
   for (auto& instcond : inst_complete_cond) {
     if (instcond.second.type ==
         InstructionCompleteCondition::ConditionType::SIGNAL)
-      TraverseRfExpr(instcond.second.ready_signal, func);
+      instcond.second.ready_signal = TraverseRfExpr(instcond.second.ready_signal, func);
     for (auto& cond : instcond.second.start_condition)
-      TraverseRfExpr(cond, func);
+      cond = TraverseRfExpr(cond, func);
   }
 
   for (auto& a : global_invariants)
-    TraverseRfExpr(a, func);
+    a = TraverseRfExpr(a, func);
 
   for (auto& p_rf: rtl_interface_connection.input_port_connection) {
-    TraverseRfExpr(p_rf.second, func);
+    p_rf.second = TraverseRfExpr(p_rf.second, func);
   }
 
 } // TraverseAllRfExpr
@@ -430,7 +436,7 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
       unsigned nchild = in->get_child_cnt();
       unsigned maxw = 0;
       for (size_t idx = 0; idx < nchild; idx++) {
-        RfMapVarType t = TypeInferTravserRfExpr(in->child(idx));
+        RfMapVarType t = TypeInferTravserRfExpr(in->get_child().at(idx));
         if (t.is_bv())
           maxw = std::max(maxw, t.unified_width());
       }
@@ -441,7 +447,7 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
                in->get_op() == verilog_expr::voperator::LSR ||
                in->get_op() == verilog_expr::voperator::AT) { // the left type
       assert(in->get_child_cnt() == 2);
-      return TypeInferTravserRfExpr(in->child(0));
+      return TypeInferTravserRfExpr(in->get_child().at(0));
     } else if (in->get_op() == verilog_expr::voperator::DELAY) {
       // arg 1: width of first
       // arg 2: width is 1 !!!
@@ -450,7 +456,7 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
         return RfMapVarType(1);
 
       // set return type to be the same as the first one
-      return TypeInferTravserRfExpr(in->child(0));
+      return TypeInferTravserRfExpr(in->get_child().at(0));
     } else if (in->get_op() == verilog_expr::voperator::GTE ||
                in->get_op() == verilog_expr::voperator::LTE ||
                in->get_op() == verilog_expr::voperator::GT ||
@@ -464,7 +470,7 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
                in->get_op() == verilog_expr::voperator::L_OR) {
       return RfMapVarType(1);
     } else if (in->get_op() == verilog_expr::voperator::INDEX) {
-      RfMapVarType child_type = TypeInferTravserRfExpr(in->child(0));
+      RfMapVarType child_type = TypeInferTravserRfExpr(in->get_child().at(0));
       if (child_type.is_array())
         return RfMapVarType(child_type.unified_width()); // data width
       // TODO: check index within ?
@@ -475,7 +481,7 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
                in->get_op() == verilog_expr::voperator::IDX_PRT_SEL_MINUS) {
       assert(in->get_child().size() == 3);
       unsigned diff;
-      bool succ = _compute_const(in->child(2), diff /*ref*/);
+      bool succ = _compute_const(in->get_child().at(2), diff /*ref*/);
       // TODO: check index within ?
       if (succ)
         return RfMapVarType(diff);
@@ -484,8 +490,8 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
       assert(in->get_child_cnt() == 3);
       unsigned l, r;
 
-      bool succ = _compute_const(in->child(1), l /*ref*/);
-      succ = succ && _compute_const(in->child(2), r /*ref*/);
+      bool succ = _compute_const(in->get_child().at(1), l /*ref*/);
+      succ = succ && _compute_const(in->get_child().at(2), r /*ref*/);
       if (!succ)
         return RfMapVarType();
       // TODO: check width!
@@ -493,10 +499,10 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
     } else if (in->get_op() == verilog_expr::voperator::STORE_OP) {
       // TODO: check width!
       // actually not implemented
-      return TypeInferTravserRfExpr(in->child(0));
+      return TypeInferTravserRfExpr(in->get_child().at(0));
     } else if (in->get_op() == verilog_expr::voperator::TERNARY) {
-      auto left = TypeInferTravserRfExpr(in->child(1));
-      auto right = TypeInferTravserRfExpr(in->child(2));
+      auto left = TypeInferTravserRfExpr(in->get_child().at(1));
+      auto right = TypeInferTravserRfExpr(in->get_child().at(2));
       if (left.is_array() || right.is_array())
         return left; // TODO: check compatibility
       return RfMapVarType(
@@ -507,7 +513,7 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
       unsigned nchild = in->get_child_cnt();
       unsigned sumw = 0;
       for (size_t idx = 0; idx < nchild; idx++) {
-        RfMapVarType t = TypeInferTravserRfExpr(in->child(idx));
+        RfMapVarType t = TypeInferTravserRfExpr(in->get_child().at(idx));
         if (t.is_bv())
           sumw += t.unified_width();
         else
@@ -517,9 +523,9 @@ TypedVerilogRefinementMap::TypeInferTravserRfExpr(const RfExpr& in) {
     } else if (in->get_op() == verilog_expr::voperator::REPEAT) {
       assert(in->get_child_cnt() == 2);
       unsigned ntimes;
-      if (!_compute_const(in->child(0), ntimes))
+      if (!_compute_const(in->get_child().at(0), ntimes))
         return RfMapVarType();
-      auto tp = TypeInferTravserRfExpr(in->child(1));
+      auto tp = TypeInferTravserRfExpr(in->get_child().at(1));
       return RfMapVarType(tp.unified_width() * ntimes);
     }
     ILA_ASSERT(false) << "BUG: Operator " << int(in->get_op())
@@ -581,7 +587,7 @@ bool RfExprAstUtility::HasArrayVar(const RfExpr& in,
   }
   bool has_array = false;
   for (size_t idx = 0; idx < in->get_child_cnt(); idx++) {
-    has_array = has_array || HasArrayVar(in->child(idx), array_var);
+    has_array = has_array || HasArrayVar(in->get_child().at(idx), array_var);
   }
   return has_array;
 }
@@ -590,41 +596,39 @@ void RfExprAstUtility::RfMapNoNullNode(const RfExpr& in) {
   ILA_NOT_NULL(in);
   size_t cnt = in->get_child_cnt();
   for (size_t idx = 0; idx < cnt; ++idx)
-    RfMapNoNullNode(in->child(idx));
+    RfMapNoNullNode(in->get_child().at(idx));
 }
 
-void RfExprAstUtility::TraverseRfExpr(RfExpr& inout,
-                                      std::function<void(RfExpr& inout)> func) {
-  ILA_NOT_NULL(inout);
-  // DFS -- Note: we need to call func on the parent's child
-  // and make sure it runs the first
+RfExpr RfExprAstUtility::TraverseRfExpr(const RfExpr& in,
+                                      std::function<RfExpr(const RfExpr& inout)> func) {
+  ILA_NOT_NULL(in);
+  std::vector<std::vector<RfExpr>> child_stack;
+  child_stack.push_back({});
+  child_stack.push_back({});
   std::vector<std::pair<RfExpr, unsigned>> parent_stack;
-  parent_stack.push_back(std::make_pair(inout, 0U));
+  parent_stack.push_back(std::make_pair(in, 0U));
   while (!parent_stack.empty()) {
     auto& lastlv = parent_stack.back();
     auto cnt = lastlv.first->get_child_cnt();
     auto& idx = lastlv.second;
     if (idx >= cnt) {
+      auto new_c = lastlv.first->MakeCopyWithNewChild(child_stack.back());
+      auto new_node = func(new_c);
+      new_node->set_annotation(lastlv.first->get_annotation<TypeAnnotation>());
+      child_stack.pop_back();
+      child_stack.back().push_back(new_node);
       parent_stack.pop_back();
-      if (!parent_stack.empty()) {
-        // refer to parent
-        func(parent_stack.back().first->child(parent_stack.back().second));
+      if(!parent_stack.empty())
         ++parent_stack.back().second;
-      }
       continue;
-    } else {
-      // enter c[idx]
-      ILA_CHECK(lastlv.first->get_child_cnt() != 0);
-      // if (lastlv.first->get_child_cnt() == 0) {
-      //  ILA_CHECK(false) << "Should not be reachable!";
-      //  func(lastlv.first->child(idx));
-      //  ++idx;
-      // } else {
-      parent_stack.push_back(std::make_pair(lastlv.first->child(idx), 0U));
-      //}
-    }
+    } // else
+    ILA_CHECK(lastlv.first->get_child_cnt() != 0);
+    parent_stack.push_back(std::make_pair(lastlv.first->get_child().at(idx), 0U));
+    child_stack.push_back({});
   } // end of while
-  func(inout);
+  ILA_CHECK(child_stack.size() == 1);
+  ILA_CHECK(child_stack.at(0).size() == 1);
+  return child_stack.at(0).at(0);
 } // TraverseRfExpr
 
 bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr& in) {
@@ -670,7 +674,7 @@ void TypeAnalysisUtility::AnnotateType(const RfExpr& inout) {
     }      // end if no annotation
   } else { // op
     for (size_t idx = 0; idx < inout->get_child_cnt(); ++idx)
-      AnnotateType(inout->child(idx));
+      AnnotateType(inout->get_child().at(idx));
     infer_type_based_on_op_child(inout);
     // for each child
   } // end if-else- op
@@ -712,7 +716,7 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
     unsigned maxw = 0;
     for (size_t idx = 0; idx < nchild; idx++) {
       RfMapVarType t =
-          inout->child(idx)->get_annotation<TypeAnnotation>()->type;
+          inout->get_child().at(idx)->get_annotation<TypeAnnotation>()->type;
       if (t.is_bv())
         maxw = std::max(maxw, t.unified_width());
     }
@@ -728,7 +732,7 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
       inout->get_op() == verilog_expr::voperator::LSR ||
       inout->get_op() == verilog_expr::voperator::AT) { // the left type
     assert(inout->get_child_cnt() == 2);
-    inout->set_annotation(inout->child(0)->get_annotation<TypeAnnotation>());
+    inout->set_annotation(inout->get_child().at(0)->get_annotation<TypeAnnotation>());
     return;
   } else if (inout->get_op() == verilog_expr::voperator::DELAY) {
     // arg 1: width of first
@@ -742,7 +746,7 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
     }
 
     // set return type to be the same as the first one
-    inout->set_annotation(inout->child(0)->get_annotation<TypeAnnotation>());
+    inout->set_annotation(inout->get_child().at(0)->get_annotation<TypeAnnotation>());
     return;
 
   } else if (inout->get_op() == verilog_expr::voperator::GTE ||
@@ -762,7 +766,7 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
     return;
   } else if (inout->get_op() == verilog_expr::voperator::INDEX) {
     RfMapVarType child_type =
-        inout->child(0)->get_annotation<TypeAnnotation>()->type;
+        inout->get_child().at(0)->get_annotation<TypeAnnotation>()->type;
 
     auto new_annotation = std::make_shared<TypeAnnotation>();
     if (child_type.is_array())
@@ -776,7 +780,7 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
              inout->get_op() == verilog_expr::voperator::IDX_PRT_SEL_MINUS) {
     assert(inout->get_child().size() == 3);
     unsigned diff = 0;
-    bool succ = _compute_const(inout->child(2), diff /*ref*/);
+    bool succ = _compute_const(inout->get_child().at(2), diff /*ref*/);
     ILA_ASSERT(succ);
 
     auto new_annotation = std::make_shared<TypeAnnotation>();
@@ -790,8 +794,8 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
     assert(inout->get_child_cnt() == 3);
     unsigned l, r;
 
-    bool succ = _compute_const(inout->child(1), l /*ref*/);
-    succ = succ && _compute_const(inout->child(2), r /*ref*/);
+    bool succ = _compute_const(inout->get_child().at(1), l /*ref*/);
+    succ = succ && _compute_const(inout->get_child().at(2), r /*ref*/);
     ILA_ASSERT(succ);
 
     auto new_annotation = std::make_shared<TypeAnnotation>();
@@ -800,11 +804,11 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
 
     return;
   } else if (inout->get_op() == verilog_expr::voperator::STORE_OP) {
-    inout->set_annotation(inout->child(0)->get_annotation<TypeAnnotation>());
+    inout->set_annotation(inout->get_child().at(0)->get_annotation<TypeAnnotation>());
     return;
 
   } else if (inout->get_op() == verilog_expr::voperator::TERNARY) {
-    inout->set_annotation(inout->child(1)->get_annotation<TypeAnnotation>());
+    inout->set_annotation(inout->get_child().at(1)->get_annotation<TypeAnnotation>());
     return;
   } else if (inout->get_op() == verilog_expr::voperator::FUNCTION_APP) {
     ILA_ASSERT(false);
@@ -817,7 +821,7 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
     unsigned sumw = 0;
     for (size_t idx = 0; idx < nchild; idx++) {
       RfMapVarType t =
-          (inout->child(idx)->get_annotation<TypeAnnotation>()->type);
+          (inout->get_child().at(idx)->get_annotation<TypeAnnotation>()->type);
       sumw += t.unified_width();
     }
     auto new_annotation = std::make_shared<TypeAnnotation>();
@@ -827,9 +831,9 @@ void TypeAnalysisUtility::infer_type_based_on_op_child(const RfExpr& inout) {
   } else if (inout->get_op() == verilog_expr::voperator::REPEAT) {
     assert(inout->get_child_cnt() == 2);
     unsigned ntimes;
-    if (!_compute_const(inout->child(0), ntimes))
+    if (!_compute_const(inout->get_child().at(0), ntimes))
       ILA_ASSERT(false);
-    auto tp = (inout->child(1)->get_annotation<TypeAnnotation>()->type);
+    auto tp = (inout->get_child().at(1)->get_annotation<TypeAnnotation>()->type);
 
     auto new_annotation = std::make_shared<TypeAnnotation>();
     new_annotation->type = RfMapVarType(tp.unified_width() * ntimes);

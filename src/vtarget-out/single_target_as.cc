@@ -128,26 +128,36 @@ static std::string const_to_unified_str(const rfmap::RfExpr& in) {
   return IntToStrCustomBase(n, 10, false);
 }
 
-static void find_and_replace_array_const(
-    rfmap::RfExpr& expr,
+static std::string GetVlg(const rfmap::RfExpr & e) {
+  try {
+    return e->to_verilog();
+  } catch (...) {
+    ILA_ERROR<< "Cannot convert r-expr : " << e;
+  }
+  return "(error)";
+}
+
+static rfmap::RfExpr find_and_replace_array_const(
+    const rfmap::RfExpr& expr,
     std::map<std::string, rfmap::RfExpr>& array_const_set, // RTL.a.b.c[const]
     std::unordered_map<std::string, RtlExtraWire>& extra_wire) {
   auto fd_rp_array_const_func = [&array_const_set,
-                                 &extra_wire](rfmap::RfExpr& inout) {
-    if (inout->get_op() == verilog_expr::voperator::INDEX &&
-        inout->get_child_cnt() == 2 && inout->child(0)->is_var() &&
-        inout->child(1)->is_constant() &&
-        rfmap::RfExprAstUtility::GetType(inout->child(0)).type.is_array()) {
-      auto hier_name = inout->child(0)->to_verilog();
-      auto cnst = const_to_unified_str(inout->child(1));
+                                 &extra_wire](const rfmap::RfExpr& in) -> rfmap::RfExpr {
+    if (in->get_op() == verilog_expr::voperator::INDEX &&
+        in->get_child_cnt() == 2 && in->get_child().at(0)->is_var() &&
+        in->get_child().at(1)->is_constant() &&
+        rfmap::RfExprAstUtility::GetType(in->get_child().at(0)).type.is_array()) {
+      auto hier_name = GetVlg(in->get_child().at(0));
+      auto cnst = const_to_unified_str(in->get_child().at(1));
       if (cnst == "error") // if cannot convert
-        return;
+        return in;
 
       auto new_name = ReplaceAll(hier_name, ".", "__DOT__");
       new_name += "_" + cnst + "_";
+      rfmap::RfExpr ret;
       if (array_const_set.find(new_name) != array_const_set.end()) {
-        inout = array_const_set.at(new_name);
-        return;
+        ret = array_const_set.at(new_name);
+        return ret;
       }
 
       const auto last_dot_pos = hier_name.rfind(".");
@@ -157,7 +167,7 @@ static void find_and_replace_array_const(
           hier_name.substr(last_dot_pos + 1) + "[" + cnst + "]";
       ILA_CHECK(!IN(new_name, extra_wire));
 
-      auto tp = rfmap::RfExprAstUtility::GetType(inout->child(0)).type;
+      auto tp = rfmap::RfExprAstUtility::GetType(in->get_child().at(0)).type;
       auto w = tp.unified_width();
 
       extra_wire.emplace(new_name,
@@ -170,12 +180,14 @@ static void find_and_replace_array_const(
       new_tp->var_ref_type = rfmap::TypeAnnotation::VARTYPE::INTERNAL;
       new_tp->type = rfmap::RfMapVarType(w);
       repl->set_annotation(new_tp);
-      inout = repl;
+      ret = repl;
 
       array_const_set.emplace(new_name, repl);
-    }
+      return ret;
+    } // else
+    return in;
   };
-  rfmap::RfExprAstUtility::TraverseRfExpr(expr, fd_rp_array_const_func);
+  return rfmap::RfExprAstUtility::TraverseRfExpr(expr, fd_rp_array_const_func);
 } // find_and_replace_array_const
 
 void VlgSglTgtGen::add_wire_assign_assumption(const std::string& varname,
@@ -198,34 +210,34 @@ void VlgSglTgtGen::
     const auto& vn = std::get<1>(dspt_vn_rfexpr_eq);
     const auto& rfe = std::get<2>(dspt_vn_rfexpr_eq);
 
-    ILA_DLOG("VTG.ReplWireEq") << vn << " := " << rfe->to_verilog();
+    ILA_DLOG("VTG.ReplWireEq") << vn << " := " << GetVlg(rfe);
     std::get<3>(dspt_vn_rfexpr_eq) = ReplExpr(rfmap_eq(rfmap_var(vn), rfe));
   } // for each assign/assumption
 
   for (auto& dspt_aspt : all_assumptions) {
     for (auto& aspt : dspt_aspt.second) {
-      ILA_DLOG("VTG.ReplAssume") << aspt->to_verilog();
+      ILA_DLOG("VTG.ReplAssume") << GetVlg(aspt);
       aspt = ReplExpr(aspt);
     }
   }
 
   for (auto& dspt_asst : all_assertions) {
     for (auto& asst : dspt_asst.second) {
-      ILA_DLOG("VTG.ReplAssert") << asst->to_verilog();
+      ILA_DLOG("VTG.ReplAssert") << GetVlg(asst);
       asst = ReplExpr(asst);
     }
   }
 
   for (auto& dspt_asst : all_sanity_assertions) {
     for (auto& asst : dspt_asst.second) {
-      ILA_DLOG("VTG.ReplAssert") << asst->to_verilog();
+      ILA_DLOG("VTG.ReplAssert") << GetVlg(asst);
       asst = ReplExpr(asst);
     }
   }
 
   for (auto& dspt_cvrs : all_covers) {
     for (auto& cvrs : dspt_cvrs.second) {
-      ILA_DLOG("VTG.ReplAssert") << cvrs->to_verilog();
+      ILA_DLOG("VTG.ReplAssert") << GetVlg(cvrs);
       cvrs = ReplExpr(cvrs);
     }
   }
@@ -233,19 +245,19 @@ void VlgSglTgtGen::
   if (is_jg) {
     for (auto& dspt_aspt : all_assumptions) {
       for (auto& aspt : dspt_aspt.second)
-        add_a_direct_assumption(aspt->to_verilog(), dspt_aspt.first);
+        add_a_direct_assumption(GetVlg(aspt), dspt_aspt.first);
     }
     for (auto& dspt_asst : all_assertions) {
       for (auto& asst : dspt_asst.second)
-        add_a_direct_assertion(asst->to_verilog(), dspt_asst.first);
+        add_a_direct_assertion(GetVlg(asst), dspt_asst.first);
     }
     for (auto& dspt_asst : all_sanity_assertions) {
       for (auto& asst : dspt_asst.second)
-        add_a_direct_sanity_assertion(asst->to_verilog(), dspt_asst.first);
+        add_a_direct_sanity_assertion(GetVlg(asst), dspt_asst.first);
     }
     for (auto& dspt_cvrs : all_covers) {
       for (auto& cvr : dspt_cvrs.second)
-        add_a_direct_cover_check(cvr->to_verilog(), dspt_cvrs.first);
+        add_a_direct_cover_check(GetVlg(cvr), dspt_cvrs.first);
     }
 
 
@@ -253,7 +265,7 @@ void VlgSglTgtGen::
       const auto& vn = std::get<1>(dspt_vn_rfexpr_eq);
       const auto& eq = std::get<3>(dspt_vn_rfexpr_eq);
       // we know it is eq(vn, rhs);
-      vlg_wrapper.add_assign_stmt(vn, eq->child(1)->to_verilog());
+      vlg_wrapper.add_assign_stmt(vn, GetVlg(eq->get_child().at(1)));
     }
     return;
   } // end of is_jg (will not continue if using jg)
@@ -287,20 +299,20 @@ void VlgSglTgtGen::
   // below will also update `rtl_extra_wire`
   for (auto& dspt_aspt : all_assumptions) {
     for (auto& aspt : dspt_aspt.second) {
-      find_and_replace_array_const(aspt, array_const_set, rtl_extra_wire);
+      aspt = find_and_replace_array_const(aspt, array_const_set, rtl_extra_wire);
       // this will find array[const] and replace as a word reference
     }
   }
 
   for (auto& dspt_asst : all_assertions) {
     for (auto& asst : dspt_asst.second) {
-      find_and_replace_array_const(asst, array_const_set, rtl_extra_wire);
+      asst = find_and_replace_array_const(asst, array_const_set, rtl_extra_wire);
     }
   }
 
   for (auto& dspt_vn_rfexpr_eq : assign_or_assumptions) {
     auto& eq = std::get<3>(dspt_vn_rfexpr_eq);
-    find_and_replace_array_const(eq, array_const_set, rtl_extra_wire);
+    eq = find_and_replace_array_const(eq, array_const_set, rtl_extra_wire);
   }
 
   // last step
@@ -312,7 +324,7 @@ void VlgSglTgtGen::
     const auto& dspt = std::get<0>(dspt_vn_rfexpr_eq);
     const auto& wn = std::get<1>(dspt_vn_rfexpr_eq);
 
-    ILA_DLOG("VTG.AddWireEq") << eq->to_verilog();
+    ILA_DLOG("VTG.AddWireEq") << GetVlg(eq);
 
     std::map<std::string, rfmap::RfVar> array_var;
     if (rfmap::RfExprAstUtility::HasArrayVar(eq, array_var)) {
@@ -321,12 +333,13 @@ void VlgSglTgtGen::
         << " properties, please enable YosysSmtArrayForRegFile";
       add_smt_assumption(eq, dspt);
     } else
-      vlg_wrapper.add_assign_stmt(wn, eq->child(1)->to_verilog());
+      vlg_wrapper.add_assign_stmt(
+        wn, GetVlg(eq->get_child().at(1)));
   }
 
   for (const auto& dspt_aspt : all_assumptions) {
     for (const auto& aspt : dspt_aspt.second) {
-      ILA_DLOG("VTG.AddAssume") << aspt->to_verilog();
+      ILA_DLOG("VTG.AddAssume") << GetVlg(aspt);
 
       std::map<std::string, rfmap::RfVar> array_var;
       if (rfmap::RfExprAstUtility::HasArrayVar(aspt, array_var)) {
@@ -335,19 +348,19 @@ void VlgSglTgtGen::
           << " properties, please enable YosysSmtArrayForRegFile";
         add_smt_assumption(aspt, dspt_aspt.first);
       } else
-        add_a_direct_assumption(aspt->to_verilog(), dspt_aspt.first);
+        add_a_direct_assumption(GetVlg(aspt), dspt_aspt.first);
     }
   }
 
   for (const auto& dspt_asst : all_assertions) {
     for (const auto& asst : dspt_asst.second) {
-      ILA_DLOG("VTG.AddAssert") << asst->to_verilog();
+      ILA_DLOG("VTG.AddAssert") << GetVlg(asst);
 
       std::map<std::string, rfmap::RfVar> array_var;
       if (rfmap::RfExprAstUtility::HasArrayVar(asst, array_var))
         add_smt_assertion(asst, dspt_asst.first);
       else
-        add_a_direct_assertion(asst->to_verilog(), dspt_asst.first);
+        add_a_direct_assertion(GetVlg(asst), dspt_asst.first);
     }
   }
 
@@ -358,7 +371,7 @@ void VlgSglTgtGen::
           << "Implementation bug: sanity checking assertion should not contain "
              "arrays";
 
-      add_a_direct_sanity_assertion(asst->to_verilog(), dspt_asst.first);
+      add_a_direct_sanity_assertion(GetVlg(asst), dspt_asst.first);
     }
   }
   for (const auto& dspt_cvrs : all_covers) {
@@ -368,7 +381,7 @@ void VlgSglTgtGen::
           << "Implementation bug: cover checks should not contain "
              "arrays";
 
-      add_a_direct_cover_check(cvr->to_verilog(), dspt_cvrs.first);
+      add_a_direct_cover_check(GetVlg(cvr), dspt_cvrs.first);
     }
   }
 

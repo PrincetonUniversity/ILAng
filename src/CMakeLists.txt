@@ -284,6 +284,11 @@ else()
   )
 
   install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/rtl_verify.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
+  )
+
+  install(
     FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/config.h
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
   )

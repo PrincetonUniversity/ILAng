@@ -108,8 +108,8 @@ public:
   static RfVarTypeOrig GetType(const RfExpr& in);
   /// will modify where the pointer is pointing to
   /// because we will be creating new rfexpr
-  static void TraverseRfExpr(RfExpr& inout,
-                             std::function<void(RfExpr& inout)> func);
+  static RfExpr TraverseRfExpr(const RfExpr& inout,
+                             std::function<RfExpr(const RfExpr& inout)> func);
   /// check to make sure no null ptr
   static void RfMapNoNullNode(const RfExpr& in);
 };
@@ -181,7 +181,7 @@ struct TypedVerilogRefinementMap : public VerilogRefinementMap,
 
   // this should include phase-tracker (m,v,alias)
   // ... ?
-  void TraverseAllRfExpr(std::function<void(RfExpr& inout)> func);
+  void TraverseAllRfExpr(std::function<RfExpr(const RfExpr& inout)> func);
 
   // this function is used in
   // (1) value holder/delay : width determination
@@ -209,7 +209,7 @@ protected:
 
   /// deal with condition map
   void TraverseCondMap(SingleVarMap& inout,
-                       std::function<void(RfExpr& inout)> func);
+                       std::function<RfExpr(const RfExpr& inout)> func);
 
 private:
   // help with naming
@@ -217,8 +217,8 @@ private:
   std::string new_id();
 
   // helper for AST traversal
-  void collect_inline_value_recorder_func(RfExpr& inout);
-  void collect_inline_delay_func(RfExpr& inout);
+  RfExpr collect_inline_value_recorder_func(const RfExpr& inout);
+  RfExpr collect_inline_delay_func(const RfExpr& inout);
   // this function uses the above two and the
   void CollectInlineDelayValueHolder();
 

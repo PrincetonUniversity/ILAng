@@ -125,6 +125,10 @@ static std::string type_convert(SmtType out_tp, SmtType in_tp,
   }
 
   if (in_tp.is_bool() && out_tp.is_bv()) {
+    auto retstr = "(ite " + in + " #b1 #b0)";
+    ILA_CHECK(out_tp.unified_width() > 0);
+    if(out_tp.unified_width() == 1)
+      return retstr;
     return extend_width("(ite " + in + " #b1 #b0)", 1, out_tp.unified_width());
   }
 
@@ -419,7 +423,7 @@ std::string RfExpr2Smt::to_smt2(const RfExpr& in, SmtType expected_type) {
   if (op_ == verilog_expr::voperator::REPEAT) {
     ILA_ASSERT(in->get_child_cnt() == 2);
     unsigned ntimes;
-    if (!_compute_const(in->child(0), ntimes))
+    if (!_compute_const(in->get_child().at(0), ntimes))
       throw verilog_expr::VexpException(
           verilog_expr::ExceptionCause::UnknownNumberSmtTranslation);
     ILA_ASSERT(ntimes > 0);

@@ -54,15 +54,16 @@
     "delay_wb_write"  : {
       "verilog":
       [ "always @(posedge clk) begin",
-        "  delay_wb_write <= RTL.ex_wb_val;",
-        "end"
+        "  delay_wb_write <= (#decode# & #afterdecode#) ?  RTL.ex_wb_val : delay_wb_write;",
+        "end",
+        "assign usefl = RTL.registers[RTL.ex_wb_rd] ;"
       ],
       "append-verilog" : [
           "module nouse(input wire aa, output wire bb);",
           " /*keep-for-invariants*/ assign bb=aa;",
           " endmodule"],
-      "defs" :[ ["delay_wb_write", 8, "reg"] ],
-      "refs" :[ "RTL.ex_wb_val" ],
+      "defs" :[ ["delay_wb_write", 8, "reg"], ["usefl", 8, "wire"] ],
+      "refs" :[ "RTL.ex_wb_val", "#decode#", "#afterdecode#","RTL.registers[RTL.ex_wb_rd]"],
       "keep-for-invariants" : true
     },
 

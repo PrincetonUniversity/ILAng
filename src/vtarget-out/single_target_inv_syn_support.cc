@@ -74,6 +74,8 @@ void VlgSglTgtGen::add_inv_obj_as_assertion(InvariantObject* inv_obj) {
   for (auto&& name_expr_pair : inv_obj->GetExtraVarDefs()) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
+    vlg_wrapper.add_output(std::get<0>(name_expr_pair),
+                         std::get<2>(name_expr_pair));
     rfmap_add_internal_wire(std::get<0>(name_expr_pair),
                             std::get<2>(name_expr_pair));
     add_wire_assign_assumption(
@@ -96,6 +98,8 @@ void VlgSglTgtGen::add_inv_obj_as_assumption(InvariantObject* inv_obj) {
   for (auto&& name_expr_pair : inv_obj->GetExtraVarDefs()) {
     vlg_wrapper.add_wire(std::get<0>(name_expr_pair),
                          std::get<2>(name_expr_pair), true);
+    vlg_wrapper.add_output(std::get<0>(name_expr_pair),
+                         std::get<2>(name_expr_pair));
     rfmap_add_internal_wire(std::get<0>(name_expr_pair),
                             std::get<2>(name_expr_pair));
     add_wire_assign_assumption(

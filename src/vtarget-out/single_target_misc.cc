@@ -157,10 +157,10 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
 } // ConstructWrapper_add_uf_constraints
 
 void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
-  for (const auto& delay_unit : refinement_map.aux_delays) {
-    std::cout << delay_unit.first << " : expr = "
-      << (delay_unit.second.signal) << std::endl;
-  }
+  // for (const auto& delay_unit : refinement_map.aux_delays) {
+  //  std::cout << delay_unit.first << " : expr = "
+  //    << (delay_unit.second.signal) << std::endl;
+  // }
 
   for (const auto& delay_unit : refinement_map.aux_delays) {
     const auto& name = delay_unit.first;
@@ -182,6 +182,7 @@ void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
       if (didx == 1) {
         // delay from signal
         vlg_wrapper.add_wire(prev_name, width, true);
+        vlg_wrapper.add_output(prev_name, width);
         rfmap_add_internal_wire(prev_name, width);
         add_wire_assign_assumption(prev_name, rhs, "delay_unit");
       }
@@ -240,6 +241,7 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
     }
     for (const auto& event_alias : tracker.event_alias) {
       vlg_wrapper.add_wire(event_alias.first, 1);
+      vlg_wrapper.add_output(event_alias.first, 1);
       rfmap_add_internal_wire(event_alias.first, 1);
       // add_wire_assign_assumption
       add_wire_assign_assumption(event_alias.first, event_alias.second,
@@ -261,6 +263,7 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
       vlg_wrapper.add_always_stmt("if(" + enter_cond_wire_name + ") begin " +
                                   stage_name + " <= 1'b1;");
       vlg_wrapper.add_wire(enter_cond_wire_name, 1, true);
+      vlg_wrapper.add_output(enter_cond_wire_name, 1);
       rfmap_add_internal_wire(enter_cond_wire_name, 1);
       ILA_NOT_NULL(stage.enter_rule);
       add_wire_assign_assumption(enter_cond_wire_name, stage.enter_rule,
@@ -278,6 +281,7 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
         vlg_wrapper.add_always_stmt(action.LHS + " <= " + action_name + ";");
 
         vlg_wrapper.add_wire(action_name, pos_def_var->second.width, true);
+        vlg_wrapper.add_output(action_name, pos_def_var->second.width);
         rfmap_add_internal_wire(action_name, pos_def_var->second.width);
         add_wire_assign_assumption(action_name, action.RHS, "phase_tracker");
       }
@@ -287,6 +291,7 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
                                   ") begin " + stage_name + " <= 1'b0;");
 
       vlg_wrapper.add_wire(exit_cond_wire_name, 1, true);
+      vlg_wrapper.add_output(exit_cond_wire_name, 1);
       rfmap_add_internal_wire(exit_cond_wire_name, 1);
       if (stage.exit_rule == nullptr)
         vlg_wrapper.add_assign_stmt(exit_cond_wire_name, "1'b0");
@@ -304,6 +309,7 @@ void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
         std::string action_name = exit_action_wire_name + std::to_string(idx++);
         vlg_wrapper.add_always_stmt(action.LHS + " <= " + action_name + ";");
         vlg_wrapper.add_wire(action_name, pos_def_var->second.width, true);
+        vlg_wrapper.add_output(action_name, pos_def_var->second.width);
         rfmap_add_internal_wire(action_name, pos_def_var->second.width);
         add_wire_assign_assumption(action_name, action.RHS, "phase_tracker");
       }
@@ -413,6 +419,13 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
 
     unsigned idx = 0;
     std::vector<std::pair<std::string, std::string>> replace_list;
+    for (auto pos1 = mdef.var_uses.begin(); pos1 != mdef.var_uses.end(); ++pos1) {
+      for (auto pos2 = mdef.var_uses.begin(); pos2 != mdef.var_uses.end(); ++pos2) {
+        if(pos1 == pos2) continue;
+        ILA_ERROR_IF( (*pos1).find(*pos2) != std::string::npos) << *pos2 << " is part of " << *pos1;
+      }
+    }
+
     for (const auto& vref : mdef.var_uses) {
 
       auto vref_node = rfmap::VerilogRefinementMap::ParseRfExprFromString(vref);
@@ -425,6 +438,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
 
       auto width = tp.unified_width();
       vlg_wrapper.add_wire(new_name, width, true);
+      vlg_wrapper.add_output(new_name, width);
       rfmap_add_internal_wire(new_name, width);
       add_wire_assign_assumption(new_name, vref_node, "monitor_auxvar");
 
@@ -433,8 +447,12 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
 
     auto vlog_inline = mdef.verilog_inline;
     for (const auto& old_new_pair : replace_list) {
+      // std::cout << vlog_inline << std::endl;
       vlog_inline =
           ReplaceAll(vlog_inline, old_new_pair.first, old_new_pair.second);
+      // std::cout << old_new_pair.first << std::endl;
+      // std::cout << old_new_pair.second << std::endl;
+      // std::cout << vlog_inline << std::endl;
     }
     vlg_wrapper.add_stmt(vlog_inline);
 
