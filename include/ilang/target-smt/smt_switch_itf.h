@@ -1,8 +1,8 @@
 /// \file
 /// Class SmtSwitchItf - the interface to external library smt-switch.
 
-#ifndef ILANG_ILA_MNGR_U_SMT_SWITCH_H__
-#define ILANG_ILA_MNGR_U_SMT_SWITCH_H__
+#ifndef ILANG_TARGET_SMT_SMT_SWITCH_H__
+#define ILANG_TARGET_SMT_SMT_SWITCH_H__
 
 #ifdef SMTSWITCH_INTERFACE
 
@@ -90,5 +90,5 @@ private:
 
 #endif // SMTSWITCH_INTERFACE
 
-#endif // ILANG_ILA_MNGR_U_SMT_SWITCH_H__
+#endif // ILANG_TARGET_SMT_SMT_SWITCH_H__
 
