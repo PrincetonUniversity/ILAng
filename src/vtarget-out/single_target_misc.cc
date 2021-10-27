@@ -389,6 +389,18 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
   } // for each value recorder
 } // ConstructWrapper_add_post_value_holder
 
+/// Add direct aux vars
+void VlgSglTgtGen::ConstructWrapper_add_direct_aux_vars() {
+  for (const auto & n_expr : refinement_map.direct_aux_vars) {
+    const auto & n = n_expr.first;
+    auto w = n_expr.second.width;
+    ILA_CHECK(w!=0);
+    vlg_wrapper.add_wire(n,w,true);
+    vlg_wrapper.add_output(n,w);
+    add_wire_assign_assumption(n, n_expr.second.val, "direct_aux_var");
+  }
+}
+
 void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
   if (refinement_map.customized_monitor.empty())
     return;

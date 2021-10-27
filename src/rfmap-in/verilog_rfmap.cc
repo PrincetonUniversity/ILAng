@@ -937,7 +937,7 @@ VerilogRefinementMap::VerilogRefinementMap(
   } // additional mapping & assumptions
 
   { // phase tracker, value recorder, customized ones
-    nlohmann::json* monitor_section = GetJsonSection(rf_vmap, {"monitor"});
+    nlohmann::json* monitor_section = GetJsonSection(rf_vmap, {"monitor", "monitors"});
     if (monitor_section) {
       ENSURE(monitor_section->is_object(), "`monitor` section should be a map");
       for (auto& name_monitor_pair : monitor_section->items()) {
@@ -949,131 +949,140 @@ VerilogRefinementMap::VerilogRefinementMap(
               "monitor `" + name + "` has been defined.");
         ERRIF(IN(name, value_recorder),
               "monitor `" + name + "` has been defined.");
+        ERRIF(IN(name, direct_aux_vars),
+              "monitor `" + name + "` has been defined.");
 
         auto& monitor = name_monitor_pair.value();
-        auto* template_field = GetJsonSection(monitor, {"template"});
-        if (template_field) {
-          ENSURE(template_field->is_string(),
-                 "`template` field should be string");
-          auto template_name = template_field->get<std::string>();
-          if (SectionNameRelaxedMatch(template_name, "phase tracker") ||
-              SectionNameRelaxedMatch(template_name, "stage tracker") ) {
-            phase_tracker.emplace(name, PhaseTracker());
-            std::string errmsg = JsonRfmapParsePhaseTracker(
-                phase_tracker.at(name), monitor, name);
-            ENSURE(errmsg.empty(), errmsg);
-          } else if (SectionNameRelaxedMatch(template_name, "value recorder")) {
-            value_recorder.emplace(name, ValueRecorder());
-            std::string errmsg =
-                JsonRfmapParseValueRecorder(value_recorder.at(name), monitor);
-            ENSURE(errmsg.empty(), errmsg);
-          } else {
-            ERRIF(true,
-                  "template name `" + template_name + "` is not recognized.");
-          }
-          // end if has template field
+        if (monitor.is_string()) {
+          direct_aux_vars.emplace(name, AuxVar(name));
+          auto ret = ParseRfMapExpr(monitor.get<std::string>());
+          ILA_NOT_NULL(ret);
+          direct_aux_vars.at(name).val = ret;
         } else {
-          customized_monitor.emplace(name, GeneralVerilogMonitor());
-          auto& mnt_ref = customized_monitor.at(name);
-          { // inline verilog
-            // has no template
-            auto* verilog_field = GetJsonSection(monitor, {"verilog"});
-            auto* verilog_file_field =
-                GetJsonSection(monitor, {"verilog-from-file"});
-            auto* keep_inv = GetJsonSection(
-                monitor, {"keep-for-invariant", "keep-for-invariants"});
-
-            ERRIF(
-                verilog_field && verilog_file_field,
-                "`verilog` or `verilog-from-file` fields are mutual exclusive");
-            if (keep_inv) {
-              ENSURE(keep_inv->is_boolean(),
-                     "`keep-for-invariant` should be Boolean");
-              mnt_ref.keep_for_invariant = keep_inv->get<bool>();
+          auto* template_field = GetJsonSection(monitor, {"template"});
+          if (template_field) {
+            ENSURE(template_field->is_string(),
+                  "`template` field should be string");
+            auto template_name = template_field->get<std::string>();
+            if (SectionNameRelaxedMatch(template_name, "phase tracker") ||
+                SectionNameRelaxedMatch(template_name, "stage tracker") ) {
+              phase_tracker.emplace(name, PhaseTracker());
+              std::string errmsg = JsonRfmapParsePhaseTracker(
+                  phase_tracker.at(name), monitor, name);
+              ENSURE(errmsg.empty(), errmsg);
+            } else if (SectionNameRelaxedMatch(template_name, "value recorder")) {
+              value_recorder.emplace(name, ValueRecorder());
+              std::string errmsg =
+                  JsonRfmapParseValueRecorder(value_recorder.at(name), monitor);
+              ENSURE(errmsg.empty(), errmsg);
+            } else {
+              ERRIF(true,
+                    "template name `" + template_name + "` is not recognized.");
             }
+            // end if has template field
+          } else {
+            customized_monitor.emplace(name, GeneralVerilogMonitor());
+            auto& mnt_ref = customized_monitor.at(name);
+            { // inline verilog
+              // has no template
+              auto* verilog_field = GetJsonSection(monitor, {"verilog"});
+              auto* verilog_file_field =
+                  GetJsonSection(monitor, {"verilog-from-file"});
+              auto* keep_inv = GetJsonSection(
+                  monitor, {"keep-for-invariant", "keep-for-invariants"});
 
-            if (verilog_field) {
-              if (verilog_field->is_string()) {
-                mnt_ref.verilog_inline = verilog_field->get<std::string>();
-              } else {
-                ENSURE(verilog_field->is_array(),
-                       "`verilog` field should be a list of string");
-                for (auto& ps : *verilog_field) {
-                  ENSURE(ps.is_string(),
-                         "`verilog` field should be a list of string");
-                  mnt_ref.verilog_inline += ps.get<std::string>() + "\n";
+              ERRIF(
+                  verilog_field && verilog_file_field,
+                  "`verilog` or `verilog-from-file` fields are mutual exclusive");
+              if (keep_inv) {
+                ENSURE(keep_inv->is_boolean(),
+                      "`keep-for-invariant` should be Boolean");
+                mnt_ref.keep_for_invariant = keep_inv->get<bool>();
+              }
+
+              if (verilog_field) {
+                if (verilog_field->is_string()) {
+                  mnt_ref.verilog_inline = verilog_field->get<std::string>();
+                } else {
+                  ENSURE(verilog_field->is_array(),
+                        "`verilog` field should be a list of string");
+                  for (auto& ps : *verilog_field) {
+                    ENSURE(ps.is_string(),
+                          "`verilog` field should be a list of string");
+                    mnt_ref.verilog_inline += ps.get<std::string>() + "\n";
+                  }
                 }
-              }
-            } else if (verilog_file_field) {
-              ENSURE(verilog_file_field->is_string(),
-                     "`verilog-from-file` expects a string (file name)");
-              auto fname = verilog_file_field->get<std::string>();
-              std::ifstream fin(fname);
-              ENSURE(fin.is_open(), "Cannot read from " + fname);
-              {
-                std::stringstream buffer;
-                buffer << fin.rdbuf();
-                mnt_ref.verilog_inline = buffer.str();
-              }
-            } // verilog_file_field : from file
-          }   // inline verilog
-
-          { // append verilog outside the module
-            // has no template
-            auto* verilog_field = GetJsonSection(monitor, {"append-verilog"});
-            auto* verilog_file_field =
-                GetJsonSection(monitor, {"append-verilog-from-file"});
-
-            ERRIF(verilog_field && verilog_file_field,
-                  "`append-verilog` or `append-verilog-from-file` fields are "
-                  "mutual exclusive");
-
-            if (verilog_field) {
-              if (verilog_field->is_string()) {
-                mnt_ref.verilog_append =
-                    verilog_field->get<std::string>() + "\n";
-              } else {
-                ENSURE(verilog_field->is_array(),
-                       "`append-verilog` field should be a list of string");
-                for (auto& ps : *verilog_field) {
-                  ENSURE(ps.is_string(),
-                         "`append-verilog` field should be a list of string");
-                  mnt_ref.verilog_append += ps.get<std::string>() + "\n";
+              } else if (verilog_file_field) {
+                ENSURE(verilog_file_field->is_string(),
+                      "`verilog-from-file` expects a string (file name)");
+                auto fname = verilog_file_field->get<std::string>();
+                std::ifstream fin(fname);
+                ENSURE(fin.is_open(), "Cannot read from " + fname);
+                {
+                  std::stringstream buffer;
+                  buffer << fin.rdbuf();
+                  mnt_ref.verilog_inline = buffer.str();
                 }
-              }
-            } else if (verilog_file_field) {
-              ENSURE(verilog_file_field->is_string(),
-                     "`append-verilog-from-file` expects a string (file name)");
-              auto fname = verilog_file_field->get<std::string>();
-              std::ifstream fin(fname);
-              ENSURE(fin.is_open(), "Cannot read from " + fname);
-              {
-                std::stringstream buffer;
-                buffer << fin.rdbuf();
-                mnt_ref.verilog_append = buffer.str() + "\n";
-              }
-            } // append-verilog_file_field : from file
-          }   // verilog_append verilog
+              } // verilog_file_field : from file
+            }   // inline verilog
 
-          auto* ref_field = GetJsonSection(monitor, {"refs"});
-          if (ref_field) { // refs
-            ENSURE(ref_field->is_array(),
-                   "`refs` field should be a list of string");
-            for (auto& p : *ref_field) {
-              ENSURE(p.is_string(), "`refs` field should be a list of string");
-              auto var_name = p.get<std::string>();
-              ILA_WARN_IF(IN(var_name, mnt_ref.var_uses))
-                  << "`" + var_name + "` has been declared already";
-              mnt_ref.var_uses.insert(p.get<std::string>());
-            }
-          } // if ref_field
+            { // append verilog outside the module
+              // has no template
+              auto* verilog_field = GetJsonSection(monitor, {"append-verilog"});
+              auto* verilog_file_field =
+                  GetJsonSection(monitor, {"append-verilog-from-file"});
 
-          auto* def_field = GetJsonSection(monitor, {"defs"});
-          if (def_field) { // defs
-            auto err_msg = JsonRfMapParseVarDefs(mnt_ref.var_defs, *def_field);
-            ENSURE(err_msg.empty(), err_msg);
-          } // if def_field
-        }   // else if it is verilog monitor (general)
+              ERRIF(verilog_field && verilog_file_field,
+                    "`append-verilog` or `append-verilog-from-file` fields are "
+                    "mutual exclusive");
+
+              if (verilog_field) {
+                if (verilog_field->is_string()) {
+                  mnt_ref.verilog_append =
+                      verilog_field->get<std::string>() + "\n";
+                } else {
+                  ENSURE(verilog_field->is_array(),
+                        "`append-verilog` field should be a list of string");
+                  for (auto& ps : *verilog_field) {
+                    ENSURE(ps.is_string(),
+                          "`append-verilog` field should be a list of string");
+                    mnt_ref.verilog_append += ps.get<std::string>() + "\n";
+                  }
+                }
+              } else if (verilog_file_field) {
+                ENSURE(verilog_file_field->is_string(),
+                      "`append-verilog-from-file` expects a string (file name)");
+                auto fname = verilog_file_field->get<std::string>();
+                std::ifstream fin(fname);
+                ENSURE(fin.is_open(), "Cannot read from " + fname);
+                {
+                  std::stringstream buffer;
+                  buffer << fin.rdbuf();
+                  mnt_ref.verilog_append = buffer.str() + "\n";
+                }
+              } // append-verilog_file_field : from file
+            }   // verilog_append verilog
+
+            auto* ref_field = GetJsonSection(monitor, {"refs"});
+            if (ref_field) { // refs
+              ENSURE(ref_field->is_array(),
+                    "`refs` field should be a list of string");
+              for (auto& p : *ref_field) {
+                ENSURE(p.is_string(), "`refs` field should be a list of string");
+                auto var_name = p.get<std::string>();
+                ILA_WARN_IF(IN(var_name, mnt_ref.var_uses))
+                    << "`" + var_name + "` has been declared already";
+                mnt_ref.var_uses.insert(p.get<std::string>());
+              }
+            } // if ref_field
+
+            auto* def_field = GetJsonSection(monitor, {"defs"});
+            if (def_field) { // defs
+              auto err_msg = JsonRfMapParseVarDefs(mnt_ref.var_defs, *def_field);
+              ENSURE(err_msg.empty(), err_msg);
+            } // if def_field
+          }   // else if it is verilog monitor (general)
+        } // end of if is_string()--else       
       }     // for each monitor
     }       // if has monitor field
   }         // monitor block
@@ -1284,18 +1293,39 @@ bool VerilogRefinementMap::SelfCheckField() const {
   { // GeneralVerilogMonitor, for ids are okay, no bad names
     std::set<std::string> var_def_names;
     for (const auto& n_st : phase_tracker) {
-
+      // const auto & phase_tracker_name = n_st.first;
       for (const auto& var_def : n_st.second.event_alias) {
+        ERRIF(!is_valid_id_name(var_def.first),
+              "Monitor name " + var_def.first + " is not valid");
         ERRIF(IN(var_def.first, var_def_names),
               "Variable " + n_st.first + " has been defined already");
         var_def_names.insert(var_def.first);
       }
       for (const auto& var_def : n_st.second.var_defs) {
+        ERRIF(!is_valid_id_name(var_def.first),
+              "Monitor name " + var_def.first + " is not valid");
         ERRIF(IN(var_def.first, var_def_names),
               "Variable " + n_st.first + " has been defined already");
         var_def_names.insert(var_def.first);
       }
+      for (const auto& st : n_st.second.rules) {
+        ERRIF(!is_valid_id_name(st.stage_name),
+            "stage name " + st.stage_name + " is not valid");
+        
+        ERRIF(IN(st.stage_name, var_def_names),
+              "Variable " + n_st.first + " has been defined already");
+        var_def_names.insert(st.stage_name);
+      }
     }
+    
+    for (const auto& n_expr : direct_aux_vars) {
+      ERRIF(!is_valid_id_name(n_expr.first),
+            "Monitor name " + n_expr.first + " is not valid");
+      ERRIF(IN(n_expr.first, var_def_names),
+            "Monitor name " + n_expr.first + " has been used");
+      var_def_names.insert(n_expr.first);
+    }
+
     for (const auto& n_st : value_recorder) {
       ERRIF(!is_valid_id_name(n_st.first),
             "Monitor name " + n_st.first + " is not valid");

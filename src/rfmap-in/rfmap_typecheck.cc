@@ -188,6 +188,10 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
     }
   } // value recorder
 
+  for (const auto& n_expr : direct_aux_vars) {
+    ILA_CHECK(n_expr.second.width == 0);
+  } // direct aux vars
+
   for (const auto& n_st : customized_monitor) {
     for (const auto& var_def : n_st.second.var_defs) {
       all_var_def_types.emplace(var_def.first, var_def.second);
@@ -286,7 +290,11 @@ void TypedVerilogRefinementMap::TraverseAllRfExpr(
     pv.second.condition = TraverseRfExpr(pv.second.condition, func);
     pv.second.value = TraverseRfExpr(pv.second.value, func);
   }
-  // ALERT: do not handle customized recorder
+  for (auto& n_expr : direct_aux_vars) {
+    n_expr.second.val = TraverseRfExpr(n_expr.second.val, func);
+  }
+
+  // ALERT: NOT handle customized_monitor in TraverseRfExpr
 
   for (auto& instcond : inst_complete_cond) {
     if (instcond.second.type ==
@@ -363,6 +371,23 @@ void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
       all_var_def_types.emplace(name_vr.first, internal_var_def);
     }
   } // replendish internal defined vars
+
+  for (auto& n_expr : direct_aux_vars) {
+    if(n_expr.second.width == 0) {
+
+      auto tp = TypeInferTravserRfExpr(n_expr.second.val);
+      ILA_ERROR_IF(tp.is_array())
+          << "Currently does not support to delay a memory variable";
+      ILA_ERROR_IF(tp.is_unknown())
+          << "Type inference failed on: " << n_expr.second.val->to_verilog();
+      n_expr.second.width = tp.unified_width();
+
+      VarDef internal_var_def;
+      internal_var_def.width = tp.unified_width();
+      internal_var_def.type = VarDef::var_type::WIRE;
+      all_var_def_types.emplace(n_expr.first, internal_var_def);
+    }
+  }
 } // ComputeDelayValueHolderWidth
 
 // relies on typechecker and all_var_def_types

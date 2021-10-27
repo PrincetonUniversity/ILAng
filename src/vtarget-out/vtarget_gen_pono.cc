@@ -198,7 +198,7 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
     // here we intentionally leave out the property interface file.
 
     fout << "echo \"* Run Pono to check assumption sanity...\"" << std::endl;
-    fout << pono << options << " sanity.btor2 " << std::endl;
+    fout << pono << options << extra_smt_properties << " sanity.btor2 " << std::endl;
     fout << "SanityResult=$?" << std::endl;
   } else {
     fout << "SanityResult=3" << std::endl;
@@ -212,6 +212,7 @@ void VlgSglTgtGen_Pono::Export_script(const std::string& script_name) {
   for (unsigned idx = 0; idx < all_cover_assert_property_names.size(); ++idx) {
     auto cover_fname = "cover" + std::to_string(idx)+".btor2";
     std::string cover_options = " -e bmc " + _vtg_config.PonoOtherOptions;
+    cover_options += extra_smt_properties;
 
     fout << "echo \"* Parsing cover check input #" <<idx<<" ...\"" << std::endl;
     fout << yosys

@@ -280,6 +280,8 @@ protected:
   void ConstructWrapper_add_stage_tracker();
   /// Add Verilog inline monitor
   void ConstructWrapper_add_vlg_monitor();
+  /// Add direct aux vars
+  void ConstructWrapper_add_direct_aux_vars();
   /// handle all_assumption/all_assertion
   /// ReplExpr all assertion/assumptions
   ///   ReplExpr will know whether to create

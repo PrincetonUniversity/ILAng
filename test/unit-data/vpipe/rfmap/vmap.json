@@ -30,5 +30,11 @@
 	"RTL interface connection" : {
 		"CLOCK" : "clk",
 		"RESET" : "rst"
-	}  
+	},
+
+	"monitor" : {
+		// this will not use for invariant by default
+		// because "@1" means nothing without instructions
+		"test_aux_var" : "RTL.ex_wb_val@1 + 1"
+	}
 }

@@ -359,6 +359,11 @@ void VlgSglTgtGen::ConstructWrapper() {
     ConstructWrapper_add_post_value_holder();
     ConstructWrapper_add_delay_unit();
     ConstructWrapper_add_stage_tracker();
+    // you cannot always add aux vars
+    // because it may refer to other aux vars (like post value holder)
+    // unless we have a way to check hierarchically
+    // the dependency
+    ConstructWrapper_add_direct_aux_vars();
   }
 
   ConstructWrapper_add_vlg_monitor();

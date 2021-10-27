@@ -251,6 +251,7 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
   rfmap_add_internal_wire("__START__", 1);
   rfmap_add_replacement("decode", "__START__");
   rfmap_add_internal_wire("__STARTED__", 1);
+  rfmap_add_replacement("afterdecode", "__STARTED__");
 }
 
 } // namespace ilang

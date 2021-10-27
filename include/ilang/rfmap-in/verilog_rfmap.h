@@ -156,6 +156,13 @@ struct SignalDelay {
   unsigned upper_bnd;
 };
 
+struct AuxVar {
+  std::string name;
+  RfExpr val;
+  unsigned width;
+  AuxVar(const std::string & n) : name(n), width(0) {}
+};
+
 struct PhaseTracker {
   struct Assignment {
     std::string LHS; // a state name
@@ -215,6 +222,7 @@ struct VerilogRefinementMap {
   std::map<std::string, PhaseTracker> phase_tracker;
   std::map<std::string, ValueRecorder> value_recorder;
   std::map<std::string, GeneralVerilogMonitor> customized_monitor;
+  std::map<std::string, AuxVar> direct_aux_vars;
 
   // ---------------------- inst-cond ------------------------------- //
   std::map<std::string, InstructionCompleteCondition> inst_complete_cond;

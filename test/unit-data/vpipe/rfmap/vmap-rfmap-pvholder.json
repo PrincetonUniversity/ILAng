@@ -15,6 +15,7 @@
     "RESET" : "rst",
     "INPUT" : {
       "dummy_read_rf" : "#dummy_read_rf#"
+      // if you use it here, you must define it in a keep-for-invariants block !!!
     }
   },
 
@@ -46,7 +47,7 @@
          "  if (__START__) ref_test <= 0;",
          "  else if (__STARTED__ && !__ENDED__ && stage_tracker == 1) ref_test <= RTL.registers[0] + 1;",
          "end"],
-      "defs" :[ ["ref_test", 2, "reg"], ["dummy_read_rf", 2, "wire"] ],
+      "defs" :[ ["ref_test", 2, "reg"] ],
       "refs" :[ "RTL.registers[0]" ]
     },
 
@@ -62,8 +63,10 @@
           "module nouse(input wire aa, output wire bb);",
           " /*keep-for-invariants*/ assign bb=aa;",
           " endmodule"],
-      "defs" :[ ["delay_wb_write", 8, "reg"], ["usefl", 8, "wire"] ],
+      "defs" :[ ["delay_wb_write", 8, "reg"], ["usefl", 8, "wire"], ["dummy_read_rf", 2, "wire"] ],
       "refs" :[ "RTL.ex_wb_val", "#decode#", "#afterdecode#","RTL.registers[RTL.ex_wb_rd]"],
+      // actually, you should not use #decode# or #afterdecode# here
+      // because they should not exist when verifying invariants
       "keep-for-invariants" : true
     },
 
