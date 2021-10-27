@@ -76,10 +76,7 @@ assign rs2= inst[3:2];
 assign rd = inst[1:0];
 assign id_wen = op == `OP_ADD || op == `OP_SUB || op == `OP_AND;
 
-assign dummy_rf_data =  dummy_read_rf == 0 ? registers[0] : 
-                        dummy_read_rf == 1 ? registers[1] : 
-                        dummy_read_rf == 2 ? registers[2] : 
-                            registers[3];
+assign dummy_rf_data =  registers[dummy_read_rf];
 
 
 
@@ -198,21 +195,8 @@ end
 
 // WB
 always @(posedge clk ) begin
-    if (rst) begin
-        // reset
-        registers[0] <= 8'd0;
-        registers[1] <= 8'd0;
-        registers[2] <= 8'd0;
-        registers[3] <= 8'd0;
-    end
-    else if (ex_wb_reg_wen) begin
-        case (ex_wb_rd)
-        2'd0: registers[0] <= ex_wb_val;
-        2'd1: registers[1] <= ex_wb_val;
-        2'd2: registers[2] <= ex_wb_val;
-        2'd3: registers[3] <= ex_wb_val;
-        default: registers[0] <= ex_wb_val; // nouse
-        endcase
+    if (ex_wb_reg_wen) begin
+        registers[ex_wb_rd] <= ex_wb_val;
     end
 end
 
