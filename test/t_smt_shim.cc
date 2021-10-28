@@ -4,9 +4,12 @@
 #ifdef SMTSWITCH_TEST
 #include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
+#include <smt-switch/z3_factory.h>
+#include <smt-switch/z3_sort.h>
 #endif // SMTSWITCH_TEST
 
 #include <ilang/ilang++.h>
+#include <ilang/target-smt/lia_cvtr.h>
 #include <ilang/target-smt/smt_shim.h>
 #include <ilang/target-smt/smt_switch_itf.h>
 #include <ilang/target-smt/z3_expr_adapter.h>
@@ -56,6 +59,19 @@ public:
 #endif // SMTSWITCH_TEST
   }
 
+  void CheckUnsatLia(const ExprRef& e) {
+#ifdef SMTSWITCH_TEST
+    auto solver = smt::Z3SolverFactory::create(false);
+    auto lia_cvtr = LiaCvtr(solver);
+    auto shim = SmtShim(lia_cvtr);
+
+    auto lia_term = shim.GetShimExpr(e.get());
+    solver->assert_formula(lia_term);
+    auto res = solver->check_sat();
+    EXPECT_TRUE(res.is_unsat());
+#endif // SMTSWITCH_TEST
+  }
+
   Ila m = Ila("host");
   ExprRef var_bool_a;
   ExprRef var_bool_b;
@@ -71,6 +87,7 @@ TEST_F(TestSmtShim, OpBoolNot) {
   auto prop = not_not_a != var_bool_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvNeg) {
@@ -79,6 +96,7 @@ TEST_F(TestSmtShim, OpBvNeg) {
   auto prop = neg_neg_a != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvComplement) {
@@ -87,12 +105,14 @@ TEST_F(TestSmtShim, OpBvComplement) {
   auto prop = com_com_a != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBoolAnd) {
   auto a_and_not_a = var_bool_a & !var_bool_a;
   CheckUnsatZ3(a_and_not_a);
   CheckUnsatSwitch(a_and_not_a);
+  CheckUnsatLia(a_and_not_a);
 }
 
 TEST_F(TestSmtShim, OpBvAnd) {
@@ -100,6 +120,7 @@ TEST_F(TestSmtShim, OpBvAnd) {
   auto prop = a_and_all1 != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBoolOr) {
@@ -107,6 +128,7 @@ TEST_F(TestSmtShim, OpBoolOr) {
   auto prop = !a_or_not_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvOr) {
@@ -114,6 +136,7 @@ TEST_F(TestSmtShim, OpBvOr) {
   auto prop = a_or_0 != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBoolXor) {
@@ -122,6 +145,7 @@ TEST_F(TestSmtShim, OpBoolXor) {
   auto prop = a_xor_b & a_eq_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvXor) {
@@ -130,6 +154,7 @@ TEST_F(TestSmtShim, OpBvXor) {
   auto prop = a_eq_b & (a_xor_b == BvConst((1 << BV_SIZE) - 1, BV_SIZE));
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvShl) {
@@ -137,6 +162,7 @@ TEST_F(TestSmtShim, OpBvShl) {
   auto prop = a_shl_all != BvConst(0, BV_SIZE);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvAshr) {
@@ -146,6 +172,7 @@ TEST_F(TestSmtShim, OpBvAshr) {
   auto prop = !(is_pos | is_neg);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvLshr) {
@@ -153,6 +180,7 @@ TEST_F(TestSmtShim, OpBvLshr) {
   auto prop = a_ashr_all != BvConst(0, BV_SIZE);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvAdd) {
@@ -160,6 +188,7 @@ TEST_F(TestSmtShim, OpBvAdd) {
   auto prop = a_plus_0 != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvSub) {
@@ -167,6 +196,7 @@ TEST_F(TestSmtShim, OpBvSub) {
   auto prop = a_minus_0 != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvAddSub) {
@@ -175,6 +205,7 @@ TEST_F(TestSmtShim, OpBvAddSub) {
   auto prop = a_plus_b_minus_b != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvMul) {
@@ -182,6 +213,7 @@ TEST_F(TestSmtShim, OpBvMul) {
   auto prop = a_times_0 != BvConst(0, BV_SIZE);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvDiv) {
@@ -189,6 +221,7 @@ TEST_F(TestSmtShim, OpBvDiv) {
   auto prop = a_div_1 != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvSrem) {
@@ -197,6 +230,7 @@ TEST_F(TestSmtShim, OpBvSrem) {
   auto prop = !(Slt(a_srem_3, div));
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvUrem) {
@@ -205,6 +239,7 @@ TEST_F(TestSmtShim, OpBvUrem) {
   auto prop = !(Ult(a_urem_3, div));
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvSmod) {
@@ -213,6 +248,7 @@ TEST_F(TestSmtShim, OpBvSmod) {
   auto prop = !(Slt(a_smod_3, div));
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  // LIA
 }
 
 TEST_F(TestSmtShim, OpBvSltSge) {
@@ -221,6 +257,7 @@ TEST_F(TestSmtShim, OpBvSltSge) {
   auto prop = a_slt_b & a_sge_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvSleSgt) {
@@ -229,6 +266,7 @@ TEST_F(TestSmtShim, OpBvSleSgt) {
   auto prop = a_sle_b & a_sgt_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvSltSgteq) {
@@ -238,6 +276,7 @@ TEST_F(TestSmtShim, OpBvSltSgteq) {
   auto prop = !(a_slt_b | a_sgt_b | a_eq_b);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvUltUge) {
@@ -246,6 +285,7 @@ TEST_F(TestSmtShim, OpBvUltUge) {
   auto prop = a_ult_b & a_uge_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvUleUgt) {
@@ -254,6 +294,7 @@ TEST_F(TestSmtShim, OpBvUleUgt) {
   auto prop = a_ule_b & a_ugt_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvUltUgteq) {
@@ -263,6 +304,7 @@ TEST_F(TestSmtShim, OpBvUltUgteq) {
   auto prop = !(a_ult_b | a_ugt_b | a_eq_b);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpMemLoad) {
@@ -271,6 +313,7 @@ TEST_F(TestSmtShim, OpMemLoad) {
   auto prop = (var_bv_a == var_bv_b) & (data_a != data_b);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpMemStore) {
@@ -279,6 +322,7 @@ TEST_F(TestSmtShim, OpMemStore) {
   auto prop = data != var_bv_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvConcat) {
@@ -287,6 +331,7 @@ TEST_F(TestSmtShim, OpBvConcat) {
   auto prop = (var_bv_a == var_bv_b) & (a_con_b != b_con_a);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvExtract) {
@@ -295,6 +340,7 @@ TEST_F(TestSmtShim, OpBvExtract) {
   auto prop = extract_a_con_b != var_bv_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBvZext) {
@@ -303,6 +349,7 @@ TEST_F(TestSmtShim, OpBvZext) {
   auto prop = zext_a != zero_con_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  // LIA
 }
 
 TEST_F(TestSmtShim, OpBvSext) {
@@ -312,6 +359,7 @@ TEST_F(TestSmtShim, OpBvSext) {
   auto prop = sext_a != zero_con_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  // LIA
 }
 
 TEST_F(TestSmtShim, OpBvRotate) {
@@ -320,6 +368,7 @@ TEST_F(TestSmtShim, OpBvRotate) {
   auto prop = right_rotate_back != var_bv_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  EXPECT_DEATH(CheckUnsatLia(prop), ".*");
 }
 
 TEST_F(TestSmtShim, OpBoolImply) {
@@ -327,6 +376,7 @@ TEST_F(TestSmtShim, OpBoolImply) {
   auto prop = a_imply_b & var_bool_a & !var_bool_b;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBoolIte) {
@@ -334,6 +384,7 @@ TEST_F(TestSmtShim, OpBoolIte) {
   auto prop = ite_a_0_a;
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpBvIte) {
@@ -341,6 +392,7 @@ TEST_F(TestSmtShim, OpBvIte) {
   auto prop = (var_bv_a == var_bv_b) & (ite_c_a_b != var_bv_a);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, OpApplyFunc) {
@@ -350,6 +402,7 @@ TEST_F(TestSmtShim, OpApplyFunc) {
   auto prop = (var_bv_a == var_bv_b) & (out1 != out2);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, ConstBool) {
@@ -358,6 +411,7 @@ TEST_F(TestSmtShim, ConstBool) {
   auto prop = a_is_0 & b_is_1 & (var_bool_a == var_bool_b);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, ConstBv) {
@@ -366,6 +420,7 @@ TEST_F(TestSmtShim, ConstBv) {
   auto prop = a_is_0 & b_is_1 & (var_bv_a == var_bv_b);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, ConstMem) {
@@ -380,6 +435,7 @@ TEST_F(TestSmtShim, ConstMem) {
   auto prop = !Imply(save_addr, is_linear);
   CheckUnsatZ3(prop);
   CheckUnsatSwitch(prop);
+  CheckUnsatLia(prop);
 }
 
 TEST_F(TestSmtShim, DiscreteUsage) {

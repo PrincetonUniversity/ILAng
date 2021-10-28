@@ -74,15 +74,16 @@ private:
   /// Insert the SMT Term of the given node into the map.
   void PopulateExprMap(const ExprPtr& expr);
   /// Make Term of expr variable.
-  smt::Term ExprVar2Term(const ExprPtr& expr);
+  virtual smt::Term ExprVar2Term(const ExprPtr& expr);
   /// Make Term of expr constant.
-  smt::Term ExprConst2Term(const ExprPtr& expr);
+  virtual smt::Term ExprConst2Term(const ExprPtr& expr);
   /// Make Term of expr operator.
-  smt::Term ExprOp2Term(const ExprPtr& expr, const smt::TermVec& arg_terms);
+  virtual smt::Term ExprOp2Term(const ExprPtr& expr,
+                                const smt::TermVec& arg_terms);
   /// Make Term of func.
-  smt::Term Func2Term(const FuncPtr& func);
+  virtual smt::Term Func2Term(const FuncPtr& func);
   /// Make smt::Sort of ilang::SortPtr.
-  smt::Sort IlaSort2SmtSort(const SortPtr& s);
+  virtual smt::Sort IlaSort2SmtSort(const SortPtr& s);
 
 }; // class SmtSwitchItf
 
