@@ -109,12 +109,8 @@ endif()
 
 if(${ILANG_BUILD_SWITCH})
   find_package(smtswitch REQUIRED)
-  if(${SMTSWITCH_BTOR_FOUND} AND ${SMTSWITCH_Z3_FOUND})
+  if(${SMTSWITCH_BTOR_FOUND})
     target_compile_definitions(${ILANG_TEST_MAIN} PRIVATE SMTSWITCH_TEST)
-
-    find_package(Threads REQUIRED)
-    target_link_libraries(${ILANG_TEST_MAIN} gmp)
-    target_link_libraries(${ILANG_TEST_MAIN} Threads::Threads)
   endif()
 endif()
 

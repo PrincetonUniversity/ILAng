@@ -11,7 +11,6 @@
 #   SMTSWITCH_CVC4_FOUND
 #   SMTSWITCH_MSAT_FOUND
 #   SMTSWITCH_YICES2_FOUND
-#   SMTSWITCH_Z3_FOUND
 #
 # and the following imported targets
 #
@@ -20,7 +19,6 @@
 #   smt-switch::smt-switch-cvc4
 #   smt-switch::smt-switch-msat
 #   smt-switch::smt-switch-yices2
-#   smt-switch::smt-switch-z3
 # 
 
 # XXX smt-switch needs to be built with static type
@@ -28,7 +26,6 @@
 
 find_package(PkgConfig)
 pkg_check_modules(PC_SMTSWITCH QUIET SMTSWITCH)
-find_package(GMP REQUIRED)
 
 ##
 ## core smt-switch
@@ -122,22 +119,6 @@ endif()
 set(SMTSWITCH_YICES2_LIBRARY ${SMTSWITCH_YICES_LIBRARY} ${SMTSWITCH_LIBRARY})
 mark_as_advanced(SMTSWITCH_YICES2_FOUND)
 
-# z3
-find_library(SMTSWITCH_Z3_LIBRARY
-  NAMES smt-switch-z3
-  HINTS ${PC_SMTSWITCH_LIBDIR} ${PC_SMTSWITCH_LIBRARY_DIRS}
-  PATH_SUFFIXES smt-switch
-)
-
-if(SMTSWITCH_Z3_LIBRARY)
-  set(SMTSWITCH_Z3_FOUND TRUE)
-else()
-  set(SMTSWITCH_Z3_FOUND FALSE)
-endif()
-
-set(SMTSWITCH_Z3_LIBRARY ${SMTSWITCH_Z3_LIBRARY} ${SMTSWITCH_LIBRARY})
-mark_as_advanced(SMTSWITCH_Z3_FOUND)
-
 # create imported target smt-switch::smt-switch
 if(SMTSWITCH_FOUND AND NOT TARGET smt-switch::smt-switch)
   add_library(smt-switch::smt-switch INTERFACE IMPORTED)
@@ -200,19 +181,6 @@ if(SMTSWITCH_YICES2_FOUND AND NOT TARGET smt-switch::smt-switch-yices2)
   set_property(
     TARGET smt-switch::smt-switch-yices2
     PROPERTY INTERFACE_LINK_LIBRARIES ${SMTSWITCH_YICES2_LIBRARY}
-  )
-endif()
-
-# create imported target smt-switch::smt-switch-z3
-if(SMTSWITCH_Z3_FOUND AND NOT TARGET smt-switch::smt-switch-z3)
-  add_library(smt-switch::smt-switch-z3 INTERFACE IMPORTED)
-  set_property(
-    TARGET smt-switch::smt-switch-z3
-    PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SMTSWITCH_INCLUDE_DIR}
-  )
-  set_property(
-    TARGET smt-switch::smt-switch-z3
-    PROPERTY INTERFACE_LINK_LIBRARIES ${SMTSWITCH_Z3_LIBRARY}
   )
 endif()
 
