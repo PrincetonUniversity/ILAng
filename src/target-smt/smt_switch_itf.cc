@@ -331,4 +331,4 @@ smt::Sort SmtSwitchItf::IlaSort2SmtSort(const SortPtr& s) {
 
 } // namespace ilang
 
-#endif // SMTSWITCH_INTERFACE
+#endif // SMT_SWITCH_INTERFACE

@@ -83,7 +83,7 @@ sudo make install
 -   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
 -   Use `-DILANG_BUILD_SYNTH=ON` to enable building the synthesis engine (required [Boost](https://www.boost.org)). 
 -   Use `-DILANG_BUILD_INVSYN=OFF` to disable building invariant synthesis feature.
--   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/stanford-centaur/smt-switch) interface support. 
+-   Use `-DILANG_BUILD_SWITCH=ON` to enable building [smt-switch](https://github.com/makaimann/smt-switch.git) interface support. 
 -   Use `-DILANG_BUILD_COSIM=ON` to enable building [Xilinx cosimulation](https://www.linuxsecrets.com/xilinx/QEMU%20SystemC%20and%20TLM%20CoSimulation.html) support.
 -   Use `-DILANG_INSTALL_DEV=ON` to install working features. 
 
@@ -233,7 +233,7 @@ Copyright (c) 2018 Ben Marshall.
 ILAng uses the [SMT parser](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html), which is licensed under the [MIT License](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html).
 Copyright (c) 2010 Alberto Griggio.
 
-ILAng uses the [smt-switch](https://github.com/stanford-centaur/smt-switch), which is licensed under the [BSD 3-Clause License](https://github.com/stanford-centaur/smt-switch/blob/master/LICENSE).
+ILAng uses the [smt-switch](https://github.com/makaimann/smt-switch.git), which is licensed under the [BSD 3-Clause License](https://github.com/makaimann/smt-switch/blob/master/LICENSE).
 Copyright (c) 2019-2020 the authors.
 
 ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
