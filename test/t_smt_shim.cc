@@ -5,7 +5,8 @@
 #include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
 #include <smt-switch/z3_factory.h>
-#include <smt-switch/z3_sort.h>
+// #include <smt-switch/z3_sort.h>
+#include <smt-switch/z3_solver.h>
 #endif // SMTSWITCH_TEST
 
 #include <ilang/ilang++.h>
@@ -469,6 +470,25 @@ TEST_F(TestSmtShim, DiscreteUsage) {
 
     auto res = solver->check_sat();
     EXPECT_TRUE(res.is_unsat());
+  }
+#endif // SMTSWITCH_TEST
+
+#ifdef SMTSWITCH_TEST
+  { // LiaCvtr
+    auto solver = smt::Z3SolverFactory::create(false);
+    auto lia = LiaCvtr(solver);
+    auto shim = SmtShim(lia);
+
+    // Use SmtShim to gen/add formulas
+    solver->assert_formula(shim.GetShimExpr(a_ult_b.get()));
+    solver->assert_formula(shim.GetShimExpr(a_ugt_b.get()));
+    solver->assert_formula(shim.GetShimExpr(a_eq_b.get()));
+
+    // Use z3's command for checking
+    auto raw = std::static_pointer_cast<smt::Z3Solver>(solver);
+    auto slv = raw->get_z3_solver(); // get_z3_context() also available
+    auto res = slv->check();
+    EXPECT_TRUE(res == z3::unsat);
   }
 #endif // SMTSWITCH_TEST
 }
