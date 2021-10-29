@@ -12,6 +12,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup Toolset
+      run: |
+        scl enable sclo-git212 /bin/bash
+        scl enable devtoolset-8 /bin/bash
+
     - name: Create Build Environment
       run: |
         cmake -E make_directory ${{github.workspace}}/deps
