@@ -51,7 +51,8 @@ source contrib/setup-btor.sh
 
 #build/install smt-switch
 mkdir -p $SRC_DIR/extern/smt-switch/build
-cd $SRC_DIR/extern/smt-switch/build
-cmake .. -DBUILD_Z3=ON -DBUILD_BTOR=ON -DCMAKE_INSTALL_PREFIX=$DEP_DIR
+cd $SRC_DIR/extern/smt-switch
+./configure.sh --static --btor --z3 --prefix=$DEP_DIR
+cd build
 make -j$(nproc)
 make install
