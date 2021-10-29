@@ -28,7 +28,7 @@ option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
 option(ILANG_COVERITY    "Build for Coverity static analysis."              OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries."                           ON)
 option(ILANG_BUILD_INVSYN "Build invariant synthesis feature."               ON)
-option(ILANG_BUILD_SWITCH "Build smt-switch interface."                     OFF)
+option(ILANG_BUILD_SWITCH "Build smt-switch interface."                      ON)
 option(ILANG_BUILD_COSIM "Build QEMU-based co-simulation support."          OFF)
 
 include(CMakeDependentOption)
