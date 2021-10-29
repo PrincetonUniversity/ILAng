@@ -19,6 +19,7 @@ jobs:
       run: cmake -E make_directory ${{runner.workspace}}/deps
 
     - name: Build and Install Dependency
+      uses: actions/checkout@v2
       shell: bash
       working-directory: $GITHUB_WORKSPACE
       run: ./scripts/setup-smtswitch.sh $GITHUB_WORKSPACE ${{runner.workspace}}/deps
