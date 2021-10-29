@@ -15,29 +15,26 @@ jobs:
     - name: Install Dependent Packages
       run: sudo apt install bison flex
 
-    - name: Create Dependency Environment
-      run: cmake -E make_directory ${{runner.workspace}}/deps
+    - name: Create Build Environment
+      run: |
+        cmake -E make_directory ${{github.workspace}}/deps
+        cmake -E make_directory ${{github.workspace}}/build
 
     - name: Build and Install Dependency
-      uses: actions/checkout@v2
       shell: bash
-      working-directory: $GITHUB_WORKSPACE
-      run: ./scripts/setup-smtswitch.sh $GITHUB_WORKSPACE ${{runner.workspace}}/deps
-
-    - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      run: source ${{github.workspace}}/scripts/setup-smtswitch.sh ${{github.workspace}} ${{github.workspace}}/deps
 
     - name: Configure CMake
       shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=${{runner.workspace}}/deps
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=${{github.workspace}}/deps
 
     - name: Build
-      working-directory: ${{runner.workspace}}/build
       shell: bash
+      working-directory: ${{github.workspace}}/build
       run: cmake --build . --config $BUILD_TYPE
 
     - name: Test
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{github.workspace}}/build
       shell: bash
       run: make run_test
