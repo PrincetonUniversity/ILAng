@@ -40,7 +40,7 @@ cd $SRC_DIR/extern/smt-switch/deps
 git clone https://github.com/Z3Prover/z3.git
 cd z3
 git checkout $Z3_VERSION
-python scripts/mk_make.py --staticlib --single-threaded --prefix=$DEP_DIR
+python3 scripts/mk_make.py --staticlib --single-threaded --prefix=$DEP_DIR
 cd build
 make -j$(nproc)
 make install
