@@ -21,7 +21,7 @@ jobs:
     - name: Build and Install Dependency
       shell: bash
       working-directory: $GITHUB_WORKSPACE
-      run: source $GITHUB_WORKSPACE/scripts/setup-smtswitch.sh $GITHUB_WORKSPACE ${{runner.workspace}}/deps
+      run: ./scripts/setup-smtswitch.sh $GITHUB_WORKSPACE ${{runner.workspace}}/deps
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
