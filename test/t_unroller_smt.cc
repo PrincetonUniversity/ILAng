@@ -2,9 +2,12 @@
 /// Unit tests for Unroller using SmtShim
 
 #ifdef SMTSWITCH_TEST
-#include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
 #endif // SMTSWITCH_TEST
+
+#ifdef SMTSWITCH_BTOR
+#include <smt-switch/boolector_factory.h>
+#endif // SMTSWITCH_BTOR
 
 #include <ilang/ila-mngr/u_unroller_smt.h>
 #include <ilang/ila/ast_hub.h>
@@ -96,7 +99,7 @@ TEST_F(TestUnrollerSmt, z3) {
   EXPECT_EQ(res, z3::unsat);
 }
 
-#ifdef SMTSWITCH_TEST
+#ifdef SMTSWITCH_BTOR
 TEST_F(TestUnrollerSmt, btor) {
   auto solver = smt::BoolectorSolverFactory::create(false);
   auto switch_itf = SmtSwitchItf(solver);
@@ -108,7 +111,6 @@ TEST_F(TestUnrollerSmt, btor) {
   auto res = solver->check_sat();
   EXPECT_TRUE(res.is_unsat());
 }
-
-#endif // SMTSWITCH_TEST
+#endif // SMTSWITCH_BTOR
 
 } // namespace ilang

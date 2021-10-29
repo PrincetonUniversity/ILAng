@@ -860,12 +860,13 @@ void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
 void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
 
 #ifdef SMTSWITCH_INTERFACE
-smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
-                             const std::string& suffix) {
-  solver->reset();
+
+smt::Term GetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
+                     const std::string& suffix) {
   auto itf = SmtSwitchItf(solver);
   return itf.GetSmtTerm(expr.get(), suffix);
 }
+
 #endif // SMTSWITCH_INTERFACE
 
 } // namespace ilang

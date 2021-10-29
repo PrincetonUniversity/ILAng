@@ -747,12 +747,12 @@ private:
 
 #ifdef SMTSWITCH_INTERFACE
 
-/// \brief Reset the solver and generate the SMT Term (for smt-switch).
+/// \brief Generate the SMT Term (for smt-switch).
 /// \param[in] solver The SMT solver in smt-switch.
 /// \param[in] expr The target ILA expression.
 /// \param[in] suffix The suffix to add on SMT symbols' name.
-smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
-                             const std::string& suffix = "");
+smt::Term GetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
+                     const std::string& suffix = "");
 
 #endif // SMTSWITCH_INTERFACE
 

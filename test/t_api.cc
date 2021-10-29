@@ -3,6 +3,18 @@
 
 #include <vector>
 
+#ifdef SMTSWITCH_TEST
+#include <smt-switch/smt.h>
+#endif // SMTSWITCH_TEST
+
+#ifdef SMTSWITCH_Z3
+#include <smt-switch/z3_factory.h>
+#endif // SMTSWITCH_Z3
+
+#ifdef SMTSWITCH_BTOR
+#include <smt-switch/boolector_factory.h>
+#endif // SMTSWITCH_BTOR
+
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
 
@@ -580,6 +592,29 @@ TEST(TestApi, UnrollPathFreeWithFunc) {
   EXPECT_EQ(solver.check(), z3::sat);
   solver.add(connect);
   EXPECT_EQ(solver.check(), z3::unsat);
+}
+
+TEST(TestApi, GetSmtTerm) {
+  auto m = Ila("M");
+  auto v = m.NewBvState("var", 8);
+  auto p = ((v + 1) - 1) != v;
+
+  auto CheckViaSolver = [&p](smt::SmtSolver& s) {
+    auto term = GetSmtTerm(s, p);
+    s->assert_formula(term);
+    auto res = s->check_sat();
+    EXPECT_TRUE(res.is_unsat());
+  };
+
+#ifdef SMTSWITCH_BTOR
+  auto s_btor = smt::BoolectorSolverFactory::create(false);
+  CheckViaSolver(s_btor);
+#endif // SMTSWITCH_BTOR
+
+#ifdef SMTSWITCH_Z3
+  auto s_z3 = smt::Z3SolverFactory::create(false);
+  CheckViaSolver(s_z3);
+#endif // SMTSWITCH_Z3
 }
 
 TEST(TestApi, Portable) {
