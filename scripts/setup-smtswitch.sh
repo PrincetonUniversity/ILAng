@@ -27,6 +27,7 @@
 SRC_DIR=$1
 DEP_DIR=$2
 Z3_VERSION=tags/z3-4.8.12
+BTOR_VERSION=tags/3.2.2
 
 # fetch smt-switch
 cd $SRC_DIR
@@ -40,18 +41,27 @@ cd $SRC_DIR/extern/smt-switch/deps
 git clone https://github.com/Z3Prover/z3.git
 cd z3
 git checkout $Z3_VERSION
-python scripts/mk_make.py --staticlib --single-threaded --prefix=$DEP_DIR
+python3 scripts/mk_make.py --staticlib --single-threaded --prefix=$DEP_DIR
 cd build
 make -j$(nproc)
 make install
 
 #fetch/build boolector
-cd $SRC_DIR/extern/smt-switch
-source contrib/setup-btor.sh
+cd $SRC_DIR/extern/smt-switch/deps
+git clone https://github.com/Boolector/boolector.git
+cd boolector
+git checkout $BTOR_VERSION
+./contrib/setup-btor2tools.sh
+./contrib/setup-cadical.sh
+mkdir -p build
+cd build
+cmake .. -DONLY_CADICAL=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+make -j$(nproc)
 
 #build/install smt-switch
 mkdir -p $SRC_DIR/extern/smt-switch/build
-cd $SRC_DIR/extern/smt-switch/build
-cmake .. -DBUILD_Z3=ON -DBUILD_BTOR=ON -DCMAKE_INSTALL_PREFIX=$DEP_DIR
+cd $SRC_DIR/extern/smt-switch
+./configure.sh --static --btor --z3 --prefix=$DEP_DIR
+cd build
 make -j$(nproc)
 make install
