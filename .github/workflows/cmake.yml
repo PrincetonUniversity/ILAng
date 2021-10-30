@@ -1,6 +1,14 @@
 name: CMake
 
-on: [push]
+on: 
+  push: 
+
+  pull_request:
+    branches:
+      - main
+
+  schedule:
+    - cron: '0 9 * * *'
 
 env:
   BUILD_TYPE: Release
@@ -16,17 +24,18 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        cmake -E make_directory ${{github.workspace}}/deps
+        cmake -E make_directory ${{github.workspace}}/deps-src
+        cmake -E make_directory ${{github.workspace}}/deps-bin
         cmake -E make_directory ${{github.workspace}}/build
 
     - name: Build and Install Dependency
       shell: bash
-      run: source ${{github.workspace}}/scripts/setup-smtswitch.sh ${{github.workspace}} ${{github.workspace}}/deps
+      run: source ${{github.workspace}}/scripts/setup-smtswitch.sh ${{github.workspace}}/deps-src ${{github.workspace}}/deps-bin
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake ${{github.workspace}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=${{github.workspace}}/deps
+      run: cmake ${{github.workspace}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=${{github.workspace}}/deps-bin
 
     - name: Build
       shell: bash
@@ -37,3 +46,12 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: make run_test
+
+  clean:
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+    - name: Remove Workspace
+      shell: bash
+      run: rm -rf ${{github.workspace}}

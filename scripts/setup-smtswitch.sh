@@ -26,18 +26,19 @@
 
 SRC_DIR=$1
 DEP_DIR=$2
+SMTSWITCH_VERSION=768ed5d05315d0b652a915adcfbbc7f3e7a4896a
 Z3_VERSION=tags/z3-4.8.12
 BTOR_VERSION=tags/3.2.2
 
 # fetch smt-switch
 cd $SRC_DIR
-git submodule update --init extern/smt-switch
-
-# setup dir for SMT solvers
-mkdir -p $SRC_DIR/extern/smt-switch/deps
+git clone https://github.com/stanford-centaur/smt-switch.git
+cd smt-switch
+git checkout $SMTSWITCH_VERSION
+mkdir -p deps
 
 # fetch/build/install z3
-cd $SRC_DIR/extern/smt-switch/deps
+cd $SRC_DIR/smt-switch/deps
 git clone https://github.com/Z3Prover/z3.git
 cd z3
 git checkout $Z3_VERSION
@@ -47,7 +48,7 @@ make -j$(nproc)
 make install
 
 #fetch/build boolector
-cd $SRC_DIR/extern/smt-switch/deps
+cd $SRC_DIR/smt-switch/deps
 git clone https://github.com/Boolector/boolector.git
 cd boolector
 git checkout $BTOR_VERSION
@@ -59,8 +60,8 @@ cmake .. -DONLY_CADICAL=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 make -j$(nproc)
 
 #build/install smt-switch
-mkdir -p $SRC_DIR/extern/smt-switch/build
-cd $SRC_DIR/extern/smt-switch
+cd $SRC_DIR/smt-switch
+mkdir -p build
 ./configure.sh --static --btor --z3 --prefix=$DEP_DIR
 cd build
 make -j$(nproc)
