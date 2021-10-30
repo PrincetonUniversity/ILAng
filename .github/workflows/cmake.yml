@@ -1,6 +1,14 @@
 name: CMake
 
-on: [push]
+on: 
+  push: 
+
+  pull_request:
+    branches:
+      - main
+
+  schedule:
+    - cron: '0 9 * * *'
 
 env:
   BUILD_TYPE: Release
