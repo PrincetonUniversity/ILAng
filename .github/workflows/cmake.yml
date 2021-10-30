@@ -8,6 +8,8 @@ env:
 jobs:
   build:
     runs-on: self-hosted
+    # OS: CentOs 8 
+    # Packages: bison flex gmp-devel
 
     steps:
     - uses: actions/checkout@v2
