@@ -27,6 +27,7 @@
 SRC_DIR=$1
 DEP_DIR=$2
 Z3_VERSION=tags/z3-4.8.12
+BTOR_VERSION=tags/3.2.2
 
 # fetch smt-switch
 cd $SRC_DIR
@@ -46,8 +47,16 @@ make -j$(nproc)
 make install
 
 #fetch/build boolector
-cd $SRC_DIR/extern/smt-switch
-source contrib/setup-btor.sh
+cd $SRC_DIR/extern/smt-switch/deps
+git clone https://github.com/Boolector/boolector.git
+cd boolector
+git checkout $BTOR_VERSION
+./contrib/setup-btor2tools.sh
+./contrib/setup-cadical.sh
+mkdir -p build
+cd build
+cmake .. -DONLY_CADICAL=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+make -j$(nproc)
 
 #build/install smt-switch
 mkdir -p $SRC_DIR/extern/smt-switch/build
