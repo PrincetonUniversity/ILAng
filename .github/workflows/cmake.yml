@@ -7,13 +7,12 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    # OS: CentOs 8 
+    # Packages: bison flex gmp-devel
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Install Dependent Packages
-      run: sudo apt install bison flex
 
     - name: Create Build Environment
       run: |
@@ -27,14 +26,14 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=${{github.workspace}}/deps
+      run: cmake ${{github.workspace}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=${{github.workspace}}/deps
 
     - name: Build
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake --build . --config $BUILD_TYPE
+      run: make -j$(nproc)
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
       shell: bash
+      working-directory: ${{github.workspace}}/build
       run: make run_test
