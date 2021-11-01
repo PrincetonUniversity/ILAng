@@ -264,7 +264,7 @@ void VlgSglTgtGen_Pono::GenYosysScript(
   write_btor_options += _vtg_config.BtorSingleProperty ? " -s" : "";
 
   ys_script_fout << "read_verilog -sv "
-                  << os_portable_append_dir(_output_path, top_file_name)
+                  << top_file_name // os_portable_append_dir(_output_path, top_file_name)
                   << std::endl;
   ys_script_fout << "prep -top " << top_mod_name << std::endl;
 

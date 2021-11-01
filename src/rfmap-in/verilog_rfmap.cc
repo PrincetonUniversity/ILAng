@@ -99,6 +99,8 @@ RfExpr ParseRfMapExpr(const std::string& in) {
 }
 
 RfExpr ParseRfMapExprJson(nlohmann::json& in) {
+  if(in.is_null())
+    return ParseRfMapExpr("1'b1 == 1'b1"); // true
   return ParseRfMapExpr(in.get<std::string>());
 }
 
@@ -1071,7 +1073,7 @@ VerilogRefinementMap::VerilogRefinementMap(
                 ENSURE(p.is_string(), "`refs` field should be a list of string");
                 auto var_name = p.get<std::string>();
                 ILA_WARN_IF(IN(var_name, mnt_ref.var_uses))
-                    << "`" + var_name + "` has been declared already";
+                    << "`" + var_name + "` has been declared already in `refs`";
                 mnt_ref.var_uses.insert(p.get<std::string>());
               }
             } // if ref_field
