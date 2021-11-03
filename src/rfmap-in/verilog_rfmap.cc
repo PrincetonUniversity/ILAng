@@ -420,7 +420,7 @@ std::string JsonRfMapParseVarDefs(
 std::string JsonRfmapParsePhaseTracker(PhaseTracker& tracker,
                                        nlohmann::json& monitor,
                                        const std::string& tracker_name) {
-  auto* event_alias = GetJsonSection(monitor, {"event-alias"});
+  auto* event_alias = GetJsonSection(monitor, {"event-alias", "signal-alias"});
   auto* rules = GetJsonSection(monitor, {"rules"});
   auto* aux_var = GetJsonSection(monitor, {"aux-var"});
   ERRIF(rules == NULL, "`phase tracker` needs `rules` field");
@@ -616,7 +616,11 @@ VerilogRefinementMap::VerilogRefinementMap(
     for (auto& i : state_mapping->items()) {
       IlaVarMapping svmp;
       auto sname = i.key(); // ila state name
-      if (i.value().is_string()) {
+      if (i.value().is_null()) {
+        svmp.type = IlaVarMapping::StateVarMapType::SINGLE;
+        svmp.single_map.single_map = ParseRfMapExprJson(i.value()); // 1'b1 == 1'b1
+      }
+      else if (i.value().is_string()) {
         svmp.type = IlaVarMapping::StateVarMapType::SINGLE;
         svmp.single_map.single_map = ParseRfMapExprJson(i.value());
       } else if (i.value().is_object()) {
@@ -886,21 +890,25 @@ VerilogRefinementMap::VerilogRefinementMap(
               "Expect `functions` to be map:name->list of invocation(object)");
           auto* result = GetJsonSection(elem, {"result"});
           auto* arg = GetJsonSection(elem, {"arg", "args"});
-          ENSURE(result && arg,
+          ENSURE(result,
                  "Expect invocation object has `result` and `arg` field");
           ENSURE(result->is_string(),
                  "Expect type string in `result` field of invocation object");
+          if(arg) {
           ENSURE(
               arg->is_array(),
               "Expect type list(string) in `arg` field of invocation object");
+          }
           apply_obj.func_applications.push_back(
               UninterpretedFunctionApplication::Apply());
           auto& curr_invocation = apply_obj.func_applications.back();
           curr_invocation.result_map = ParseRfMapExprJson(*result);
-          std::vector<std::string> argList =
-              arg->get<std::vector<std::string>>();
-          for (const auto& arg : argList)
-            curr_invocation.arg_map.push_back(ParseRfMapExpr(arg));
+          if(arg) {
+            std::vector<std::string> argList =
+                arg->get<std::vector<std::string>>();
+            for (const auto& arg : argList)
+              curr_invocation.arg_map.push_back(ParseRfMapExpr(arg));
+          }
         }
       } // for each invocation
     }   // if func_section
@@ -1168,6 +1176,14 @@ VerilogRefinementMap::VerilogRefinementMap(
       if (width_anno && width_anno->is_object()) {
         for (auto&& nw : width_anno->items()) {
           width_info.insert(std::make_pair(nw.key(), nw.value().get<int>()));
+          ERRIF(nw.value().get<int>() <= 0 , (nw.key() + "'s width <=0"));
+        }
+      }
+      auto* range_anno = GetJsonSection(*annotation, {"range"});
+      if (range_anno && range_anno->is_object()) {
+        for (auto&& nw : range_anno->items()) {
+          range_info.insert(std::make_pair(nw.key(), nw.value().get<int>()));
+          ERRIF(nw.value().get<int>() <= 0 , (nw.key() + "'s range <=0"));
         }
       }
     } // end of annotation

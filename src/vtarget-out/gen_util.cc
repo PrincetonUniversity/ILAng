@@ -187,7 +187,9 @@ VlgSglTgtGen::VarTypeCheckForRfExprParsing(const std::string& vname) {
   } // else if
   if (StrStartsWith(vname, "RTL.")) {
     ILA_ERROR_IF(!TryFindVlgState(vname)) << "Cannot find rtl var: " << vname;
-    auto sig_info = vlg_info_ptr->get_signal(vname);
+    auto sig_info = vlg_info_ptr->get_signal(vname,
+      refinement_map.width_info,
+      refinement_map.range_info);
     auto aw_range = sig_info.get_addr_range_size();
     auto dw = sig_info.get_width();
 

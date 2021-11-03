@@ -221,7 +221,7 @@ TEST(TestVerilogAnalysis, RangeAnalysisOverwriteWidth) {
       EXPECT_EQ(va.get_signal("m1.i1.sig").get_width(), 2);
 
       std::map<std::string,int> width_overwrite_map({{"m1.i1.sig", 5}});
-      EXPECT_EQ(va.get_signal("m1.i1.sig", width_overwrite_map).get_width(), 5);
+      EXPECT_EQ(va.get_signal("m1.i1.sig", width_overwrite_map, {}).get_width(), 5);
 
       { // no overwrite case
         VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
@@ -256,7 +256,7 @@ TEST(TestVerilogAnalysis, RangeAnalysisOverwriteWidth) {
       EXPECT_EQ(va.get_signal("m1.in1").get_width(), 4);
 
       std::map<std::string,int> width_overwrite_map({{"m1.in1", 5}});
-      EXPECT_EQ(va.get_signal("m1.in1", width_overwrite_map).get_width(), 5);
+      EXPECT_EQ(va.get_signal("m1.in1", width_overwrite_map, {}).get_width(), 5);
 
       { // no overwrite case
         VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
@@ -279,7 +279,7 @@ TEST(TestVerilogAnalysis, RangeAnalysisOverwriteWidth) {
 
 
       std::map<std::string,int> width_overwrite_map3({{"m1.in2", 128}});
-      EXPECT_EQ(va.get_signal("m1.in2", width_overwrite_map3).get_width(), 128);
+      EXPECT_EQ(va.get_signal("m1.in2", width_overwrite_map3, {}).get_width(), 128);
 
 
       { // overwrite case

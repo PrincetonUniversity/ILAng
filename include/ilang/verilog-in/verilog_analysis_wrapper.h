@@ -247,7 +247,8 @@ public:
   SignalInfoBase get_signal(const std::string& net_name) const;
   /// Find a signal (and use the width info, if width is unknown)
   SignalInfoBase get_signal(const std::string& net_name,
-                            const std::map<std::string, int>& width_info) const;
+                            const std::map<std::string, int>& width_info,
+                            const std::map<std::string, int>& range_info) const;
   /// whether this analyzer is in bad state
   bool in_bad_state() const;
 

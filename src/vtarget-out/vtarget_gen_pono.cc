@@ -549,7 +549,9 @@ void VlgSglTgtGen_Pono::Export_modify_verilog() {
   VerilogModifier vlg_mod(vlg_info_ptr,
                           static_cast<VerilogModifier::port_decl_style_t>(
                               _vtg_config.PortDeclStyle),
-                          _vtg_config.PonoAddKeep, refinement_map.width_info);
+                          _vtg_config.PonoAddKeep, 
+                          refinement_map.width_info,
+                          refinement_map.range_info);
 
   for (auto&& wn_extraw : rtl_extra_wire) {
     ILA_CHECK(StrStartsWith(wn_extraw.first, "RTL__DOT__"));

@@ -232,6 +232,8 @@ struct VerilogRefinementMap {
   // //
   std::map<std::string, int>
       width_info; // this is needed in case our width inference failed
+  std::map<std::string, int>
+      range_info; // this is needed in case our width inference failed
 
   // member function : return true if checking passed
   bool SelfCheckField() const;

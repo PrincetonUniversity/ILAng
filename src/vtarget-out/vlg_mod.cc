@@ -14,9 +14,11 @@ namespace ilang {
 /// Constructor: do nothing
 VerilogModifier::VerilogModifier(
     VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style,
-    bool add_keep_or_not, const std::map<std::string, int>& _sup_width_info)
+    bool add_keep_or_not, const std::map<std::string, int>& _sup_width_info,
+    const std::map<std::string, int>& _sup_range_info)
     : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style),
-      _add_keep_or_not(add_keep_or_not), sup_width_info(_sup_width_info) {}
+      _add_keep_or_not(add_keep_or_not), sup_width_info(_sup_width_info),
+      sup_range_info(_sup_range_info) {}
 /// Destructor: do nothing
 VerilogModifier::~VerilogModifier() {}
 
@@ -150,7 +152,7 @@ void VerilogModifier::FinishRecording() {
 
 /// record the name to add a keep there
 void VerilogModifier::RecordKeepSignalName(const std::string& vlg_sig_name) {
-  auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_sig_name);
+  auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_sig_name,sup_width_info,sup_range_info );
   auto loc = vlg_info_ptr->name2loc(vlg_sig_name);
 
   // check for repetition:
