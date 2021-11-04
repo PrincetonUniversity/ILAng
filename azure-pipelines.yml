@@ -147,7 +147,7 @@ jobs:
       cd vexpparser
       md build
       cd build
-      cmake .. -DCMAKE_CXX_FLAGS=/I\ %ProgramData%\\chocolatey\\lib\\winflexbison3\\tools
+      cmake .. -DFLEXLEXER_INCLUDE_PATH=c:\ProgramData\chocolatey\lib\winflexbison3\tools\
       cmake --build . --target install
     displayName: 'vexpparser'
 
