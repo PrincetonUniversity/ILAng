@@ -37,7 +37,9 @@ TEST(TestVerilogMod, Modify) {
   VerilogInfo va(VerilogInfo::path_vec_t(), VerilogInfo::path_vec_t({fn}),
                  "m1");
 
-  VerilogModifier vm(&va, VerilogModifier::port_decl_style_t::AUTO, true, {}, {});
+  std::map<std::string, int> empty_annotation;
+  VerilogModifier vm(&va, VerilogModifier::port_decl_style_t::AUTO,
+    true, empty_annotation, empty_annotation);
 
   vm.RecordKeepSignalName("m1.__COUNTER_start__n3");
   vm.RecordKeepSignalName("m1.__ILA_proc_decode_of_Add__");
