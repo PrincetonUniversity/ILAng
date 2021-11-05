@@ -858,14 +858,13 @@ unsigned range_to_width(ast_range* range, const std::string& full_name,
   unsigned rr = (unsigned)eval.Eval(right);
   unsigned analyzed_width = std::max(lr, rr) - std::min(lr, rr) + 1;
 
-  // this will provide width when we cannot get width
-  // or there is error, o.w. we will trust the width from
-  if (width > 0) {
-    ILA_WARN_IF(!eval.error())
-        << "Overwriting width of signal: " << full_name << " to " << width
-        << "(w=" << analyzed_width << " by analysis)";
-    return width;
-  }
+  // overwriting will end this procedure first.
+  // if (width > 0) {
+  //  ILA_WARN_IF(!eval.error())
+  //      << "Overwriting width of signal: " << full_name << " to " << width
+  //      << "(w=" << analyzed_width << " by analysis)";
+  //  return width;
+  //}
 
   return analyzed_width;
 }
