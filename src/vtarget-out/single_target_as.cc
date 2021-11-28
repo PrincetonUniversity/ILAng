@@ -244,20 +244,28 @@ void VlgSglTgtGen::
 
   if (is_jg) {
     for (auto& dspt_aspt : all_assumptions) {
-      for (auto& aspt : dspt_aspt.second)
+      for (auto& aspt : dspt_aspt.second) {
+        ILA_ASSERT(!rfmap::RfExprAstUtility::HasQuantifier(aspt));
         add_a_direct_assumption(GetVlg(aspt), dspt_aspt.first);
+      }
     }
     for (auto& dspt_asst : all_assertions) {
-      for (auto& asst : dspt_asst.second)
+      for (auto& asst : dspt_asst.second) {
+        ILA_ASSERT(!rfmap::RfExprAstUtility::HasQuantifier(asst));
         add_a_direct_assertion(GetVlg(asst), dspt_asst.first);
+      }
     }
     for (auto& dspt_asst : all_sanity_assertions) {
-      for (auto& asst : dspt_asst.second)
+      for (auto& asst : dspt_asst.second) {
+        ILA_ASSERT(!rfmap::RfExprAstUtility::HasQuantifier(asst));
         add_a_direct_sanity_assertion(GetVlg(asst), dspt_asst.first);
+      }
     }
     for (auto& dspt_cvrs : all_covers) {
-      for (auto& cvr : dspt_cvrs.second)
+      for (auto& cvr : dspt_cvrs.second) {
+        ILA_ASSERT(!rfmap::RfExprAstUtility::HasQuantifier(cvr));
         add_a_direct_cover_check(GetVlg(cvr), dspt_cvrs.first);
+      }
     }
 
 
@@ -265,6 +273,7 @@ void VlgSglTgtGen::
       const auto& vn = std::get<1>(dspt_vn_rfexpr_eq);
       const auto& eq = std::get<3>(dspt_vn_rfexpr_eq);
       // we know it is eq(vn, rhs);
+      ILA_ASSERT(!rfmap::RfExprAstUtility::HasQuantifier(eq));
       vlg_wrapper.add_assign_stmt(vn, GetVlg(eq->get_child().at(1)));
     }
     return;
@@ -326,7 +335,8 @@ void VlgSglTgtGen::
 
     ILA_DLOG("VTG.AddWireEq") << GetVlg(eq);
 
-    if (rfmap::RfExprAstUtility::HasArrayVar(eq)) {
+    if (rfmap::RfExprAstUtility::HasArrayVar(eq) ||
+        rfmap::RfExprAstUtility::HasQuantifier(eq) ) {
       ILA_ERROR_IF(!_vtg_config.YosysSmtArrayForRegFile)
         << "Requiring array sort in Yosys when generating"
         << " properties, please enable YosysSmtArrayForRegFile";
@@ -340,7 +350,8 @@ void VlgSglTgtGen::
     for (const auto& aspt : dspt_aspt.second) {
       ILA_DLOG("VTG.AddAssume") << GetVlg(aspt);
 
-      if (rfmap::RfExprAstUtility::HasArrayVar(aspt)) {
+      if (rfmap::RfExprAstUtility::HasArrayVar(aspt) || 
+          rfmap::RfExprAstUtility::HasQuantifier(aspt) ) {
         ILA_ERROR_IF(!_vtg_config.YosysSmtArrayForRegFile)
           << "Requiring array sort in Yosys when generating"
           << " properties, please enable YosysSmtArrayForRegFile";
@@ -354,7 +365,8 @@ void VlgSglTgtGen::
     for (const auto& asst : dspt_asst.second) {
       ILA_DLOG("VTG.AddAssert") << GetVlg(asst);
 
-      if (rfmap::RfExprAstUtility::HasArrayVar(asst))
+      if (rfmap::RfExprAstUtility::HasArrayVar(asst) || 
+          rfmap::RfExprAstUtility::HasQuantifier(asst))
         add_smt_assertion(asst, dspt_asst.first);
       else
         add_a_direct_assertion(GetVlg(asst), dspt_asst.first);
@@ -366,6 +378,9 @@ void VlgSglTgtGen::
       ILA_CHECK(!rfmap::RfExprAstUtility::HasArrayVar(asst))
           << "Implementation bug: sanity checking assertion should not contain "
              "arrays";
+      ILA_CHECK(!rfmap::RfExprAstUtility::HasQuantifier(asst))
+          << "Implementation bug: sanity checking assertion should not contain "
+             "quantifier";
 
       add_a_direct_sanity_assertion(GetVlg(asst), dspt_asst.first);
     }
@@ -375,6 +390,9 @@ void VlgSglTgtGen::
       ILA_CHECK(!rfmap::RfExprAstUtility::HasArrayVar(cvr))
           << "Implementation bug: cover checks should not contain "
              "arrays";
+      ILA_CHECK(!rfmap::RfExprAstUtility::HasQuantifier(cvr))
+          << "Implementation bug: cover checks should not contain "
+             "quantifier";
 
       add_a_direct_cover_check(GetVlg(cvr), dspt_cvrs.first);
     }

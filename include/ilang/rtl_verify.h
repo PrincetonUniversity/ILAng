@@ -72,6 +72,8 @@ namespace ilang {
     // ----------- Options for Pono settings -------------- //
     /// Whether to force the instruction check to start from reset state
     bool ForceInstCheckReset;
+    /// Whether to always instiantiate quantifers in refinement
+    bool ForceQuantifierInstantiationInRfExpr;
     /// If true, will generate a separate check that cover the 
     /// the commit condition
     bool CheckInstrCommitSatisfiable;
@@ -214,6 +216,7 @@ namespace ilang {
 
           // ----------- Options for Pono settings -------------- //
           ForceInstCheckReset(false), 
+          ForceQuantifierInstantiationInRfExpr(false),
           CheckInstrCommitSatisfiable(false),
           PortDeclStyle(PortDeclStyleT::AUTO),
           PonoVcdOutputName("cex.vcd"), PonoAddKeep(false), PonoEngine("ind"),

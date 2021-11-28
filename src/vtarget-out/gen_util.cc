@@ -305,9 +305,15 @@ VlgSglTgtGen::CreateVarReplacement(const rfmap::RfVar& var,
 
 rfmap::RfExpr VlgSglTgtGen::ReplExpr(const rfmap::RfExpr& in) {
   bool replace_dot = _backend != ModelCheckerSelection::JASPERGOLD;
+  bool expand_quantifier = _backend != ModelCheckerSelection::PONO ||
+    _vtg_config.ForceQuantifierInstantiationInRfExpr;
+
+  rfmap::RfExpr rfin (in);
+  if(expand_quantifier)
+    rfin = rfmap::RfExprAstUtility::FindExpandQuantifier(in);
 
   std::unordered_map<std::string, rfmap::RfVar> vars;
-  refinement_map.GetVars(in, vars);
+  refinement_map.GetVars(rfin, vars);
   for (const auto& v : vars) {
     rfmap::VarReplacement* repl = refinement_map.CheckReplacement(v.first);
     if (repl == NULL) {
@@ -326,7 +332,7 @@ rfmap::RfExpr VlgSglTgtGen::ReplExpr(const rfmap::RfExpr& in) {
         << repl->origvar->to_verilog() << " --> " << repl->newvar->to_verilog();
   }
 
-  auto new_node = refinement_map.ReplacingRtlIlaVar(in, {});
+  auto new_node = refinement_map.ReplacingRtlIlaVar(rfin, {});
   // AnnotateType requires all
   refinement_map.AnnotateType(new_node, {});
   return new_node;
