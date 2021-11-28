@@ -87,7 +87,8 @@ public:
 public:
   /// Annotate the type of a refinement expression
   /// and this process will be recursive
-  static void AnnotateType(const RfExpr& inout);
+  static void AnnotateType(const RfExpr& inout,
+    const std::map<std::string,int> & quantified_var_type);
 
 protected:
   // internal use only, does not do recursion itself
@@ -97,9 +98,27 @@ protected:
 }; // struct TypeAnalysisUtility
 
 class RfExprAstUtility {
+private:
+  /// will only replace the free var, so we need to keep track
+  /// if some var inside are quantified, in that case, should not mask 
+  static RfExpr ReplaceQuantifiedVar(const std::string &n,
+    const RfExpr & in, const RfExpr & newexpr,
+    const std::set<std::string> & quantified_var);
+
+  /// expand the current one, should be invoked from the leaf node
+  static RfExpr QuantifierInstantiation(const RfExpr& in);
+
 public:
-  static bool HasArrayVar(const RfExpr& in,
-                          std::map<std::string, RfVar>& array_var);
+  /// determine if a rf expr has array variable in it
+  static bool HasArrayVar(const RfExpr& in);
+  /// determine if a rf expr has quantifier in it
+  static bool HasQuantifier(const RfExpr& in);
+  ///  for pono, this will cause to use text
+  /// FORALL -> /\ /\ /\ ...  (JasperGold)
+  /// EXISTS -> \/ \/ \/ ...
+  static RfExpr FindExpandQuantifier(const RfExpr& in);
+
+
   /// determine if a rf expr is a boolean expr
   static bool IsLastLevelBooleanOp(const RfExpr& in);
   /// get the variables from a expression
@@ -110,6 +129,10 @@ public:
   /// because we will be creating new rfexpr
   static RfExpr TraverseRfExpr(const RfExpr& inout,
                              std::function<RfExpr(const RfExpr& inout)> func);
+  /// will modify where the pointer is pointing to
+  /// because we will be creating new rfexpr
+  static void TraverseRfExprNoModify(const RfExpr& inout,
+                             std::function<void(const RfExpr& inout)> func);
   /// check to make sure no null ptr
   static void RfMapNoNullNode(const RfExpr& in);
 };
@@ -118,7 +141,7 @@ struct RfExprVarReplUtility {
 
 public:
   /// used by vtarget_gen to replace rtl/ila vars
-  RfExpr ReplacingRtlIlaVar(const RfExpr& in);
+  RfExpr ReplacingRtlIlaVar(const RfExpr& in, const std::set<std::string> & quantified_vars);
 
   /// Register internal variables and also the mapping
   void RegisterInternalVariableWithMapping(const std::string& n,
@@ -187,7 +210,7 @@ struct TypedVerilogRefinementMap : public VerilogRefinementMap,
   // (1) value holder/delay : width determination
   //                   will use all_var_def_types & typechecker
   // (2) vlg-monitor replace-var
-  RfMapVarType TypeInferTravserRfExpr(const RfExpr& in);
+  RfMapVarType TypeInferTravserRfExpr(const RfExpr& in, const std::map<std::string, int> local_var_def);
 
 protected:
   // used in TypedVerilogRefinementMap::TypeInferTravserRfExpr

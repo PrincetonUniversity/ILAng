@@ -326,9 +326,9 @@ rfmap::RfExpr VlgSglTgtGen::ReplExpr(const rfmap::RfExpr& in) {
         << repl->origvar->to_verilog() << " --> " << repl->newvar->to_verilog();
   }
 
-  auto new_node = refinement_map.ReplacingRtlIlaVar(in);
+  auto new_node = refinement_map.ReplacingRtlIlaVar(in, {});
   // AnnotateType requires all
-  refinement_map.AnnotateType(new_node);
+  refinement_map.AnnotateType(new_node, {});
   return new_node;
 }
 

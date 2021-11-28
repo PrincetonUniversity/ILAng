@@ -43,7 +43,8 @@ static std::vector<std::string> voperator_str_smt = {
     /*Placeholder*/
     "MK_CONST", "MK_VAR",
 
-    "#notsupported" // delay
+    "#notsupported", // delay
+    "#special", "#special" // forall and exist
 };
 
 static RfMapVarType get_type(const RfExpr& in) {
@@ -436,6 +437,21 @@ std::string RfExpr2Smt::to_smt2(const RfExpr& in, SmtType expected_type) {
 
     return type_convert(expected_type, SmtType(parent_tp, false), ret);
   }
+
+  if(op_ == verilog_expr::voperator::FORALL || op_ == verilog_expr::voperator::EXIST)  {
+    ILA_ASSERT(in->get_child_cnt() == 1);
+    ILA_ASSERT(in->get_str_parameter().size() == 1);
+    ILA_ASSERT(in->get_parameter().size() == 1);
+    const std::string & qvar = in->get_str_parameter().at(0);
+    auto width = in->get_parameter().at(0);
+
+    std::string c1 =
+        to_smt2(child_.at(0), SmtType(get_type(child_.at(0)), true));
+    std::string quantifier = op_ == verilog_expr::voperator::FORALL ? "forall" : "exists";
+    std::string ret = "(" + quantifier + " ((" + qvar + " (_ BitVec " + std::to_string(width) + "))) " + c1 + ")";
+    return type_convert(expected_type, SmtType(), ret); // convert bool : SmtType() to expected type
+  }
+
   throw verilog_expr::VexpException(
       verilog_expr::ExceptionCause::UntranslatedSmtlib2);
 

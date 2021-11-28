@@ -443,7 +443,7 @@ void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
       auto vref_node = rfmap::VerilogRefinementMap::ParseRfExprFromString(vref);
       auto new_name = mname + "_auxvar" + std::to_string(idx++);
 
-      auto tp = refinement_map.TypeInferTravserRfExpr(vref_node);
+      auto tp = refinement_map.TypeInferTravserRfExpr(vref_node, {});
 
       ILA_ERROR_IF(tp.is_unknown())
           << "Cannot determine width of " << vref << " in monitor " << mname;

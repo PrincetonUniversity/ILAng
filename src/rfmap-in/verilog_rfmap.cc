@@ -421,8 +421,8 @@ std::string JsonRfmapParsePhaseTracker(PhaseTracker& tracker,
                                        nlohmann::json& monitor,
                                        const std::string& tracker_name) {
   auto* event_alias = GetJsonSection(monitor, {"event-alias", "signal-alias"});
-  auto* rules = GetJsonSection(monitor, {"rules"});
-  auto* aux_var = GetJsonSection(monitor, {"aux-var"});
+  auto* rules = GetJsonSection(monitor, {"rules","rule", "phase", "phases", "stage", "stages"});
+  auto* aux_var = GetJsonSection(monitor, {"aux-var", "def", "defs", "var-def", "var-defs"});
   ERRIF(rules == NULL, "`phase tracker` needs `rules` field");
   if (event_alias) {
     ERRIF(!event_alias->is_object(), "`event-alias` expects map:name->expr");

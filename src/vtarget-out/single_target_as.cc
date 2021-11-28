@@ -326,8 +326,7 @@ void VlgSglTgtGen::
 
     ILA_DLOG("VTG.AddWireEq") << GetVlg(eq);
 
-    std::map<std::string, rfmap::RfVar> array_var;
-    if (rfmap::RfExprAstUtility::HasArrayVar(eq, array_var)) {
+    if (rfmap::RfExprAstUtility::HasArrayVar(eq)) {
       ILA_ERROR_IF(!_vtg_config.YosysSmtArrayForRegFile)
         << "Requiring array sort in Yosys when generating"
         << " properties, please enable YosysSmtArrayForRegFile";
@@ -341,8 +340,7 @@ void VlgSglTgtGen::
     for (const auto& aspt : dspt_aspt.second) {
       ILA_DLOG("VTG.AddAssume") << GetVlg(aspt);
 
-      std::map<std::string, rfmap::RfVar> array_var;
-      if (rfmap::RfExprAstUtility::HasArrayVar(aspt, array_var)) {
+      if (rfmap::RfExprAstUtility::HasArrayVar(aspt)) {
         ILA_ERROR_IF(!_vtg_config.YosysSmtArrayForRegFile)
           << "Requiring array sort in Yosys when generating"
           << " properties, please enable YosysSmtArrayForRegFile";
@@ -356,8 +354,7 @@ void VlgSglTgtGen::
     for (const auto& asst : dspt_asst.second) {
       ILA_DLOG("VTG.AddAssert") << GetVlg(asst);
 
-      std::map<std::string, rfmap::RfVar> array_var;
-      if (rfmap::RfExprAstUtility::HasArrayVar(asst, array_var))
+      if (rfmap::RfExprAstUtility::HasArrayVar(asst))
         add_smt_assertion(asst, dspt_asst.first);
       else
         add_a_direct_assertion(GetVlg(asst), dspt_asst.first);
@@ -366,8 +363,7 @@ void VlgSglTgtGen::
 
   for (const auto& dspt_asst : all_sanity_assertions) {
     for (const auto& asst : dspt_asst.second) {
-      std::map<std::string, rfmap::RfVar> array_var;
-      ILA_CHECK(!rfmap::RfExprAstUtility::HasArrayVar(asst, array_var))
+      ILA_CHECK(!rfmap::RfExprAstUtility::HasArrayVar(asst))
           << "Implementation bug: sanity checking assertion should not contain "
              "arrays";
 
@@ -376,8 +372,7 @@ void VlgSglTgtGen::
   }
   for (const auto& dspt_cvrs : all_covers) {
     for (const auto& cvr : dspt_cvrs.second) {
-      std::map<std::string, rfmap::RfVar> array_var;
-      ILA_CHECK(!rfmap::RfExprAstUtility::HasArrayVar(cvr, array_var))
+      ILA_CHECK(!rfmap::RfExprAstUtility::HasArrayVar(cvr))
           << "Implementation bug: cover checks should not contain "
              "arrays";
 

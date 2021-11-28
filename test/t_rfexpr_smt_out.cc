@@ -28,20 +28,23 @@ public:
 			newv->set_annotation(newtp_ptr);
 			repl.RegisterInternalVariableWithMapping(v.first, rfmap::VarReplacement(v.second, newv));
 		}
-		return repl.ReplacingRtlIlaVar(inout);
+		return repl.ReplacingRtlIlaVar(inout, {});
 	}
 };
 
-#define PRINT_SMT(s, b) do { \
+#define PRINT_SMT(s, b, expand) do { \
 	std::string rfstr = (s); \
 	auto rfexpr = rfmap::VerilogRefinementMap::ParseRfExprFromString(rfstr); \
+	if(expand) rfexpr = rfmap::RfExprAstUtility::FindExpandQuantifier(rfexpr); \
 	rfexpr = TypeVars::GiveVarTheirTypes(rfexpr, check_var_type); \
-	annotator.AnnotateType(rfexpr); \
+	annotator.AnnotateType(rfexpr, {}); \
 	ILA_DLOG("SMTOUT.TEST") << rfmap::RfExpr2Smt::to_smt2(rfexpr, \
 		(b) ? rfmap::SmtType() : \
 		      rfmap::SmtType( (rfexpr->get_annotation<rfmap::TypeAnnotation>())->type, false )) \
 		<< std::endl; \
 } while(0)
+
+//
 
 TEST(TestRfexpr, ToSmt) {
   // 1. construct var to rf_var_type map
@@ -68,15 +71,28 @@ TEST(TestRfexpr, ToSmt) {
   	};
   
   rfmap::TypeAnalysisUtility annotator;
-
-
-	PRINT_SMT("a[4] == b[4]" , true); // should be (extract)
-	PRINT_SMT("a[5:4] + c[4:3] != array1[a][2:1]" , true); // extract and select
-	PRINT_SMT(" c ? array1 : array2 " , false); // should handle array well
-	PRINT_SMT(" c == 1'b1? array1 : array2 " , false); // should be able to convert
-	PRINT_SMT(" array3[b+1] " , false); // should set the right type of 1
-	PRINT_SMT(" a+b == c " , true); // should expand b, c
-
+  bool expand = false;
+  {
+	PRINT_SMT("a[4] == b[4]" , true, expand); // should be (extract)
+	PRINT_SMT("a[5:4] + c[4:3] != array1[a][2:1]" , true, expand); // extract and select
+	PRINT_SMT(" c ? array1 : array2 " , false, expand); // should handle array well
+	PRINT_SMT(" c == 1'b1? array1 : array2 " , false, expand); // should be able to convert
+	PRINT_SMT(" array3[b+1] " , false, expand); // should set the right type of 1
+	PRINT_SMT(" a+b == c " , true, expand); // should expand b, c
+	PRINT_SMT(" $forall(i:bv16 , array1[i+a] == array2[i]) " , true, expand); // should expand b, c
+	PRINT_SMT(" $exist(i:bv8 , array1[array3[i]] == array2[{8'd0, i}])" , true, expand); // should expand b, c
+  }
+  expand = true;
+  {
+	PRINT_SMT("a[4] == b[4]" , true, expand); // should be (extract)
+	PRINT_SMT("a[5:4] + c[4:3] != array1[a][2:1]" , true, expand); // extract and select
+	PRINT_SMT(" c ? array1 : array2 " , false, expand); // should handle array well
+	PRINT_SMT(" c == 1'b1? array1 : array2 " , false, expand); // should be able to convert
+	PRINT_SMT(" array3[b+1] " , false, expand); // should set the right type of 1
+	PRINT_SMT(" a+b == c " , true, expand); // should expand b, c
+	PRINT_SMT(" $forall(i:bv2 , array1[{ 14'd0, i}+a] == array2[{ 14'd0, i}]) " , true, expand); // should expand b, c
+	PRINT_SMT(" $exist(i:bv3 , array1[array3[{5'd0,i}]] == array2[{13'd0, i}])" , true, expand); // should expand b, c
+  }
 } // TEST(TestRfexpr, ToSmt)
 
 } // namespace ilang
