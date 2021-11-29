@@ -402,6 +402,53 @@ TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
   vg.GenerateTargets();
 }
 
+
+TEST(TestVlgTargetGen, MemoryForallEqualPono) {
+  RtlVerifyConfig vtg_cfg;
+
+  auto ila_model = MemorySwap::BuildSimpleLargeArray();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                       // no include
+      {dirName + "smallarray.v"},     // vlog files
+      "top",                  // top_module_name
+      dirName + "vmap-forall.json", // variable mapping
+      dirName + "cond-forall.json", // cond path
+      dirName + "large_small_forall/",    // output path
+      ila_model.get(),
+      ModelCheckerSelection::PONO,
+      vtg_cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
+TEST(TestVlgTargetGen, MemoryForallEqualJg) {
+  RtlVerifyConfig vtg_cfg;
+
+  auto ila_model = MemorySwap::BuildSimpleLargeArray();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                       // no include
+      {dirName + "smallarray.v"},     // vlog files
+      "top",                  // top_module_name
+      dirName + "vmap-forall.json", // variable mapping
+      dirName + "cond-forall.json", // cond path
+      dirName + "large_small_forall_jg/",    // output path
+      ila_model.get(),
+      ModelCheckerSelection::JASPERGOLD,
+      vtg_cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
+
+
 TEST(TestVlgTargetGen, UndetValue) {
   auto ila_model = UndetVal::BuildModel();
 

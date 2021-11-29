@@ -849,7 +849,8 @@ bool RfExprAstUtility::IsLastLevelBooleanOp(const RfExpr& in) {
       verilog_expr::voperator::C_EQ,  verilog_expr::voperator::L_EQ,
       verilog_expr::voperator::C_NEQ, verilog_expr::voperator::L_NEQ,
       verilog_expr::voperator::L_NEG, verilog_expr::voperator::L_AND,
-      verilog_expr::voperator::L_OR};
+      verilog_expr::voperator::L_OR,  verilog_expr::voperator::FORALL,
+      verilog_expr::voperator::EXIST};
 
   if (in->is_constant() || in->is_var())
     return false;

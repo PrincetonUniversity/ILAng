@@ -31,6 +31,31 @@ Ila MemorySwap::BuildModel() {
 }
 
 
+Ila MemorySwap::BuildSimpleLargeArray() {
+  auto ila = Ila("LargeArray");
+  ila.SetValid(BoolConst(true));
+  auto wen  = ila.NewBvInput("wen",  1);
+  auto ren  = ila.NewBvInput("ren",  1);
+  auto addr = ila.NewBvInput("addr", 4);
+  auto data = ila.NewBvInput("data", 8);
+  auto odata = ila.NewBvState("odata", 8);
+
+  auto array = ila.NewMemState("array", 4, 8);
+
+  {
+    auto WRITE = ila.NewInstr("WRITE");
+    WRITE.SetDecode(wen == 1);
+    WRITE.SetUpdate(array,Store(array, addr,data));
+  }
+
+  {
+    auto READ = ila.NewInstr("READ");
+    READ.SetDecode(ren == 1);
+    READ.SetUpdate(odata, Load(array, addr));
+  }
+  return ila;
+}
+
 Ila MemorySwap::BuildSimpleSwapModel() {
   // build the ila
   auto memswap = Ila("MemorySwap");
