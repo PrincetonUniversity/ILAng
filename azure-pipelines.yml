@@ -55,28 +55,6 @@ jobs:
       ./test/unit_tests
     displayName: 'build'
 
-- job: Ubuntu_1604_LTS
-  pool:
-    vmImage: 'ubuntu-16.04'
-  steps:
-  - script: |
-      sudo apt-get update
-      sudo apt-get install bison
-      sudo apt-get install flex
-      sudo apt-get install z3
-      sudo apt-get install libz3-dev
-      sudo apt-get install libfl-dev
-      sudo apt-get install g++-7   
-    displayName: 'package'
-  - script: |
-      mkdir -p build 
-      cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-7
-      cmake --build .
-      sudo cmake --build . --target install 
-      cmake --build . --target test
-    displayName: 'build'
-
 - job: Ubuntu_1804_LTS
   pool:
     vmImage: 'ubuntu-18.04'
