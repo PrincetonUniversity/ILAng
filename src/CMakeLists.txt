@@ -157,6 +157,11 @@ else()
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE vexpparser::vexpparser)
 endif()
 
+if(DEFINED FLEXLEXER_INCLUDE_PATH)
+  message(STATUS "Flex include path:   ${FLEXLEXER_INCLUDE_PATH}")
+  include_directories(${FLEXLEXER_INCLUDE_PATH})
+endif()
+
 ##
 ## vcd parser
 ##
