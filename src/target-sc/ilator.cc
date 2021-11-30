@@ -483,7 +483,8 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
   fmt::format_to( // headers
       buff,
       "#include <iomanip>\n"
-      "#include <{project}.h>\n",
+      "#include <{project}.h>\n"
+      "#include <chrono>\n", // add chrono to record time for debugging
       fmt::arg("project", GetProjectName()));
 
   fmt::format_to( // logging
@@ -495,9 +496,10 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
       "void {project}::IncrementInstrCntr() {{\n"
       "  instr_cntr++;\n"
       "}}\n"
-      "void {project}::LogInstrSequence(const std::string& instr_name) {{\n"
+      "void {project}::LogInstrSequence(const std::string& instr_name, const long int& exec_time) {{\n"
       "  instr_log << \"Instr No.\" << std::setw(5) << GetInstrCntr() << '\\t';\n"
-      "  instr_log << instr_name << \" is activated\\n\";\n"
+      "  instr_log << instr_name << \" is activated\\t\";\n"
+      "  instr_log << \"exec_time: \" << exec_time * 1e-3 << \" ms\\n\";\n"
       "  IncrementInstrCntr();\n"
       "}}\n",
       fmt::arg("project", GetProjectName()));
@@ -524,10 +526,15 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
     fmt::format_to(
         buff,
         "if ({valid_func_name}() && {decode_func_name}()) {{\n"
+        "#ifdef ILATOR_VERBOSE\n"
+        "  auto start = std::chrono::high_resolution_clock::now();\n"
+        "#endif\n"
         "  {update_func_name}();\n"
         "  {child_counter}"
         "#ifdef ILATOR_VERBOSE\n"
-        "  LogInstrSequence(\"{instr_name}\");\n"
+        "  auto stop = std::chrono::high_resolution_clock::now();\n"
+        "  auto exec_time = std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count();\n"
+        "  LogInstrSequence(\"{instr_name}\", exec_time);\n"
         "#endif\n"
         "}}\n",
         fmt::arg("valid_func_name", GetValidFuncName(instr->host())),
@@ -583,7 +590,7 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
                  "  std::ofstream instr_update_log;\n" // add instruction state update logging
                  "  int GetInstrCntr();\n"
                  "  void IncrementInstrCntr();\n"
-                 "  void LogInstrSequence(const std::string& instr_name);\n",
+                 "  void LogInstrSequence(const std::string& instr_name, const long int&);\n",
                  fmt::arg("project", GetProjectName()));
 
   // input
