@@ -176,19 +176,25 @@ void VlgVerifTgtGen::GenerateTargets(void) {
   // now let's deal w. instructions in rf_cond
   if (_vtg_config.target_select == RtlVerifyConfig::BOTH ||
       _vtg_config.target_select == RtlVerifyConfig::INST) {
+    bool generate_forall_inst = _refinement.global_inst_complete_set;
+
     for (auto&& instr : _refinement.inst_complete_cond) {
       std::string iname = instr.first;
+      auto instr_ptr = _ila_ptr->instr(iname);
+      ILA_ERROR_IF(instr_ptr == nullptr) 
+                << "ila:" << _ila_ptr->name().str()
+                << " has no instruction:" << iname;
+    }
+    for (unsigned inst_idx = 0; inst_idx < _ila_ptr->instr_num() ; ++ inst_idx) {
+      auto instr_ptr = _ila_ptr->instr(inst_idx);
+      std::string iname = instr_ptr->name().str();
       if (_vtg_config.CheckThisInstructionOnly != "" &&
           _vtg_config.CheckThisInstructionOnly != iname)
         continue; // skip, not checking this instruction
-
-      auto instr_ptr = _ila_ptr->instr(iname);
-      if (instr_ptr == nullptr) {
-        ILA_ERROR << "ila:" << _ila_ptr->name().str()
-                  << " has no instruction:" << iname;
+      if (!generate_forall_inst && 
+        _refinement.inst_complete_cond.find(iname) == _refinement.inst_complete_cond.end())
         continue;
-      }
-
+      
       auto sub_output_path = os_portable_append_dir(_output_path, iname);
 
       if (_backend == ModelCheckerSelection::PONO) {
@@ -212,52 +218,6 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl");
         target.do_not_instantiate();
       }
-#if 0
-      else if (_backend == ModelCheckerSelection::RELCHC) {
-        // will actually fail : not supported for using relchc for invariant
-        // targets
-        auto target = VlgSglTgtGen_Relchc(
-            sub_output_path,
-            instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
-            "wrapper", _vlg_impl_srcs,
-            _vlg_impl_include_path, _vtg_config, _backend,
-            target_type_t::INSTRUCTIONS, _advanced_param_ptr);
-        target.ConstructWrapper();
-        target.ExportAll("wrapper.v", "ila.v", "run.sh", "__design_smt.smt2",
-                         "absmem.v");
-        target.do_not_instantiate();
-      } else if ((_backend & ModelCheckerSelection::YOSYS) ==
-                 ModelCheckerSelection::YOSYS) {
-        // in this case we will have two targets to generate
-        // one is the target with only the design and
-        // and the second one should use the smt file it generates
-        // and create conversion (map) function
-
-        auto target = VlgSglTgtGen_Yosys(
-            sub_output_path,
-            instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, supplementary_info, vlg_info_ptr,
-            "wrapper", _vlg_impl_srcs,
-            _vlg_impl_include_path, _vtg_config, _backend,
-            target_type_t::INSTRUCTIONS, _advanced_param_ptr,
-            _chc_target_t::GENERAL_PROPERTY);
-        target.ConstructWrapper();
-        std::string design_file;
-        if (_backend == ModelCheckerSelection::ABCPDR)
-          design_file = "wrapper.aig";
-        else if ((_backend & ModelCheckerSelection::CHC) == ModelCheckerSelection::CHC)
-          design_file = "wrapper.smt2";
-        else if (_backend == ModelCheckerSelection::BTOR_GENERIC)
-          design_file = "wrapper.btor2";
-        else
-          design_file = "wrapper.unknfmt";
-
-        target.ExportAll("wrapper.v", "ila.v", "run.sh", design_file,
-                         "absmem.v");
-        target.do_not_instantiate();
-      } // end case backend
-#endif
       runnable_script_name.push_back(
           os_portable_append_dir(sub_output_path, "run.sh"));
     } // end for instrs

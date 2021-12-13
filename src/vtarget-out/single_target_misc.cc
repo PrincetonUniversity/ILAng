@@ -476,7 +476,11 @@ VlgSglTgtGen::get_current_instruction_rf() {
   ILA_NOT_NULL(_instr_ptr);
   const auto& inst_name = _instr_ptr->name().str();
   auto pos = refinement_map.inst_complete_cond.find(inst_name);
-  ILA_ERROR_IF(pos == refinement_map.inst_complete_cond.end())
+  if(pos == refinement_map.inst_complete_cond.end() &&
+     refinement_map.global_inst_complete_set)
+    return refinement_map.global_inst_complete_cond;
+  ILA_ERROR_IF(pos == refinement_map.inst_complete_cond.end() &&
+              !refinement_map.global_inst_complete_set)
       << "Cannot find the completion condition for " << inst_name;
   return pos->second;
 } // get_current_instruction_rf

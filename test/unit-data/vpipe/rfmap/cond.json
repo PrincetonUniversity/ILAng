@@ -18,16 +18,13 @@
     " (RTL.reg_2_w_stage == 2'b01 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd2) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd2) ) )",
     " (RTL.reg_3_w_stage == 2'b01 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd3) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd3) ) )"
   ],
+  "ready bound" : 1, // this is the default bound
 
   "instructions": [
-    {
-      "instruction": "NOP", 
-      "ready bound": 1
-    },
-    {
-      "instruction": "ADD",
-      "ready bound": 1
-    },
+    // {   // no need
+    //   "instruction": "ADD",
+    //   "ready bound": 1
+    // },
     {
       "instruction": "SUB",
       "ready bound": 1

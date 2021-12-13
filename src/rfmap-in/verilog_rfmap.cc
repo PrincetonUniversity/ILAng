@@ -1101,6 +1101,24 @@ VerilogRefinementMap::VerilogRefinementMap(
   {
     auto* instrs = GetJsonSection(rf_cond, {"instructions"});
     auto* invariants = GetJsonSection(rf_cond, {"global invariants"});
+    auto* glb_ready_bound = GetJsonSection(rf_cond, {"ready-bound"});
+    auto* glb_ready_signal = GetJsonSection(rf_cond, {"ready-signal"});
+    ERRIF(glb_ready_bound && glb_ready_signal, 
+      "`ready bound` and `ready signal` are mutual exclusive");
+    global_inst_complete_set = glb_ready_bound || glb_ready_signal;
+
+    if (glb_ready_bound) {
+        ENSURE(glb_ready_bound->is_number_unsigned(),
+                "`ready-bound` should be an unsigned number");
+        global_inst_complete_cond.ready_bound = glb_ready_bound->get<unsigned>();
+        global_inst_complete_cond.type = InstructionCompleteCondition::ConditionType::BOUND;
+    } else if (glb_ready_signal) {
+        ENSURE(glb_ready_signal->is_string(),
+                "`ready-signal` should be a string");
+        global_inst_complete_cond.ready_signal = ParseRfMapExprJson(*glb_ready_signal);
+        global_inst_complete_cond.type = InstructionCompleteCondition::ConditionType::SIGNAL;
+    }
+
     if (instrs) {
       ENSURE(instrs->is_array(), "`instructions` should be array of object");
       for (auto& instr : *instrs) {
