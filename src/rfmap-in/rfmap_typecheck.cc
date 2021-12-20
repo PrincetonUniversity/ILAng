@@ -317,6 +317,10 @@ void TypedVerilogRefinementMap::TraverseAllRfExpr(
     for (auto& cond : instcond.second.start_condition)
       cond = TraverseRfExpr(cond, func);
   }
+  if (global_inst_complete_set) {
+    if ( global_inst_complete_cond.type == InstructionCompleteCondition::ConditionType::SIGNAL) 
+      global_inst_complete_cond.ready_signal = TraverseRfExpr(global_inst_complete_cond.ready_signal, func);
+  }
 
   for (auto& a : global_invariants)
     a = TraverseRfExpr(a, func);
