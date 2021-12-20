@@ -84,9 +84,9 @@ TEST(TestVlgTargetGen, PipeExampleRfmapPostResetStart) {
       {os_portable_append_dir(dirName, "simple_pipe.v")}, // vlog files
       "pipeline_v",                                       // top_module_name
       os_portable_append_dir(rfDir,
-                             "vmap-rfmap-pvholder.json"), // variable mapping
+                             "vmap-rfmap-pvholder-reset.json"), // variable mapping
       os_portable_append_dir(rfDir,
-                             "cond-rfmap-pvholder.json"), // instruction-mapping
+                             "cond-rfmap-pvholder-reset.json"), // instruction-mapping
       os_portable_append_dir(dirName, "verify_pvholder_reset"), // verification dir
       ila_model.get(),                                    // ILA model
       ModelCheckerSelection::PONO, // engine

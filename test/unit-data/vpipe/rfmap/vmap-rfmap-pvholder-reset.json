@@ -1,0 +1,38 @@
+{
+  "state mapping": {  
+    "r0":[ ["__START__", "RTL.registers[0] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[0]"] ] ,
+    "r1":[ ["__START__", "RTL.registers[1] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[1]"] ] ,
+    "r2":[ ["__START__", "RTL.registers[2] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[2]"] ] ,
+    "r3":[ ["__START__", "RTL.registers[3] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[3]"] ] },
+
+
+  "input mapping": {
+     "inst":"RTL.inst"
+  },
+
+  "rtl-interface-connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
+  },
+
+  "monitor" :{
+    // pipeline tracker
+    "ppl_stage" : {
+      "template" : "phase tracker",
+      "rules" : [
+        { // 
+          "name"  : "ex",
+          "enter" : {"event" : "#decode#"},
+          "exit"  : {"event" : "1"}
+        },
+
+        { // 
+          "name"  : "wb",
+          "enter" : {"event" : "#ppl_stage_ex#"},
+          "exit"  : {"event" : "1"}
+        }
+      ]
+
+    }    
+  }
+}
