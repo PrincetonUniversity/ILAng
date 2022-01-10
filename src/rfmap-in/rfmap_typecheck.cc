@@ -219,6 +219,11 @@ void TypedVerilogRefinementMap::CollectInternallyDefinedVars() {
     all_var_def_types.emplace("afterdecode", tmp); // these are the stage info
     all_var_def_types.emplace("commit", tmp);
 
+
+    all_var_def_types.emplace("start", tmp);      // these are the stage info
+    all_var_def_types.emplace("afterstart", tmp); // these are the stage info
+    all_var_def_types.emplace("end", tmp);
+
     all_var_def_types.emplace("$decode",
                               tmp); // these are the ila.decode/ila.valid info
     all_var_def_types.emplace("$valid", tmp);

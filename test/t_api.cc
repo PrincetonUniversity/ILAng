@@ -621,7 +621,7 @@ TEST(TestApi, RtlVerify) {
       {dirName, "rfmap", "cond.json"});
   auto out_name = os_portable_append_dir(dirName, "out3");
 
-  IlaVerilogRefinemetChecker checker(
+  IlaVerilogRefinementChecker checker(
     proc, {}, {vlg_name}, "resetter", vmap_name, cond_name, out_name,
     ModelCheckerSelection::PONO);
 

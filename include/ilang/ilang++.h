@@ -748,12 +748,12 @@ private:
 
 
 /// \brief The wrapper of Rtl verification target generator
-class IlaVerilogRefinemetChecker {
+class IlaVerilogRefinementChecker {
   
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor
-  IlaVerilogRefinemetChecker(
+  IlaVerilogRefinementChecker(
       const Ila& ila,
       const std::vector<std::string>& implementation_include_path,
       const std::vector<std::string>& implementation_srcs,
@@ -764,7 +764,7 @@ public:
       ModelCheckerSelection backend,
       const RtlVerifyConfig& vtg_config = RtlVerifyConfig() );
   /// Default virtual destructor.
-  ~IlaVerilogRefinemetChecker() {};
+  ~IlaVerilogRefinementChecker() {};
   
 }; // class RtlVerifier
 

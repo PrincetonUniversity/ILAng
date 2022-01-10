@@ -90,6 +90,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_reg("__START__", 1);
   rfmap_add_internal_reg("__START__", 1);
   rfmap_add_replacement("decode", "__START__");
+  rfmap_add_replacement("start", "__START__");
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   // how start is triggered
   if(_vtg_config.ForceInstCheckReset) {
@@ -104,6 +105,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_reg("__STARTED__", 1);
   rfmap_add_internal_reg("__STARTED__", 1);
   rfmap_add_replacement("afterdecode", "__STARTED__");
+  rfmap_add_replacement("afterstart", "__STARTED__");
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __STARTED__ <= 0;");
   vlg_wrapper.add_stmt(
@@ -190,6 +192,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   rfmap_add_internal_wire("__IEND__", 1);
   rfmap_add_internal_wire("__EDCOND__", 1);
   rfmap_add_replacement("commit", "__IEND__");
+  rfmap_add_replacement("end", "__IEND__");
 
   auto end_no_recur = rfmap_not(rfmap_var("__ENDED__"));
 
