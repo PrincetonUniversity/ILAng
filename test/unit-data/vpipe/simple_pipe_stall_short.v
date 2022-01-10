@@ -21,10 +21,10 @@
 `define  OP_NAND 2'b11
 
 module pipeline_v(
-    input clk, input rst, 
-    input [7:0] inst, input inst_valid, output inst_ready,
-    input stallex, input stallwb,
-    input [1:0] dummy_read_rf, output [7:0] dummy_rf_data 
+    input wire clk, input wire rst, 
+    input wire [7:0] inst, input wire inst_valid, output wire inst_ready,
+    input wire stallex, input wire stallwb,
+    input wire [1:0] dummy_read_rf, output wire [7:0] dummy_rf_data 
 );
 
 // TODO: finish this
