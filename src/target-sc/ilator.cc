@@ -574,9 +574,17 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
                  "#include <systemc.h>\n"
 #ifdef ILATOR_PRECISE_MEM
                  "#include <map>\n"
+                 "#include <unordered_map>\n"
 #else
                  "#include <unordered_map>\n"
 #endif
+                 // add a customized hash function for unordered map
+                 "struct MemAddrHashFunc {{\n"
+                 "  std::size_t operator() (int const& addr) const noexcept {{\n"
+                 "    return addr;\n"
+                 "  }}\n"
+                 "}};\n"
+
                  "SC_MODULE({project}) {{\n"
                 //  "  extern int instr_cntr;\n"
                  "  std::ofstream instr_log;\n"
@@ -840,7 +848,11 @@ std::string Ilator::GetCxxType(const SortPtr& sort) {
     ILA_ASSERT(sort->is_mem());
 #ifdef ILATOR_PRECISE_MEM
     return fmt::format(
-        "std::map<sc_biguint<{addr_width}>, sc_biguint<{data_width}>>",
+        // "std::map<sc_biguint<{addr_width}>, sc_biguint<{data_width}>>",
+        // try to switch to unordered_map for memory type to improve access speed.
+        // sc_biguint seems unhashable
+        // "std::unordered_map<sc_biguint<{addr_width}>, sc_biguint<{data_width}>>",
+        "std::unordered_map<int, sc_biguint<{data_width}>, MemAddrHashFunc>",
         fmt::arg("addr_width", sort->addr_width()),
         fmt::arg("data_width", sort->data_width()));
 #else
