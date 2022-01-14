@@ -102,7 +102,7 @@ void Ilator::DfsOpMemory(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
   if (auto uid = asthub::GetUidExprOp(expr); uid == AstUidExprOp::kStore) {
     static const char* kMemStoreTemplate =
 #ifdef ILATOR_PRECISE_MEM
-        "tmp_memory[{address}] = {data};\n";
+        "tmp_memory[{address}.to_int()] = {data};\n";
 #else
         "tmp_memory[{address}.to_int()] = {data}.to_int();\n";
 #endif
@@ -156,7 +156,8 @@ void Ilator::DfsOpSpecial(const ExprPtr& expr, StrBuff& buff, ExprVarMap& lut) {
                    fmt::arg("memory_source", LookUp(expr->arg(0), lut)),
                    fmt::arg("address", LookUp(expr->arg(1), lut)),
 #ifdef ILATOR_PRECISE_MEM
-                   fmt::arg("mem_suffix", "")
+                  //  fmt::arg("mem_suffix", "")
+                  fmt::arg("mem_suffix", ".to_int()")
 #else
                    fmt::arg("mem_suffix", ".to_int()")
 #endif
