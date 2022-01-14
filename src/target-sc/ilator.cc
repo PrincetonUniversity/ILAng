@@ -499,7 +499,7 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
       "void {project}::LogInstrSequence(const std::string& instr_name, const long int& exec_time) {{\n"
       "  instr_log << \"Instr No. \" << std::setw(8) << GetInstrCntr() << '\\t';\n"
       "  instr_log << instr_name << \" is activated\\t\";\n"
-      "  instr_log << \"exec_time: \" << exec_time * 1e-3 << \" ms\\n\";\n"
+      "  instr_log << \"exec_time: \" << exec_time * 1e-6 << \" ms\\n\";\n"
       "  IncrementInstrCntr();\n"
       "}}\n",
       fmt::arg("project", GetProjectName()));
@@ -530,10 +530,10 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
         "  auto start = std::chrono::high_resolution_clock::now();\n"
         "#endif\n"
         "  {update_func_name}();\n"
-        "  {child_counter}"
+        "  {child_counter}\n"
         "#ifdef ILATOR_VERBOSE\n"
         "  auto stop = std::chrono::high_resolution_clock::now();\n"
-        "  auto exec_time = std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count();\n"
+        "  auto exec_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start).count();\n"
         "  LogInstrSequence(\"{instr_name}\", exec_time);\n"
         "#endif\n"
         "}}\n",
