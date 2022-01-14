@@ -483,7 +483,8 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
   fmt::format_to( // headers
       buff,
       "#include <iomanip>\n"
-      "#include <{project}.h>\n",
+      "#include <{project}.h>\n"
+      "#include <chrono>\n", // add chrono to record time for debugging
       fmt::arg("project", GetProjectName()));
 
   fmt::format_to( // logging
@@ -495,9 +496,10 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
       "void {project}::IncrementInstrCntr() {{\n"
       "  instr_cntr++;\n"
       "}}\n"
-      "void {project}::LogInstrSequence(const std::string& instr_name) {{\n"
-      "  instr_log << \"Instr No.\" << std::setw(5) << GetInstrCntr() << '\\t';\n"
-      "  instr_log << instr_name << \" is activated\\n\";\n"
+      "void {project}::LogInstrSequence(const std::string& instr_name, const long int& exec_time) {{\n"
+      "  instr_log << \"Instr No. \" << std::setw(8) << GetInstrCntr() << '\\t';\n"
+      "  instr_log << instr_name << \" is activated\\t\";\n"
+      "  instr_log << \"exec_time: \" << exec_time * 1e-3 << \" us\\n\";\n"
       "  IncrementInstrCntr();\n"
       "}}\n",
       fmt::arg("project", GetProjectName()));
@@ -524,10 +526,15 @@ bool Ilator::GenerateExecuteKernel(const std::string& dir) {
     fmt::format_to(
         buff,
         "if ({valid_func_name}() && {decode_func_name}()) {{\n"
+        "#ifdef ILATOR_PROFILING\n"
+        "  auto start = std::chrono::high_resolution_clock::now();\n"
+        "#endif\n"
         "  {update_func_name}();\n"
-        "  {child_counter}"
-        "#ifdef ILATOR_VERBOSE\n"
-        "  LogInstrSequence(\"{instr_name}\");\n"
+        "  {child_counter}\n"
+        "#ifdef ILATOR_PROFILING\n"
+        "  auto stop = std::chrono::high_resolution_clock::now();\n"
+        "  auto exec_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start).count();\n"
+        "  LogInstrSequence(\"{instr_name}\", exec_time);\n"
         "#endif\n"
         "}}\n",
         fmt::arg("valid_func_name", GetValidFuncName(instr->host())),
@@ -583,7 +590,7 @@ bool Ilator::GenerateGlobalHeader(const std::string& dir) {
                  "  std::ofstream instr_update_log;\n" // add instruction state update logging
                  "  int GetInstrCntr();\n"
                  "  void IncrementInstrCntr();\n"
-                 "  void LogInstrSequence(const std::string& instr_name);\n",
+                 "  void LogInstrSequence(const std::string& instr_name, const long int&);\n",
                  fmt::arg("project", GetProjectName()));
 
   // input
@@ -655,8 +662,8 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "cmake_minimum_required(VERSION 3.14.0)\n"
       "project({project} LANGUAGES CXX)\n"
       "\n"
-      "option(ILATOR_VERBOSE \"Enable instruction sequence logging\" OFF)\n"
-      // "option(ILATOR_INSN_VERBOSE \"Enable instruction state updates logging\" OFF)\n"
+      "option(ILATOR_PROFILING \"Enable instruction sequence logging and profiling\" OFF)\n"
+      "option(ILATOR_VERBOSE \"Enable instruction state updates logging\" OFF)\n"
       "option(JSON_SUPPORT \"Build JSON parser support\" OFF)\n"
       "\n"
       "find_package(SystemCLanguage CONFIG REQUIRED)\n"
@@ -671,8 +678,11 @@ bool Ilator::GenerateBuildSupport(const std::string& dir) {
       "\n"
       "target_include_directories({project} PRIVATE {dir_include})\n"
       "target_link_libraries({project} SystemC::systemc)\n"
+      "if(${{ILATOR_PROFILING}})\n"
+      "  target_compile_definitions({project} PRIVATE ILATOR_PROFILING)\n"
+      "endif()\n"
       "if(${{ILATOR_VERBOSE}})\n"
-      "  target_compile_definitions({project} PRIVATE ILATOR_VERBOSE)\n"
+      "  target_compile_definitions({project} PRIVATE ILATOR_PROFILING ILATOR_VERBOSE)\n"
       "endif()\n"
       // "if(${{ILATOR_INSN_VERBOSE}})\n"
       // "  target_compile_definitions({project} PRIVATE ILATOR_INSN_VERBOSE)\n"
