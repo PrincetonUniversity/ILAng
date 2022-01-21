@@ -394,7 +394,7 @@ void VlgSglTgtGen::ConstructWrapper_add_direct_aux_vars() {
   for (const auto & n_expr : refinement_map.direct_aux_vars) {
     const auto & n = n_expr.first;
     auto w = n_expr.second.width;
-    ILA_CHECK(w!=0);
+    ILA_CHECK(w!=0); // aux var should have its width
     vlg_wrapper.add_wire(n,w,true);
     vlg_wrapper.add_output(n,w);
     add_wire_assign_assumption(n, n_expr.second.val, "direct_aux_var");

@@ -77,6 +77,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_smt_switch_itf.cc
   t_smt_trans.cc
   t_rfexpr_smt_out.cc
+  t_rfmap_proc.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc

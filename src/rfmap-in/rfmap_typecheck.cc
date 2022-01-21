@@ -359,58 +359,99 @@ bool _compute_const(const RfExpr& in, unsigned& out) {
 // relies on TypeInferTravserRfExpr
 //    and therefore, all_var_def_types
 void TypedVerilogRefinementMap::ComputeDelayValueHolderWidth() {
-  for (auto& name_delay_pair : aux_delays) {
-    if (name_delay_pair.second.width == 0) {
-      auto tp = TypeInferTravserRfExpr(name_delay_pair.second.signal, {});
-      ILA_ERROR_IF(tp.is_array())
-          << "Currently does not support to delay a memory variable";
-      ILA_ERROR_IF(tp.is_unknown())
-          << "Type inference failed on: "
-          << name_delay_pair.second.signal->to_verilog();
-      name_delay_pair.second.width = tp.unified_width();
 
-      // replendish all_var_def_types
-      VarDef internal_var_def;
-      internal_var_def.width = tp.unified_width();
-      internal_var_def.type = VarDef::var_type::REG;
 
-      all_var_def_types.emplace(name_delay_pair.first, internal_var_def);
+  unsigned failed_cnt = 0;
+  unsigned prev_failed_cnt = 0;
+  unsigned iter = 0;
+  do {
+    prev_failed_cnt = failed_cnt;
+    failed_cnt = 0;
+    for (auto& name_delay_pair : aux_delays) {
+      if (name_delay_pair.second.width == 0) {
+        auto tp = TypeInferTravserRfExpr(name_delay_pair.second.signal, {});
+        ILA_CHECK(!tp.is_array())
+            << "Currently does not support to delay a memory variable";
+
+        if (tp.is_array() || tp.is_unknown() || tp.unified_width() == 0) {
+          failed_cnt ++;
+          continue;
+        }
+
+        name_delay_pair.second.width = tp.unified_width();
+
+        // replendish all_var_def_types
+        VarDef internal_var_def;
+        internal_var_def.width = tp.unified_width();
+        internal_var_def.type = VarDef::var_type::REG;
+
+        all_var_def_types.emplace(name_delay_pair.first, internal_var_def);
+      }
     }
-  }
-  for (auto& name_vr : value_recorder) {
-    if (name_vr.second.width == 0) {
-      auto tp = TypeInferTravserRfExpr(name_vr.second.value, {});
-      ILA_ERROR_IF(tp.is_array())
-          << "Currently does not support to delay a memory variable";
-      ILA_ERROR_IF(tp.is_unknown())
-          << "Type inference failed on: " << name_vr.second.value->to_verilog();
-      name_vr.second.width = tp.unified_width();
+    for (auto& name_vr : value_recorder) {
+      if (name_vr.second.width == 0) {
+        auto tp = TypeInferTravserRfExpr(name_vr.second.value, {});
+        ILA_CHECK(!tp.is_array())
+            << "Currently does not support to delay a memory variable";
 
-      // replendish all_var_def_types
-      VarDef internal_var_def;
-      internal_var_def.width = tp.unified_width();
-      internal_var_def.type = VarDef::var_type::REG;
+        if (tp.is_array() || tp.is_unknown() || tp.unified_width() == 0) {
+          failed_cnt ++;
+          continue;
+        }
 
-      all_var_def_types.emplace(name_vr.first, internal_var_def);
+        name_vr.second.width = tp.unified_width();
+
+        // replendish all_var_def_types
+        VarDef internal_var_def;
+        internal_var_def.width = tp.unified_width();
+        internal_var_def.type = VarDef::var_type::REG;
+
+        all_var_def_types.emplace(name_vr.first, internal_var_def);
+      }
+    } // replendish internal defined vars
+
+    for (auto& n_expr : direct_aux_vars) {
+      if (n_expr.second.width == 0) {
+
+        auto tp = TypeInferTravserRfExpr(n_expr.second.val, {});
+        ILA_CHECK(!tp.is_array())
+            << "Currently does not support to delay a memory variable";
+
+        if (tp.is_array() || tp.is_unknown() || tp.unified_width() == 0 ) {
+          failed_cnt ++;
+          continue;
+        }
+        n_expr.second.width = tp.unified_width();
+
+        VarDef internal_var_def;
+        internal_var_def.width = tp.unified_width();
+        internal_var_def.type = VarDef::var_type::WIRE;
+        all_var_def_types.emplace(n_expr.first, internal_var_def);
+      }
+    } // end of for (auto& n_expr : direct_aux_vars)
+    ILA_ASSERT(prev_failed_cnt >= failed_cnt || prev_failed_cnt == 0);
+    ILA_INFO_IF(failed_cnt > 0) << "Rf Expr Type Resolution: iter "  
+      << (iter++) << " remaining: " << failed_cnt;
+  }while(prev_failed_cnt != failed_cnt && failed_cnt != 0);
+  // the last round : report failed ones
+  ILA_INFO_IF(prev_failed_cnt > 0) << "Rf Expr Type Resolution: iter "  
+      << (iter++) << " remaining: " << failed_cnt;
+
+    for (auto& name_delay_pair : aux_delays) {
+      ILA_ERROR_IF (name_delay_pair.second.width == 0)
+            << "Type inference failed on: "
+            << name_delay_pair.second.signal->to_verilog();
     }
-  } // replendish internal defined vars
 
-  for (auto& n_expr : direct_aux_vars) {
-    if (n_expr.second.width == 0) {
-
-      auto tp = TypeInferTravserRfExpr(n_expr.second.val, {});
-      ILA_ERROR_IF(tp.is_array())
-          << "Currently does not support to delay a memory variable";
-      ILA_ERROR_IF(tp.is_unknown())
-          << "Type inference failed on: " << n_expr.second.val->to_verilog();
-      n_expr.second.width = tp.unified_width();
-
-      VarDef internal_var_def;
-      internal_var_def.width = tp.unified_width();
-      internal_var_def.type = VarDef::var_type::WIRE;
-      all_var_def_types.emplace(n_expr.first, internal_var_def);
+    for (auto& name_vr : value_recorder) {
+      ILA_ERROR_IF (name_vr.second.width == 0) 
+            << "Type inference failed on: " << name_vr.second.value->to_verilog();
     }
-  }
+
+    for (auto& n_expr : direct_aux_vars) {
+        ILA_ERROR_IF(n_expr.second.width == 0)
+            << "Type inference failed on: " << n_expr.second.val->to_verilog();
+    }
 } // ComputeDelayValueHolderWidth
 
 // relies on typechecker and all_var_def_types
@@ -564,8 +605,16 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(
     } else if (in->get_op() == verilog_expr::voperator::TERNARY) {
       auto left = TypeInferTravserRfExpr(in->get_child().at(1), local_var_def);
       auto right = TypeInferTravserRfExpr(in->get_child().at(2), local_var_def);
+      if (left.is_unknown() && right.is_unknown())
+        return RfMapVarType(); // unknown
+      if (left.is_unknown())
+        return right;
+      if (right.is_unknown())
+        return left;
+
       if (left.is_array() || right.is_array())
         return left; // TODO: check compatibility
+
       return RfMapVarType(
           std::max(left.unified_width(), right.unified_width()));
     } else if (in->get_op() == verilog_expr::voperator::FUNCTION_APP) {
@@ -588,6 +637,8 @@ RfMapVarType TypedVerilogRefinementMap::TypeInferTravserRfExpr(
       if (!_compute_const(in->get_child().at(0), ntimes))
         return RfMapVarType();
       auto tp = TypeInferTravserRfExpr(in->get_child().at(1), local_var_def);
+      if (tp.is_unknown())
+        return RfMapVarType(); // unknown
       return RfMapVarType(tp.unified_width() * ntimes);
     } else if (in->get_op() == verilog_expr::voperator::FORALL ||
                in->get_op() == verilog_expr::voperator::EXIST) {
