@@ -37,14 +37,16 @@ TEST(TestVerilogMod, Modify) {
   VerilogInfo va(VerilogInfo::path_vec_t(), VerilogInfo::path_vec_t({fn}),
                  "m1");
 
-  VerilogModifier vm(&va, VerilogModifier::port_decl_style_t::AUTO, true, {});
+  std::map<std::string, int> empty_annotation;
+  VerilogModifier vm(&va, VerilogModifier::port_decl_style_t::AUTO,
+    true, empty_annotation, empty_annotation);
 
   vm.RecordKeepSignalName("m1.__COUNTER_start__n3");
   vm.RecordKeepSignalName("m1.__ILA_proc_decode_of_Add__");
   vm.RecordKeepSignalName("m1.subm4.a");
-  vm.RecordConnectSigName("m1.subm4.b");
-  vm.RecordConnectSigName("m1.n27");
-  vm.RecordConnectSigName("m1.ir");
+  vm.RecordConnectSigName("m1__DOTz__subm4__DOTz__b", "m1.subm4","b",1);
+  vm.RecordConnectSigName("m1__DOTz__n27z","m1","n27",1);
+  vm.RecordConnectSigName("m1__DOT__orz_ir_0_","m1","ir[0]", 8);
   vm.RecordAdditionalVlgModuleStmt("wire abcd; assign abcd = 1'b1;", "m1");
   vm.FinishRecording();
 
@@ -57,7 +59,7 @@ TEST(TestVerilogMod, Modify) {
   }
 
   if (!fout.is_open()) {
-    ILA_ERROR << ofn << " is not readable";
+    ILA_ERROR << ofn << " is not write-able";
     return;
   }
 
@@ -65,6 +67,7 @@ TEST(TestVerilogMod, Modify) {
 
   fin.close();
   fout.close();
+  
   os_portable_remove_file(ofn);
 }
 

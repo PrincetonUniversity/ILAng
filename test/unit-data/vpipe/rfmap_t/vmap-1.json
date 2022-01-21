@@ -1,0 +1,108 @@
+{
+  "state mapping": {  
+  	"r0":[ ["__START__", "#r0_pvholder#"] , ["1'b1", "RTL.registers[0]"] ] ,
+    "r1":[ ["__START__", "RTL.registers[1] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[1]"] ] ,
+    "r2":[ ["__START__", "RTL.registers[2] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[2]"] ] ,
+    "r3":[ ["__START__", "RTL.registers[3] @ ppl_stage_wb"] , ["1'b1", "RTL.registers[3]"] ] },
+
+
+  "input mapping": {
+     "inst":"RTL.inst"
+  },
+
+  "rtl-interface-connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst",
+    "INPUT" : {
+      "dummy_read_rf" : "#dummy_read_rf#"
+      // if you use it here, you must define it in a keep-for-invariants block !!!
+    }
+  },
+
+  "monitor" :{
+    // monitor 1 : value recorder
+    "r0_pvholder" : { // this is just a name
+      "template" : "value recorder",
+        "cond": "#stage_tracker# == 1",
+        "val":"RTL.registers[0]"
+    },
+
+    // monitor 2 :  arb verilog - stage tracker and append verilog
+    "stage_tracker" : {
+      "verilog": 
+        ["always @(posedge clk) begin",
+         "  if (rst ) stage_tracker <= 0;",
+         "  else if ( __START__ ) stage_tracker <= 0;",
+         "  else if (__STARTED__ && !__ENDED__) stage_tracker <= stage_tracker + 1;",
+         "end"],
+      "append-verilog" : "module nouse2(input wire a, output wire b); assign b=a; endmodule",
+      "defs" :[ ["stage_tracker", 2, "reg"] ],
+      "refs" :[]
+    },
+
+    // monitor 3 : ref/def test
+    "ref_test" : {
+      "verilog": 
+        ["always @(posedge clk) begin",
+         "  if (__START__) ref_test <= 0;",
+         "  else if (__STARTED__ && !__ENDED__ && stage_tracker == 1) ref_test <= RTL.registers[0] + 1;",
+         "end"],
+      "defs" :[ ["ref_test", 2, "reg"] ],
+      "refs" :[ "RTL.registers[0]" ]
+    },
+
+    // a monitor that always exists
+    "delay_wb_write"  : {
+      "verilog":
+      [ "always @(posedge clk) begin",
+        "  delay_wb_write <= (#decode# & #afterdecode#) ?  RTL.ex_wb_val : delay_wb_write;",
+        "end",
+        "assign usefl = RTL.registers[RTL.ex_wb_rd] ;"
+      ],
+      "append-verilog" : [
+          "module nouse(input wire aa, output wire bb);",
+          " /*keep-for-invariants*/ assign bb=aa;",
+          " endmodule"],
+      "defs" :[ ["delay_wb_write", 8, "reg"], ["usefl", 8, "wire"], ["dummy_read_rf", 2, "wire"] ],
+      "refs" :[ "RTL.ex_wb_val", "#decode#", "#afterdecode#","RTL.registers[RTL.ex_wb_rd]"],
+      // actually, you should not use #decode# or #afterdecode# here
+      // because they should not exist when verifying invariants
+      "keep-for-invariants" : true
+    },
+
+    "rt7" : "RTL.inst[0]@0",
+    "rt2" : "RTL.inst @ 1",
+    "rt22" : " RTL.inst @ 2",
+    "rt0" : "rt7 ? rt2 : rt22",
+    "rt1" : "rt7 ? rt2 : rt0",
+
+
+    // pipeline tracker
+    "ppl_stage" : {
+      "template" : "phase tracker",
+      "event-alias" : {
+        "dsignal" : "ppl_stage_ex ## [1:$] ppl_stage_wb ##1 (1'b1)"
+      },
+      "aux-var" : [["cnt", 2, "reg"]],
+      "rules" : [
+        { // 
+          "name"  : "ex",
+          "enter" : {"event" : "#decode#"},
+          "exit"  : {"event" : "1", "action": " cnt <= RTL.reg_0_w_stage "}
+        },
+
+        { // 
+          "name"  : "wb",
+          "enter" : {"event" : "#ppl_stage_ex#"},
+          "exit"  : {"event" : "1"}
+        },
+
+        {
+          "name"  : "teststage1",
+          "enter" : "#ppl_stage_ex#"
+        }
+      ]
+
+    }    
+  }
+}

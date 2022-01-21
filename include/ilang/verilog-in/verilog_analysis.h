@@ -63,7 +63,8 @@ public:
   SignalInfoReg(ast_reg_declaration* def, const std::string& full_name,
                 VerilogAnalyzerBase::hierarchical_name_type tp,
                 const std::map<std::string, int>* const width_info,
-                const VerilogAnalyzer* _ana);
+                const VerilogAnalyzer* _ana,
+                const std::map<std::string, int>* const range_info);
   /// Return its definition
   ast_reg_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -187,7 +188,8 @@ public:
   /// Find a signal
   SignalInfoBase
   get_signal(const std::string& net_name,
-             const std::map<std::string, int>* const width_info = NULL) const;
+             const std::map<std::string, int>* const width_info = NULL,
+             const std::map<std::string, int>* const range_info = NULL) const;
   /// Return the location of a module's endmodule statement
   vlg_loc_t get_endmodule_loc(const std::string& inst_name) const;
   /// Return the module name of a net --- will check if the module names are

@@ -19,6 +19,7 @@ add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
 add_subdirectory(smt-inout)
+add_subdirectory(rfmap-in)
 
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(target-itsy)
@@ -144,6 +145,24 @@ else()
 endif()
 
 ##
+## refinement parser
+##
+if(NOT TARGET vexpparser::vexpparser)
+  find_package(vexpparser REQUIRED)
+endif()
+
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC vexpparser::vexpparser)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE vexpparser::vexpparser)
+endif()
+
+if(DEFINED FLEXLEXER_INCLUDE_PATH)
+  message(STATUS "Flex include path:   ${FLEXLEXER_INCLUDE_PATH}")
+  include_directories(${FLEXLEXER_INCLUDE_PATH})
+endif()
+
+##
 ## vcd parser
 ##
 if(NOT TARGET vcdparser::vcdparser)
@@ -266,6 +285,11 @@ else()
 
   install(
     FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
+  )
+
+  install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/rtl_verify.h
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
   )
 

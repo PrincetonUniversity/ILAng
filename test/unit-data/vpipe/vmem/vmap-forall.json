@@ -1,0 +1,18 @@
+{
+  "state mapping": {  
+    "array":"$forall(i:bv4, ILA.array[i] == ( i < 8 ? RTL.a1.array[i[2:0]] : RTL.a2.array[i[2:0]]) )",
+    "odata":"RTL.odata"},
+
+  "RTL interface connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
+  },
+
+  "input mapping" : {
+    "addr" : "RTL.addr",
+    "data" : "RTL.data",
+    "ren" : "RTL.ren",
+    "wen" : "RTL.wen"
+  }
+
+}

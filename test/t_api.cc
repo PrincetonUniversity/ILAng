@@ -599,4 +599,32 @@ TEST(TestApi, Portable) {
   DisableDebug("Portable");
 }
 
+TEST(TestApi, RtlVerify) {
+  // 1. build the ila
+  auto proc = Ila("proc");
+  auto v = proc.NewBvState("v",1);
+  proc.SetValid(BoolConst(true));
+  { //
+    auto inst = proc.NewInstr("inst");
+    inst.SetDecode(BoolConst(true));
+    inst.SetUpdate(v, BvConst(1,1));
+  }
+
+  // 2. verify
+  auto dirName = os_portable_join_dir(
+      {ILANG_TEST_SRC_ROOT, "unit-data", "vpipe", "reset"});
+  auto vlg_name = os_portable_join_dir(
+      {dirName, "verilog", "resetter.v"});
+  auto vmap_name = os_portable_join_dir(
+      {dirName, "rfmap", "vmap-e1.json"});
+  auto cond_name = os_portable_join_dir(
+      {dirName, "rfmap", "cond.json"});
+  auto out_name = os_portable_append_dir(dirName, "out3");
+
+  IlaVerilogRefinementChecker checker(
+    proc, {}, {vlg_name}, "resetter", vmap_name, cond_name, out_name,
+    ModelCheckerSelection::PONO);
+
+}
+
 } // namespace ilang

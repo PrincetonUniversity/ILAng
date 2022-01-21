@@ -1,45 +1,36 @@
 {
-  "target ILA": "vlg-gen/pipe.v:simpePipe",
-  "target Verilog": "verilog/simple_pipe.v:pipeline_v",
   // this is a comment
   "global invariants": [ 
-    "(! (m1.reg_0_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd0) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd0) ) )",
-    "(! (m1.reg_1_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd1) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd1) ) )",
-    "(! (m1.reg_2_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd2) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd2) ) )",
-    "(! (m1.reg_3_w_stage == 2'b00 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd3) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd3) ) )",
-    "(! (m1.reg_0_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd0) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd0) ) )",
-    "(! (m1.reg_1_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd1) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd1) ) )",
-    "(! (m1.reg_2_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd2) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd2) ) )",
-    "(! (m1.reg_3_w_stage == 2'b10 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd3) ) && ( (m1.ex_wb_reg_wen == 0) || (m1.ex_wb_rd != 2'd3) ) )",
-    "(! (m1.reg_0_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd0) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd0) ) )",
-    "(! (m1.reg_1_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd1) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd1) ) )",
-    "(! (m1.reg_2_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd2) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd2) ) )",
-    "(! (m1.reg_3_w_stage == 2'b11 ) ) ||  ( ( (m1.id_ex_reg_wen == 1) && (m1.id_ex_rd == 2'd3) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd3) ) )",
-    "(! (m1.reg_0_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd0) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd0) ) )",
-    "(! (m1.reg_1_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd1) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd1) ) )",
-    "(! (m1.reg_2_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd2) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd2) ) )",
-    "(! (m1.reg_3_w_stage == 2'b01 ) ) ||  ( ( (m1.id_ex_reg_wen == 0) || (m1.id_ex_rd != 2'd3) ) && ( (m1.ex_wb_reg_wen == 1) && (m1.ex_wb_rd == 2'd3) ) )"
+    " (RTL.reg_0_w_stage == 2'b00 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd0) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd0) ) )",
+    " (RTL.reg_1_w_stage == 2'b00 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd1) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd1) ) )",
+    " (RTL.reg_2_w_stage == 2'b00 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd2) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd2) ) )",
+    " (RTL.reg_3_w_stage == 2'b00 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd3) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd3) ) )",
+    " (RTL.reg_0_w_stage == 2'b10 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd0) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd0) ) )",
+    " (RTL.reg_1_w_stage == 2'b10 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd1) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd1) ) )",
+    " (RTL.reg_2_w_stage == 2'b10 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd2) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd2) ) )",
+    " (RTL.reg_3_w_stage == 2'b10 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd3) ) && ( (RTL.ex_wb_reg_wen == 0) || (RTL.ex_wb_rd != 2'd3) ) )",
+    " (RTL.reg_0_w_stage == 2'b11 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd0) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd0) ) )",
+    " (RTL.reg_1_w_stage == 2'b11 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd1) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd1) ) )",
+    " (RTL.reg_2_w_stage == 2'b11 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd2) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd2) ) )",
+    " (RTL.reg_3_w_stage == 2'b11 ) |->  ( ( (RTL.id_ex_reg_wen == 1) && (RTL.id_ex_rd == 2'd3) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd3) ) )",
+    " (RTL.reg_0_w_stage == 2'b01 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd0) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd0) ) )",
+    " (RTL.reg_1_w_stage == 2'b01 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd1) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd1) ) )",
+    " (RTL.reg_2_w_stage == 2'b01 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd2) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd2) ) )",
+    " (RTL.reg_3_w_stage == 2'b01 ) |->  ( ( (RTL.id_ex_reg_wen == 0) || (RTL.id_ex_rd != 2'd3) ) && ( (RTL.ex_wb_reg_wen == 1) && (RTL.ex_wb_rd == 2'd3) ) )"
   ],
+  "ready bound" : 1, // this is the default bound
 
   "instructions": [
-    {
-      "instruction": "NOP",
-      "ready signal": [],  
-      "ready bound": 1
-    },
-    {
-      "instruction": "ADD",
-      "ready signal": [],  
-      "ready bound": 1
-    },
+    // {   // no need
+    //   "instruction": "ADD",
+    //   "ready bound": 1
+    // },
     {
       "instruction": "SUB",
-      "ready signal": [],  
       "ready bound": 1
     },
     {
       "instruction": "AND",
-      "ready signal": [],
       "ready bound": 1
     }
   ]

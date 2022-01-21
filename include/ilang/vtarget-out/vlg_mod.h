@@ -89,7 +89,8 @@ public:
   /// \param[in] the style: 0 auto deteremined, 1 Old, 2 New
   VerilogModifier(VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style,
                   bool add_keep_or_not,
-                  const std::map<std::string, int>& _sup_width_info); //
+                  const std::map<std::string, int>& _sup_width_info,
+                  const std::map<std::string, int>& _sup_range_info); //
   /// Destructor:
   ~VerilogModifier();
   /// do the work : read from fin and append to fout, fout needs to be open with
@@ -101,8 +102,10 @@ public:
   /// record the name to add a keep there
   void RecordKeepSignalName(const std::string& vname);
   /// record the name to add related wires
-  vlg_sig_t RecordConnectSigName(const std::string& vlg_sig_name,
-                                 const std::string& suffix = "");
+  void RecordConnectSigName(const std::string& vname,     // wirename
+                            const std::string& hierarchy, //
+                            const std::string& last_level_name, unsigned width);
+
   /// record the stmt to be added to a module
   void RecordAdditionalVlgModuleStmt(const std::string& stmt,
                                      const std::string& mod_instance_name);
@@ -127,6 +130,8 @@ protected:
   bool _add_keep_or_not;
   /// the supplementary width info
   const std::map<std::string, int>& sup_width_info;
+  /// the supplementary range info
+  const std::map<std::string, int>& sup_range_info;
 
 protected:
   // --------------- HELPERS --------------------------- //

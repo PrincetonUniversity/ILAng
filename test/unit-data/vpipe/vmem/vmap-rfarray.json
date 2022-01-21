@@ -1,32 +1,23 @@
 {
-  "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": {  
-    "rf":"rf",
-    "mem":"**MEM**mem"},
+    "rf":"RTL.rf",
+    "mem":{
+      "wen"   :"RTL.mem_w_en@0",
+      "waddr" :"RTL.mem_w_addr@0",
+      "wdata" :"RTL.mem_w_data@0",
+      "ren"   :"RTL.mem_r_en@0",
+      "raddr" :"RTL.mem_r_addr@0",
+      "rdata" :"RTL.mem_r_data@0"
+    }},
 
-  "interface mapping": {
-  	 "rst":"**RESET**", 
-  	 "clk":"**CLOCK**",
-     "op":"op",
-     "operand1":"operand1",
-     "operand2":"operand2",
-
-      "mem_w_en"  :"**MEM**mem.wen",
-      "mem_w_addr":"**MEM**mem.waddr",
-      "mem_w_data":"**MEM**mem.wdata",
-      "mem_r_en"  :"**MEM**mem.ren",
-      "mem_r_addr":"**MEM**mem.raddr",
-      "mem_r_data":"**MEM**mem.rdata"
+  "RTL interface connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
   },
 
-  "mapping control" : [
-    "m1.operand1 <= 5 && m1.operand2 <= 5"
-  ],
-  "annotation" : {
-    "memory" : {
-      "rf":"internal",
-      "mem":"external"
-    }
+  "input mapping": {
+     "op":"RTL.op",
+     "operand1":"RTL.operand1",
+     "operand2":"RTL.operand2"
   }
 }

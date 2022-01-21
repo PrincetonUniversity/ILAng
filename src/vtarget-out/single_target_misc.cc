@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <ilang/ila/ast_hub.h>
+#include <ilang/rfmap-in/rfexpr_shortcut.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
@@ -30,104 +31,69 @@ bool VlgSglTgtGen::bad_state_return(void) {
   return _bad_state;
 } // bad_state_return
 
+void VlgSglTgtGen::RfmapIlaStateSanityCheck() {
+#define ERR_IF(cond, s)                                                        \
+  do {                                                                         \
+    ILA_ERROR_IF(cond) << (s);                                                 \
+    if (cond) {                                                                \
+      _bad_state = true;                                                       \
+      return;                                                                  \
+    }                                                                          \
+  } while (0)
+
+  for (unsigned sidx = 0; sidx < _host->state_num(); ++sidx) {
+    const auto& s = _host->state(sidx);
+    const auto& n = s->name().str();
+    ERR_IF(!IN(n, refinement_map.ila_state_var_map),
+           "state `" + n + "` not in refinement map");
+  }
+
+  for (unsigned sidx = 0; sidx < _host->input_num(); ++sidx) {
+    const auto& s = _host->input(sidx);
+    const auto& n = s->name().str();
+    ERR_IF(!IN(n, refinement_map.ila_input_var_map),
+           "input `" + n + "` not in refinement map");
+  }
+
+  for (const auto& n_map_pair : refinement_map.ila_state_var_map) {
+    ERR_IF(_host->find_state(n_map_pair.first) == nullptr,
+           "state `" + n_map_pair.first + "` not defined in ILA");
+  }
+
+  for (const auto& n_map_pair : refinement_map.ila_input_var_map) {
+    ERR_IF(_host->find_input(n_map_pair.first) == nullptr,
+           "input `" + n_map_pair.first + "` not defined in ILA");
+  }
+
+#undef ERR_IF
+}
+
 void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
-  if (IN("mapping control", rf_vmap)) {
-    if (!rf_vmap["mapping control"].is_array())
-      ILA_ERROR << "mapping control field must be an array of string";
-    for (auto&& c : rf_vmap["mapping control"]) {
-      if (!c.is_string()) {
-        ILA_ERROR << "mapping control field must be an array of string";
-        continue;
-      }
-      add_an_assumption(ReplExpr(c.get<std::string>()),
-                        "additional_mapping_control_assume");
-    }
+  for (const auto& mapc : refinement_map.additional_mapping) {
+    add_an_assumption(mapc, "additional_mapping_control_assume");
   }
 } // ConstructWrapper_add_additional_mapping_control
 
 void VlgSglTgtGen::ConstructWrapper_add_rf_assumptions() {
-  if (IN("assumptions", rf_vmap)) {
-    if (!rf_vmap["assumptions"].is_array())
-      ILA_ERROR << "`assumptions` field must be an array of string";
-    for (auto&& c : rf_vmap["assumptions"]) {
-      if (!c.is_string()) {
-        ILA_ERROR << "`assumptions` field must be an array of string";
-        continue;
-      }
-      add_an_assumption(ReplExpr(c.get<std::string>()), "rfassumptions");
-    }
+  for (const auto& assumpt : refinement_map.assumptions) {
+    add_an_assumption(assumpt, "rfassumptions");
   }
 } // ConstructWrapper_add_rf_assumptions
 
-void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
-  auto endCond =
-      has_flush ? "__ENDFLUSH__ || __FLUSHENDED__" : "__IEND__ || __ENDED__";
-
-  // here we insert the memory ports
-  for (auto&& memname_ports_pair : supplementary_info.memory_ports) {
-    // add wire
-    for (auto&& port_expr_port : memname_ports_pair.second) {
-      if (RemoveWhiteSpace(port_expr_port.second).empty())
-        _idr.KeepMemoryPorts(memname_ports_pair.first, port_expr_port.first,
-                             false);
-      // does not need to create extra wires
-      else {
-        // create wire as abs_mem_will not
-        auto wn = _idr.KeepMemoryPorts(memname_ports_pair.first,
-                                       port_expr_port.first, true);
-        vlg_wrapper.add_wire(wn.first, wn.second, true);
-        vlg_wrapper.add_assign_stmt(wn.first, ReplExpr(port_expr_port.second));
-      }
-    }
-  }
-
-  auto stmt = _idr.GetAbsMemInstString(vlg_wrapper, endCond);
-
-  if (!((target_type == target_type_t::INV_SYN_DESIGN_ONLY &&
-         !_vtg_config.InvariantSynthesisKeepMemory) ||
-        (target_type == target_type_t::INVARIANTS &&
-         !_vtg_config.InvariantCheckKeepMemory)))
-    vlg_wrapper.add_stmt(stmt);
-
-  // check if we need to insert any assumptions
-  auto inserter = [this](const std::string& p) -> void {
-    if (target_type == target_type_t::INSTRUCTIONS)
-      add_an_assumption(p, "absmem");
-  };
-  _idr.InsertAbsMemAssmpt(inserter);
-} // ConstructWrapper_add_helper_memory
-
 void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
-  if (!IN("functions", rf_vmap))
-    return; // do nothing
-  auto& fm = rf_vmap["functions"];
-  if (!fm.is_object()) {
-    ILA_ERROR << "expect functions field to be funcName -> list of list of "
-                 "pair of (cond,val).";
+  if (refinement_map.uf_application.empty())
     return;
-  }
 
   // convert vlg_ila.ila_func_app to  name->list of func_app
   std::map<std::string, VerilogGeneratorBase::function_app_vec_t>
       name_to_fnapp_vec;
   for (auto&& func_app : vlg_ila.ila_func_app) {
-    if (_vtg_config.IteUnknownAutoIgnore) {
-      if (func_app.args.empty() &&
-          _sdr.isSpecialUnknownFunctionName(func_app.func_name))
-        continue;
-    }
     name_to_fnapp_vec[func_app.func_name].push_back(func_app);
   }
 
-  for (auto&& it : fm.items()) {
-    const auto& funcName = it.key();
-    const auto& list_of_time_of_apply = it.value();
-    if (!list_of_time_of_apply.is_array()) {
-      ILA_ERROR << funcName
-                << ": expect functions field to be funcName -> list of list of "
-                   "pair of (cond,val).";
-      continue;
-    }
+  for (const auto& uf_app : refinement_map.uf_application) {
+    const auto& funcName = uf_app.first;
+    const auto& list_of_time_of_apply = uf_app.second.func_applications;
     if (!IN(funcName, name_to_fnapp_vec)) {
       // ILA_WARN << "uninterpreted function mapping:" << funcName
       //         << " does not exist. Skipped.";
@@ -140,263 +106,383 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
                 << " not matched. Skipped.";
       continue;
     }
-
     auto& ila_app_list = name_to_fnapp_vec[funcName];
-
     size_t idx = 0;
-    for (auto&& each_apply : list_of_time_of_apply.items()) {
-      if (!each_apply.value().is_array()) {
-        ILA_ERROR << funcName
-                  << ": expecting mapping to be list of pair of (cond,val).";
-        idx++;
-        continue;
-      }
+    for (auto&& each_apply : list_of_time_of_apply) {
+
       auto& ila_app_item = ila_app_list[idx];
       idx++;
-      if (each_apply.value().size() != (ila_app_item.args.size() + 1) * 2) {
-        ILA_ERROR << "ila func app expect: (1(retval) + "
-                  << ila_app_item.args.size() << "(args) )*2"
-                  << " items. Given:" << each_apply.value().size()
+      if (each_apply.arg_map.size() != ila_app_item.args.size()) {
+        ILA_ERROR << "ila func app expect: " << ila_app_item.args.size()
+                  << " (args)."
+                  << " Given:" << each_apply.arg_map.size()
                   << " items, for func: " << funcName;
         continue;
       }
-      auto val_arg_map_str_vec =
-          each_apply.value().get<std::vector<std::string>>();
+      const auto& arg_apply = each_apply.arg_map;
+      const auto& result_apply = each_apply.result_map;
+      std::string func_result_wire =
+          funcName + "_" + IntToStr(idx - 1) + "_result_wire";
 
-      std::string func_reg = funcName + "_" + IntToStr(idx - 1) + "_result_reg";
-      // okay now get the chance
-      auto val_cond = ReplExpr(val_arg_map_str_vec[0]);
-      auto val_map = ReplExpr(val_arg_map_str_vec[1],
-                              true); // force vlg name on the mapping
-      auto res_map = "~(" + val_cond + ")||(" + func_reg + "==" + val_map + ")";
+      auto res_map =
+          rfmap_imply(rfmap_var("decode"),
+                      rfmap_eq(rfmap_var(func_result_wire), result_apply));
 
-      std::string prep = VLG_TRUE;
-      for (size_t arg_idx = 2; arg_idx < val_arg_map_str_vec.size();
-           arg_idx += 2) {
-        const auto& cond = ReplExpr(val_arg_map_str_vec[arg_idx]);
-        const auto& map = ReplExpr(val_arg_map_str_vec[arg_idx + 1], true);
+      std::vector<rfmap::RfExpr> prep;
+      size_t arg_idx = 0;
+      for (const auto& each_arg : arg_apply) {
 
         std::string func_arg = funcName + "_" + IntToStr(idx - 1) + "_arg" +
-                               IntToStr(arg_idx / 2 - 1) + "_reg";
-
-        prep += "&&(~(" + cond + ")||((" + func_arg + ") == (" + map + ")))";
+                               IntToStr(arg_idx++) + "_wire";
+        prep.push_back(rfmap_imply(rfmap_var("decode"),
+                                   rfmap_eq(rfmap_var(func_arg), each_arg)));
       }
-
-      add_an_assumption("~(" + prep + ") || (" + res_map + ")", "funcmap");
+      // (
+      //   (decode |-> arg0_output == ??@?? ) && (decode |-> arg1_output ==
+      //   ??@?? )
+      //    && ...
+      // ) |-> (
+      //   (decode |-> result_input == ??@??)
+      // )
+      auto pre_cond = prep.empty() ? rfmap_true() : rfmap_and(prep);
+      add_an_assumption(rfmap_imply(pre_cond, res_map), "funcmap");
     } // for each apply in the list of apply
 
     name_to_fnapp_vec.erase(funcName); // remove from it
   }
+
   // check for unmapped func
   for (auto&& nf : name_to_fnapp_vec)
     ILA_ERROR << "lacking function map for func:" << nf.first;
 } // ConstructWrapper_add_uf_constraints
 
-int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(
-    nlohmann::json& pv_cond_val, const std::string& pv_name, int width,
-    bool create_reg) {
+void VlgSglTgtGen::ConstructWrapper_add_delay_unit() {
+  // for (const auto& delay_unit : refinement_map.aux_delays) {
+  //  std::cout << delay_unit.first << " : expr = "
+  //    << (delay_unit.second.signal) << std::endl;
+  // }
 
-  std::string cond = VLG_TRUE;
-  std::string val = "'hx";
-  std::string original_val_field;
+  for (const auto& delay_unit : refinement_map.aux_delays) {
+    const auto& name = delay_unit.first;
+    const auto& du = delay_unit.second;
+    unsigned width = du.width;
+    auto rhs = du.signal;
+    if (du.delay_type != rfmap::SignalDelay::delay_typeT::SINGLE &&
+        du.width > 1) {
+      width = 1;
+      rhs = rfmap_reduce_or(rhs);
+    }
 
-  for (auto&& cond_val_pair : pv_cond_val.items()) {
-    if (cond_val_pair.key() == "cond")
-      cond = ReplExpr(cond_val_pair.value(), true);
-    else if (cond_val_pair.key() == "val") {
-      original_val_field = cond_val_pair.value();
-      StrTrim(original_val_field);
-      val = ReplExpr(original_val_field, true);
-    } else if (cond_val_pair.key() == "width") {
-      if (cond_val_pair.value().is_string()) {
-        ILA_CHECK(cond_val_pair.value().get<std::string>() == "auto")
-            << "Expecting width to be unsigned int / auto";
-        ILA_CHECK(!original_val_field.empty())
-            << "You must first provide `val` field before auto";
-        if (original_val_field.find("[") != original_val_field.npos)
-          original_val_field =
-              original_val_field.substr(0, original_val_field.find("["));
-        if (S_IN("=", original_val_field)) {
-          ILA_WARN << "Creating value-holder for conditions";
-          width = 1;
-        } else if (vlg_info_ptr->check_hierarchical_name_type(
-                       original_val_field) !=
-                   VerilogInfo::hierarchical_name_type::NONE) {
-          auto vlg_sig_info = vlg_info_ptr->get_signal(
-              original_val_field, supplementary_info.width_info);
-          width = vlg_sig_info.get_width();
-        } else if (vlg_info_ptr->check_hierarchical_name_type(
-                       _vlg_mod_inst_name + "." + original_val_field) !=
-                   VerilogInfo::hierarchical_name_type::NONE) {
-          auto vlg_sig_info = vlg_info_ptr->get_signal(
-              _vlg_mod_inst_name + "." + original_val_field,
-              supplementary_info.width_info);
-          width = vlg_sig_info.get_width();
-        } else {
-          ILA_ERROR << "Cannot auto-determine value-holder width for val:"
-                    << original_val_field;
-          width = 0;
-        }
-      } else
-        width = cond_val_pair.value().get<int>();
-    } else
-      ILA_ERROR << "Unexpected key: " << cond_val_pair.key()
-                << " in post-value-holder, expecting 0-2 or cond/val/width";
-  }
-  ILA_WARN_IF(val == "'hx") << "val field is not provided for " << pv_name;
-  ILA_WARN_IF(cond == VLG_TRUE) << "cond field is not provided for " << pv_name;
-  ILA_ERROR_IF(width <= 0 && create_reg)
-      << "Cannot create signal for " << pv_name << " : unknown width!";
-  if (width >= 0 && create_reg) { // error
-    // ILA_ERROR << "width of post-value-holder `" << pv_name << "` is
-    // unknown!";
-    vlg_wrapper.add_reg(pv_name, width);
-  }
-  add_reg_cassign_assumption(pv_name, val, width, cond, "post_value_holder");
+    ILA_ERROR_IF(du.num_cycle == 0) << "Cannot delay 0 cycle";
+    std::string last_reg;
+    for (size_t didx = 1; didx <= du.num_cycle; ++didx) {
+      auto curr_name = name + "_d_" + std::to_string(didx);
+      auto prev_name = name + "_d_" + std::to_string(didx - 1);
+      vlg_wrapper.add_reg(curr_name, width);
+      if (didx == 1) {
+        // delay from signal
+        vlg_wrapper.add_wire(prev_name, width, true);
+        vlg_wrapper.add_output(prev_name, width);
+        rfmap_add_internal_wire(prev_name, width);
+        add_wire_assign_assumption(prev_name, rhs, "delay_unit");
+      }
+      vlg_wrapper.add_always_stmt(curr_name + " <= " + prev_name + " ;");
+      vlg_wrapper.add_init_stmt(curr_name + "<= 0;");
+      if (didx == du.num_cycle)
+        last_reg = curr_name;
+    } // end - for each delay
+    if (du.delay_type == rfmap::SignalDelay::delay_typeT::SINGLE) {
+      vlg_wrapper.add_wire(name, width);
+      vlg_wrapper.add_assign_stmt(name, last_reg);
+      continue;
+    } // else
+    if (du.delay_type == rfmap::SignalDelay::delay_typeT::TO_INFINITE) {
+      auto summary_var = name + "_inf_";
+      vlg_wrapper.add_reg(summary_var, 1);
+      vlg_wrapper.add_init_stmt(summary_var + "<= 1'b0;");
+      vlg_wrapper.add_always_stmt("if( " + last_reg + ") " + summary_var +
+                                  " <= 1'b1;");
+      vlg_wrapper.add_wire(name, 1);
+      vlg_wrapper.add_assign_stmt(name, summary_var + " || " + last_reg);
+      continue;
+    }
+    // finally the range
+    // if (du.delay_type == rfmap::SignalDelay::delay_typeT::RANGE)
+    ILA_ERROR_IF(du.upper_bnd <= du.num_cycle)
+        << "in `##[l:u]`, we need `l < u` ";
+    std::string or_reduce = last_reg;
+    for (size_t didx = du.num_cycle + 1; didx <= du.upper_bnd; ++didx) {
+      auto curr_name = name + "_d_" + std::to_string(didx);
+      auto prev_name = name + "_d_" + std::to_string(didx - 1);
+      vlg_wrapper.add_reg(curr_name, 1);
+      vlg_wrapper.add_init_stmt(curr_name + " <= 0;");
+      vlg_wrapper.add_always_stmt(curr_name + " <= " + prev_name + " ;");
 
-  return width;
-}
+      or_reduce += " || " + curr_name;
+    }
+    vlg_wrapper.add_wire(name, 1);
+    vlg_wrapper.add_assign_stmt(name, or_reduce);
+  } // end for each delay unit
+} // end ConstructWrapper_add_delay_unit
+
+void VlgSglTgtGen::ConstructWrapper_add_stage_tracker() {
+  for (const auto& n_tracker : refinement_map.phase_tracker) {
+    const auto& tracker_name = n_tracker.first;
+    const auto& tracker = n_tracker.second;
+
+    for (const auto& vardef : tracker.var_defs) {
+      // already in refinement_map.all_var_def_types
+      const auto& vn = vardef.first;
+      if (vardef.second.type ==
+          rfmap::GeneralVerilogMonitor::VarDef::var_type::REG)
+        vlg_wrapper.add_reg(vn, vardef.second.width);
+      else
+        vlg_wrapper.add_wire(vn, vardef.second.width);
+    }
+    for (const auto& event_alias : tracker.event_alias) {
+      vlg_wrapper.add_wire(event_alias.first, 1);
+      vlg_wrapper.add_output(event_alias.first, 1);
+      rfmap_add_internal_wire(event_alias.first, 1);
+      // add_wire_assign_assumption
+      add_wire_assign_assumption(event_alias.first, event_alias.second,
+                                 "stage_tracker");
+    }
+    unsigned sidx = 0;
+    for (const auto& stage : tracker.rules) {
+      const std::string& stage_name = stage.stage_name;
+      ILA_CHECK(!stage_name.empty())
+          << "stage name is empty for " << tracker_name;
+      vlg_wrapper.add_reg(stage_name, 1);
+
+      std::string enter_cond_wire_name = stage_name + "_enter_cond";
+      std::string exit_cond_wire_name = stage_name + "_exit_cond";
+      std::string enter_action_wire_name = stage_name + "_enter_action";
+      std::string exit_action_wire_name = stage_name + "_exit_action";
+
+      vlg_wrapper.add_init_stmt(stage_name + "<= 1'b0;");
+      vlg_wrapper.add_always_stmt("if(" + enter_cond_wire_name + ") begin " +
+                                  stage_name + " <= 1'b1;");
+      vlg_wrapper.add_wire(enter_cond_wire_name, 1, true);
+      vlg_wrapper.add_output(enter_cond_wire_name, 1);
+      rfmap_add_internal_wire(enter_cond_wire_name, 1);
+      ILA_NOT_NULL(stage.enter_rule);
+      add_wire_assign_assumption(enter_cond_wire_name, stage.enter_rule,
+                                 "phase_tracker");
+
+      unsigned idx = 0;
+      for (const auto& action : stage.enter_action) {
+        auto pos_def_var = refinement_map.all_var_def_types.find(action.LHS);
+        ILA_ERROR_IF(pos_def_var == refinement_map.all_var_def_types.end())
+            << "Cannot find var def for " << action.LHS
+            << " used in LHS of phase tracker " << tracker_name;
+
+        std::string action_name =
+            enter_action_wire_name + std::to_string(idx++);
+        vlg_wrapper.add_always_stmt(action.LHS + " <= " + action_name + ";");
+
+        vlg_wrapper.add_wire(action_name, pos_def_var->second.width, true);
+        vlg_wrapper.add_output(action_name, pos_def_var->second.width);
+        rfmap_add_internal_wire(action_name, pos_def_var->second.width);
+        add_wire_assign_assumption(action_name, action.RHS, "phase_tracker");
+      }
+
+      vlg_wrapper.add_always_stmt("end");
+      vlg_wrapper.add_always_stmt("else if(" + exit_cond_wire_name +
+                                  ") begin " + stage_name + " <= 1'b0;");
+
+      vlg_wrapper.add_wire(exit_cond_wire_name, 1, true);
+      vlg_wrapper.add_output(exit_cond_wire_name, 1);
+      rfmap_add_internal_wire(exit_cond_wire_name, 1);
+      if (stage.exit_rule == nullptr)
+        vlg_wrapper.add_assign_stmt(exit_cond_wire_name, "1'b0");
+      else
+        add_wire_assign_assumption(exit_cond_wire_name, stage.exit_rule,
+                                  "phase_tracker");
+
+      idx = 0;
+      for (const auto& action : stage.exit_action) {
+        auto pos_def_var = refinement_map.all_var_def_types.find(action.LHS);
+        ILA_ERROR_IF(pos_def_var == refinement_map.all_var_def_types.end())
+            << "Cannot find var def for " << action.LHS
+            << " used in LHS of phase tracker " << tracker_name;
+
+        std::string action_name = exit_action_wire_name + std::to_string(idx++);
+        vlg_wrapper.add_always_stmt(action.LHS + " <= " + action_name + ";");
+        vlg_wrapper.add_wire(action_name, pos_def_var->second.width, true);
+        vlg_wrapper.add_output(action_name, pos_def_var->second.width);
+        rfmap_add_internal_wire(action_name, pos_def_var->second.width);
+        add_wire_assign_assumption(action_name, action.RHS, "phase_tracker");
+      }
+
+      vlg_wrapper.add_always_stmt("end");
+
+      sidx++;
+    } // for each stage
+  }   // for each tracker
+} // ConstructWrapper_add_stage_tracker
 
 void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
-  if (!IN("post-value-holder", rf_vmap) && !IN("value-holder", rf_vmap))
-    return; // no need for it
-  ILA_WARN_IF(IN("post-value-holder", rf_vmap))
-      << "The name `post-value-holder` will be deprecated in the future, "
-      << "please use `value-holder` instead";
-  auto& post_val_rec = IN("value-holder", rf_vmap)
-                           ? rf_vmap["value-holder"]
-                           : rf_vmap["post-value-holder"];
-  if (!post_val_rec.is_object()) {
-    ILA_ERROR << "Expect (post-)value-holder to be map-type";
-    return;
-  }
-  for (auto&& item : post_val_rec.items()) {
-    const auto& pv_name = item.key();
-    auto& pv_cond_val = item.value();
-    ILA_ERROR_IF(!(pv_cond_val.is_array() || pv_cond_val.is_object()))
-        << "Expecting (post-)value-holder's content to be list or map type";
-    if (pv_cond_val.is_array() &&
-        (!pv_cond_val.empty() &&
-         (pv_cond_val.begin()->is_array() ||
-          pv_cond_val.begin()->is_object()))) { // multiple condition
-      int w = 0;
-      bool first = true;
-      for (auto ptr = pv_cond_val.begin(); ptr != pv_cond_val.end(); ++ptr) {
-        w = ConstructWrapper_add_post_value_holder_handle_obj(*ptr, pv_name, w,
-                                                              first);
-        first = false;
-      }
-    } else { // it is just a single line
-      ConstructWrapper_add_post_value_holder_handle_obj(pv_cond_val, pv_name, 0,
-                                                        true);
-    }
-  } // for item
+  for (const auto& post_val_holder : refinement_map.value_recorder) {
+    const auto& pv_name = post_val_holder.first;
+    vlg_wrapper.add_reg(pv_name, post_val_holder.second.width);
+    rfmap_add_internal_reg(pv_name, post_val_holder.second.width);
+
+    auto eq_cond =
+        _vtg_config.EnforcingValueRecorderForOnlyOneCycle
+            ? rfmap_and(
+                  {rfmap_or(rfmap_var("__START__"), rfmap_var("__STARTED__")),
+                   rfmap_not(rfmap_var(pv_name + "_sn_condmet")),
+                   post_val_holder.second.condition})
+            : post_val_holder.second.condition;
+
+    add_reg_cassign_assumption(pv_name, post_val_holder.second.value,
+                               post_val_holder.second.width, eq_cond,
+                               "post_value_holder");
+
+    // for sanity check
+    vlg_wrapper.add_reg(pv_name + "_sn_vhold", post_val_holder.second.width);
+    rfmap_add_internal_reg(pv_name + "_sn_vhold", post_val_holder.second.width);
+    vlg_wrapper.add_wire(pv_name + "_sn_value", post_val_holder.second.width);
+    rfmap_add_internal_wire(pv_name + "_sn_value",
+                            post_val_holder.second.width);
+
+    vlg_wrapper.add_reg(pv_name + "_sn_condmet", 1);
+    rfmap_add_internal_reg(pv_name + "_sn_condmet", 1);
+    vlg_wrapper.add_wire(pv_name + "_sn_cond", 1);
+    rfmap_add_internal_wire(pv_name + "_sn_cond", 1);
+    vlg_wrapper.add_init_stmt(pv_name + "_sn_condmet <= 1'b0;");
+    vlg_wrapper.add_always_stmt("if (" + pv_name + "_sn_cond ) begin " +
+                                pv_name + "_sn_condmet <= 1'b1; " + pv_name +
+                                "_sn_vhold <= " + pv_name + "_sn_value; end");
+
+    // pv_sn_cond = <condition> && ( __START__ || __STARTED__ )
+    add_wire_assign_assumption(
+        pv_name + "_sn_cond",
+        rfmap_and({post_val_holder.second.condition,
+                  rfmap_or(rfmap_var("__START__"), rfmap_var("__STARTED__")),
+                  rfmap_not(rfmap_var("__ENDED__"))
+                  }),
+        "pvholder_cond_assign");
+
+    // pv_sn_value = <value>
+    add_wire_assign_assumption(pv_name + "_sn_value",
+                               post_val_holder.second.value,
+                               "pvholder_cond_assign");
+
+    add_a_santiy_assertion(
+        // cond && cond_met |-> value == value_stored
+        rfmap_imply(rfmap_and(rfmap_var(pv_name + "_sn_condmet"),
+                              rfmap_var(pv_name + "_sn_cond")),
+                    rfmap_eq(rfmap_var(pv_name + "_sn_value"),
+                             rfmap_var(pv_name + "_sn_vhold"))),
+        "post_value_holder_overly_constrained");
+
+    // check : commit -> _cond_met
+    add_a_santiy_assertion(
+      rfmap_imply(rfmap_var("commit"), 
+      rfmap_or(
+       rfmap_var(pv_name + "_sn_condmet"),
+       rfmap_var(pv_name + "_sn_cond")
+       )),
+      "post_value_holder_triggered");
+    
+  } // for each value recorder
 } // ConstructWrapper_add_post_value_holder
 
-void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
-  if (!IN("verilog-inline-monitors", rf_vmap))
-    return; // no need for it
-
-  auto& monitor_rec = rf_vmap["verilog-inline-monitors"];
-  if (!monitor_rec.is_object()) {
-    ILA_ERROR << "Expect verilog-inline-monitors to be map-type";
-    return;
+/// Add direct aux vars
+void VlgSglTgtGen::ConstructWrapper_add_direct_aux_vars() {
+  for (const auto & n_expr : refinement_map.direct_aux_vars) {
+    const auto & n = n_expr.first;
+    auto w = n_expr.second.width;
+    ILA_CHECK(w!=0); // aux var should have its width
+    vlg_wrapper.add_wire(n,w,true);
+    vlg_wrapper.add_output(n,w);
+    add_wire_assign_assumption(n, n_expr.second.val, "direct_aux_var");
   }
+}
 
-  for (auto&& m_rec : monitor_rec.items()) {
-    const auto& mname = m_rec.key(); // actually no use
-    auto& mdef = m_rec.value();
-    ILA_ERROR_IF(!(mdef.is_object()))
-        << "Expect verilog-inline-monitors's element to be map type";
+void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
+  if (refinement_map.customized_monitor.empty())
+    return;
+
+  const auto& monitor_rec = refinement_map.customized_monitor;
+
+  for (auto&& m_rec : monitor_rec) {
+
+    const auto& mname = m_rec.first;
+    const auto& mdef = m_rec.second; // generalMonitor
+
     std::string vlg_expr;
     std::vector<std::string> repl_list;
-    bool keep_for_non_instruction_target = false;
-    if (IN("keep-for-invariants", mdef) &&
-        mdef["keep-for-invariants"].get<bool>())
-      keep_for_non_instruction_target = true;
+    bool keep_for_non_instruction_target = mdef.keep_for_invariant;
+
     if (target_type != target_type_t::INSTRUCTIONS &&
         !keep_for_non_instruction_target)
       continue;
-    for (auto&& vlg_inp_pair : mdef.items()) {
-      if (vlg_inp_pair.key() == "verilog") {
-        auto& vlg_field = vlg_inp_pair.value();
-        if (vlg_field.is_string()) {
-          vlg_expr = vlg_field.get<std::string>();
-        } else if (vlg_field.is_array() or vlg_field.is_object()) {
-          for (auto&& line : vlg_field.items()) {
-            if (!line.value().is_string()) {
-              ILA_ERROR << "Expecting string/list-of-string in `verilog` field "
-                           "of `verilog-inline-monitors`";
-              continue;
-            }
-            vlg_expr += line.value().get<std::string>() + "\n";
-          }
-        } else
-          ILA_ERROR << "Expecting string/list-of-string in `verilog` field of "
-                       "`verilog-inline-monitors`";
-      } else if (vlg_inp_pair.key() == "refs") {
-        auto& ref_field = vlg_inp_pair.value();
-        if (ref_field.is_string())
-          repl_list.push_back(vlg_inp_pair.value().get<std::string>());
-        else if (ref_field.is_array()) {
-          for (auto&& vlg_name : ref_field.items()) {
-            if (!vlg_name.value().is_string()) {
-              ILA_ERROR << "Expecting string/list-of-string in `refs` field of "
-                           "`verilog-inline-monitors`";
-              continue;
-            }
-            repl_list.push_back(vlg_name.value().get<std::string>());
-          }
-        } else
-          ILA_ERROR << "Expecting string/list-of-string in `refs` field of "
-                       "`verilog-inline-monitors`";
-      } else if (vlg_inp_pair.key() == "defs") {
-        if (vlg_inp_pair.value().is_array()) {
-          auto& defs = vlg_inp_pair.value();
-          for (auto&& def : defs.items()) {
-            std::string defname;
-            int width = 0;
-            std::string type;
 
-            for (auto&& nwt : def.value().items()) {
-              // name , width , type
-              if (nwt.key() == "0" || nwt.key() == "name") {
-                defname = nwt.value().get<std::string>();
-              } else if (nwt.key() == "1" || nwt.key() == "width") {
-                width = nwt.value().get<int>();
-              } else if (nwt.key() == "2" || nwt.key() == "type") {
-                type = nwt.value().get<std::string>();
-              } else
-                ILA_ERROR << "Expecting key in [0,2] or [name,width,type]";
-            }
-
-            if (defname.empty() || width == 0 ||
-                (type != "reg" && type != "wire"))
-              ILA_ERROR << "Cannot create monitor for " << mname;
-            else {
-              if (type == "reg")
-                vlg_wrapper.add_reg(defname, width);
-              else
-                vlg_wrapper.add_wire(defname, width, true);
-            }
-          } // for each def in the array
-        } else
-          ILA_ERROR << "Expecting list-of-map in `defs` field of "
-                       "`verilog-inline-monitors`";
-      } else if (vlg_inp_pair.key() == "keep-for-invariants") {
-        ILA_ASSERT(vlg_inp_pair.value().get<bool>() ==
-                   keep_for_non_instruction_target);
-      } else
-        ILA_ERROR << "Unexpected key: " << vlg_inp_pair.key()
-                  << " in verilog-inline-monitors, expecting "
-                     "verilog/refs/defs/keep-for-invariants";
-    } // for vlg_inp_pair
-    for (const auto& w : repl_list) {
-      const std::string repl = ReplExpr(w, true);
-      vlg_expr = ReplaceAll(vlg_expr, w, repl);
+    for (const auto& n_def : mdef.var_defs) {
+      // already in refinement_map.all_var_def
+      if (n_def.second.type ==
+          rfmap::GeneralVerilogMonitor::VarDef::var_type::REG)
+        vlg_wrapper.add_reg(n_def.first, n_def.second.width);
+      else
+        vlg_wrapper.add_wire(n_def.first, n_def.second.width);
     }
-    vlg_wrapper.add_stmt(vlg_expr);
+
+    unsigned idx = 0;
+    std::vector<std::pair<std::string, std::string>> replace_list;
+    for (auto pos1 = mdef.var_uses.begin(); pos1 != mdef.var_uses.end(); ++pos1) {
+      for (auto pos2 = mdef.var_uses.begin(); pos2 != mdef.var_uses.end(); ++pos2) {
+        if(pos1 == pos2) continue;
+        ILA_ERROR_IF( (*pos1).find(*pos2) != std::string::npos) << *pos2 << " is part of " << *pos1;
+      }
+    }
+
+    for (const auto& vref : mdef.var_uses) {
+
+      auto vref_node = rfmap::VerilogRefinementMap::ParseRfExprFromString(vref);
+      auto new_name = mname + "_auxvar" + std::to_string(idx++);
+
+      auto tp = refinement_map.TypeInferTravserRfExpr(vref_node, {});
+
+      ILA_ERROR_IF(tp.is_unknown())
+          << "Cannot determine width of " << vref << " in monitor " << mname;
+
+      auto width = tp.unified_width();
+      vlg_wrapper.add_wire(new_name, width, true);
+      vlg_wrapper.add_output(new_name, width);
+      rfmap_add_internal_wire(new_name, width);
+      add_wire_assign_assumption(new_name, vref_node, "monitor_auxvar");
+
+      replace_list.push_back(std::make_pair(vref, new_name));
+    }
+
+    auto vlog_inline = mdef.verilog_inline;
+    for (const auto& old_new_pair : replace_list) {
+      // std::cout << vlog_inline << std::endl;
+      vlog_inline =
+          ReplaceAll(vlog_inline, old_new_pair.first, old_new_pair.second);
+      // std::cout << old_new_pair.first << std::endl;
+      // std::cout << old_new_pair.second << std::endl;
+      // std::cout << vlog_inline << std::endl;
+    }
+    vlg_wrapper.add_stmt(vlog_inline);
+
   } // for monitor_rec.items()
 } // ConstructWrapper_add_vlg_monitor
+
+const rfmap::InstructionCompleteCondition&
+VlgSglTgtGen::get_current_instruction_rf() {
+  ILA_NOT_NULL(_instr_ptr);
+  const auto& inst_name = _instr_ptr->name().str();
+  auto pos = refinement_map.inst_complete_cond.find(inst_name);
+  if(pos == refinement_map.inst_complete_cond.end() &&
+     refinement_map.global_inst_complete_set)
+    return refinement_map.global_inst_complete_cond;
+  ILA_ERROR_IF(pos == refinement_map.inst_complete_cond.end() &&
+              !refinement_map.global_inst_complete_set)
+      << "Cannot find the completion condition for " << inst_name;
+  return pos->second;
+} // get_current_instruction_rf
 
 } // namespace ilang

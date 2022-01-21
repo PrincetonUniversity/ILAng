@@ -1,0 +1,47 @@
+{
+  "state mapping": {  
+  	"r0":[ ["__START__", "RTL.registers[0] @ (#ppl_stage_wb# && RTL.wb_go)"] , ["1'b1", "RTL.registers[0]"] ] ,
+    "r1":[ ["__START__", "RTL.registers[1] @ (#ppl_stage_wb# && RTL.wb_go)"] , ["1'b1", "RTL.registers[1]"] ] ,
+    "r2":[ ["__START__", "RTL.registers[2] @ (#ppl_stage_wb# && RTL.wb_go)"] , ["1'b1", "RTL.registers[2]"] ] ,
+    "r3":[ ["__START__", "RTL.registers[3] @ (#ppl_stage_wb# && RTL.wb_go)"] , ["1'b1", "RTL.registers[3]"] ] },
+
+  "input mapping": {
+     "inst":"RTL.inst"
+  },
+
+  "rtl-interface-connection" : {
+    "CLOCK" : "clk",
+    "RESET" : "rst"
+  },
+
+  "monitor" : {
+    // pipeline tracker
+    "ppl_stage" : {
+      "template" : "phase tracker",
+      "rules" : [
+        { // 1
+          "name"  : "ex",
+          "enter" : {"event" : "#decode#"},
+          "exit"  : {"event" : "RTL.ex_go"}
+        },
+
+        { // 2
+          "name"  : "wb",
+          "enter" : {"event" : "#ppl_stage_ex# && RTL.ex_go"},
+          "exit"  : {"event" : "RTL.wb_go"}
+        },
+
+        { // 3
+          "name"  : "finish",
+          "enter" : {"event" : "#ppl_stage_wb# && RTL.wb_go"},
+          "exit"  : {"event" : "1"}
+        }
+      ]
+
+    }
+  }, // end of monitor
+  "additional mapping" : [
+    "#decode# |-> ( RTL.inst_ready && RTL.inst_valid)",
+    "#decode# |-> ( RTL.inst == ILA.inst ) " // for the other time, there is no guarantee
+  ]
+}

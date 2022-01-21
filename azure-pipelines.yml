@@ -55,27 +55,6 @@ jobs:
       ./test/unit_tests
     displayName: 'build'
 
-- job: Ubuntu_1604_LTS
-  pool:
-    vmImage: 'ubuntu-16.04'
-  steps:
-  - script: |
-      sudo apt-get update
-      sudo apt-get install bison
-      sudo apt-get install flex
-      sudo apt-get install z3
-      sudo apt-get install libz3-dev
-      sudo apt-get install g++-7   
-    displayName: 'package'
-  - script: |
-      mkdir -p build 
-      cd build
-      cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-7
-      cmake --build .
-      sudo cmake --build . --target install 
-      cmake --build . --target test
-    displayName: 'build'
-
 - job: Ubuntu_1804_LTS
   pool:
     vmImage: 'ubuntu-18.04'
@@ -86,6 +65,7 @@ jobs:
       sudo apt-get install flex
       sudo apt-get install z3
       sudo apt-get install libz3-dev
+      sudo apt-get install libfl-dev
       sudo apt-get install g++-8   
     displayName: 'package'
   - script: |
@@ -118,7 +98,7 @@ jobs:
       cd glog
       md build
       cd build
-      cmake ..
+      cmake ..  -DFLEXLEXER_INCLUDE_PATH=c:\ProgramData\chocolatey\lib\winflexbison3\tools\
       cmake --build . --target install
     displayName: 'glog'
 
@@ -141,10 +121,19 @@ jobs:
     displayName: 'vlog-parser'
 
   - script: |
+      cd extern
+      cd vexpparser
+      md build
+      cd build
+      cmake .. -DFLEXLEXER_INCLUDE_PATH=c:\ProgramData\chocolatey\lib\winflexbison3\tools\
+      cmake --build . --target install
+    displayName: 'vexpparser'
+
+  - script: |
       md build
       cd build
       # For building the test, we need CMAKE_MSVC_RUNTIME_LIBRARY (which will be supported in CMake 3.15+)
-      cmake .. -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
+      cmake .. -DILANG_BUILD_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DILANG_BUILD_INVSYN=OFF -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe -DFLEXLEXER_INCLUDE_PATH=c:\ProgramData\chocolatey\lib\winflexbison3\tools\
       cmake --build .
       cmake --build . --target install
     displayName: 'build'
@@ -153,7 +142,7 @@ jobs:
       cd starter
       md build
       cd build
-      cmake .. -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe
+      cmake .. -DZ3_INCLUDE_DIR=$(Build.Repository.LocalPath)/z3/include -DZ3_LIBRARY=$(Build.Repository.LocalPath)/z3/bin/libz3.lib -DZ3_EXEC=$(Build.Repository.LocalPath)/z3/bin/z3.exe -DFLEXLEXER_INCLUDE_PATH=c:\ProgramData\chocolatey\lib\winflexbison3\tools\
       cmake --build . 
     displayName: 'starter'
 

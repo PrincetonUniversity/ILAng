@@ -14,6 +14,7 @@
 #include <ilang/target-smt/smt_switch_itf.h>
 #include <ilang/util/log.h>
 #include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/vtarget_gen.h>
 
 #ifdef SMTSWITCH_INTERFACE
 #include <smt-switch/smt.h>
@@ -867,5 +868,31 @@ smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
   return itf.GetSmtTerm(expr.get(), suffix);
 }
 #endif // SMTSWITCH_INTERFACE
+
+IlaVerilogRefinementChecker::IlaVerilogRefinementChecker(
+      const Ila& ila,
+      const std::vector<std::string>& implementation_include_path,
+      const std::vector<std::string>& implementation_srcs,
+      const std::string& implementation_top_module,
+      const std::string& refinement_variable_mapping,
+      const std::string& refinement_conditions, 
+      const std::string& output_path,
+      ModelCheckerSelection backend,
+      const RtlVerifyConfig& vtg_config ) {
+  
+  VerilogVerificationTargetGenerator checker(
+    implementation_include_path,
+    implementation_srcs,
+    implementation_top_module,
+    refinement_variable_mapping,
+    refinement_conditions,
+    output_path,
+    ila.get(),
+    backend,
+    vtg_config
+  );
+
+  checker.GenerateTargets();
+}
 
 } // namespace ilang

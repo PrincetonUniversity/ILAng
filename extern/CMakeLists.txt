@@ -127,6 +127,39 @@ endif() # VERILOGPARSER_FOUND
 
 
 # ---------------------------------------------------------------------------- #
+# Verilog Expression Parser
+# 
+#   TARGET vexpparser::vexpparser
+#   SOURCE https://github.com/zhanghongce/vexpparser.git
+#   PATH   extern/vexpparser
+# ---------------------------------------------------------------------------- #
+# find installed package
+find_package(vexpparser 1.1.0 QUIET)
+
+# embed to build tree if not installed
+if(NOT VEXP_PARSER_FOUND)
+
+  # fetch from git
+  if(${ILANG_FETCH_DEPS})
+
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init vexpparser
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    endif()
+
+  endif() # ILANG_FETCH_DEPS
+
+  # embedded build
+  add_subdirectory(vexpparser)
+
+endif() # VERILOGPARSER_FOUND
+
+# ---------------------------------------------------------------------------- #
 # Template-based ILA Synthesis
 #
 #   TARGET  ilasynth::ilasynth

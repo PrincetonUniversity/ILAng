@@ -82,10 +82,11 @@ SignalInfoBase VerilogInfo::get_signal(const std::string& net_name) const {
 /// Find a signal (and use the width info, if width is unknown)
 SignalInfoBase
 VerilogInfo::get_signal(const std::string& net_name,
-                        const std::map<std::string, int>& width_info) const {
+                        const std::map<std::string, int>& width_info,
+                        const std::map<std::string, int>& range_info) const {
   const VerilogAnalyzer* _ptr = dynamic_cast<const VerilogAnalyzer*>(_analyzer);
   ILA_NOT_NULL(_ptr);
-  return _ptr->get_signal(net_name, &width_info);
+  return _ptr->get_signal(net_name, &width_info, &range_info);
 }
 
 bool VerilogInfo::in_bad_state() const {
