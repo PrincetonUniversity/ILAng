@@ -70,6 +70,8 @@ namespace ilang {
       return ctxfp_.query(q);
     }
 
+    ExprSet scope() { return total_scope_; }
+
   private:
     const InstrLvlAbsPtr ila_;
     const pgraph::CutpointGraph pg_;
