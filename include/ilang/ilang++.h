@@ -766,7 +766,7 @@ namespace programfragment {
   
   /// \brief Wrapper for a bitvector that allows it to be automatically 
   /// zero/sign extended as part of an Update statement.
-  struct ExtendableBv { 
+  struct ExtendableBv {
     ExprRef expr;
     enum ExtMode {EXT_ZERO, EXT_SIGNED} ext_mode;
 
@@ -888,6 +888,8 @@ namespace programfragment {
     /// Destroys a program fragment
     ~ProgramFragment()=default;
 
+    /// TODO: these aren't parameters, they are helper variables
+
     /// Creates a new boolean variable and registers it as a parameter
     ExprRef NewBoolVar(const std::string& name);
 
@@ -898,8 +900,20 @@ namespace programfragment {
     ExprRef NewMemVar(const std::string& name, 
                       const int& addrwidth, const int& datawidth);
 
-    // void RegisterApplicationParam(const ExprRef& p);
-    // void RegisterHardwareParam(const ExprRef& p);
+    /// Returns the number of parameters registered
+    size_t num_params();
+
+    /// Returns the nth registered parameter
+    ExprRef param(size_t n);
+
+    /// Returns registered parameter with the given name
+    ExprRef param(const std::string& name);
+
+    /// Returns the body of the program fragment
+    Block body();
+
+    /// Registers the given parameter in this program fragment
+    void RegisterParam(const ExprRef& p);
 
     /// Adds the given statement to the program fragment
     void AddStatement(const Stmt& s);
@@ -912,6 +926,7 @@ namespace programfragment {
 
   private:
     PfragPtr pf_;
+    Block body_;
   };
 
   /// Checks structural equality
@@ -946,6 +961,9 @@ class IlaToChcEncoder {
     
     /// Destructor 
     ~IlaToChcEncoder()=default;
+
+    /// Returns the set of variables read or written by a program fragment
+    std::vector<ExprRef> scope() const;
 
     /// Gives the system of CHCs as a string
     std::string to_string();
