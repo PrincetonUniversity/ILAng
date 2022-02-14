@@ -44,6 +44,10 @@ std::ostream& ExprVar::Print(std::ostream& out) const {
   }
 }
 
+std::ostream& ExprVar::PrintPretty(std::ostream& out) const {
+  return Print(out);
+}
+
 std::ostream& ExprVar::PrintBool(std::ostream& out) const {
   return out << name();
 }

@@ -86,6 +86,10 @@ std::ostream& ExprConst::Print(std::ostream& out) const {
   }
 }
 
+std::ostream& ExprConst::PrintPretty(std::ostream& out) const {
+  return Print(out);
+}
+
 BoolValPtr ExprConst::val_bool() const {
   ILA_ASSERT(is_bool()) << "Not boolean constant";
   return std::static_pointer_cast<BoolVal>(val_);
