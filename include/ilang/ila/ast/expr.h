@@ -90,6 +90,9 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
+  /// Pretty output function
+  virtual std::ostream& PrintPretty(std::ostream& out) const = 0;
+
   /// Overload output stream operator for pointer.
   friend std::ostream& operator<<(std::ostream& out, const ExprPtr& expr) {
     return expr->Print(out);

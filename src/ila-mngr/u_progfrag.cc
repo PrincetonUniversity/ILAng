@@ -67,17 +67,20 @@ namespace pfast {
   }
 
   void PrettyPrinter::operator()(const Assert& a) {
-    buf_ << reserved_word("assert") << " " << a.assertion;
+    buf_ << reserved_word("assert") << " ";
+    a.assertion->PrintPretty(buf_);
   }
 
   void PrettyPrinter::operator()(const Assume& a) {
-    buf_ << reserved_word("assume") << " " << a.assumption;
+    buf_ << reserved_word("assume") << " "; 
+    a.assumption->PrintPretty(buf_);
   }
 
   void PrettyPrinter::operator()(const Call& c) {
     buf_ << reserved_word("call") << " " << c.instr->name().str();
     if (c.input_constraint) {
-      buf_ << " where " << c.input_constraint;
+      buf_ << " where ";
+      c.input_constraint->PrintPretty(buf_);
     }
   }
 
@@ -86,14 +89,16 @@ namespace pfast {
     bool first = true;
     for (const auto& [x, v] : u) {
       buf_ << (first ? " " : ", ")
-           << x << " = " << v;
+           << x << " = ";
+      v->PrintPretty(buf_);
       first = false;
     }
   }
 
   void PrettyPrinter::operator()(const While& w) {
-    buf_ << reserved_word("while") << " " 
-         << w.loop_condition << " ";
+    buf_ << reserved_word("while") << " ";
+    w.loop_condition->PrintPretty(buf_);
+    buf_ << " ";
     (*this)(w.body);
   }
 
