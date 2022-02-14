@@ -37,6 +37,9 @@ public:
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
+  /// Pretty output function
+  std::ostream& PrintPretty(std::ostream& out) const;
+
   /// Return the Boolean value.
   BoolValPtr val_bool() const;
   /// Return the Bitvector value.

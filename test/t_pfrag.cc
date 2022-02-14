@@ -24,20 +24,20 @@ namespace pf2graph {
 
   using namespace pfast;
 
-  InstrLvlAbsPtr simple_counter_ila() {
-    Ila m {"Counter"};
+  InstrLvlAbsPtr simple_counter_ila(std::string suffix="") {
+    Ila m {"Counter" + suffix};
 
-    auto ctr = m.NewBvState(COUNTER_STATE_CTR, 8);
-    auto op = m.NewBvInput(COUNTER_INPUT_OP, 2);
+    auto ctr = m.NewBvState(COUNTER_STATE_CTR + suffix, 8);
+    auto op = m.NewBvInput(COUNTER_INPUT_OP + suffix, 2);
 
     { // increment
-      auto instr = m.NewInstr(COUNTER_INSTR_INC);
+      auto instr = m.NewInstr(COUNTER_INSTR_INC + suffix);
       instr.SetDecode(op == COUNTER_OP_INC);
       instr.SetUpdate(ctr, ctr + 1);
     }
 
     { // decrement
-      auto instr = m.NewInstr(COUNTER_INSTR_DEC);
+      auto instr = m.NewInstr(COUNTER_INSTR_DEC + suffix);
       instr.SetDecode(op == COUNTER_OP_DEC);
       instr.SetUpdate(ctr, Ite(ctr == 0, BvConst(0, 8), ctr - 1));
     }
@@ -395,12 +395,84 @@ namespace pf2graph {
     EXPECT_EQ(res, z3::unsat);
   }
 
-  TEST(Pf2chc, Hierarchy) {
+  TEST(Pf2chc, CounterLoop2) {
 
+    InstrLvlAbsPtr m1 = simple_counter_ila("1");
+    InstrLvlAbsPtr m2 = simple_counter_ila("2");
+    auto inst_inc1 = m1->instr(COUNTER_INSTR_INC "1"); // implicit concat of str literals
+    auto inst_inc2 = m2->instr(COUNTER_INSTR_INC "2"); // implicit concat of str literals
+
+    auto ctr1 = m1->state(COUNTER_STATE_CTR "1"); // implicit concat of str literals
+    auto ctr2 = m2->state(COUNTER_STATE_CTR "2"); // implicit concat of str literals
+
+    auto ctr_w = ctr1->sort()->bit_width();
+    auto n = m1->NewBvFreeVar("n", ctr_w);
+    auto i = m1->NewBvFreeVar("i", ctr_w);
+
+    auto inv1 = asthub::And(asthub::Eq(ctr1, i), asthub::Le(i, n));
+    auto inv2 = asthub::And(asthub::Eq(ctr2, i), asthub::Le(i, n));
+
+    // program fragment
+    ProgramFragment pf {{ n, i }, {
+      Assume {asthub::Eq(ctr1, 0)},
+      Assume {asthub::Eq(ctr2, 0)},
+      Assume {asthub::Gt(n, 0)},
+      Assume {asthub::Lt(n, 15)},  // keeps runtime short
+
+      Update { {i, asthub::BvConst(0, ctr_w)} },
+      Assert { inv1 },
+      While { asthub::Lt(i, n), {
+        Assume { inv1 },
+        Call { inst_inc1, asthub::BoolConst(true) },
+        Update { {i, asthub::Add(i, asthub::BvConst(1, ctr_w))} },
+        Assert { inv1 },
+      }},
+      Assume { inv1 },
+
+      Update { {i, asthub::BvConst(0, ctr_w)} },
+      Assert { inv2 },
+      While { asthub::Lt(i, n), {
+        Assume { inv2 },
+        Call { inst_inc2, asthub::BoolConst(true) },
+        Update { {i, asthub::Add(i, asthub::BvConst(1, ctr_w))} },
+        Assert { inv2 },
+      }},
+      Assume { inv2 },
+      Assert { asthub::And(
+        asthub::Eq(ctr1, n), asthub::Eq(ctr1, ctr2)) }
+    }};
+
+    z3::context ctx;
+    z3::fixedpoint ctxfp {ctx};
+
+    // use spacer instead of datalog
+    z3::params p {ctx};
+    p.set("engine", "spacer");
+    ctxfp.set(p);
+
+    PFToCHCEncoder encoder {ctx, ctxfp, m1, pf};
+    
+    // std::cout << "\nEncoded successfully!\n" << std::endl;
+
+    // std::cout << encoder.to_string() << std::endl;
+
+    EXPECT_NO_THROW(encoder.to_string());
+
+    z3::check_result res = z3::sat;
+    try {
+      res = encoder.check_assertions();
+    } catch (const z3::exception& e) {
+      std::cout << "Error: " << e << std::endl;
+    }
+
+    EXPECT_EQ(res, z3::unsat);
+  }
+
+  TEST(Pf2chc, Hierarchy) {
     Ila m {"Broadcast"};
 
-    constexpr int msg_bits = 64;
-    constexpr int port_bits = 8;
+    constexpr int msg_bits = 8;
+    constexpr int port_bits = 4;
 
     auto next_msg = m.NewBvInput("next_msg", msg_bits);
     auto msg = m.NewBvState("msg", msg_bits);
@@ -491,9 +563,9 @@ namespace pf2graph {
     z3::fixedpoint ctxfp {ctx};
 
     // use spacer instead of datalog
-    z3::params p {ctx};
-    p.set("engine", "spacer");
-    ctxfp.set(p);
+    // z3::params p {ctx};
+    // p.set("engine", "spacer");
+    // ctxfp.set(p);
 
     PFToCHCEncoder encoder {ctx, ctxfp, m.get(), pf};
     

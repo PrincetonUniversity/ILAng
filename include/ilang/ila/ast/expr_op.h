@@ -89,6 +89,9 @@ public:
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
+  /// Pretty output function
+  std::ostream& PrintPretty(std::ostream& out) const;
+
 protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Derived the sort for binary operations.

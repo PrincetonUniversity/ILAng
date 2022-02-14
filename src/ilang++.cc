@@ -952,38 +952,55 @@ namespace programfragment {
     : pf_ {new pfast::ProgramFragment{{}, convert_block(b)}} {}
 
   ExprRef ProgramFragment::NewBoolVar(const std::string& name) {
-    auto v = asthub::NewBoolVar(name);
-    pf_->params.insert(v);
-    return ExprRef{v};
+    ExprRef v {asthub::NewBoolVar(name)};
+    RegisterParam(v);
+    return v;
   }
 
   ExprRef ProgramFragment::NewBvVar(const std::string& name, const int& bitwidth) {
-    auto v = asthub::NewBvVar(name, bitwidth);
-    pf_->params.insert(v);
-    return ExprRef{v};
+    ExprRef v {asthub::NewBvVar(name, bitwidth)};
+    RegisterParam(v);
+    return v;
   }
 
   ExprRef ProgramFragment::NewMemVar(
-      const std::string& name, const int& addrwidth, const int& datawidth) {
-    auto v = asthub::NewMemVar(name, addrwidth, datawidth);
-    pf_->params.insert(v);
-    return ExprRef{v};
+    const std::string& name, const int& addrwidth, const int& datawidth) {
+    ExprRef v {asthub::NewMemVar(name, addrwidth, datawidth)};
+    RegisterParam(v);
+    return v;
   }
 
-  // void ProgramFragment::RegisterApplicationParam(const ExprRef& p) {
-  //   // TODO: what does this entail?
-  // }
+  size_t ProgramFragment::num_params() { return pf_->params.size(); }
 
-  // void ProgramFragment::RegisterHardwareParam(const ExprRef& p) {
-  //   // TODO: what does this entail?
-  // }
+  ExprRef ProgramFragment::param(size_t n) {
+    return {*std::next(pf_->params.begin(), n)}; 
+  }
+
+  ExprRef ProgramFragment::param(const std::string& name) {
+    for (const ExprPtr& p : pf_->params) {
+      if (p->name() == name) return {p};
+    }
+    return {nullptr};
+  }
+
+  Block ProgramFragment::body() {
+    return {body_};
+  }
+
+  void ProgramFragment::RegisterParam(const ExprRef& p) {
+    pf_->params.insert(p.get());
+  }
 
   void ProgramFragment::AddStatement(const Stmt& s) {
+    body_.push_back(s);
     pf_->body.push_back(convert_stmt(s));
   }
 
   void ProgramFragment::AddStatements(const Block& b) {
-    for (auto& s : b) { pf_->body.push_back(convert_stmt(s)); }
+    for (auto& s : b) {
+      body_.push_back(s);
+      pf_->body.push_back(convert_stmt(s)); 
+    }
   }
 
   ProgramFragment::PfragConstPtr ProgramFragment::get() const {
@@ -1015,6 +1032,12 @@ IlaToChcEncoder::IlaToChcEncoder(
 ): impl_ {std::make_shared<PFToCHCEncoder>(
       ctx, ctxfp, ila.get(), *(pf.get())
   )} {}
+
+std::vector<ExprRef> IlaToChcEncoder::scope() const {
+  std::vector<ExprRef> vars;
+  for (const auto& v : impl_->scope()) vars.emplace_back(v);
+  return vars;
+}
 
 std::string IlaToChcEncoder::to_string() { return impl_->to_string(); }
 
