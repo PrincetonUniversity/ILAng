@@ -228,6 +228,7 @@ if(${ILANG_BUILD_SWITCH})
 
   if(${SMTSWITCH_Z3_FOUND})
     target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-z3)
+    target_link_libraries(smt-switch::smt-switch-z3 INTERFACE gmp)
   endif()
 
 endif()
