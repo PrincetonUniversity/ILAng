@@ -71,10 +71,10 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mcm.cc
   t_mngr_absknob.cc
   t_pass.cc
+  t_pfrag.cc
   t_portable.cc
   t_smt_in.cc
   t_smt_shim.cc
-  t_smt_switch_itf.cc
   t_smt_trans.cc
   t_sort.cc
   t_symbol.cc
@@ -108,7 +108,19 @@ endif()
 
 if(${ILANG_BUILD_SWITCH})
   find_package(smtswitch REQUIRED)
+  find_package(Threads REQUIRED)
+  target_link_libraries(${ILANG_TEST_MAIN} gmp)
+  target_link_libraries(${ILANG_TEST_MAIN} Threads::Threads)
+
+  if(${SMTSWITCH_Z3_FOUND})
+    target_compile_definitions(${ILANG_TEST_MAIN} PRIVATE SMTSWITCH_Z3)
+  endif()
+
   if(${SMTSWITCH_BTOR_FOUND})
+    target_compile_definitions(${ILANG_TEST_MAIN} PRIVATE SMTSWITCH_BTOR)
+  endif()
+
+  if(${SMTSWITCH_Z3_FOUND} OR ${SMTSWITCH_BTOR_FOUND})
     target_compile_definitions(${ILANG_TEST_MAIN} PRIVATE SMTSWITCH_TEST)
   endif()
 endif()

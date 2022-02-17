@@ -2,9 +2,16 @@
 /// Unit tests for Unroller using SmtShim
 
 #ifdef SMTSWITCH_TEST
-#include <smt-switch/boolector_factory.h>
 #include <smt-switch/smt.h>
 #endif // SMTSWITCH_TEST
+
+#ifdef SMTSWITCH_BTOR
+#include <smt-switch/boolector_factory.h>
+#endif // SMTSWITCH_BTOR
+
+#ifdef SMTSWITCH_Z3
+#include <smt-switch/z3_factory.h>
+#endif // SMTSWITCH_Z3
 
 #include <ilang/ila-mngr/u_unroller_smt.h>
 #include <ilang/ila/ast_hub.h>
@@ -98,17 +105,28 @@ TEST_F(TestUnrollerSmt, z3) {
 
 #ifdef SMTSWITCH_TEST
 TEST_F(TestUnrollerSmt, btor) {
-  auto solver = smt::BoolectorSolverFactory::create(false);
-  auto switch_itf = SmtSwitchItf(solver);
-  auto shim = SmtShim(switch_itf);
 
-  auto p = UnrollTestSequence(shim);
+  auto UnrollAndCheck = [this](smt::SmtSolver& solver) {
+    auto switch_itf = SmtSwitchItf(solver);
+    auto shim = SmtShim(switch_itf);
 
-  solver->assert_formula(p);
-  auto res = solver->check_sat();
-  EXPECT_TRUE(res.is_unsat());
+    auto p = UnrollTestSequence(shim);
+
+    solver->assert_formula(p);
+    auto res = solver->check_sat();
+    EXPECT_TRUE(res.is_unsat());
+  };
+
+#ifdef SMTSWITCH_BTOR
+  auto s_btor = smt::BoolectorSolverFactory::create(false);
+  UnrollAndCheck(s_btor);
+#endif // SMTSWITCH_BTOR
+
+#ifdef SMTSWITCH_Z3
+  auto s_z3 = smt::Z3SolverFactory::create(false);
+  UnrollAndCheck(s_z3);
+#endif // SMTSWITCH_Z3
 }
-
 #endif // SMTSWITCH_TEST
 
 } // namespace ilang

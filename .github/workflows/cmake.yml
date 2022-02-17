@@ -1,34 +1,57 @@
 name: CMake
 
-on: [push]
+on: 
+  push: 
+
+  pull_request:
+    branches:
+      - main
+
+  schedule:
+    - cron: '0 9 * * *'
 
 env:
   BUILD_TYPE: Release
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    # OS: CentOs 8 
+    # Packages: bison flex gmp-devel
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Dependent Packages
-      run: sudo apt install bison flex z3 libz3-dev
-
     - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      run: |
+        cmake -E make_directory ${{github.workspace}}/deps-src
+        cmake -E make_directory ${{github.workspace}}/deps-bin
+        cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Build and Install Dependency
+      shell: bash
+      run: source ${{github.workspace}}/scripts/setup-smtswitch.sh ${{github.workspace}}/deps-src ${{github.workspace}}/deps-bin
 
     - name: Configure CMake
       shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      working-directory: ${{github.workspace}}/build
+      run: cmake ${{github.workspace}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=${{github.workspace}}/deps-bin
 
     - name: Build
-      working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      working-directory: ${{github.workspace}}/build
+      run: make -j$(nproc)
 
     - name: Test
-      working-directory: ${{runner.workspace}}/build
       shell: bash
+      working-directory: ${{github.workspace}}/build
       run: make run_test
+
+  clean:
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+    - name: Remove Workspace
+      shell: bash
+      run: rm -rf ${{github.workspace}}

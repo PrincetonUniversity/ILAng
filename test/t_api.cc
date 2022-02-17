@@ -3,6 +3,18 @@
 
 #include <vector>
 
+#ifdef SMTSWITCH_TEST
+#include <smt-switch/smt.h>
+#endif // SMTSWITCH_TEST
+
+#ifdef SMTSWITCH_Z3
+#include <smt-switch/z3_factory.h>
+#endif // SMTSWITCH_Z3
+
+#ifdef SMTSWITCH_BTOR
+#include <smt-switch/boolector_factory.h>
+#endif // SMTSWITCH_BTOR
+
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
 
@@ -582,6 +594,29 @@ TEST(TestApi, UnrollPathFreeWithFunc) {
   EXPECT_EQ(solver.check(), z3::unsat);
 }
 
+TEST(TestApi, GetSmtTerm) {
+  auto m = Ila("M");
+  auto v = m.NewBvState("var", 8);
+  auto p = ((v + 1) - 1) != v;
+
+  auto CheckViaSolver = [&p](smt::SmtSolver& s) {
+    auto term = GetSmtTerm(s, p);
+    s->assert_formula(term);
+    auto res = s->check_sat();
+    EXPECT_TRUE(res.is_unsat());
+  };
+
+#ifdef SMTSWITCH_BTOR
+  auto s_btor = smt::BoolectorSolverFactory::create(false);
+  CheckViaSolver(s_btor);
+#endif // SMTSWITCH_BTOR
+
+#ifdef SMTSWITCH_Z3
+  auto s_z3 = smt::Z3SolverFactory::create(false);
+  CheckViaSolver(s_z3);
+#endif // SMTSWITCH_Z3
+}
+
 TEST(TestApi, Portable) {
   // SetToStdErr(1);
   EnableDebug("Portable");
@@ -597,6 +632,91 @@ TEST(TestApi, Portable) {
   auto read_ila = ImportIlaPortable(portable_file_name);
 
   DisableDebug("Portable");
+}
+
+TEST(TestApi, Ila2Chc) {
+
+  using namespace programfragment;
+
+  Ila m {"Counter"};
+
+  auto ctr_w = 8;
+
+  auto ctr = m.NewBvState("ctr", ctr_w);
+  auto op = m.NewBvInput("op", 2);
+
+  // increment
+  auto inst_inc = m.NewInstr("inc");
+  inst_inc.SetDecode(op == 0);
+  inst_inc.SetUpdate(ctr, ctr + 1);
+
+  // decrement
+  auto inst_dec = m.NewInstr("dec");
+  inst_dec.SetDecode(op == 1);
+  inst_dec.SetUpdate(ctr, Ite(ctr == 0, BvConst(0, 8), ctr - 1));
+
+  // program fragment
+  ProgramFragment pf {};
+
+  auto x = pf.NewBvVar("x", ctr_w); // asthub::BvConst(3, ctr_w);
+  auto y = pf.NewBvVar("y", ctr_w); // asthub::BvConst(4, ctr_w);
+  auto i = pf.NewBvVar("i", ctr_w);
+  auto j = pf.NewBvVar("j", ctr_w);
+
+  auto inv1 = ((ctr == i * y) & (i <= x));
+  auto inv2 = ((ctr == (i * y + j)) & (j <= y));
+  
+  pf.AddStatements({
+    Assume {ctr == 0},
+    Assume {x > 0},
+    Assume {y > 0},
+    Assume {x < 3},  // keeps runtime short
+    Assume {y < 4},  // keeps runtime short
+
+    Update { {i, 0} },
+    Assert { inv1 },
+    While { i < x, {
+      Assume { inv1 },
+        Update { {j, ExtendableBv(BvConst(0, 2))} },
+      Assert { inv2 },
+      While { j < y, {
+        Assume { inv2 },
+        Call { inst_inc },
+        Update { {j, j + 1} },
+        Assert { inv2 }
+      }},
+      Assume { inv2 },
+      Update { {i, i + 1} },
+      Assert { inv1 },
+    }},
+    Assume { inv1 },
+    Assert { ctr == x * y }
+  });
+
+  z3::context ctx;
+  z3::fixedpoint ctxfp {ctx};
+
+  // use spacer instead of datalog
+  z3::params p {ctx};
+  p.set("engine", "spacer");
+  ctxfp.set(p);
+
+  IlaToChcEncoder encoder {ctx, ctxfp, m, pf};
+  
+  // std::cout << "\nEncoded successfully!\n" << std::endl;
+
+  // std::cout << encoder.to_string() << std::endl;
+
+  EXPECT_NO_THROW(encoder.to_string());
+
+  ChcResult res = ChcResult::invalid;
+  try {
+    res = encoder.check_assertions();
+  } catch (const z3::exception& e) {
+    std::cout << "Error: " << e << std::endl;
+  }
+
+  EXPECT_EQ(res, ChcResult::valid);
 }
 
 } // namespace ilang

@@ -112,6 +112,15 @@ std::ostream& ExprOp::Print(std::ostream& out) const {
   return out << name().format_str(op_name(), "");
 }
 
+std::ostream& ExprOp::PrintPretty(std::ostream& out) const {
+  out << "(" << op_name();
+  for (size_t i = 0; i != arg_num(); ++i) {
+    out << " ";
+    arg(i)->PrintPretty(out);
+  }
+  return out << ")";
+}
+
 SortPtr ExprOp::GetSortBinaryOperation(const ExprPtr& e0, const ExprPtr& e1) {
   auto s0 = e0->sort();
   auto s1 = e1->sort();

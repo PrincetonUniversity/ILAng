@@ -7,6 +7,8 @@
 #include <ilang/ila-mngr/pass.h>
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila-mngr/u_unroller.h>
+#include <ilang/ila-mngr/u_progfrag.h>
+#include <ilang/ila-mngr/v_eq_check_progfrag.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
@@ -840,6 +842,209 @@ z3::func_decl IlaZ3Unroller::GetZ3FuncDecl(const FuncRef& f) const {
   return univ_->GetZ3FuncDecl(f.get());
 }
 
+namespace programfragment {
+
+  template<class T> struct dependent_false : std::false_type {};
+
+  ExprRef ExtendableBv::extend_to(const ExprRef& other) const {
+    int diff = expr.bit_width() - other.bit_width();
+    if (diff == 0) return expr;
+    switch (ext_mode) {
+      case EXT_ZERO: return ZExt(expr, other.bit_width());
+      case EXT_SIGNED: return SExt(expr, other.bit_width());
+    }
+    return expr;
+  }
+
+  ExprRef try_ext(const AssignmentExpr& expr, const ExprRef& target) {
+    return std::visit([&target](const auto& to_ext) {
+      using T = std::decay_t<decltype(to_ext)>;
+      if constexpr (std::is_same_v<T, ExprRef>) return to_ext;
+      else if constexpr (std::is_same_v<T, NumericType>) {
+        return BvConst(to_ext, target.bit_width());
+      } else if constexpr (std::is_same_v<T, ExtendableBv>) {
+        return to_ext.extend_to(target);
+      } else {
+        // raise compile-time error
+        static_assert(
+          dependent_false<T>::value, 
+          "try_ext not implemented for given variant of AssignmentExpr"
+        );
+      }
+    }, expr);
+  }
+
+  pfast::Stmt convert_stmt(const Stmt& s);
+
+  pfast::Block convert_block(const Block& b) {
+    pfast::Block converted;
+    for (const auto& s : b) {
+      converted.push_back(convert_stmt(s));
+    }
+    return converted;
+  }
+
+  pfast::Stmt convert_stmt(const Stmt& s) {
+    return std::visit([](const auto& s) -> pfast::Stmt {
+      using T = std::decay_t<decltype(s)>;
+      
+      if constexpr (std::is_same_v<T, Assert>) {
+        return pfast::Assert{s.assertion.get()};
+      
+      } else if constexpr (std::is_same_v<T, Assume>) {
+        return pfast::Assume{s.assumption.get()};
+      
+      } else if constexpr (std::is_same_v<T, Call>) {
+        ExprRef c = asthub::BoolConst(true);
+        for (const auto& [input, assignment] : s.inputs) {
+          c = c & (input == try_ext(assignment, input));
+        }
+        return pfast::Call{s.instr.get(), c.get()};
+      
+      } else if constexpr (std::is_same_v<T, Update>) {
+        pfast::Update u {};
+        for (const auto& [param, update] : s) {
+          u.emplace(param.get(), try_ext(update, param).get());
+        }
+        return u;
+
+      } else if constexpr (std::is_same_v<T, While>) {
+        pfast::Constraint inv = s.invariant.get();
+        pfast::Block body = convert_block(s.body);
+        if (!bool(inv)) {
+          return pfast::While{s.loop_condition.get(), body};
+        }
+        return pfast::Block{
+          pfast::Assert{inv},
+          pfast::While{s.loop_condition.get(), pfast::Block{
+            pfast::Assume{inv},
+            body,
+            pfast::Assert{inv}
+          }},
+          pfast::Assume{inv}
+        };
+      
+      } else if constexpr (std::is_same_v<T, Block>) {
+        return convert_block(s);
+
+      } else {
+        // raise compile-time error
+        static_assert(
+          dependent_false<T>::value, 
+          "convert_stmt not implemented for given type of Stmt."
+        );
+      }
+
+    }, s);
+  }
+
+  While::While(const Constraint& loop_condition, const Block& body):
+    While(loop_condition, {nullptr}, body) {}
+  
+  While::While(
+      const Constraint& loop_condition, const Constraint& invariant, 
+      const Block& body
+  ): loop_condition {loop_condition}, invariant {invariant}, body {body} {}
+
+  ProgramFragment::ProgramFragment(): ProgramFragment(Block{}) {}
+
+  ProgramFragment::ProgramFragment(const Block& b)
+    : pf_ {new pfast::ProgramFragment{{}, convert_block(b)}} {}
+
+  ExprRef ProgramFragment::NewBoolVar(const std::string& name) {
+    ExprRef v {asthub::NewBoolVar(name)};
+    RegisterParam(v);
+    return v;
+  }
+
+  ExprRef ProgramFragment::NewBvVar(const std::string& name, const int& bitwidth) {
+    ExprRef v {asthub::NewBvVar(name, bitwidth)};
+    RegisterParam(v);
+    return v;
+  }
+
+  ExprRef ProgramFragment::NewMemVar(
+    const std::string& name, const int& addrwidth, const int& datawidth) {
+    ExprRef v {asthub::NewMemVar(name, addrwidth, datawidth)};
+    RegisterParam(v);
+    return v;
+  }
+
+  size_t ProgramFragment::num_params() { return pf_->params.size(); }
+
+  ExprRef ProgramFragment::param(size_t n) {
+    return {*std::next(pf_->params.begin(), n)}; 
+  }
+
+  ExprRef ProgramFragment::param(const std::string& name) {
+    for (const ExprPtr& p : pf_->params) {
+      if (p->name() == name) return {p};
+    }
+    return {nullptr};
+  }
+
+  Block ProgramFragment::body() {
+    return {body_};
+  }
+
+  void ProgramFragment::RegisterParam(const ExprRef& p) {
+    pf_->params.insert(p.get());
+  }
+
+  void ProgramFragment::AddStatement(const Stmt& s) {
+    body_.push_back(s);
+    pf_->body.push_back(convert_stmt(s));
+  }
+
+  void ProgramFragment::AddStatements(const Block& b) {
+    for (auto& s : b) {
+      body_.push_back(s);
+      pf_->body.push_back(convert_stmt(s)); 
+    }
+  }
+
+  ProgramFragment::PfragConstPtr ProgramFragment::get() const {
+    return pf_;
+  }
+
+  bool operator==(const ProgramFragment& a, const ProgramFragment& b) {
+    return *(a.pf_) == *(b.pf_);
+  }
+
+  std::ostream& operator<<(std::ostream& out, const ProgramFragment& pf) {
+    return (out << *(pf.pf_));
+  }
+
+} // namespace programfragment
+
+std::ostream& operator<<(std::ostream& out, const ChcResult& r) {
+  switch (r) {
+    case ChcResult::valid: return out << "valid";
+    case ChcResult::invalid: return out << "invalid";
+    case ChcResult::unknown: return out << "unknown";
+  }
+  return out;
+}
+
+IlaToChcEncoder::IlaToChcEncoder(
+    z3::context& ctx, z3::fixedpoint& ctxfp,
+    const Ila& ila, const programfragment::ProgramFragment& pf
+): impl_ {std::make_shared<PFToCHCEncoder>(
+      ctx, ctxfp, ila.get(), *(pf.get())
+  )} {}
+
+std::vector<ExprRef> IlaToChcEncoder::scope() const {
+  std::vector<ExprRef> vars;
+  for (const auto& v : impl_->scope()) vars.emplace_back(v);
+  return vars;
+}
+
+std::string IlaToChcEncoder::to_string() { return impl_->to_string(); }
+
+ChcResult IlaToChcEncoder::check_assertions() {
+  return static_cast<ChcResult>(impl_->check_assertions());
+}
+
 void LogLevel(const int& lvl) { SetLogLevel(lvl); }
 
 void LogPath(const std::string& path) { SetLogPath(path); }
@@ -860,12 +1065,13 @@ void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
 void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
 
 #ifdef SMTSWITCH_INTERFACE
-smt::Term ResetAndGetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
-                             const std::string& suffix) {
-  solver->reset();
+
+smt::Term GetSmtTerm(smt::SmtSolver& solver, const ExprRef& expr,
+                     const std::string& suffix) {
   auto itf = SmtSwitchItf(solver);
   return itf.GetSmtTerm(expr.get(), suffix);
 }
+
 #endif // SMTSWITCH_INTERFACE
 
 } // namespace ilang

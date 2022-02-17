@@ -206,6 +206,10 @@ if(${ILANG_BUILD_SWITCH})
   target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch)
   target_compile_definitions(${ILANG_LIB_NAME} PUBLIC SMTSWITCH_INTERFACE)
 
+  find_package(Threads REQUIRED)
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC gmp)
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC Threads::Threads)
+
   if(${SMTSWITCH_BTOR_FOUND})
     target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-btor)
   endif()
@@ -220,6 +224,11 @@ if(${ILANG_BUILD_SWITCH})
 
   if(${SMTSWITCH_YICES2_FOUND})
     target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-yices2)
+  endif()
+
+  if(${SMTSWITCH_Z3_FOUND})
+    target_link_libraries(${ILANG_LIB_NAME} PUBLIC smt-switch::smt-switch-z3)
+    target_link_libraries(smt-switch::smt-switch-z3 INTERFACE gmp)
   endif()
 
 endif()
